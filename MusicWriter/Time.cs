@@ -5,44 +5,134 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public struct Time {
+    public struct Time : 
+        IComparable<Time>,
+        IEquatable<Time> {
         int ticks;
         
         public double Notes {
             get { return (double)ticks / TicksPerNote; }
+            set { ticks = (int)(value * TicksPerNote); }
         }
 
-        public Time Double {
-            get { return new Time(ticks * 2); }
+        public Time? Half {
+            get {
+                const int div = 2;
+
+                if ((ticks % div) != 0)
+                    return null;
+
+                return new Time(ticks / div);
+            }
         }
 
-        public Time Triple {
-            get { return new Time(ticks * 3); }
+        public Time? Third {
+            get {
+                const int div = 3;
+
+                if ((ticks % div) != 0)
+                    return null;
+
+                return new Time(ticks / div);
+            }
         }
 
-        public Time Fifth {
-            get { return new Time(ticks * 5); }
+        public Time? Fifth {
+            get {
+                const int div = 5;
+
+                if ((ticks % div) != 0)
+                    return null;
+
+                return new Time(ticks / div);
+            }
         }
 
-        public Time Seventh {
-            get { return new Time(ticks * 7); }
+        public Time? Seventh {
+            get {
+                const int div = 7;
+
+                if ((ticks % div) != 0)
+                    return null;
+
+                return new Time(ticks / div);
+            }
         }
 
-        public Time(int ticks = 0) {
+        private Time(int ticks) {
             this.ticks = ticks;
         }
 
-        public const int TicksPerNote_2nd = TicksPerNote / 2;
-        public const int TicksPerNote_4th = TicksPerNote / 4;
-        public const int TicksPerNote_8th = TicksPerNote / 8;
-        public const int TicksPerNote_16th = TicksPerNote / 16;
-        public const int TicksPerNote_32nd = TicksPerNote / 32;
-        public const int TicksPerNote_64th = TicksPerNote / 64;
-        public const int TicksPerNote_128th = TicksPerNote / 128;
-        public const int TicksPerNote_3rd = TicksPerNote / 3;
-        public const int TicksPerNote_5th = TicksPerNote / 5;
-        public const int TicksPerNote_7th = TicksPerNote / 7;
+        public Time(Time copy) {
+            ticks = copy.ticks;
+        }
 
-        public const int TicksPerNote = 2 * 2 * 2 * 2 * 2 * 2 * 2 * 3 * 5 * 7; // 128th notes, 3rd notes, 5th notes, 7th notes
+        private const int TicksPerNote_2nd = TicksPerNote / 2;
+        private const int TicksPerNote_4th = TicksPerNote / 4;
+        private const int TicksPerNote_8th = TicksPerNote / 8;
+        private const int TicksPerNote_16th = TicksPerNote / 16;
+        private const int TicksPerNote_32nd = TicksPerNote / 32;
+        private const int TicksPerNote_64th = TicksPerNote / 64;
+        private const int TicksPerNote_128th = TicksPerNote / 128;
+        private const int TicksPerNote_3rd = TicksPerNote / 3;
+        private const int TicksPerNote_5th = TicksPerNote / 5;
+        private const int TicksPerNote_7th = TicksPerNote / 7;
+
+        private const int TicksPerNote = 2 * 2 * 2 * 2 * 2 * 2 * 2 * 3 * 5 * 7; // 128th notes, 3rd notes, 5th notes, 7th notes
+
+        public static readonly Time Zero = new Time(0);
+        public static readonly Time Note = new Time(TicksPerNote);
+
+        public static Time Fraction(int numerator, int denominator) =>
+            new Time(TicksPerNote * numerator / denominator);
+
+        public override bool Equals(object obj) =>
+            obj is Time &&
+            Equals((Time)obj);
+
+        public bool Equals(Time that) =>
+            this == that;
+
+        public override int GetHashCode() =>
+            ticks;
+
+        public static Time operator +(Time a, Time b) =>
+            new Time(a.ticks + b.ticks);
+
+        public static Time operator -(Time a, Time b) =>
+            new Time(a.ticks - b.ticks);
+
+        public static Time operator *(int a, Time b) =>
+            new Time(a * b.ticks);
+
+        public static Time operator *(Time a, int b) =>
+            new Time(a.ticks * b);
+
+        public static int operator /(Time a, Time b) =>
+            a.ticks / b.ticks;
+
+        public static Time operator %(Time a, Time b) =>
+            new Time(a.ticks % b.ticks);
+
+        public static bool operator <(Time a, Time b) =>
+            a.ticks < b.ticks;
+
+        public static bool operator >(Time a, Time b) =>
+            a.ticks > b.ticks;
+
+        public static bool operator <=(Time a, Time b) =>
+            a.ticks <= b.ticks;
+
+        public static bool operator >=(Time a, Time b) =>
+            a.ticks >= b.ticks;
+
+        public static bool operator ==(Time a, Time b) =>
+            a.ticks == b.ticks;
+
+        public static bool operator !=(Time a, Time b) =>
+            a.ticks != b.ticks;
+
+        public int CompareTo(Time other) =>
+            ticks.CompareTo(other.ticks);
     }
 }
