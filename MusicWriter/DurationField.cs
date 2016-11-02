@@ -34,6 +34,15 @@ namespace MusicWriter {
                         elements_end.BeforeOrAt(point)
                     );
 
+        public void Remove(T item) {
+            var duration = durations[item];
+
+            elements_start.Remove(item, duration.Start);
+            elements_end.Remove(item, duration.End);
+
+            durations.Remove(item);
+        }
+
         public IEnumerable<T> Intersecting(Duration duration) =>
             elements_start.AfterOrAt(duration.Start)
                 .Intersect(

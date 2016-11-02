@@ -10,8 +10,12 @@ namespace MusicWriter {
         IEquatable<Time> {
         int ticks;
         
-        public double Notes {
-            get { return (double)ticks / TicksPerNote; }
+        public int Ticks {
+            get { return ticks; }
+        }
+        
+        public float Notes {
+            get { return (float)ticks / TicksPerNote; }
             set { ticks = (int)(value * TicksPerNote); }
         }
 
@@ -58,7 +62,7 @@ namespace MusicWriter {
                 return new Time(ticks / div);
             }
         }
-
+        
         private Time(int ticks) {
             this.ticks = ticks;
         }
@@ -110,6 +114,9 @@ namespace MusicWriter {
 
         public static int operator /(Time a, Time b) =>
             a.ticks / b.ticks;
+
+        public static Time operator /(Time a, int b) =>
+            new Time(a.ticks / b);
 
         public static Time operator %(Time a, Time b) =>
             new Time(a.ticks % b.ticks);

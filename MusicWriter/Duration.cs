@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public struct Duration {
+    public sealed class Duration {
         Time offset, length;
 
         public Time Start {
