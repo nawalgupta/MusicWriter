@@ -37,6 +37,7 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cell.cs" />
     <Compile Include="ClefSymbol.cs" />
     <Compile Include="Cleft.cs" />
     <Compile Include="DurationField.cs" />
@@ -46,6 +47,7 @@
     <Compile Include="KeyClass.cs" />
     <Compile Include="KeySignature.cs" />
     <Compile Include="Measure.cs" />
+    <Compile Include="MeterSignature.cs" />
     <Compile Include="Mode.cs" />
     <Compile Include="Note.cs" />
     <Compile Include="NoteComparerByOffset.cs" />

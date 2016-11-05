@@ -8,7 +8,9 @@ namespace MusicWriter {
     public sealed class RhythmTrack {
         readonly DurationField<TimeSignature> signatures =
             new DurationField<TimeSignature>();
-
+        readonly DurationField<MeterSignature> meters =
+            new DurationField<MeterSignature>();
+        
         public Measure MeasureAt(Time point) {
             // if the point is on the edge between measures, the measure that starts at point is returned
 
@@ -29,6 +31,16 @@ namespace MusicWriter {
                     Length = signature_simple.Length
                 }
             };
+        }
+
+        public Cell CellAt(Time point) {
+            var meter =
+                meters.Intersecting(point).Single();
+
+            var cell =
+                meter.CellAt(point - meters[meter].Start);
+
+            return cell;
         }
     }
 }
