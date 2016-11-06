@@ -9,11 +9,18 @@ namespace MusicWriter {
         public Clef Clef { get; set; }
         public int Shift { get; set; }
         public int Lines { get; set; } = 5;
+        public int MiddleHalfLine { get; set; } = 4;
 
         // Line 0 is the bottom line.
+        // Half-line 4 would be the center of 5 whole-lines.
         
         public int GetHalfLine(Key key) =>
             key - Clef.BottomKey + Shift;
+
+        public NoteStemDirection GetStemDirection(Key key) =>
+            GetHalfLine(key) >= MiddleHalfLine ?
+                NoteStemDirection.Down :
+                NoteStemDirection.Up;
         
         public Staff(
                 Clef clef = default(Clef),

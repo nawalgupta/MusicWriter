@@ -52,6 +52,7 @@
     <Compile Include="Note.cs" />
     <Compile Include="NoteComparerByOffset.cs" />
     <Compile Include="NoteID.cs" />
+    <Compile Include="NoteStemDirection.cs" />
     <Compile Include="PitchClass.cs" />
     <Compile Include="PitchTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
