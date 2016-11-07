@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public sealed class DurationField<T> {
+    public sealed class DurationField<T> : IDurationField<T> {
         readonly TimeTree<T> elements_start = new TimeTree<T>();
         readonly TimeTree<T> elements_end = new TimeTree<T>();
         readonly Dictionary<T, Duration> durations = new Dictionary<T, Duration>();
@@ -19,6 +19,12 @@ namespace MusicWriter {
                 elements_end[item, oldduration.End] = value.End;
                 durations[item] = value;
             }
+        }
+
+        public void Clear() {
+            elements_end.Clear();
+            elements_start.Clear();
+            durations.Clear();
         }
 
         public IEnumerable<T> All {

@@ -50,6 +50,7 @@ namespace MusicWriter {
             Default_specialcase_2powX_2powY(simple) ??
             Default_specialcase_3X_2powY(simple) ??
             new MeterSignature(
+                    simple.Length,
                     Cell.CreateCells(Enumerable.Repeat(Time.Note / simple.Lower, simple.Upper), 0.8F)
                         .ToArray()
                 );
@@ -64,6 +65,7 @@ namespace MusicWriter {
 
             return
                 new MeterSignature(
+                        simple.Length,
                         Cell.Create_2x_2y(
                                 (int)x,
                                 (int)y,
@@ -89,6 +91,7 @@ namespace MusicWriter {
 
             return
                 new MeterSignature(
+                        simple.Length,
                         Cell.CreateCells(Enumerable.Repeat(length, (int)x), 0.8F).ToArray()
                     );
         }

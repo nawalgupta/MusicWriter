@@ -39,6 +39,12 @@ namespace MusicWriter {
                 left.Remove(item, time);
         }
 
+        public void Clear() {
+            left = null;
+            right = null;
+            items.Clear();
+        }
+
         public void Add(V item, Time time) {
             if (time == pivot)
                 items.Add(item);

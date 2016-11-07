@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public sealed class RhythmTrack {
+    public sealed class RhythmTrack : 
+        IDurationField<Cell> {
         readonly DurationField<TimeSignature> signatures =
             new DurationField<TimeSignature>();
         readonly DurationField<MeterSignature> meters =
@@ -46,6 +47,10 @@ namespace MusicWriter {
             return cell;
         }
 
+        public IEnumerable<Cell> CellsAt(Time point) {
+            yield return CellAt(point);
+        }
+
         public IEnumerable<Cell> CellsIn(Duration duration) => (
                 from meter in meters.Intersecting(duration)
                 let meter_start = meters[meter].Start
@@ -56,5 +61,11 @@ namespace MusicWriter {
                 from cell in meter.CellsIn(duration_mod, meter_start)
                 select cell
             );
+
+        public IEnumerable<Cell> Intersecting(Time point) =>
+            CellsAt(point);
+
+        public IEnumerable<Cell> Intersecting(Duration duration) =>
+            CellsIn(duration);
     }
 }

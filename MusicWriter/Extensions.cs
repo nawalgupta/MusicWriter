@@ -68,10 +68,10 @@ namespace MusicWriter {
         }
 
         public static Key ToKey(this KeyClass keyclass, int octave) =>
-            new Key {
-                KeyClass = keyclass,
-                Octave = octave
-            };
+            new Key(
+                keyclass,
+                octave
+            );
 
         public static KeyClass ToRight(this KeyClass key) =>
             (KeyClass)(((int)key + 1) % 7);

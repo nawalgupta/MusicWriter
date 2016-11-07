@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public sealed class MelodyTrack {
+    public sealed class MelodyTrack :
+        IDurationField<Note> {
         readonly DurationField<NoteID> notes_field = new DurationField<NoteID>();
         readonly Dictionary<NoteID, Note> notes_lookup = new Dictionary<NoteID, Note>();
-
+        
         public IEnumerable<Note> NotesInTime(Duration duration) =>
             notes_field
                 .Intersecting(duration)
@@ -16,6 +17,9 @@ namespace MusicWriter {
                         noteID =>
                             notes_lookup[noteID]
                     );
+
+        public IEnumerable<Note> AllNotes() =>
+            notes_lookup.Values;
 
         public void UpdateNote(Note note) {
             notes_field[note.ID] = note.Duration;
@@ -25,5 +29,15 @@ namespace MusicWriter {
             notes_lookup.Remove(note.ID);
             notes_field.Remove(note.ID);
         }
+
+        public IEnumerable<Note> Intersecting(Time point) =>
+            notes_field
+                .Intersecting(point)
+                .Select(noteID => notes_lookup[noteID]);
+
+        public IEnumerable<Note> Intersecting(Duration duration) =>
+            notes_field
+                .Intersecting(duration)
+                .Select(noteID => notes_lookup[noteID]);
     }
 }
