@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public enum TupletClass {
+        None = 0x00,
         Half = 0x01,
         Triplet = 0x02,
         Pentuplet = 0x04,

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public enum LengthClass {
+        None = 0,
         Whole = 1,
         Half,
         Quarter,
