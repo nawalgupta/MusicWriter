@@ -7,22 +7,19 @@ using System.Threading.Tasks;
 namespace MusicWriter {
     public sealed class PerceptualNote {
         public readonly PerceptualNoteID ID;
-        public readonly LengthClass Length;
-        public readonly TupletClass Tuplet;
-        public readonly int Dots;
+        public readonly Duration Duration;
+        public readonly PerceptualTime Length;
         public readonly Cell Cell;
         
         public PerceptualNote(
                 PerceptualNoteID id,
-                LengthClass length,
-                TupletClass tuplet,
-                int dots,
+                Duration duration,
+                PerceptualTime length,
                 Cell cell
             ) {
             ID = id;
+            Duration = duration;
             Length = length;
-            Tuplet = tuplet;
-            Dots = dots;
             Cell = cell;
         }
     }

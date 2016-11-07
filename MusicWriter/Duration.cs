@@ -22,5 +22,16 @@ namespace MusicWriter {
             get { return length; }
             set { length = value; }
         }
+
+        public Duration Intersection(Duration duration) {
+            if (Start > duration.End ||
+                End < duration.Start)
+                return null;
+
+            return new Duration {
+                Start = Time.Max(Start, duration.Start),
+                End = Time.Min(End, duration.End)
+            };
+        }
     }
 }

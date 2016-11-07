@@ -41,6 +41,20 @@ namespace MusicWriter {
             }
         }
 
+        public static Time Max(Time a, Time b) {
+            if (a > b)
+                return a;
+
+            return b;
+        }
+
+        public static Time Min(Time a, Time b) {
+            if (a < b)
+                return a;
+
+            return b;
+        }
+
         public Time? Fifth {
             get {
                 const int div = 5;

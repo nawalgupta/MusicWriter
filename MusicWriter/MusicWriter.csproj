@@ -60,6 +60,7 @@
     <Compile Include="Perception.notes.cs" />
     <Compile Include="PerceptualNote.cs" />
     <Compile Include="PerceptualNoteID.cs" />
+    <Compile Include="PerceptualTime.cs" />
     <Compile Include="PitchClass.cs" />
     <Compile Include="PitchTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
