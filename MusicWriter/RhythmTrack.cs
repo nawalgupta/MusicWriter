@@ -37,10 +37,24 @@ namespace MusicWriter {
             var meter =
                 meters.Intersecting(point).Single();
 
+            var meter_start =
+                meters[meter].Start;
+
             var cell =
-                meter.CellAt(point - meters[meter].Start);
+                meter.CellAt(point - meter_start, meter_start);
 
             return cell;
         }
+
+        public IEnumerable<Cell> CellsIn(Duration duration) => (
+                from meter in meters.Intersecting(duration)
+                let meter_start = meters[meter].Start
+                let duration_mod = new Duration {
+                    Start = duration.Start - meter_start,
+                    Length = duration.Length
+                }
+                from cell in meter.CellsIn(duration_mod, meter_start)
+                select cell
+            );
     }
 }

@@ -8,24 +8,6 @@ namespace MusicWriter {
     public sealed class MelodyTrack {
         readonly DurationField<NoteID> notes_field = new DurationField<NoteID>();
         readonly Dictionary<NoteID, Note> notes_lookup = new Dictionary<NoteID, Note>();
-        readonly RhythmTrack rhythm;
-        readonly DurationField<KeySignature> keysignatures;
-
-        public RhythmTrack Rhythm {
-            get { return rhythm; }
-        }
-
-        public DurationField<KeySignature> KeySignatures {
-            get { return keysignatures; }
-        }
-
-        public MelodyTrack(
-                RhythmTrack rhythm,
-                DurationField<KeySignature> keysignatures
-            ) {
-            this.rhythm = rhythm;
-            this.keysignatures = keysignatures;
-        }
 
         public IEnumerable<Note> NotesInTime(Duration duration) =>
             notes_field

@@ -37,9 +37,11 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdornmentTrack.cs" />
     <Compile Include="Cell.cs" />
     <Compile Include="ClefSymbol.cs" />
     <Compile Include="Cleft.cs" />
+    <Compile Include="DurationCircle.cs" />
     <Compile Include="DurationField.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="InternalExtensions.cs" />
@@ -53,6 +55,11 @@
     <Compile Include="NoteComparerByOffset.cs" />
     <Compile Include="NoteID.cs" />
     <Compile Include="NoteStemDirection.cs" />
+    <Compile Include="LengthClass.cs" />
+    <Compile Include="Perception.cs" />
+    <Compile Include="Perception.notes.cs" />
+    <Compile Include="PerceptualNote.cs" />
+    <Compile Include="PerceptualNoteID.cs" />
     <Compile Include="PitchClass.cs" />
     <Compile Include="PitchTransform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -64,6 +71,9 @@
     <Compile Include="MelodyTrack.cs" />
     <Compile Include="TimeTree.cs" />
     <Compile Include="Tone.cs" />
+    <Compile Include="Track.cs" />
+    <Compile Include="CycledItem.cs" />
+    <Compile Include="TupletClass.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

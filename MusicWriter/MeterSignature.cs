@@ -6,35 +6,45 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class MeterSignature {
-        public Cell[] Cells { get; set; }
+        public DurationCircle<Cell> Cells { get; }
 
-        public MeterSignature() {
+        public Time Length {
+            get { return Cells.Length; }
         }
 
-        public MeterSignature(params Cell[] cells) {
-            Cells = cells;
+        public MeterSignature(Time length, Cell[] cells = null) {
+            Cells = new DurationCircle<Cell>(length);
 
-            Array.Sort(Cells);
+            foreach (var cell in cells)
+                Cells.Add(cell, cell.Duration);
         }
-        
-        public Cell CellAt(Time offset) {
-            var cells_length =
-                Cells.Aggregate(Time.Zero, (length, cell) => length + cell.Duration.Length);
 
-            offset %= cells_length;
+        public Cell CellAt(Time offset, Time meter_start) =>
+            Cells.ItemsAt(offset)
+                .Select(
+                        cycledcell =>
+                            new Cell {
+                                Duration = new Duration {
+                                    Start = cycledcell.Offset + meter_start + cycledcell.Value.Duration.Start,
+                                    Length = cycledcell.Value.Duration.Length
+                                },
+                                Stress = cycledcell.Value.Stress
+                            }
+                    )
+                .Single();
 
-            for (int i = 0; i < Cells.Length; i++) {
-                var cell = Cells[i];
-
-                if (offset < cell.Duration.Length)
-                    return cell;
-
-                offset -= cell.Duration.Length;
-            }
-
-            // code shouldn't reach here
-            return Cells[0];
-        }
+        public IEnumerable<Cell> CellsIn(Duration duration, Time meter_start) =>
+            Cells.ItemsIn(duration)
+                .Select(
+                        cycledcell =>
+                            new Cell {
+                                Duration = new Duration {
+                                    Start = cycledcell.Offset + meter_start + cycledcell.Value.Duration.Start,
+                                    Length = cycledcell.Value.Duration.Length
+                                },
+                                Stress = cycledcell.Value.Stress
+                            }
+                    );
 
         public static MeterSignature Default(TimeSignature.Simple simple) =>
             Default_specialcase_2powX_2powY(simple) ??

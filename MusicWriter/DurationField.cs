@@ -21,6 +21,10 @@ namespace MusicWriter {
             }
         }
 
+        public IEnumerable<T> All {
+            get { return durations.Keys; }
+        }
+
         public void Add(T item, Duration duration) {
             elements_start.Add(item, duration.Start);
             elements_end.Add(item, duration.End);
