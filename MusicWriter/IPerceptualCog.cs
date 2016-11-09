@@ -11,6 +11,8 @@ namespace MusicWriter {
                 MusicBrain brain
             );
 
+        void Forget(Duration delta);
+
         IDurationField<T> Knowledge { get; }
     }
 }

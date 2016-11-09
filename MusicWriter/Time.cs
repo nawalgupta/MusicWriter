@@ -100,7 +100,8 @@ namespace MusicWriter {
 
         public static readonly Time Zero = new Time(0);
         public static readonly Time Note = new Time(TicksPerNote);
-        public static readonly Time Note128th_3rd_5th_7th = new Time(TicksPerNote_128th / (3 * 5 * 7));
+        public static readonly Time Note_128th_3rd_5th_7th = new Time(TicksPerNote_128th / (3 * 5 * 7));
+        public static readonly Time Note_4th = new Time(TicksPerNote_4th);
 
         public static Time Fraction(int numerator, int denominator) =>
             new Time(TicksPerNote * numerator / denominator);

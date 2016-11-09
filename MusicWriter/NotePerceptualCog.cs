@@ -23,9 +23,6 @@ namespace MusicWriter {
                 brain.Anlyses<Note>(duration);
             
             foreach (var note in notes) {
-                var cells =
-                    brain.Anlyses<Cell>(note.Duration);
-
                 if (perceptualnotes_map.ContainsKey(note)) {
                     foreach (var perceptualnote in perceptualnotes_map[note])
                         knowledge.Remove(perceptualnote);
@@ -33,36 +30,60 @@ namespace MusicWriter {
                     perceptualnotes_map.Remove(note);
                 }
 
-                var i = 0;
-
                 var perceptualnotes =
                     new List<PerceptualNote>();
 
-                foreach (var cell in cells) {
-                    var cellcutduration = cell.Duration.Intersection(note.Duration);
+                var singlelength =
+                    PerceptualTime.Decompose(note.Duration.Length).SingleOrDefault();
 
-                    var lengths =
-                        PerceptualTime.Decompose(cellcutduration.Length);
+                if (singlelength.Value == default(Time)) {
+                    var cells =
+                        brain.Anlyses<Cell>(note.Duration);
 
-                    foreach (var length in lengths) {
-                        var cutduration =
-                            new Duration {
-                                Start = length.Value,
-                                Length = length.Key.TimeLength()
-                            };
+                    var i = 0;
 
-                        var perceptualnote =
-                            new PerceptualNote(
-                                new PerceptualNoteID(note.ID, i++),
-                                cutduration,
-                                length.Key,
-                                cell
+                    foreach (var cell in cells) {
+                        var cellcutduration = cell.Duration.Intersection(note.Duration);
+
+                        var lengths =
+                            PerceptualTime.Decompose(cellcutduration.Length);
+
+                        foreach (var length in lengths) {
+                            var cutduration =
+                                new Duration {
+                                    Start = length.Value,
+                                    Length = length.Key.TimeLength()
+                                };
+
+                            var perceptualnote =
+                                new PerceptualNote(
+                                    new PerceptualNoteID(note.ID, i++),
+                                    cutduration,
+                                    length.Key,
+                                    cell
+                                );
+
+                            knowledge.Add(perceptualnote, cutduration);
+
+                            perceptualnotes.Add(perceptualnote);
+                        }
+                    }
+                }
+                else {
+                    var perceptualnote =
+                        new PerceptualNote(
+                                new PerceptualNoteID(
+                                        note.ID,
+                                        0
+                                    ),
+                                note.Duration,
+                                singlelength.Key,
+                                null
                             );
 
-                        knowledge.Add(perceptualnote, cutduration);
+                    knowledge.Add(perceptualnote, note.Duration);
 
-                        perceptualnotes.Add(perceptualnote);
-                    }
+                    perceptualnotes_map.Add(note, new[] { perceptualnote });
                 }
 
                 perceptualnotes_map.Add(note, perceptualnotes.ToArray());

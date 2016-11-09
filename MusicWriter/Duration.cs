@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public sealed class Duration {
+    public sealed class Duration : IEquatable<Duration> {
         Time offset, length;
 
         public Time Start {
@@ -33,5 +33,16 @@ namespace MusicWriter {
                 End = Time.Min(End, duration.End)
             };
         }
+
+        public bool Equals(Duration that) =>
+            length == that.length &&
+            offset == that.offset;
+
+        public override bool Equals(object obj) =>
+            obj is Duration &&
+            Equals((Duration)obj);
+
+        public override int GetHashCode() =>
+            offset ^ length;
     }
 }

@@ -5,9 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public enum NoteStemDirection {
-        None,
-        Down,
-        Up
+    public interface IPropertyGraphlet<in K> {
+        T Get<T>(K item);
     }
 }

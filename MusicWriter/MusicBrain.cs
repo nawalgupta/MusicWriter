@@ -8,9 +8,20 @@ namespace MusicWriter {
     public sealed class MusicBrain {
         readonly List<IPerceptualCog<object>> cogs =
             new List<IPerceptualCog<object>>();
+        readonly IPropertyGraphlet<Note> noteproperties;
 
         public List<IPerceptualCog<object>> Cogs {
             get { return cogs; }
+        }
+
+        public IPropertyGraphlet<Note> NoteProperties {
+            get { return noteproperties; }
+        }
+
+        public MusicBrain(
+                IPropertyGraphlet<Note> noteproperties
+            ) {
+            this.noteproperties = noteproperties;
         }
 
         public IEnumerable<T> Anlyses<T>(Duration duration) {

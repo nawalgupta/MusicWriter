@@ -71,7 +71,7 @@ namespace MusicWriter {
         }
 
         public static IEnumerable<KeyValuePair<PerceptualTime, Time>> Decompose(Time length) {
-            var fractions_whole = length / Time.Note128th_3rd_5th_7th;
+            var fractions_whole = length / Time.Note_128th_3rd_5th_7th;
 
             var tuplet = TupletClass.None;
 
@@ -102,6 +102,9 @@ namespace MusicWriter {
             var head_value = LengthClass.None;
             var place_value = LengthClass.Whole;
             var offset = Time.Zero;
+
+            if (tuplet != TupletClass.None)
+                place_value = LengthClass.Half;
 
             // MSB (whole note) to LSB (2^-32 note)
             for (int i = 0; i < bits.Length; i++) {

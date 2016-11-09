@@ -5,9 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public enum NoteStemDirection {
-        None,
-        Down,
-        Up
+    public enum FlagDirection {
+        Left,
+        Right
     }
 }
