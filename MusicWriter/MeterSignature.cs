@@ -5,46 +5,78 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public sealed class MeterSignature {
-        public DurationCircle<Cell> Cells { get; }
+    public sealed class MeterSignature :
+        IDurationField<Cell> {
+        public List<Cell> Cells { get; } = new List<Cell>();
+
+        readonly DurationCircle<Cell> cellscircle =
+            new DurationCircle<Cell>();
 
         public Time Length {
-            get { return Cells.Length; }
+            get { return cellscircle.Length; }
         }
 
         public MeterSignature(Time length, Cell[] cells = null) {
-            Cells = new DurationCircle<Cell>(length);
-
-            foreach (var cell in cells)
-                Cells.Add(cell, cell.Duration);
+            if (cells != null)
+                Cells.AddRange(cells);
         }
 
-        public Cell CellAt(Time offset, Time meter_start) =>
-            Cells.ItemsAt(offset)
-                .Select(
-                        cycledcell =>
-                            new Cell {
-                                Duration = new Duration {
-                                    Start = cycledcell.Offset + meter_start + cycledcell.Value.Duration.Start,
-                                    Length = cycledcell.Value.Duration.Length
-                                },
-                                Stress = cycledcell.Value.Stress
-                            }
-                    )
-                .Single();
+        public void Update() {
+            SetupCells();
+        }
 
-        public IEnumerable<Cell> CellsIn(Duration duration, Time meter_start) =>
-            Cells.ItemsIn(duration)
-                .Select(
-                        cycledcell =>
-                            new Cell {
-                                Duration = new Duration {
-                                    Start = cycledcell.Offset + meter_start + cycledcell.Value.Duration.Start,
-                                    Length = cycledcell.Value.Duration.Length
-                                },
-                                Stress = cycledcell.Value.Stress
+        void SetupCells() {
+            var offset = Time.Zero;
+
+            foreach (var cell in Cells)
+                cellscircle
+                    .Add(
+                            cell,
+                            new Duration {
+                                Length = cell.Length,
+                                End = offset += cell.Length
                             }
-                    );
+                        );
+
+            cellscircle.Length = offset;
+        }
+
+        public IEnumerable<IDuratedItem<Cell>> Intersecting(Time point) =>
+            cellscircle
+                .Intersecting(point)
+                .Cast<IDuratedItem<Cell>>();
+
+        public IEnumerable<IDuratedItem<Cell>> Intersecting(Duration duration) =>
+            cellscircle
+                .Intersecting(duration)
+                .Cast<IDuratedItem<Cell>>();
+
+        //public Cell CellAt(Time offset, Time meter_start) =>
+        //    cellscircle.ItemsAt(offset)
+        //        .Select(
+        //                cycledcell =>
+        //                    new Cell {
+        //                        Duration = new Duration {
+        //                            Start = cycledcell.Offset + meter_start + cycledcell.Value.Duration.Start,
+        //                            Length = cycledcell.Value.Duration.Length
+        //                        },
+        //                        Stress = cycledcell.Value.Stress
+        //                    }
+        //            )
+        //        .Single();
+
+        //public IEnumerable<Cell> CellsIn(Duration duration, Time meter_start) =>
+        //    cellscircle.ItemsIn(duration)
+        //        .Select(
+        //                cycledcell =>
+        //                    new Cell {
+        //                        Duration = new Duration {
+        //                            Start = cycledcell.Offset + meter_start + cycledcell.Value.Duration.Start,
+        //                            Length = cycledcell.Value.Duration.Length
+        //                        },
+        //                        Stress = cycledcell.Value.Stress
+        //                    }
+        //            );
 
         public static MeterSignature Default(TimeSignature.Simple simple) =>
             Default_specialcase_2powX_2powY(simple) ??

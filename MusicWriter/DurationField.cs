@@ -6,57 +6,87 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class DurationField<T> : IDurationField<T> {
-        readonly TimeTree<T> elements_start = new TimeTree<T>();
-        readonly TimeTree<T> elements_end = new TimeTree<T>();
-        readonly Dictionary<T, Duration> durations = new Dictionary<T, Duration>();
-        
-        public Duration this[T item] {
-            get { return durations[item]; }
-            set {
-                var oldduration = durations[item];
+        readonly TimeTree<DuratedItem<T>> elements_start = new TimeTree<DuratedItem<T>>();
+        readonly TimeTree<DuratedItem<T>> elements_end = new TimeTree<DuratedItem<T>>();
+        //readonly Dictionary<T, DuratedItem<T>> durations = new Dictionary<T, DuratedItem<T>>();
+        readonly List<DuratedItem<T>> items = new List<DuratedItem<T>>();
 
-                elements_start[item, oldduration.Start] = value.Start;
-                elements_end[item, oldduration.End] = value.End;
-                durations[item] = value;
-            }
+        public void Translate(Time delta) {
+            foreach (var item in items)
+                item.Duration.Start += delta;
         }
+
+        //public Duration this[T item] {
+        //    get { return durations[item].Duration; }
+        //    set {
+        //        var oldduration = durations[item];
+
+        //        elements_start[oldduration, oldduration.Duration.Start] = value.Start;
+        //        elements_end[oldduration, oldduration.Duration.End] = value.End;
+        //        oldduration.Duration = value;
+        //    }
+        //}
 
         public void Clear() {
             elements_end.Clear();
             elements_start.Clear();
-            durations.Clear();
+            items.Clear();
         }
 
         public IEnumerable<T> All {
-            get { return durations.Keys; }
+            get { return items.Select(item => item.Value).Distinct(); }
         }
 
+        public IEnumerable<Duration> AllDurations {
+            get { return items.Select(item => item.Duration); }
+        }
+
+        public IEnumerable<IDuratedItem<T>> AllItems {
+            get { return items; }
+        }
+        
         public void Add(T item, Duration duration) {
-            elements_start.Add(item, duration.Start);
-            elements_end.Add(item, duration.End);
+            var durateditem =
+                new DuratedItem<T> {
+                    Value = item,
+                    Duration = duration
+                };
 
-            durations.Add(item, duration);
+            elements_start.Add(durateditem, duration.Start);
+            elements_end.Add(durateditem, duration.End);
+            items.Add(durateditem);
         }
 
-        public IEnumerable<T> Intersecting(Time point) =>
-            elements_start.AfterOrAt(point)
+        public void Remove(IDuratedItem<T> durateditem) =>
+            Remove(durateditem.Value, durateditem.Duration);
+
+        public void Remove(T value, Duration duration) {
+            var durateditem = items.Single(item => item.Value.Equals(value) && item.Duration == duration);
+            
+            elements_start.Remove(durateditem, duration.Start);
+            elements_end.Remove(durateditem, duration.End);
+
+            items.Remove(durateditem);
+        }
+
+        public IEnumerable<IDuratedItem<T>> Intersecting(Time point) =>
+            elements_start
+                .AfterOrAt(point)
+                .Select(kvp => kvp.Value)
                 .Intersect(
-                        elements_end.BeforeOrAt(point)
+                        elements_end
+                            .BeforeOrAt(point)
+                            .Select(kvp => kvp.Value)
                     );
 
-        public void Remove(T item) {
-            var duration = durations[item];
-
-            elements_start.Remove(item, duration.Start);
-            elements_end.Remove(item, duration.End);
-
-            durations.Remove(item);
-        }
-
-        public IEnumerable<T> Intersecting(Duration duration) =>
-            elements_start.AfterOrAt(duration.Start)
+        public IEnumerable<IDuratedItem<T>> Intersecting(Duration duration) =>
+            elements_start
+                .AfterOrAt(duration.Start)
+                .Select(kvp => kvp.Value)
                 .Intersect(
-                        elements_end.Before(duration.End)
+                        elements_end
+                            .BeforeOrAt(duration.End)
+                            .Select(kvp => kvp.Value)
                     );
     }
 }

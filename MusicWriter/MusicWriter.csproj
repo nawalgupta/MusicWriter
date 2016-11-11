@@ -41,11 +41,13 @@
     <Compile Include="Cell.cs" />
     <Compile Include="ClefSymbol.cs" />
     <Compile Include="Cleft.cs" />
+    <Compile Include="DuratedItem.cs" />
     <Compile Include="DurationCircle.cs" />
     <Compile Include="DurationField.cs" />
     <Compile Include="ExplicitPropertyGraphlet.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FlagDirection.cs" />
+    <Compile Include="IDuratedItem.cs" />
     <Compile Include="IDurationField.cs" />
     <Compile Include="IgnorantPerceptualCog.cs" />
     <Compile Include="InternalExtensions.cs" />
@@ -80,10 +82,11 @@
     <Compile Include="Time.cs" />
     <Compile Include="TimeSignature.cs" />
     <Compile Include="MelodyTrack.cs" />
+    <Compile Include="TimeSignatureSimpleLayout.cs" />
     <Compile Include="TimeTree.cs" />
     <Compile Include="Tone.cs" />
     <Compile Include="Track.cs" />
-    <Compile Include="CycledItem.cs" />
+    <Compile Include="CycledDuratedItem.cs" />
     <Compile Include="TupletClass.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

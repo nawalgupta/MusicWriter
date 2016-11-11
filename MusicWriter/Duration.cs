@@ -43,6 +43,30 @@ namespace MusicWriter {
             Equals((Duration)obj);
 
         public override int GetHashCode() =>
-            offset ^ length;
+            offset.GetHashCode() ^ 
+            length.GetHashCode();
+
+        public static readonly Duration Eternity = new Duration {
+            Start = Time.Zero,
+            Length = Time.Eternity
+        };
+
+        public static Duration operator +(Duration duration, Time offset) =>
+            new Duration {
+                Start = duration.Start + offset,
+                Length = duration.Length
+            };
+
+        public static Duration operator -(Duration duration, Time offset) =>
+            new Duration {
+                Start = duration.Start - offset,
+                Length = duration.Length
+            };
+
+        public static bool operator ==(Duration a, Duration b) =>
+            a.Equals(b);
+
+        public static bool operator !=(Duration a, Duration b) =>
+            !a.Equals(b);
     }
 }

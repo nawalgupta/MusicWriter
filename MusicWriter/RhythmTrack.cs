@@ -3,69 +3,108 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static MusicWriter.TimeSignature;
 
 namespace MusicWriter {
-    public sealed class RhythmTrack : 
-        IDurationField<Cell> {
+    public sealed class RhythmTrack :
+        IDurationField<Cell>,
+        IDurationField<Simple> {
         readonly DurationField<TimeSignature> signatures =
             new DurationField<TimeSignature>();
         readonly DurationField<MeterSignature> meters =
             new DurationField<MeterSignature>();
-        
-        public Measure MeasureAt(Time point) {
-            // if the point is on the edge between measures, the measure that starts at point is returned
 
-            var signature =
-                signatures.Intersecting(point).Single();
+        public void SetTimeSignature(TimeSignature signature, Duration duration) {
+            foreach (var oldsingature in signatures.Intersecting(duration).ToArray()) {
+                var intersection =
+                    oldsingature.Duration.Intersection(duration);
 
-            var signature_duration =
-                signatures[signature];
+                signatures.Remove(oldsingature);
 
-            Time simple_start;
+                if (intersection.Length != Time.Zero)
+                    signatures.Add(oldsingature.Value, intersection);
+            }
 
-            var signature_simple =
-                signature.GetSimple(point - signature_duration.Start, out simple_start);
-
-            return new Measure {
-                Duration = new Duration {
-                    Start = signature_duration.Start + simple_start,
-                    Length = signature_simple.Length
-                }
-            };
+            signatures.Add(signature, duration);
         }
 
-        public Cell CellAt(Time point) {
-            var meter =
-                meters.Intersecting(point).Single();
+        public void SetMeter(MeterSignature meter, Duration duration) {
+            foreach (var oldmeter in meters.Intersecting(duration).ToArray()) {
+                var intersection =
+                    oldmeter.Duration.Intersection(duration);
 
-            var meter_start =
-                meters[meter].Start;
+                meters.Remove(oldmeter);
 
-            var cell =
-                meter.CellAt(point - meter_start, meter_start);
+                if (intersection.Length > Time.Zero)
+                    meters.Add(oldmeter.Value, intersection);
+            }
 
-            return cell;
+            meters.Add(meter, duration);
         }
 
-        public IEnumerable<Cell> CellsAt(Time point) {
-            yield return CellAt(point);
-        }
+        //public Measure MeasureAt(Time point) {
+        //    // if the point is on the edge between measures, the measure that starts at point is returned
 
-        public IEnumerable<Cell> CellsIn(Duration duration) => (
-                from meter in meters.Intersecting(duration)
-                let meter_start = meters[meter].Start
-                let duration_mod = new Duration {
-                    Start = duration.Start - meter_start,
-                    Length = duration.Length
-                }
-                from cell in meter.CellsIn(duration_mod, meter_start)
-                select cell
-            );
+        //    var signature =
+        //        signatures.Intersecting(point).Single();
 
-        public IEnumerable<Cell> Intersecting(Time point) =>
-            CellsAt(point);
+        //    var signature_duration =
+        //        signatures[signature];
 
-        public IEnumerable<Cell> Intersecting(Duration duration) =>
-            CellsIn(duration);
+        //    Time simple_start;
+
+        //    var signature_simple =
+        //        signature.GetSimple(point - signature_duration.Start, out simple_start);
+
+        //    return new Measure {
+        //        Duration = new Duration {
+        //            Start = signature_duration.Start + simple_start,
+        //            Length = signature_simple.Length
+        //        }
+        //    };
+        //}
+
+        //public Cell CellAt(Time point) {
+        //    var meter =
+        //        meters.Intersecting(point).Single();
+
+        //    var meter_start =
+        //        meters[meter].Start;
+
+        //    var cell =
+        //        meter.CellAt(point - meter_start, meter_start);
+
+        //    return cell;
+        //}
+
+        //public IEnumerable<Cell> CellsAt(Time point) {
+        //    yield return CellAt(point);
+        //}
+
+        //public IEnumerable<Cell> CellsIn(Duration duration) => (
+        //        from meter in meters.Intersecting(duration)
+        //        let meter_start = meters[meter].Start
+        //        let duration_mod = new Duration {
+        //            Start = duration.Start - meter_start,
+        //            Length = duration.Length
+        //        }
+        //        from cell in meter.CellsIn(duration_mod, meter_start)
+        //        select cell
+        //    );
+
+        public IEnumerable<IDuratedItem<Cell>> Intersecting(Time point) =>
+            meters.Intersecting_children(point);
+
+        public IEnumerable<IDuratedItem<Cell>> Intersecting(Duration duration) =>
+            meters.Intersecting_children(duration);
+
+        public IEnumerable<IDuratedItem<TimeSignature>> TimeSignaturesInTime(Duration duration) =>
+            signatures.Intersecting(duration);
+
+        IEnumerable<IDuratedItem<Simple>> IDurationField<Simple>.Intersecting(Time point) =>
+            signatures.Intersecting_children(point);
+
+        IEnumerable<IDuratedItem<Simple>> IDurationField<Simple>.Intersecting(Duration duration) =>
+            signatures.Intersecting_children(duration);
     }
 }

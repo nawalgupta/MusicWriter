@@ -5,33 +5,39 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public sealed class DurationCircle<T> {
+    public sealed class DurationCircle<T> : IDurationField<T> {
         readonly DurationField<T> field1 = new DurationField<T>();
         readonly DurationField<T> field2 = new DurationField<T>();
-        readonly Time length;
+
+        Time _length = Time.Zero;
 
         public Time Length {
-            get { return length; }
-        }
-
-        public Duration this[T item] {
-            get { return field1[item]; }
+            get { return _length; }
             set {
-                field1[item] = value;
-                field2[item] = new Duration {
-                    Start = value.Start - length,
-                    Length = value.Length
-                };
+                field1.Translate(_length - value);
+
+                _length = value;
             }
         }
 
-        public DurationCircle(Time length) {
-            this.length = length;
+        public IEnumerable<T> All {
+            get { return field1.All; }
         }
 
+        //public Duration this[T item] {
+        //    get { return field1[item]; }
+        //    set {
+        //        field1[item] = value;
+        //        field2[item] = new Duration {
+        //            Start = value.Start - Length,
+        //            Length = value.Length
+        //        };
+        //    }
+        //}
+        
         public void Add(T item, Duration duration) {
             var start = duration.Start;
-            start %= length;
+            start %= Length;
 
             field1.Add(item, new Duration {
                 Start = start,
@@ -39,57 +45,82 @@ namespace MusicWriter {
             });
 
             field2.Add(item, new Duration {
-                Start = start - length,
+                Start = start - Length,
                 Length = duration.Length
             });
         }
 
-        public void Remove(T item) {
+        public void Remove(IDuratedItem<T> item) {
             field1.Remove(item);
             field2.Remove(item);
         }
 
-        public IEnumerable<CycledItem<T>> ItemsAt(Time point) =>
-            ItemsAt_compter(point).Distinct();
+        public void Remove(T value, Duration duration) {
+            field1.Remove(value, duration);
+            field2.Remove(value, duration);
+        }
 
-        IEnumerable<CycledItem<T>> ItemsAt_compter(Time point) {
-            var cycles = point / length;
-            var offset = length * cycles;
-            point %= length;
+        public IEnumerable<IDuratedItem<T>> Intersecting(Time point) =>
+            IntersectingCycled(point).Cast<IDuratedItem<T>>();
+
+        public IEnumerable<CycledDuratedItem<T>> IntersectingCycled(Time point) =>
+            Intersecting_compter(point).Distinct();
+
+        public void Clear() {
+            field1.Clear();
+            field2.Clear();
+        }
+
+        IEnumerable<CycledDuratedItem<T>> Intersecting_compter(Time point) {
+            var cycles = point / Length;
+            var offset = Length * cycles;
+            point %= Length;
 
             foreach (var item in field1.Intersecting(point))
-                yield return new CycledItem<T>(
-                        item,
-                        offset,
+                yield return new CycledDuratedItem<T>(
+                        item.Value,
+                        new Duration {
+                            Start = offset + item.Duration.Start,
+                            Length = item.Duration.Length
+                        },
                         cycles  
                     );
 
             foreach (var item in field2.Intersecting(point))
-                yield return new CycledItem<T>(
-                        item,
-                        offset,
-                        cycles
+                yield return new CycledDuratedItem<T>(
+                        item.Value,
+                        new Duration {
+                            Start = offset + Length + item.Duration.Start,
+                            Length = item.Duration.Length
+                        },
+                        cycles - 1
                     );
         }
 
-        public IEnumerable<CycledItem<T>> ItemsIn(Duration duration) =>
-            ItemsIn_compter(duration).Distinct();
+        public IEnumerable<IDuratedItem<T>> Intersecting(Duration duration) =>
+            IntersectingCycled(duration).Cast<IDuratedItem<T>>();
 
-        IEnumerable<CycledItem<T>> ItemsIn_compter(Duration duration) {
-            var cycles = duration.Start / length;
-            var offset = cycles * length;
+        public IEnumerable<CycledDuratedItem<T>> IntersectingCycled(Duration duration) =>
+            Intersecting_compter(duration).Distinct();
+
+        IEnumerable<CycledDuratedItem<T>> Intersecting_compter(Duration duration) {
+            var cycles = duration.Start / Length;
+            var offset = cycles * Length;
 
             duration = new Duration {
-                Start = duration.Start % length,
+                Start = duration.Start % Length,
                 Length = duration.Length
             };
 
-            if (duration.End > length) {
-                if (duration.Length > length) {
-                    foreach (var item in field1.All)
-                        yield return new CycledItem<T>(
-                                item,
-                                offset,
+            if (duration.End > Length) {
+                if (duration.Length > Length) {
+                    foreach (var item in field1.AllItems)
+                        yield return new CycledDuratedItem<T>(
+                                item.Value,
+                                new Duration {
+                                    Start = offset + item.Duration.Start,
+                                    Length = item.Duration.Length
+                                },
                                 cycles
                             );
 
@@ -98,23 +129,29 @@ namespace MusicWriter {
                 else {
                     var newduration =
                         new Duration {
-                            Start = duration.Start - length,
+                            Start = duration.Start - Length,
                             Length = duration.Length
                         };
 
                     foreach (var item in field2.Intersecting(newduration))
-                        yield return new CycledItem<T>(
-                                item,
-                                offset - length,
+                        yield return new CycledDuratedItem<T>(
+                                item.Value,
+                                new Duration {
+                                    Start = offset + Length + item.Duration.Start,
+                                    Length = item.Duration.Length
+                                },
                                 cycles - 1
                             );
                 }
             }
 
             foreach (var item in field1.Intersecting(duration))
-                yield return new CycledItem<T>(
-                        item,
-                        offset,
+                yield return new CycledDuratedItem<T>(
+                        item.Value,
+                        new Duration {
+                            Start = offset + item.Duration.Start,
+                            Length = item.Duration.Length
+                        },
                         cycles
                     );
         }

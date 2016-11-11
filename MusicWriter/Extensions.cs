@@ -78,5 +78,45 @@ namespace MusicWriter {
 
         public static KeyClass ToLeft(this KeyClass key) =>
             (KeyClass)(((int)key - 1) % 7);
+
+        public static IEnumerable<IDuratedItem<T>> Intersecting_children<T>(
+                this IDurationField<IDurationField<T>> field,
+                Time point
+            ) =>
+            field
+                .Intersecting(point)
+                .SelectMany(
+                        child =>
+                            child
+                                .Value
+                                .Intersecting(point - child.Duration.Start)
+                                .Select(
+                                        item =>
+                                            new DuratedItem<T> {
+                                                Value = item.Value,
+                                                Duration = item.Duration + child.Duration.Start
+                                            }
+                                    )
+                    );
+
+        public static IEnumerable<IDuratedItem<T>> Intersecting_children<T>(
+                this IDurationField<IDurationField<T>> field,
+                Duration duration
+            ) =>
+            field
+                .Intersecting(duration)
+                .SelectMany(
+                        child =>
+                            child
+                                .Value
+                                .Intersecting(duration - child.Duration.Start)
+                                .Select(
+                                        item =>
+                                            new DuratedItem<T> {
+                                                Value = item.Value,
+                                                Duration = item.Duration + child.Duration.Start
+                                            }
+                                    )
+                    );
     }
 }

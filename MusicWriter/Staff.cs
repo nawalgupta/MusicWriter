@@ -24,7 +24,7 @@ namespace MusicWriter {
         
         public Staff(
                 Clef clef = default(Clef),
-                int lines = 0
+                int lines = 5
             ) {
             Clef = clef;
             Lines = lines;

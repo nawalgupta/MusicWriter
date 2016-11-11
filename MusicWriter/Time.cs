@@ -97,11 +97,13 @@ namespace MusicWriter {
         private const int TicksPerNote_7th = TicksPerNote / 7;
 
         private const int TicksPerNote = 2 * 2 * 2 * 2 * 2 * 2 * 2 * 3 * 5 * 7; // 128th notes, 3rd notes, 5th notes, 7th notes
+        // this limits the entire song to a little more than 159,783 notes in length
 
         public static readonly Time Zero = new Time(0);
         public static readonly Time Note = new Time(TicksPerNote);
         public static readonly Time Note_128th_3rd_5th_7th = new Time(TicksPerNote_128th / (3 * 5 * 7));
         public static readonly Time Note_4th = new Time(TicksPerNote_4th);
+        public static readonly Time Eternity = new Time(int.MaxValue);
 
         public static Time Fraction(int numerator, int denominator) =>
             new Time(TicksPerNote * numerator / denominator);

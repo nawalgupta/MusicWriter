@@ -8,8 +8,8 @@ namespace MusicWriter {
     public sealed class NotePerceptualCog : IPerceptualCog<PerceptualNote> {
         readonly DurationField<PerceptualNote> knowledge =
             new DurationField<PerceptualNote>();
-        readonly Dictionary<Note, PerceptualNote[]> perceptualnotes_map =
-            new Dictionary<Note, PerceptualNote[]>();
+        readonly Dictionary<NoteID, PerceptualNote[]> perceptualnotes_map =
+            new Dictionary<NoteID, PerceptualNote[]>();
         
         public IDurationField<PerceptualNote> Knowledge {
             get { return knowledge; }
@@ -22,12 +22,12 @@ namespace MusicWriter {
             var notes =
                 brain.Anlyses<Note>(duration);
             
-            foreach (var note in notes) {
-                if (perceptualnotes_map.ContainsKey(note)) {
-                    foreach (var perceptualnote in perceptualnotes_map[note])
+            foreach (Note note in notes) {
+                if (perceptualnotes_map.ContainsKey(note.ID)) {
+                    foreach (var perceptualnote in perceptualnotes_map[note.ID])
                         knowledge.Remove(perceptualnote);
 
-                    perceptualnotes_map.Remove(note);
+                    perceptualnotes_map.Remove(note.ID);
                 }
 
                 var perceptualnotes =
@@ -42,8 +42,11 @@ namespace MusicWriter {
 
                     var i = 0;
 
-                    foreach (var cell in cells) {
-                        var cellcutduration = cell.Duration.Intersection(note.Duration);
+                    foreach (var cell_durateditem in cells) {
+                        var cell = cell_durateditem.Value;
+                        var cellduration = cell_durateditem.Duration;
+
+                        var cellcutduration = cellduration.Intersection(note.Duration);
 
                         var lengths =
                             PerceptualTime.Decompose(cellcutduration.Length);
@@ -60,7 +63,8 @@ namespace MusicWriter {
                                     new PerceptualNoteID(note.ID, i++),
                                     cutduration,
                                     length.Key,
-                                    cell
+                                    cell_durateditem,
+                                    note
                                 );
 
                             knowledge.Add(perceptualnote, cutduration);
@@ -78,16 +82,22 @@ namespace MusicWriter {
                                     ),
                                 note.Duration,
                                 singlelength.Key,
-                                null
+                                null,
+                                note
                             );
 
                     knowledge.Add(perceptualnote, note.Duration);
 
-                    perceptualnotes_map.Add(note, new[] { perceptualnote });
+                    perceptualnotes_map.Add(note.ID, new[] { perceptualnote });
                 }
 
-                perceptualnotes_map.Add(note, perceptualnotes.ToArray());
+                perceptualnotes_map.Add(note.ID, perceptualnotes.ToArray());
             }
+        }
+
+        public void Forget(Duration delta) {
+            foreach (var note in knowledge.Intersecting(delta))
+                knowledge.Remove(note);
         }
     }
 }

@@ -8,23 +8,23 @@ namespace MusicWriter {
     public sealed class MusicBrain {
         readonly List<IPerceptualCog<object>> cogs =
             new List<IPerceptualCog<object>>();
-        readonly IPropertyGraphlet<Note> noteproperties;
+        readonly IPropertyGraphlet<NoteID> noteproperties;
 
         public List<IPerceptualCog<object>> Cogs {
             get { return cogs; }
         }
 
-        public IPropertyGraphlet<Note> NoteProperties {
+        public IPropertyGraphlet<NoteID> NoteProperties {
             get { return noteproperties; }
         }
 
         public MusicBrain(
-                IPropertyGraphlet<Note> noteproperties
+                IPropertyGraphlet<NoteID> noteproperties
             ) {
             this.noteproperties = noteproperties;
         }
 
-        public IEnumerable<T> Anlyses<T>(Duration duration) {
+        public IEnumerable<IDuratedItem<T>> Anlyses<T>(Duration duration) {
             foreach (var cog in cogs) {
                 var typedcog =
                     cog as IPerceptualCog<T>;
@@ -35,7 +35,7 @@ namespace MusicWriter {
             }
         }
 
-        public IEnumerable<T> Anlyses<T>(Time point) {
+        public IEnumerable<IDuratedItem<T>> Anlyses<T>(Time point) {
             foreach (var cog in cogs) {
                 var typedcog =
                     cog as IPerceptualCog<T>;
@@ -44,6 +44,14 @@ namespace MusicWriter {
                     foreach (var analysis in typedcog.Knowledge.Intersecting(point))
                         yield return analysis;
             }
+        }
+
+        public void Invalidate(Duration duration) {
+            foreach (var cog in cogs)
+                cog.Forget(duration);
+
+            foreach (var cog in cogs)
+                cog.Analyze(duration, this);
         }
     }
 }

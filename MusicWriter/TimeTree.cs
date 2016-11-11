@@ -62,9 +62,9 @@ namespace MusicWriter {
             }
         }
 
-        public IEnumerable<V> All() {
+        public IEnumerable<KeyValuePair<Time, V>> All() {
             foreach (var item in items)
-                yield return item;
+                yield return new KeyValuePair<Time, V>(pivot, item);
 
             if (left != null)
                 foreach (var item in left.All())
@@ -75,9 +75,9 @@ namespace MusicWriter {
                     yield return item;
         }
 
-        public IEnumerable<V> BeforeOrAt(Time bar) {
+        public IEnumerable<KeyValuePair<Time, V>> BeforeOrAt(Time bar) {
             if (pivot == bar)
-                foreach (var item in items)
+                foreach (var item in All())
                     yield return item;
 
             if (left != null) {
@@ -94,9 +94,9 @@ namespace MusicWriter {
                     yield return item;
         }
 
-        public IEnumerable<V> AfterOrAt(Time bar) {
+        public IEnumerable<KeyValuePair<Time, V>> AfterOrAt(Time bar) {
             if (pivot == bar)
-                foreach (var item in items)
+                foreach (var item in All())
                     yield return item;
 
             if (right != null) {
@@ -113,7 +113,7 @@ namespace MusicWriter {
                     yield return item;
         }
 
-        public IEnumerable<V> Before(Time bar) {
+        public IEnumerable<KeyValuePair<Time, V>> Before(Time bar) {
             if (left != null) {
                 if (pivot <= bar)
                     foreach (var item in left.All())
@@ -128,7 +128,7 @@ namespace MusicWriter {
                     yield return item;
         }
 
-        public IEnumerable<V> After(Time bar) {
+        public IEnumerable<KeyValuePair<Time, V>> After(Time bar) {
             if (right != null) {
                 if (pivot >= bar)
                     foreach (var item in right.All())

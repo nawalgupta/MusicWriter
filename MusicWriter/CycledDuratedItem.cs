@@ -5,30 +5,30 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public struct CycledItem<T> {
+    public struct CycledDuratedItem<T> : IDuratedItem<T> {
         readonly T value;
-        readonly Time offset;
+        readonly Duration duration;
         readonly int cycles;
 
         public T Value {
             get { return value; }
         }
 
-        public Time Offset {
-            get { return offset; }
+        public Duration Duration {
+            get { return duration; }
         }
 
         public int Cycles {
             get { return cycles; }
         }
 
-        public CycledItem(
+        public CycledDuratedItem(
                 T value,
-                Time offset,
+                Duration duration,
                 int cycles
             ) {
             this.value = value;
-            this.offset = offset;
+            this.duration = duration;
             this.cycles = cycles;
         }
     }

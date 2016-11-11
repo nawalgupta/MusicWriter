@@ -8,7 +8,14 @@ namespace MusicWriter {
     public sealed class IgnorantPerceptualCog<T> : IPerceptualCog<T> {
         public IDurationField<T> Knowledge { get; set; }
 
+        public IgnorantPerceptualCog(IDurationField<T> knowledge = null) {
+            Knowledge = knowledge;
+        }
+
         public void Analyze(Duration delta, MusicBrain brain) {
+        }
+
+        public void Forget(Duration delta) {
         }
     }
 }

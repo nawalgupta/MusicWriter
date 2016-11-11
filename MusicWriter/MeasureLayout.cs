@@ -31,6 +31,10 @@ namespace MusicWriter {
 
         public float ScaleX { get; private set; } = 1.0F;
 
+        public IEnumerable<ChordLayout> Chords {
+            get { return chords; }
+        }
+
         public MeasureLayout(
                 Duration duration,
                 PerceptualNote[] notes,
@@ -43,7 +47,12 @@ namespace MusicWriter {
             this.staff = staff;
 
             keysignature =
-                track.Adornment.KeySignatures.Intersecting(duration).Single();
+                track
+                    .Adornment
+                    .KeySignatures
+                    .Intersecting(duration)
+                    .Single()
+                    .Value;
 
             BreakFractions();
 
@@ -106,13 +115,18 @@ namespace MusicWriter {
 
                 var chordlayout =
                     new ChordLayout(
-                            bucket.ToArray(),
-                            bucket.First().X
+                            bucket.ToArray()
                         );
 
                 // ask the property graph what direction the stem should be
                 chordlayout.StemDirection = direction;
-                chordlayout.StemLinesHeight = 3F;
+
+                if (direction == NoteStemDirection.Down) {
+                    chordlayout.StemStartHalfLines = chordlayout.Notes.Min(note => note.HalfLine) - 5F;
+                }
+                else {
+                    chordlayout.StemStartHalfLines = chordlayout.Notes.Max(note => note.HalfLine) + 5F;
+                }
 
                 chords.Add(chordlayout);
             }
@@ -198,7 +212,7 @@ namespace MusicWriter {
 
                             item.Flags = item.Length.Length - LengthClass.Quarter;
 
-                            item.StemLinesHeight = stemoffset + item.X * m + b;
+                            item.StemStartHalfLines = stemoffset + item.X * m + b;
                         }
                     }
                 }
