@@ -46,19 +46,29 @@ namespace MusicWriter.WinForms {
 
             track.Rhythm.SetTimeSignature(new TimeSignature(new TimeSignature.Simple(4, 4)), Duration.Eternity);
             track.Rhythm.SetMeter(MeterSignature.Default(track.Rhythm.TimeSignaturesInTime(Duration.Eternity).Single().Value.Simples[0]), Duration.Eternity);
+            track.Adornment.SetStaff(Staff.Treble, Duration.Eternity);
+            track.Adornment.SetKeySignature(KeySignature.Create(KeyClass.C, PitchTransform.Natural, Mode.Major), Duration.Eternity);
 
             var propertygraphlet =
                 new ExplicitPropertyGraphlet<NoteID>();
 
             var brain =
                 new MusicBrain(
-                        propertygraphlet
+                        propertygraphlet,
+                        track
                     );
 
-            brain.Cogs.Add(new IgnorantPerceptualCog<Cell>(track.Rhythm));
-            brain.Cogs.Add(new IgnorantPerceptualCog<Simple>(track.Rhythm));
-            brain.Cogs.Add(new IgnorantPerceptualCog<Note>(track.Melody));
-            brain.Cogs.Add(new NotePerceptualCog());
+            brain.InsertCog(new IgnorantPerceptualCog<Cell>(track.Rhythm));
+            brain.InsertCog(new IgnorantPerceptualCog<Simple>(track.Rhythm));
+            brain.InsertCog(new IgnorantPerceptualCog<Measure>(track.Rhythm));
+            brain.InsertCog(new IgnorantPerceptualCog<Note>(track.Melody));
+            brain.InsertCog(new IgnorantPerceptualCog<KeySignature>(track.Adornment.KeySignatures));
+            brain.InsertCog(new IgnorantPerceptualCog<Staff>(track.Adornment.Staffs));
+            brain.InsertCog(new NotePerceptualCog());
+            //brain.InsertCog(new NoteLayoutPerceptualCog());
+            //brain.InsertCog(new NoteLayoutPerceptualCog());
+            //brain.InsertCog(new ChordLayoutPerceptualCog());
+            brain.InsertCog(new MeasureLayoutPerceptualCog());
 
             tracks.Add(name, track);
             notepropertygraphlets.Add(name, propertygraphlet);

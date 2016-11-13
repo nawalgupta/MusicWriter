@@ -15,7 +15,7 @@ namespace MusicWriter {
             foreach (var item in items)
                 item.Duration.Start += delta;
         }
-
+        
         //public Duration this[T item] {
         //    get { return durations[item].Duration; }
         //    set {

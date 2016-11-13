@@ -16,7 +16,7 @@ namespace MusicWriter {
             var length = (float)array.Length;
 
             for (int i = 0; i < array.Length; i++) {
-                var t = i / length;
+                var t = i / length + 0.01F;
 
                 var weight = 4 * t * Square(t - 0.5F);
 

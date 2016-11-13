@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,10 +21,15 @@ namespace MusicWriter.WinForms {
                         (int)settings.Height
                     );
 
-                var gfx =
-                    Graphics.FromImage(bmp);
+                using (var gfx = Graphics.FromImage(bmp)) {
+                    gfx.CompositingQuality = CompositingQuality.HighQuality;
+                    gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    gfx.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    gfx.SmoothingMode = SmoothingMode.HighQuality;
+                    gfx.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 
-                Render(gfx, settings);
+                    Render(gfx, settings);
+                }
             }
 
             return bmp;

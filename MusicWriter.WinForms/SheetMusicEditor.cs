@@ -21,6 +21,9 @@ namespace MusicWriter.WinForms {
             Settings = new SheetMusicRenderSettings();
             Brain = file.BrainFor(track);
 
+            Brain.InsertCog(this);
+            Brain.Invalidate(Duration.Eternity);
+
             Invalidate();
         }
 
@@ -30,11 +33,24 @@ namespace MusicWriter.WinForms {
             get { return items; }
         }
 
-        readonly DurationField<RenderedSheetMusicItem> items =
-            new DurationField<RenderedSheetMusicItem>();
+        readonly DurationField<RenderedMeasure> items_measure =
+            new DurationField<RenderedMeasure>();
+        readonly DurationField<RenderedTimeSignatureSimple> items_timesigsimple =
+            new DurationField<RenderedTimeSignatureSimple>();
+        readonly DurationField<RenderedClefSymbol> items_clefsymbols =
+            new DurationField<RenderedClefSymbol>();
+
+        readonly IDurationField<RenderedSheetMusicItem> items;
 
         public SheetMusicEditor() {
             InitializeComponent();
+
+            items =
+                new AggregateDurationField<RenderedSheetMusicItem>(
+                        items_clefsymbols,
+                        items_measure,
+                        items_timesigsimple
+                    );
         }
 
         protected override void OnPaint(PaintEventArgs pe) {
@@ -54,7 +70,8 @@ namespace MusicWriter.WinForms {
             
             var starttimes =
                 items
-                    .AllDurations
+                    .Intersecting(Duration.Eternity)
+                    .Select(item => item.Duration)
                     .Select(duration => duration.Start)
                     .Distinct()
                     .ToList();
@@ -109,25 +126,52 @@ namespace MusicWriter.WinForms {
             return (int)skippedmeasureswidth;
         }
 
-        public void Analyze(Duration delta, MusicBrain brain) {
+        public bool Analyze(Duration delta, MusicBrain brain) {
+            bool flag = false;
+
             var layoutmeasures =
                 brain.Anlyses<MeasureLayout>(delta);
 
-            foreach (var layoutmeasure in layoutmeasures)
-                items.Add(new RenderedMeasure(layoutmeasure.Value), layoutmeasure.Duration);
+            foreach (var layoutmeasure in layoutmeasures) {
+                if (items_measure.AnyItemIn(layoutmeasure.Duration))
+                    continue;
+
+                items_measure.Add(new RenderedMeasure(layoutmeasure.Value), layoutmeasure.Duration);
+                flag = true;
+            }
 
             var layoutsimpletimesignatures =
                 brain.Anlyses<TimeSignatureSimpleLayout>(delta);
 
-            foreach (var layoutsimpletimesignature in layoutsimpletimesignatures)
-                items.Add(new RenderedTimeSignatureSimple(layoutsimpletimesignature.Value), layoutsimpletimesignature.Duration);
+            foreach (var layoutsimpletimesignature in layoutsimpletimesignatures) {
+                if (items_timesigsimple.AnyItemIn(layoutsimpletimesignature.Duration))
+                    continue;
 
+                items_timesigsimple.Add(new RenderedTimeSignatureSimple(layoutsimpletimesignature.Value), layoutsimpletimesignature.Duration);
+                flag = true;
+            }
+
+            return flag;
         }
 
         public void Forget(Duration delta) {
             foreach (var item in items.Intersecting(delta)) {
                 item.Value.Dispose();
-                items.Remove(item);
+
+                var item_clefsymbol = item as IDuratedItem<RenderedClefSymbol>;
+                var item_measure = item as IDuratedItem<RenderedMeasure>;
+                var item_timesigsimple = item as IDuratedItem<RenderedTimeSignatureSimple>;
+
+                if (item_clefsymbol != null)
+                    items_clefsymbols.Remove(item_clefsymbol);
+                else if (item_measure != null)
+                    items_measure.Remove(item_measure);
+                else if (item_timesigsimple != null)
+                    items_timesigsimple.Remove(item_timesigsimple);
+                else {
+                    // this is the disadvantage of not using c++ macros
+                    throw new NotSupportedException();
+                }
             }
         }
     }

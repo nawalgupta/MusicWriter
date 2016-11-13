@@ -13,7 +13,7 @@ namespace MusicWriter.WinForms {
         public int MarginalTopHalfLines { get; set; } = 3;
         public float PixelsPerHalfLine { get; set; } = 10F;
         public Staff Staff { get; set; } = Staff.Treble;
-        public float NoteHeadRadius { get; set; } = 4.5F;
+        public float NoteHeadRadius { get; set; } = 9F;
         public Font TimeSignatureFont { get; set; } = new Font(FontFamily.GenericSerif, 18);
 
         public float PixelsPerLine {

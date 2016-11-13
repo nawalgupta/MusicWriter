@@ -38,7 +38,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdornmentTrack.cs" />
+    <Compile Include="AggregateDurationField.cs" />
     <Compile Include="Cell.cs" />
+    <Compile Include="ChordLayoutPerceptualCog.cs" />
     <Compile Include="ClefSymbol.cs" />
     <Compile Include="Cleft.cs" />
     <Compile Include="DuratedItem.cs" />
@@ -57,6 +59,7 @@
     <Compile Include="KeySignature.cs" />
     <Compile Include="ChordLayout.cs" />
     <Compile Include="Measure.cs" />
+    <Compile Include="MeasureLayoutPerceptualCog.cs" />
     <Compile Include="MeterSignature.cs" />
     <Compile Include="Mode.cs" />
     <Compile Include="MusicBrain.cs" />
@@ -64,6 +67,7 @@
     <Compile Include="NoteComparerByOffset.cs" />
     <Compile Include="NoteID.cs" />
     <Compile Include="NoteLayout.cs" />
+    <Compile Include="NoteLayoutPerceptualCog.cs" />
     <Compile Include="NotePerceptualCog.cs" />
     <Compile Include="NoteStemDirection.cs" />
     <Compile Include="LengthClass.cs" />

@@ -62,7 +62,7 @@ namespace MusicWriter {
 
         void BreakFractions() {
             var fractionalpieces =
-                notes.Select(note => ((Time.Note * 8) / note.Duration.Length) * 8F);
+                notes.Select(note => ((Time.Note * 8) / note.Duration.Length) / 8F);
 
             var avgmin_fractionalpieces =
                 Statistics.AvgMin(fractionalpieces);
@@ -112,11 +112,14 @@ namespace MusicWriter {
                                     .Median()
                                     .Key
                             );
-
+                
                 var chordlayout =
                     new ChordLayout(
                             bucket.ToArray()
                         );
+
+                if (chordlayout.Length.Length <= LengthClass.Half)
+                    direction = NoteStemDirection.None;
 
                 // ask the property graph what direction the stem should be
                 chordlayout.StemDirection = direction;

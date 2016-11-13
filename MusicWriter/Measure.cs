@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public struct Measure {
-        public Duration Duration { get; set; }
+    public sealed class Measure {
     }
 }

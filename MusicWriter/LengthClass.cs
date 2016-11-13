@@ -14,6 +14,7 @@ namespace MusicWriter {
         Sixteenth,
         ThirtySecond,
         SixtyFourth,
-        OneHundredTwentyEighth
+        OneHundredTwentyEighth,
+        Invalid
     }
 }

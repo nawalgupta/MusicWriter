@@ -22,8 +22,6 @@ namespace MusicWriter {
             get { return adornment; }
         }
 
-        public Staff Staff { get; set; } = Staff.Treble;
-
         public Track(
                 MelodyTrack melody,
                 RhythmTrack rhythm,

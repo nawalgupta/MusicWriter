@@ -15,20 +15,18 @@ namespace MusicWriter {
             get { return knowledge; }
         }
 
-        public void Analyze(
+        public bool Analyze(
                 Duration duration,
                 MusicBrain brain
             ) {
+            bool flag = false;
+
             var notes =
                 brain.Anlyses<Note>(duration);
             
             foreach (Note note in notes) {
-                if (perceptualnotes_map.ContainsKey(note.ID)) {
-                    foreach (var perceptualnote in perceptualnotes_map[note.ID])
-                        knowledge.Remove(perceptualnote);
-
-                    perceptualnotes_map.Remove(note.ID);
-                }
+                if (perceptualnotes_map.ContainsKey(note.ID))
+                    continue;
 
                 var perceptualnotes =
                     new List<PerceptualNote>();
@@ -36,7 +34,7 @@ namespace MusicWriter {
                 var singlelength =
                     PerceptualTime.Decompose(note.Duration.Length).SingleOrDefault();
 
-                if (singlelength.Value == default(Time)) {
+                if (singlelength.Key == default(PerceptualTime)) {
                     var cells =
                         brain.Anlyses<Cell>(note.Duration);
 
@@ -54,7 +52,7 @@ namespace MusicWriter {
                         foreach (var length in lengths) {
                             var cutduration =
                                 new Duration {
-                                    Start = length.Value,
+                                    Start = length.Value + cellduration.Start,
                                     Length = length.Key.TimeLength()
                                 };
 
@@ -72,6 +70,8 @@ namespace MusicWriter {
                             perceptualnotes.Add(perceptualnote);
                         }
                     }
+
+                    perceptualnotes_map.Add(note.ID, perceptualnotes.ToArray());
                 }
                 else {
                     var perceptualnote =
@@ -85,19 +85,31 @@ namespace MusicWriter {
                                 null,
                                 note
                             );
-
+                    
                     knowledge.Add(perceptualnote, note.Duration);
 
                     perceptualnotes_map.Add(note.ID, new[] { perceptualnote });
                 }
-
-                perceptualnotes_map.Add(note.ID, perceptualnotes.ToArray());
+                
+                flag = true;
             }
+
+            return flag;
         }
 
         public void Forget(Duration delta) {
-            foreach (var note in knowledge.Intersecting(delta))
-                knowledge.Remove(note);
+            var notes =
+                knowledge
+                    .Intersecting(delta)
+                    .Select(perceptualnote => perceptualnote.Value.Note)
+                    .Distinct();
+
+            foreach (var note in notes) {
+                foreach (var perceptualnote in perceptualnotes_map[note.ID])
+                    knowledge.Remove(perceptualnote);
+
+                perceptualnotes_map.Remove(note.ID);
+            }
         }
     }
 }

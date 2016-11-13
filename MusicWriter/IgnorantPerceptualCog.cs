@@ -12,8 +12,7 @@ namespace MusicWriter {
             Knowledge = knowledge;
         }
 
-        public void Analyze(Duration delta, MusicBrain brain) {
-        }
+        public bool Analyze(Duration delta, MusicBrain brain) => false;
 
         public void Forget(Duration delta) {
         }

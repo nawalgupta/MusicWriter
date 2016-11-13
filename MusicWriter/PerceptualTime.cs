@@ -70,7 +70,24 @@ namespace MusicWriter {
             return basis;
         }
 
+        public override int GetHashCode() =>
+            Dots ^ Length.GetHashCode() ^ Tuplet.GetHashCode();
+
+        public override bool Equals(object obj) =>
+            obj is PerceptualTime &&
+            (PerceptualTime)obj == this;
+
+        public static bool operator ==(PerceptualTime a, PerceptualTime b) =>
+            a.Dots == b.Dots &&
+            a.Length == b.Length &&
+            a.Tuplet == b.Tuplet;
+
+        public static bool operator !=(PerceptualTime a, PerceptualTime b) =>
+            !(a == b);
+
         public static IEnumerable<KeyValuePair<PerceptualTime, Time>> Decompose(Time length) {
+            // I'm sorry in advance for anyone who has to read this method.
+
             var fractions_whole = length / Time.Note_128th_3rd_5th_7th;
 
             var tuplet = TupletClass.None;
@@ -100,25 +117,29 @@ namespace MusicWriter {
 
             var state_dots = -1;
             var head_value = LengthClass.None;
-            var place_value = LengthClass.Whole;
             var offset = Time.Zero;
+            
+            // bit 0 (128th note) to bit 7 (whole note)
+            for (
+                    var place_value =
+                        tuplet != TupletClass.None ?
+                            LengthClass.Half :
+                            LengthClass.Whole;
+                    place_value < LengthClass.Invalid;
+                    place_value++
+                ) {
+                var i =
+                    (int)LengthClass.Invalid -
+                    (int)place_value -
+                    1;
 
-            if (tuplet != TupletClass.None)
-                place_value = LengthClass.Half;
-
-            // MSB (whole note) to LSB (2^-32 note)
-            for (int i = 0; i < bits.Length; i++) {
                 if (bits[i]) {
                     state_dots++;
 
                     if (state_dots == 0)
                         head_value = place_value;
                 }
-
-                place_value++;
-
-                if (!bits[i] ||
-                    !Enum.IsDefined(typeof(LengthClass), place_value)) {
+                else {
                     if (state_dots >= 0) {
                         var ptime =
                             new PerceptualTime(
@@ -138,6 +159,25 @@ namespace MusicWriter {
                         offset += ptime.TimeLength();
                     }
                 }
+            }
+
+            if (state_dots >= 0) {
+                var ptime =
+                    new PerceptualTime(
+                            tuplet,
+                            head_value,
+                            state_dots
+                        );
+
+                yield return
+                    new KeyValuePair<PerceptualTime, Time>(
+                            ptime,
+                            offset
+                        );
+
+                state_dots = -1;
+                head_value = LengthClass.None;
+                offset += ptime.TimeLength();
             }
         }
     }

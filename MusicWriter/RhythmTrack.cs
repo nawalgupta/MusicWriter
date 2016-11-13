@@ -8,7 +8,8 @@ using static MusicWriter.TimeSignature;
 namespace MusicWriter {
     public sealed class RhythmTrack :
         IDurationField<Cell>,
-        IDurationField<Simple> {
+        IDurationField<Simple>,
+        IDurationField<Measure> {
         readonly DurationField<TimeSignature> signatures =
             new DurationField<TimeSignature>();
         readonly DurationField<MeterSignature> meters =
@@ -106,5 +107,27 @@ namespace MusicWriter {
 
         IEnumerable<IDuratedItem<Simple>> IDurationField<Simple>.Intersecting(Duration duration) =>
             signatures.Intersecting_children(duration);
+
+        IEnumerable<IDuratedItem<Measure>> IDurationField<Measure>.Intersecting(Time point) =>
+            signatures
+                .Intersecting_children(point)
+                .Select(
+                        simple_item =>
+                            new DuratedItem<Measure> {
+                                Duration = simple_item.Duration,
+                                Value = new Measure()
+                            }
+                    );
+
+        IEnumerable<IDuratedItem<Measure>> IDurationField<Measure>.Intersecting(Duration duration) =>
+            signatures
+                .Intersecting_children(duration)
+                .Select(
+                        simple_item =>
+                            new DuratedItem<Measure> {
+                                Duration = simple_item.Duration,
+                                Value = new Measure()
+                            }
+                    );
     }
 }

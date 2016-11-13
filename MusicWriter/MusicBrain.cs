@@ -6,52 +6,69 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class MusicBrain {
-        readonly List<IPerceptualCog<object>> cogs =
-            new List<IPerceptualCog<object>>();
+        readonly Dictionary<Type, IPerceptualCog<object>> cogs =
+            new Dictionary<Type, IPerceptualCog<object>>();
         readonly IPropertyGraphlet<NoteID> noteproperties;
-
-        public List<IPerceptualCog<object>> Cogs {
-            get { return cogs; }
-        }
+        readonly Track track;
 
         public IPropertyGraphlet<NoteID> NoteProperties {
             get { return noteproperties; }
         }
 
+        public Track Track {
+            get { return track; }
+        }
+
         public MusicBrain(
-                IPropertyGraphlet<NoteID> noteproperties
+                IPropertyGraphlet<NoteID> noteproperties,
+                Track track
             ) {
             this.noteproperties = noteproperties;
+            this.track = track;
         }
 
         public IEnumerable<IDuratedItem<T>> Anlyses<T>(Duration duration) {
-            foreach (var cog in cogs) {
-                var typedcog =
-                    cog as IPerceptualCog<T>;
+            IPerceptualCog<object> cog;
 
-                if (typedcog != null)
-                    foreach (var analysis in typedcog.Knowledge.Intersecting(duration))
-                        yield return analysis;
-            }
+            if (!cogs.TryGetValue(typeof(T), out cog))
+                return Enumerable.Empty<IDuratedItem<T>>();
+
+            var typedcog =
+                (IPerceptualCog<T>)cog;
+
+            return typedcog.Knowledge.Intersecting(duration);
+        }
+
+        public void InsertCog<T>(IPerceptualCog<T> cog) where T : class {
+            var type = typeof(T);
+
+            cogs.Add(type, cog);
         }
 
         public IEnumerable<IDuratedItem<T>> Anlyses<T>(Time point) {
-            foreach (var cog in cogs) {
-                var typedcog =
-                    cog as IPerceptualCog<T>;
+            IPerceptualCog<object> cog;
 
-                if (typedcog != null)
-                    foreach (var analysis in typedcog.Knowledge.Intersecting(point))
-                        yield return analysis;
-            }
+            if (!cogs.TryGetValue(typeof(T), out cog))
+                return Enumerable.Empty<IDuratedItem<T>>();
+
+            var typedcog =
+                (IPerceptualCog<T>)cog;
+
+            return typedcog.Knowledge.Intersecting(point);
         }
 
         public void Invalidate(Duration duration) {
-            foreach (var cog in cogs)
+            foreach (var cog in cogs.Values)
                 cog.Forget(duration);
+            
+            bool flag;
+            do {
+                flag = false;
 
-            foreach (var cog in cogs)
-                cog.Analyze(duration, this);
+                foreach (var cog in cogs.Values)
+                    flag |= cog.Analyze(duration, this);
+            }
+            while (flag);
         }
     }
 }

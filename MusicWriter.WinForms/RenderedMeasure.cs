@@ -93,10 +93,9 @@ namespace MusicWriter.WinForms {
 
             var fill = note.Core.Length.Length > LengthClass.Half;
             var dots = note.Core.Length.Dots;
-            
+
             var y_dots =
-                -settings.PixelsPerHalfLine * (halfline + (halfline % 2)) +
-                settings.PixelsPerHalfLine * (settings.Staff.Lines * 2 + settings.MarginalTopHalfLines);
+                settings.YVal(note.HalfLine + (note.HalfLine + 1) % 2);
 
             if (direction == NoteStemDirection.Up) {
                 DrawNoteHead_L(gfx, x, y, y_dots, fill, dots, settings);

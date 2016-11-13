@@ -118,5 +118,11 @@ namespace MusicWriter {
                                             }
                                     )
                     );
+
+        public static bool AnyItemIn<T>(
+                this IDurationField<T> field,
+                Duration duration
+            ) =>
+            field.Intersecting(duration).Any();
     }
 }

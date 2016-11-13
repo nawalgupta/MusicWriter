@@ -76,7 +76,7 @@ namespace MusicWriter {
         }
 
         public IEnumerable<KeyValuePair<Time, V>> BeforeOrAt(Time bar) {
-            if (pivot == bar)
+            if (pivot <= bar)
                 foreach (var item in All())
                     yield return item;
 
@@ -95,7 +95,7 @@ namespace MusicWriter {
         }
 
         public IEnumerable<KeyValuePair<Time, V>> AfterOrAt(Time bar) {
-            if (pivot == bar)
+            if (pivot >= bar)
                 foreach (var item in All())
                     yield return item;
 
