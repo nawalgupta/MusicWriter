@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static MusicWriter.TimeSignature;
 
-namespace MusicWriter.WinForms {
+namespace MusicWriter {
     public sealed class MusicEditorFile {
         readonly Dictionary<string, Track> tracks =
             new Dictionary<string, Track>();
@@ -47,7 +47,7 @@ namespace MusicWriter.WinForms {
             track.Rhythm.SetTimeSignature(new TimeSignature(new TimeSignature.Simple(4, 4)), Duration.Eternity);
             track.Rhythm.SetMeter(MeterSignature.Default(track.Rhythm.TimeSignaturesInTime(Duration.Eternity).Single().Value.Simples[0]), Duration.Eternity);
             track.Adornment.SetStaff(Staff.Treble, Duration.Eternity);
-            track.Adornment.SetKeySignature(KeySignature.Create(KeyClass.C, PitchTransform.Natural, Mode.Major), Duration.Eternity);
+            track.Adornment.SetKeySignature(KeySignature.Create(DiatonicToneClass.C, PitchTransform.Natural, Mode.Major), Duration.Eternity);
 
             var propertygraphlet =
                 new ExplicitPropertyGraphlet<NoteID>();

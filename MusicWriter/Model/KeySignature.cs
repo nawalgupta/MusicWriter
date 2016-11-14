@@ -6,24 +6,24 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class KeySignature {
-        readonly Dictionary<KeyClass, PitchTransform> keytransforms =
-            new Dictionary<KeyClass, PitchTransform>() {
-                { KeyClass.C, PitchTransform.Natural },
-                { KeyClass.D, PitchTransform.Natural },
-                { KeyClass.E, PitchTransform.Natural },
-                { KeyClass.F, PitchTransform.Natural },
-                { KeyClass.G, PitchTransform.Natural },
-                { KeyClass.A, PitchTransform.Natural },
-                { KeyClass.B, PitchTransform.Natural },
+        readonly Dictionary<DiatonicToneClass, PitchTransform> keytransforms =
+            new Dictionary<DiatonicToneClass, PitchTransform>() {
+                { DiatonicToneClass.C, PitchTransform.Natural },
+                { DiatonicToneClass.D, PitchTransform.Natural },
+                { DiatonicToneClass.E, PitchTransform.Natural },
+                { DiatonicToneClass.F, PitchTransform.Natural },
+                { DiatonicToneClass.G, PitchTransform.Natural },
+                { DiatonicToneClass.A, PitchTransform.Natural },
+                { DiatonicToneClass.B, PitchTransform.Natural },
             };
 
-        public PitchTransform this[KeyClass key] {
+        public PitchTransform this[DiatonicToneClass key] {
             get { return keytransforms[key]; }
             set { keytransforms[key] = value; }
         }
 
-        public KeyClass KeyOfPitchClass(
-                PitchClass pitch,
+        public DiatonicToneClass KeyOfPitchClass(
+                ChromaticPitchClass pitch,
                 out PitchTransform transform
             ) {
             foreach (var keytransform in keytransforms) {
@@ -44,7 +44,7 @@ namespace MusicWriter {
         }
 
         public static KeySignature Create(
-                KeyClass key,
+                DiatonicToneClass key,
                 PitchTransform transform,
                 Mode mode
             ) {
@@ -80,14 +80,14 @@ namespace MusicWriter {
             }
 
             var key_copy = key;
-            while (key_copy != KeyClass.C) {
+            while (key_copy != DiatonicToneClass.C) {
                 // rotate L one step
                 var step0 = keysteps[0];
                 for (int i = 1; i < keysteps.Length; i++)
                     keysteps[i - 1] = keysteps[i];
                 keysteps[keysteps.Length] = step0;
 
-                key_copy = (KeyClass)((int)key_copy - 1);
+                key_copy = (DiatonicToneClass)((int)key_copy - 1);
             }
 
             var signature =

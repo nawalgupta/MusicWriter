@@ -9,7 +9,7 @@ namespace MusicWriter {
         readonly PerceptualNote core;
         readonly int halfline;
         readonly float x;
-        readonly Key key;
+        readonly DiatonicTone key;
         readonly PitchTransform transform;
 
         public PerceptualNote Core {
@@ -24,7 +24,7 @@ namespace MusicWriter {
             get { return x; }
         }
 
-        public Key Key {
+        public DiatonicTone Key {
             get { return key; }
         }
 
@@ -36,7 +36,7 @@ namespace MusicWriter {
                 PerceptualNote core,
                 int halfline,
                 float x,
-                Key key,
+                DiatonicTone key,
                 PitchTransform transform
             ) {
             this.core = core;

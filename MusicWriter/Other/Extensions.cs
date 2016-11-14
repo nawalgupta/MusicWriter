@@ -6,78 +6,78 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public static class Extensions {
-        public static PitchClass GetPitchClass(this KeyClass key) {
+        public static ChromaticPitchClass GetPitchClass(this DiatonicToneClass key) {
             switch (key) {
-                case KeyClass.C:
-                    return PitchClass.C;
+                case DiatonicToneClass.C:
+                    return ChromaticPitchClass.C;
 
-                case KeyClass.D:
-                    return PitchClass.D;
+                case DiatonicToneClass.D:
+                    return ChromaticPitchClass.D;
 
-                case KeyClass.E:
-                    return PitchClass.E;
+                case DiatonicToneClass.E:
+                    return ChromaticPitchClass.E;
 
-                case KeyClass.F:
-                    return PitchClass.F;
+                case DiatonicToneClass.F:
+                    return ChromaticPitchClass.F;
 
-                case KeyClass.G:
-                    return PitchClass.G;
+                case DiatonicToneClass.G:
+                    return ChromaticPitchClass.G;
 
-                case KeyClass.A:
-                    return PitchClass.A;
+                case DiatonicToneClass.A:
+                    return ChromaticPitchClass.A;
 
-                case KeyClass.B:
-                    return PitchClass.B;
+                case DiatonicToneClass.B:
+                    return ChromaticPitchClass.B;
 
                 default:
-                    return (PitchClass)key;
+                    return (ChromaticPitchClass)key;
             }
         }
 
-        public static KeyClass GetNaturalKeyClass(this PitchClass pitch) {
+        public static DiatonicToneClass GetNaturalKeyClass(this ChromaticPitchClass pitch) {
             switch (pitch) {
-                case PitchClass.C:
-                case PitchClass.Dflat:
-                    return KeyClass.C;
+                case ChromaticPitchClass.C:
+                case ChromaticPitchClass.Dflat:
+                    return DiatonicToneClass.C;
 
-                case PitchClass.D:
-                    return KeyClass.D;
+                case ChromaticPitchClass.D:
+                    return DiatonicToneClass.D;
 
-                case PitchClass.Eflat:
-                case PitchClass.E:
-                    return KeyClass.E;
+                case ChromaticPitchClass.Eflat:
+                case ChromaticPitchClass.E:
+                    return DiatonicToneClass.E;
 
-                case PitchClass.F:
-                    return KeyClass.F;
+                case ChromaticPitchClass.F:
+                    return DiatonicToneClass.F;
 
-                case PitchClass.Gflat:
-                case PitchClass.G:
-                    return KeyClass.G;
+                case ChromaticPitchClass.Gflat:
+                case ChromaticPitchClass.G:
+                    return DiatonicToneClass.G;
 
-                case PitchClass.Aflat:
-                case PitchClass.A:
-                    return KeyClass.A;
+                case ChromaticPitchClass.Aflat:
+                case ChromaticPitchClass.A:
+                    return DiatonicToneClass.A;
 
-                case PitchClass.Bflat:
-                case PitchClass.B:
-                    return KeyClass.B;
+                case ChromaticPitchClass.Bflat:
+                case ChromaticPitchClass.B:
+                    return DiatonicToneClass.B;
 
                 default:
-                    return (KeyClass)pitch;
+                    return (DiatonicToneClass)pitch;
             }
         }
 
-        public static Key ToKey(this KeyClass keyclass, int octave) =>
-            new Key(
+        public static DiatonicTone ToKey(this DiatonicToneClass keyclass, int octave) =>
+            new DiatonicTone(
                 keyclass,
                 octave
             );
 
-        public static KeyClass ToRight(this KeyClass key) =>
-            (KeyClass)(((int)key + 1) % 7);
+        public static DiatonicToneClass ToRight(this DiatonicToneClass key) =>
+            (DiatonicToneClass)(((int)key + 1) % 7);
 
-        public static KeyClass ToLeft(this KeyClass key) =>
-            (KeyClass)(((int)key - 1) % 7);
+        public static DiatonicToneClass ToLeft(this DiatonicToneClass key) =>
+            (DiatonicToneClass)(((int)key - 1) % 7);
 
         public static IEnumerable<IDuratedItem<T>> Intersecting_children<T>(
                 this IDurationField<IDurationField<T>> field,

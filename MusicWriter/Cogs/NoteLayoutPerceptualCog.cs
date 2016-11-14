@@ -43,7 +43,7 @@ namespace MusicWriter {
                 PitchTransform transform;
 
                 var key =
-                    new Key(
+                    new DiatonicTone(
                             keysignature
                                 .KeyOfPitchClass(
                                         perceptualnote_item.Value.Note.Tone.PitchClass,

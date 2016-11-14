@@ -22,7 +22,7 @@ namespace MusicWriter {
         public IEnumerable<Note> AllNotes() =>
             notes_lookup.Values;
 
-        public Note AddNote(Tone tone, Duration duration) {
+        public Note AddNote(SemiTone tone, Duration duration) {
             var noteID = new NoteID(next_noteID++);
 
             notes_field.Add(noteID, duration);

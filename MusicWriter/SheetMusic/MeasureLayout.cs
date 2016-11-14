@@ -76,7 +76,7 @@ namespace MusicWriter {
                 keysignature.KeyOfPitchClass(note.Note.Tone.PitchClass, out transform);
 
             var key =
-                new Key(
+                new DiatonicTone(
                         keyclass,
                         note.Note.Tone.Octave
                     );

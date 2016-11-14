@@ -14,10 +14,10 @@ namespace MusicWriter {
         // Line 0 is the bottom line.
         // Half-line 4 would be the center of 5 whole-lines.
         
-        public int GetHalfLine(Key key) =>
+        public int GetHalfLine(DiatonicTone key) =>
             key - Clef.BottomKey + Shift;
 
-        public NoteStemDirection GetStemDirection(Key key) =>
+        public NoteStemDirection GetStemDirection(DiatonicTone key) =>
             GetHalfLine(key) >= MiddleHalfLine ?
                 NoteStemDirection.Down :
                 NoteStemDirection.Up;

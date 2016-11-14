@@ -9,18 +9,18 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MusicWriter.WinForms {
-    public partial class MainForm : Form {
+    public partial class FileEditorForm : Form {
         MusicEditorFile file = new MusicEditorFile();
 
-        public MainForm() {
+        public FileEditorForm() {
             InitializeComponent();
         }
 
         private void MainForm_Load(object sender, EventArgs e) {
             var track = file.Add("abc");
 
-            track.Melody.AddNote(Tone.C5, new Duration { Start = Time.Zero, Length = Time.Note });
-            track.Melody.AddNote(Tone.C5, new Duration { Start = Time.Note, Length = Time.Note_4th });
+            track.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Zero, Length = Time.Note });
+            track.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Note, Length = Time.Note_4th });
 
             Editor.LoadFrom(file, "abc");
 
