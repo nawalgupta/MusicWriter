@@ -85,7 +85,7 @@ namespace MusicWriter {
                 staff.GetHalfLine(key);
 
             var x =
-                ToVirtualPX(note.Duration.Start);
+                ToVirtualPX(note.Duration.Start - duration.Start);
 
             return
                 new NoteLayout(
@@ -223,6 +223,6 @@ namespace MusicWriter {
         }
 
         float ToVirtualPX(Time time) =>
-            (time / Time.Note_128th_3rd_5th_7th) * 0.2F;
+            (time / Time.Note_128th_3rd_5th_7th) * 0.1F;
     }
 }

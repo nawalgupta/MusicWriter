@@ -71,21 +71,21 @@ namespace MusicWriter {
 
         public IEnumerable<IDuratedItem<T>> Intersecting(Time point) =>
             elements_start
-                .AfterOrAt(point)
+                .BeforeOrAt(point)
                 .Select(kvp => kvp.Value)
                 .Intersect(
                         elements_end
-                            .BeforeOrAt(point)
+                            .After(point)
                             .Select(kvp => kvp.Value)
                     );
 
         public IEnumerable<IDuratedItem<T>> Intersecting(Duration duration) =>
             elements_start
-                .AfterOrAt(duration.Start)
+                .BeforeOrAt(duration.End)
                 .Select(kvp => kvp.Value)
                 .Intersect(
                         elements_end
-                            .BeforeOrAt(duration.End)
+                            .After(duration.Start)
                             .Select(kvp => kvp.Value)
                     );
     }

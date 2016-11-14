@@ -16,31 +16,43 @@ namespace MusicWriter {
         public bool Analyze(Duration delta, MusicBrain brain) {
             bool flag = false;
 
-            foreach (var measure in brain.Anlyses<Measure>(delta)) {
-                if (knowledge.AnyItemIn(measure.Duration))
+            var notes =
+                brain.Anlyses<PerceptualNote>(delta);
+
+            var measures =
+                notes
+                    .GroupBy(
+                            note => brain.Anlyses<Measure>(note.Duration).Single()
+                        );
+
+            foreach (var measure in measures) {
+                var duration =
+                    measure.Key.Duration;
+
+                if (knowledge.AnyItemIn(measure.Key.Duration))
                     continue;
 
-                var notes =
-                    brain.Anlyses<PerceptualNote>(measure.Duration);
+                var measure_notes =
+                    measure;
 
                 var track =
                     brain.Track;
 
                 var staff =
                     brain
-                        .Anlyses<Staff>(measure.Duration)
+                        .Anlyses<Staff>(duration)
                         .Single()
                         .Value;
 
                 var measurelayout =
                     new MeasureLayout(
-                            measure.Duration,
-                            notes.Select(note => note.Value).ToArray(),
+                            duration,
+                            measure_notes.Select(note => note.Value).ToArray(),
                             track,
                             staff
                         );
 
-                knowledge.Add(measurelayout, measure.Duration);
+                knowledge.Add(measurelayout, duration);
 
                 flag = true;
             }

@@ -30,7 +30,7 @@
             // Editor
             // 
             this.Editor.Brain = null;
-            this.Editor.Location = new System.Drawing.Point(107, 70);
+            this.Editor.Location = new System.Drawing.Point(28, 46);
             this.Editor.Name = "Editor";
             this.Editor.ScrollX = 0F;
             sheetMusicRenderSettings1.MarginalBottomHalfLines = 3;
@@ -42,7 +42,7 @@
             sheetMusicRenderSettings1.PixelsScale = 1F;
             sheetMusicRenderSettings1.TimeSignatureFont = new System.Drawing.Font("Times New Roman", 18F);
             this.Editor.Settings = sheetMusicRenderSettings1;
-            this.Editor.Size = new System.Drawing.Size(408, 228);
+            this.Editor.Size = new System.Drawing.Size(631, 218);
             this.Editor.TabIndex = 0;
             this.Editor.Track = null;
             // 

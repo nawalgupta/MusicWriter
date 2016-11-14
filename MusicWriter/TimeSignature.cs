@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using static MusicWriter.TimeSignature;
 
 namespace MusicWriter {
-    public sealed class TimeSignature : IDurationField<Simple> {
-        public sealed class Simple {
+    public sealed class TimeSignature :
+        IDurationField<Simple>,
+        IEquatable<TimeSignature> {
+        public sealed class Simple : IEquatable<Simple> {
             public int Upper, Lower;
 
             public Time Length {
@@ -18,6 +20,16 @@ namespace MusicWriter {
                 Upper = upper;
                 Lower = lower;
             }
+
+            public override int GetHashCode() =>
+                Upper << 16 + Lower;
+
+            public override bool Equals(object obj) =>
+                ((obj as Simple)?.Equals(this)).GetValueOrDefault();
+
+            public bool Equals(Simple that) =>
+                Upper == that.Upper &&
+                Lower == that.Lower;
         }
 
         readonly DurationCircle<Simple> simplescircle =
@@ -78,6 +90,15 @@ namespace MusicWriter {
             simplescircle
                 .Intersecting(duration)
                 .Cast<IDuratedItem<Simple>>();
+
+        public override int GetHashCode() =>
+            Simples.GetHashCode();
+
+        public override bool Equals(object obj) =>
+            ((obj as TimeSignature)?.Equals(this)).GetValueOrDefault();
+
+        public bool Equals(TimeSignature other) =>
+            Simples.SequenceEqual(other.Simples);
 
         //public Simple GetSimple(Time offset, out Time simple_start) {
         //    var mod_offset = offset % totalsimpleslength;
