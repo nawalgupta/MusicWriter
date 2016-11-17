@@ -81,10 +81,10 @@ namespace MusicWriter.WinForms {
         }
 
         private void ControllerFactories_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-            mnuAddView.Items.Clear();
+            mnuAddController.Items.Clear();
 
             foreach (var controllerfactory in screen.Capabilities.ControllerFactories)
-                mnuAddView.Items.Add(new ToolStripMenuItem {
+                mnuAddController.Items.Add(new ToolStripMenuItem {
                     Text = controllerfactory.Name,
                     Tag = controllerfactory
                 });
@@ -108,10 +108,16 @@ namespace MusicWriter.WinForms {
         private void Tracks_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             var newitems = ExpandWierdArgs<ITrack>(e.NewItems).ToArray();
 
-            if (e.OldItems != null)
-                for (var i = 0; i < e.OldItems.Count; i++)
-                    if (lsvTracks.Items.Count > i)
+            if (e.OldItems != null) {
+                for (var i = 0; i < e.OldItems.Count; i++) {
+                    if (lsvTracks.Items.Count > i) {
                         lsvTracks.Items.RemoveAt(e.OldStartingIndex + i);
+
+                        var track = (ITrack)e.OldItems[i];
+                        track.Name.AfterChange -= Tracks_NameChanged;  
+                    }
+                }
+            }
 
             for (var i = 0; i < newitems.Length; i++) {
                 var value =
@@ -121,12 +127,23 @@ namespace MusicWriter.WinForms {
                     var item =
                         new ListViewItem();
 
+                    value.Name.AfterChange += Tracks_NameChanged;
+                    
                     item.Text = value.Name.Value;
                     item.Tag = value;
 
                     lsvTracks.Items.Insert(e.NewStartingIndex + i, item);
                 }
             }
+        }
+
+        private void Tracks_NameChanged(string old, string @new) {
+            Invoke(new Action(() => {
+                for (int i = 0; i < lsvTracks.Items.Count; i++) {
+                    if (lsvTracks.Items[i].Text == old)
+                        lsvTracks.Items[i].Text = @new;
+                }
+            }));
         }
 
         IEnumerable<T> ExpandWierdArgs<T>(IList wierdlist) where T : class {
@@ -183,9 +200,15 @@ namespace MusicWriter.WinForms {
                     }
                 }
             }
+
+            if (e.NewItems.Count == lsvControllers.Items.Count &&
+                e.NewItems.Count > 0) {// all items are fresh
+                lsvControllers.Items[0].Selected = true;
+                Invalidate(true);
+            }
         }
 
-        private void lsvViews_SelectedIndexChanged(object sender, EventArgs e) {
+        private void lsvControllers_SelectedIndexChanged(object sender, EventArgs e) {
             if (lsvControllers.SelectedIndices.Count == 0)
                 return;
 
@@ -200,11 +223,11 @@ namespace MusicWriter.WinForms {
             lsvTracks_disabled = false;
         }
 
-        private void txtSearchViews_TextChanged(object sender, EventArgs e) {
+        private void txtSearchControllers_TextChanged(object sender, EventArgs e) {
 
         }
 
-        private void btnDeleteView_Click(object sender, EventArgs e) {
+        private void btnDeleteController_Click(object sender, EventArgs e) {
             var controller = SelectedController;
 
             if (controller == null)
@@ -214,8 +237,8 @@ namespace MusicWriter.WinForms {
             }
         }
 
-        private void btnAddView_Click(object sender, EventArgs e) {
-            mnuAddView.Show(btnAddView, new Point(btnAddView.Width, btnAddView.Height), ToolStripDropDownDirection.BelowRight);
+        private void btnAddController_Click(object sender, EventArgs e) {
+            mnuAddController.Show(btnAddView, new Point(btnAddView.Width, btnAddView.Height), ToolStripDropDownDirection.BelowRight);
         }
         
         private void txtSearchTracks_TextChanged(object sender, EventArgs e) {
@@ -239,7 +262,7 @@ namespace MusicWriter.WinForms {
             mnuAddTrack.Show(btnAddTrack, new Point(btnAddTrack.Width, btnAddTrack.Height), ToolStripDropDownDirection.BelowLeft);
         }
 
-        private void mnuAddView_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
+        private void mnuAddController_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
             var controllerfactory =
                 (ITrackControllerFactory<Control>)
                 e.ClickedItem.Tag;
@@ -257,6 +280,12 @@ namespace MusicWriter.WinForms {
 
             var newtrack =
                 trackfactory.Create();
+
+            var prefix = newtrack.Name.Value = "Track ";
+            var i = 0;
+
+            while (File.Tracks.Any(t => t.Name.Value == newtrack.Name.Value))
+                newtrack.Name.Value = prefix + (++i).ToString();
 
             File.Tracks.Add(newtrack);
         }

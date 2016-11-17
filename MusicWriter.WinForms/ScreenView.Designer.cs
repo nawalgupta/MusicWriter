@@ -26,8 +26,8 @@
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.Panel pnlViewTools;
             System.Windows.Forms.Panel panel1;
-            this.txtSearchViews = new System.Windows.Forms.TextBox();
-            this.btnDeleteView = new System.Windows.Forms.Button();
+            this.txtSearchControllers = new System.Windows.Forms.TextBox();
+            this.btnDeleteController = new System.Windows.Forms.Button();
             this.btnAddView = new System.Windows.Forms.Button();
             this.txtSearchTracks = new System.Windows.Forms.TextBox();
             this.btnDeleteTrack = new System.Windows.Forms.Button();
@@ -38,7 +38,7 @@
             this.clmViewName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.lsvTracks = new System.Windows.Forms.ListView();
             this.pnlViews = new System.Windows.Forms.Panel();
-            this.mnuAddView = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.mnuAddController = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.mnuAddTrack = new System.Windows.Forms.ContextMenuStrip(this.components);
             pnlViewTools = new System.Windows.Forms.Panel();
             panel1 = new System.Windows.Forms.Panel();
@@ -56,8 +56,8 @@
             // 
             // pnlViewTools
             // 
-            pnlViewTools.Controls.Add(this.txtSearchViews);
-            pnlViewTools.Controls.Add(this.btnDeleteView);
+            pnlViewTools.Controls.Add(this.txtSearchControllers);
+            pnlViewTools.Controls.Add(this.btnDeleteController);
             pnlViewTools.Controls.Add(this.btnAddView);
             pnlViewTools.Dock = System.Windows.Forms.DockStyle.Top;
             pnlViewTools.Location = new System.Drawing.Point(0, 0);
@@ -65,26 +65,26 @@
             pnlViewTools.Size = new System.Drawing.Size(211, 22);
             pnlViewTools.TabIndex = 0;
             // 
-            // txtSearchViews
+            // txtSearchControllers
             // 
-            this.txtSearchViews.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtSearchViews.Location = new System.Drawing.Point(0, 0);
-            this.txtSearchViews.Name = "txtSearchViews";
-            this.txtSearchViews.Size = new System.Drawing.Size(165, 20);
-            this.txtSearchViews.TabIndex = 3;
-            this.txtSearchViews.Text = "Views";
-            this.txtSearchViews.TextChanged += new System.EventHandler(this.txtSearchViews_TextChanged);
+            this.txtSearchControllers.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtSearchControllers.Location = new System.Drawing.Point(0, 0);
+            this.txtSearchControllers.Name = "txtSearchControllers";
+            this.txtSearchControllers.Size = new System.Drawing.Size(165, 20);
+            this.txtSearchControllers.TabIndex = 3;
+            this.txtSearchControllers.Text = "Controllers";
+            this.txtSearchControllers.TextChanged += new System.EventHandler(this.txtSearchControllers_TextChanged);
             // 
-            // btnDeleteView
+            // btnDeleteController
             // 
-            this.btnDeleteView.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnDeleteView.Location = new System.Drawing.Point(165, 0);
-            this.btnDeleteView.Name = "btnDeleteView";
-            this.btnDeleteView.Size = new System.Drawing.Size(23, 22);
-            this.btnDeleteView.TabIndex = 2;
-            this.btnDeleteView.Text = "-";
-            this.btnDeleteView.UseVisualStyleBackColor = true;
-            this.btnDeleteView.Click += new System.EventHandler(this.btnDeleteView_Click);
+            this.btnDeleteController.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnDeleteController.Location = new System.Drawing.Point(165, 0);
+            this.btnDeleteController.Name = "btnDeleteController";
+            this.btnDeleteController.Size = new System.Drawing.Size(23, 22);
+            this.btnDeleteController.TabIndex = 2;
+            this.btnDeleteController.Text = "-";
+            this.btnDeleteController.UseVisualStyleBackColor = true;
+            this.btnDeleteController.Click += new System.EventHandler(this.btnDeleteController_Click);
             // 
             // btnAddView
             // 
@@ -95,7 +95,7 @@
             this.btnAddView.TabIndex = 1;
             this.btnAddView.Text = "+";
             this.btnAddView.UseVisualStyleBackColor = true;
-            this.btnAddView.Click += new System.EventHandler(this.btnAddView_Click);
+            this.btnAddView.Click += new System.EventHandler(this.btnAddController_Click);
             // 
             // panel1
             // 
@@ -194,7 +194,7 @@
             this.lsvControllers.View = System.Windows.Forms.View.Details;
             this.lsvControllers.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.lsvControllers_AfterLabelEdit);
             this.lsvControllers.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.lsvControllers_ItemChecked);
-            this.lsvControllers.SelectedIndexChanged += new System.EventHandler(this.lsvViews_SelectedIndexChanged);
+            this.lsvControllers.SelectedIndexChanged += new System.EventHandler(this.lsvControllers_SelectedIndexChanged);
             // 
             // clmViewName
             // 
@@ -226,11 +226,11 @@
             this.pnlViews.Size = new System.Drawing.Size(422, 381);
             this.pnlViews.TabIndex = 0;
             // 
-            // mnuAddView
+            // mnuAddController
             // 
-            this.mnuAddView.Name = "mnuAddView";
-            this.mnuAddView.Size = new System.Drawing.Size(61, 4);
-            this.mnuAddView.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.mnuAddView_ItemClicked);
+            this.mnuAddController.Name = "mnuAddView";
+            this.mnuAddController.Size = new System.Drawing.Size(61, 4);
+            this.mnuAddController.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.mnuAddController_ItemClicked);
             // 
             // mnuAddTrack
             // 
@@ -265,14 +265,14 @@
         private System.Windows.Forms.SplitContainer spltSidebar;
         private System.Windows.Forms.Panel pnlViews;
         private System.Windows.Forms.ListView lsvControllers;
-        private System.Windows.Forms.TextBox txtSearchViews;
-        private System.Windows.Forms.Button btnDeleteView;
+        private System.Windows.Forms.TextBox txtSearchControllers;
+        private System.Windows.Forms.Button btnDeleteController;
         private System.Windows.Forms.Button btnAddView;
         private System.Windows.Forms.ListView lsvTracks;
         private System.Windows.Forms.TextBox txtSearchTracks;
         private System.Windows.Forms.Button btnDeleteTrack;
         private System.Windows.Forms.Button btnAddTrack;
-        private System.Windows.Forms.ContextMenuStrip mnuAddView;
+        private System.Windows.Forms.ContextMenuStrip mnuAddController;
         private System.Windows.Forms.ContextMenuStrip mnuAddTrack;
         private System.Windows.Forms.ColumnHeader clmViewName;
     }
