@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Collections.Specialized;
 using System.Collections.ObjectModel;
+using System.Collections;
 
 namespace MusicWriter.WinForms {
     public partial class ScreenView : TabPage {
@@ -51,7 +52,7 @@ namespace MusicWriter.WinForms {
                 screen.Name.AfterChange += Name_AfterChange;
 
                 screen.Controllers.CollectionChanged += Controllers_CollectionChanged;
-                Controllers_CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, screen.Controllers, (IList<ITrackController<Control>>)old?.Controllers ?? new List<ITrackController<Control>>(), 0));
+                Controllers_CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, (IList)screen.Controllers, (IList<ITrackController<Control>>)old?.Controllers ?? new List<ITrackController<Control>>(), 0));
 
                 screen.Capabilities.ControllerFactories.CollectionChanged += ControllerFactories_CollectionChanged;
                 ControllerFactories_CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, screen.Capabilities.ControllerFactories, (IList<ITrackControllerFactory<Control>>)old?.Capabilities.ControllerFactories ?? new List<ITrackControllerFactory<Control>>()));
@@ -105,14 +106,16 @@ namespace MusicWriter.WinForms {
         }
 
         private void Tracks_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+            var newitems = ExpandWierdArgs<ITrack>(e.NewItems).ToArray();
+
             if (e.OldItems != null)
                 for (var i = 0; i < e.OldItems.Count; i++)
                     if (lsvTracks.Items.Count > i)
                         lsvTracks.Items.RemoveAt(e.OldStartingIndex + i);
 
-            for (var i = 0; i < e.NewItems.Count; i++) {
+            for (var i = 0; i < newitems.Length; i++) {
                 var value =
-                    e.NewItems[i] as ITrack;
+                    newitems[i] as ITrack;
 
                 if (value != null) {
                     var item =
@@ -126,7 +129,29 @@ namespace MusicWriter.WinForms {
             }
         }
 
+        IEnumerable<T> ExpandWierdArgs<T>(IList wierdlist) where T : class {
+            if (wierdlist == null)
+                yield break;
+
+            foreach(var x in wierdlist) {
+                var list =
+                    x as IList<T>;
+
+                var t =
+                    x as T;
+
+                if (t != null)
+                    yield return t;
+
+                if (list != null)
+                    foreach (T t2 in list)
+                        yield return t2;
+            }
+        }
+
         private void Controllers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+            var newitems = ExpandWierdArgs<ITrackController<Control>>(e.NewItems).ToArray();
+
             if (e.OldItems != null) {
                 for (var i = 0; i < e.OldItems.Count; i++) {
                     if (lsvControllers.Items.Count > i)
@@ -138,9 +163,9 @@ namespace MusicWriter.WinForms {
             }
 
             if (e.NewItems != null) {
-                for (var i = 0; i < e.NewItems.Count; i++) {
+                for (var i = 0; i < newitems.Length; i++) {
                     var value =
-                        e.NewItems[i] as ITrackController<Control>;
+                        newitems[i] as ITrackController<Control>;
 
                     if (value != null) {
                         var item =
@@ -148,7 +173,8 @@ namespace MusicWriter.WinForms {
 
                         item.Text = value.Name.Value;
                         item.Tag = value;
-                        
+                        item.Checked = true;
+
                         value.View.Dock = DockStyle.Top;
 
                         lsvControllers.Items.Insert(e.NewStartingIndex + i, item);
@@ -160,6 +186,9 @@ namespace MusicWriter.WinForms {
         }
 
         private void lsvViews_SelectedIndexChanged(object sender, EventArgs e) {
+            if (lsvControllers.SelectedIndices.Count == 0)
+                return;
+
             lsvTracks_disabled = true;
 
             foreach (ListViewItem item in lsvTracks.Items) {
@@ -202,7 +231,7 @@ namespace MusicWriter.WinForms {
                 foreach (var controller in screen.Controllers)
                     controller.Tracks.Remove(track);
 
-                file.Remove(track);
+                file.Tracks.Remove(track);
             }
         }
 
@@ -229,7 +258,7 @@ namespace MusicWriter.WinForms {
             var newtrack =
                 trackfactory.Create();
 
-            File.Add(newtrack);
+            File.Tracks.Add(newtrack);
         }
 
         bool lsvTracks_disabled = false;
@@ -246,6 +275,37 @@ namespace MusicWriter.WinForms {
             else {
                 SelectedController?.Tracks.Remove(track);
             }
+        }
+
+        private void lsvTracks_AfterLabelEdit(object sender, LabelEditEventArgs e) {
+            var track =
+                lsvTracks.Items[e.Item].Tag as ITrack;
+
+            track.Name.Value = e.Label;
+        }
+
+        private void lsvControllers_AfterLabelEdit(object sender, LabelEditEventArgs e) {
+            var controller =
+                lsvControllers.Items[e.Item].Tag as ITrackController<Control>;
+
+            controller.Name.Value = e.Label;
+        }
+
+        private void lsvControllers_ItemChecked(object sender, ItemCheckedEventArgs e) {
+            var controller =
+                e.Item.Tag as ITrackController<Control>;
+
+            if (!e.Item.Checked) {
+                pnlViews.Controls.Remove(controller.View);
+            }
+            else {
+                controller.View.Height = 10;
+                pnlViews.Controls.Add(controller.View);
+                pnlViews.Controls.SetChildIndex(controller.View, e.Item.Index);
+                controller.View.Invalidate(true);
+            }
+
+            pnlViews.Invalidate(true);
         }
     }
 }

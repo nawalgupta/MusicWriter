@@ -184,6 +184,7 @@
             this.clmViewName});
             this.lsvControllers.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lsvControllers.HideSelection = false;
+            this.lsvControllers.LabelEdit = true;
             this.lsvControllers.Location = new System.Drawing.Point(0, 22);
             this.lsvControllers.MultiSelect = false;
             this.lsvControllers.Name = "lsvControllers";
@@ -191,6 +192,8 @@
             this.lsvControllers.TabIndex = 1;
             this.lsvControllers.UseCompatibleStateImageBehavior = false;
             this.lsvControllers.View = System.Windows.Forms.View.Details;
+            this.lsvControllers.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.lsvControllers_AfterLabelEdit);
+            this.lsvControllers.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.lsvControllers_ItemChecked);
             this.lsvControllers.SelectedIndexChanged += new System.EventHandler(this.lsvViews_SelectedIndexChanged);
             // 
             // clmViewName
@@ -203,12 +206,14 @@
             this.lsvTracks.CheckBoxes = true;
             this.lsvTracks.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lsvTracks.HideSelection = false;
+            this.lsvTracks.LabelEdit = true;
             this.lsvTracks.Location = new System.Drawing.Point(0, 22);
             this.lsvTracks.Name = "lsvTracks";
             this.lsvTracks.Size = new System.Drawing.Size(211, 165);
             this.lsvTracks.TabIndex = 2;
             this.lsvTracks.UseCompatibleStateImageBehavior = false;
             this.lsvTracks.View = System.Windows.Forms.View.List;
+            this.lsvTracks.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.lsvTracks_AfterLabelEdit);
             this.lsvTracks.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.lsvTracks_ItemChecked);
             // 
             // pnlViews

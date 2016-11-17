@@ -29,12 +29,25 @@ namespace MusicWriter.WinForms {
             NewScreen();
         }
 
-        void NewScreen() =>
-            LoadScreen(
-                    new Screen<Control>(
-                            capabilities
-                        )
-                );
+        void NewScreen() {
+            var screen =
+                new Screen<Control>(capabilities);
+
+            var editor =
+                new SheetMusicEditor();
+
+            var track1 =
+                capabilities.TrackFactories[0].Create();
+
+            track1.Name.Value = "Track 1";
+            editor.Tracks.Add(track1);
+            file.Tracks.Add(track1);
+
+            screen.Controllers.Add(editor);
+            screen.Name.Value = "Screen 1";
+            
+            LoadScreen(screen);
+        }
 
         void LoadScreen(Screen<Control> screen) {
             ScreenView view = new ScreenView();

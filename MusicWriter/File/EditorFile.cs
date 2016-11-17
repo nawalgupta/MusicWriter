@@ -25,6 +25,18 @@ namespace MusicWriter {
 
         public EditorFile() {
             InitializeBrain();
+
+            Tracks.CollectionChanged += Tracks_CollectionChanged;
+        }
+
+        private void Tracks_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e) {
+            if (e.OldItems != null)
+                foreach (ITrack removedtrack in e.OldItems)
+                    Remove(removedtrack);
+
+            if (e.NewItems != null)
+                foreach (ITrack addedtrack in e.NewItems)
+                    Add(addedtrack);
         }
 
         void Rename(string old, string @new) {
@@ -35,29 +47,23 @@ namespace MusicWriter {
             trackmap.Remove(old);
         }
 
-        public void Remove(string trackname) {
-            if (!trackmap.ContainsKey(trackname))
+        void Remove(ITrack track) {
+            if (!trackmap.ContainsKey(track.Name.Value))
                 throw new InvalidOperationException("Cannot delete track - doesn't exist");
-
-            var track =
-                trackmap[trackname];
-
+            
             track.Name.BeforeChange -= Rename;
 
             Tracks.Remove(track);
-            trackmap.Remove(trackname);
+            trackmap.Remove(track.Name.Value);
         }
-
-        public void Remove(ITrack track) =>
-            Remove(track.Name.Value);
-
-        public void Add(ITrack track) {
+        
+        void Add(ITrack track) {
             if (trackmap.ContainsKey(track.Name.Value))
                 throw new InvalidOperationException("Cannot add track that already exists");
 
             track.Name.BeforeChange += Rename;
 
-            Tracks.Add(track);
+            trackmap.Add(track.Name.Value, track);
         }
 
         public MusicTrack NewMusicTrack(string name) {
