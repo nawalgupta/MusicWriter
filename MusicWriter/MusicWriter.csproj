@@ -37,7 +37,19 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Track\AdornmentTrack.cs" />
+    <Compile Include="Cogs\EditableMemoryModule.cs" />
+    <Compile Include="Cogs\IgnorantMemoryModule.cs" />
+    <Compile Include="File\FileCapabilities.cs" />
+    <Compile Include="File\ITrack.cs" />
+    <Compile Include="File\ITrackController.cs" />
+    <Compile Include="File\ITrackControllerFactory.cs" />
+    <Compile Include="File\ITrackFactory.cs" />
+    <Compile Include="File\NewControllerFactory.cs" />
+    <Compile Include="File\NewTrackFactory.cs" />
+    <Compile Include="File\Screen.cs" />
+    <Compile Include="Metadata\IMemoryModule.cs" />
+    <Compile Include="Metadata\PerceptualMemory.cs" />
+    <Compile Include="MusicTrack\AdornmentTrack.cs" />
     <Compile Include="Fields\AggregateDurationField.cs" />
     <Compile Include="Model\Cell.cs" />
     <Compile Include="Cogs\ChordLayoutPerceptualCog.cs" />
@@ -47,11 +59,14 @@
     <Compile Include="Fields\DurationCircle.cs" />
     <Compile Include="Fields\DurationField.cs" />
     <Compile Include="Metadata\ExplicitPropertyGraphlet.cs" />
+    <Compile Include="MusicTrack\MusicTrackFactory.cs" />
+    <Compile Include="Other\Caret.cs" />
+    <Compile Include="Other\ConverterList.cs" />
     <Compile Include="Other\Extensions.cs" />
+    <Compile Include="Other\ObservableProperty.cs" />
     <Compile Include="SheetMusic\FlagDirection.cs" />
     <Compile Include="Fields\IDuratedItem.cs" />
     <Compile Include="Fields\IDurationField.cs" />
-    <Compile Include="Cogs\IgnorantPerceptualCog.cs" />
     <Compile Include="Other\InternalExtensions.cs" />
     <Compile Include="Cogs\IPerceptualCog.cs" />
     <Compile Include="Model\DiatonicTone.cs" />
@@ -63,7 +78,7 @@
     <Compile Include="Model\MeterSignature.cs" />
     <Compile Include="Model\Mode.cs" />
     <Compile Include="Metadata\MusicBrain.cs" />
-    <Compile Include="File\MusicEditorFile.cs" />
+    <Compile Include="File\EditorFile.cs" />
     <Compile Include="Model\Note.cs" />
     <Compile Include="Other\NoteComparerByOffset.cs" />
     <Compile Include="Model\NoteID.cs" />
@@ -80,17 +95,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Other\Duration.cs" />
     <Compile Include="Metadata\IPropertyGraphlet.cs" />
-    <Compile Include="Track\RhythmTrack.cs" />
+    <Compile Include="MusicTrack\RhythmTrack.cs" />
     <Compile Include="Model\Staff.cs" />
     <Compile Include="SheetMusic\MeasureLayout.cs" />
     <Compile Include="Other\Statistics.cs" />
     <Compile Include="Other\Time.cs" />
     <Compile Include="Model\TimeSignature.cs" />
-    <Compile Include="Track\MelodyTrack.cs" />
+    <Compile Include="MusicTrack\MelodyTrack.cs" />
     <Compile Include="SheetMusic\TimeSignatureSimpleLayout.cs" />
     <Compile Include="Other\TimeTree.cs" />
     <Compile Include="Model\SemiTone.cs" />
-    <Compile Include="Track\Track.cs" />
+    <Compile Include="MusicTrack\MusicTrack.cs" />
     <Compile Include="Fields\CycledDuratedItem.cs" />
     <Compile Include="SheetMusic\TupletClass.cs" />
   </ItemGroup>

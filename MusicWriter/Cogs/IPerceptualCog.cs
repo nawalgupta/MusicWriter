@@ -8,11 +8,8 @@ namespace MusicWriter {
     public interface IPerceptualCog<out T> {
         bool Analyze(
                 Duration delta,
-                MusicBrain brain
+                MusicBrain brain,
+                PerceptualMemory memory
             );
-
-        void Forget(Duration delta);
-
-        IDurationField<T> Knowledge { get; }
     }
 }

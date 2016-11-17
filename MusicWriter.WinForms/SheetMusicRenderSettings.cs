@@ -22,11 +22,11 @@ namespace MusicWriter.WinForms {
         }
 
         public float Height {
-            get { return PixelsPerLine * (2 * MarginalBottomHalfLines + 2 * MarginalTopHalfLines + Staff.Lines) * PixelsScale; }
+            get { return PixelsPerLine * (MarginalBottomHalfLines + MarginalTopHalfLines + 2 * Staff.Lines) / 2 * PixelsScale; }
         }
 
         public float YVal(float halflines) =>
-            -PixelsPerHalfLine * halflines +
+            -PixelsPerHalfLine * (halflines + 1) +
             PixelsPerHalfLine * (Staff.Lines * 2 + MarginalTopHalfLines);
     }
 }

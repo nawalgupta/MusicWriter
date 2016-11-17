@@ -6,20 +6,21 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class ChordLayoutPerceptualCog : IPerceptualCog<ChordLayout> {
-        readonly DurationField<ChordLayout> knowledge =
-            new DurationField<ChordLayout>();
-
-        public IDurationField<ChordLayout> Knowledge {
-            get { return knowledge; }
-        }
-
-        public bool Analyze(Duration delta, MusicBrain brain) {
+        public bool Analyze(
+                Duration delta,
+                MusicBrain brain,
+                PerceptualMemory memory
+            ) {
             bool flag = false;
+
+            var memorymodule =
+                (EditableMemoryModule<ChordLayout>)
+                memory.MemoryModule<ChordLayout>();
 
             var builder =
                 new Dictionary<Duration, List<NoteLayout>>();
 
-            foreach (var notelayout in brain.Anlyses<NoteLayout>(delta)) {
+            foreach (var notelayout in memory.Analyses<NoteLayout>(delta)) {
                 List<NoteLayout> list;
 
                 if (!builder.TryGetValue(notelayout.Duration, out list))
@@ -32,17 +33,12 @@ namespace MusicWriter {
                 var chordlayout =
                     new ChordLayout(noteset.Value.ToArray());
 
-                knowledge.Add(chordlayout, noteset.Key);
+                memorymodule.Editable.Add(chordlayout, noteset.Key);
 
                 flag = true;
             }
 
             return flag;
-        }
-
-        public void Forget(Duration delta) {
-            foreach (var item in knowledge.Intersecting(delta).ToArray())
-                knowledge.Remove(item);
         }
     }
 }

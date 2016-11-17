@@ -27,6 +27,11 @@ namespace MusicWriter {
         //    }
         //}
 
+        public void Clear(Duration duration) {
+            foreach (var item in Intersecting(duration).ToArray())
+                Remove(item);
+        }
+
         public void Clear() {
             elements_end.Clear();
             elements_start.Clear();

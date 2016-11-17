@@ -15,6 +15,26 @@ namespace MusicWriter {
         readonly DurationField<MeterSignature> meters =
             new DurationField<MeterSignature>();
 
+        public IDurationField<TimeSignature> TimeSignatures {
+            get { return signatures; }
+        }
+
+        public IDurationField<MeterSignature> MeterSignatures {
+            get { return meters; }
+        }
+
+        public IDurationField<Cell> Cells {
+            get { return this; }
+        }
+
+        public IDurationField<Simple> Simples {
+            get { return this; }
+        }
+
+        public IDurationField<Measure> Measures {
+            get { return this; }
+        }
+
         public void SetTimeSignature(TimeSignature signature, Duration duration) {
             foreach (var oldsingature in signatures.Intersecting(duration).ToArray()) {
                 var intersection =

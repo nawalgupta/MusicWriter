@@ -6,41 +6,45 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class MeasureLayoutPerceptualCog : IPerceptualCog<MeasureLayout> {
-        readonly DurationField<MeasureLayout> knowledge =
-            new DurationField<MeasureLayout>();
-
-        public IDurationField<MeasureLayout> Knowledge {
-            get { return knowledge; }
-        }
-
-        public bool Analyze(Duration delta, MusicBrain brain) {
+        public bool Analyze(
+                Duration delta,
+                MusicBrain brain,
+                PerceptualMemory memory
+            ) {
             bool flag = false;
 
+            var memorymodule =
+                (EditableMemoryModule<MeasureLayout>)
+                memory.MemoryModule<MeasureLayout>();
+
             var notes =
-                brain.Anlyses<PerceptualNote>(delta);
+                memory.Analyses<PerceptualNote>(delta);
 
             var measures =
                 notes
                     .GroupBy(
-                            note => brain.Anlyses<Measure>(note.Duration).Single()
+                            note => memory.Analyses<Measure>(note.Duration).Single()
                         );
 
             foreach (var measure in measures) {
                 var duration =
                     measure.Key.Duration;
 
-                if (knowledge.AnyItemIn(measure.Key.Duration))
+                if (memorymodule.Knowledge.AnyItemIn(measure.Key.Duration))
                     continue;
 
                 var measure_notes =
                     measure;
 
-                var track =
-                    brain.Track;
+                var keysignature =
+                    memory
+                        .Analyses<KeySignature>(duration)
+                        .Single()
+                        .Value;
 
                 var staff =
-                    brain
-                        .Anlyses<Staff>(duration)
+                    memory
+                        .Analyses<Staff>(duration)
                         .Single()
                         .Value;
 
@@ -48,21 +52,16 @@ namespace MusicWriter {
                     new MeasureLayout(
                             duration,
                             measure_notes.Select(note => note.Value).ToArray(),
-                            track,
-                            staff
+                            staff,
+                            keysignature
                         );
 
-                knowledge.Add(measurelayout, duration);
+                memorymodule.Editable.Add(measurelayout, duration);
 
                 flag = true;
             }
 
             return flag;
-        }
-
-        public void Forget(Duration delta) {
-            foreach (var item in knowledge.Intersecting(delta).ToArray())
-                knowledge.Remove(item);
         }
     }
 }

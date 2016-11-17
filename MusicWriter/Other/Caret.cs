@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MusicWriter.WinForms {
-    public sealed class NoteCaret {
+namespace MusicWriter {
+    public sealed class Caret {
         public Time Focus {
             get {
                 switch (Side) {

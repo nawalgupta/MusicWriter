@@ -9,7 +9,6 @@ namespace MusicWriter {
         readonly Duration duration;
         readonly PerceptualNote[] notes;
         readonly List<ChordLayout> chords = new List<ChordLayout>();
-        readonly Track track;
         readonly Staff staff;
         readonly KeySignature keysignature;
         
@@ -20,13 +19,13 @@ namespace MusicWriter {
         public PerceptualNote[] Notes {
             get { return notes; }
         }
-        
-        public Track Track {
-            get { return track; }
-        }
 
         public Staff Staff {
             get { return staff; }
+        }
+        
+        public KeySignature KeySignature {
+            get { return keysignature; }
         }
 
         public float ScaleX { get; private set; } = 1.0F;
@@ -38,26 +37,17 @@ namespace MusicWriter {
         public MeasureLayout(
                 Duration duration,
                 PerceptualNote[] notes,
-                Track track,
-                Staff staff
+                Staff staff,
+                KeySignature keysignature
             ) {
             this.duration = duration;
             this.notes = notes;
-            this.track = track;
             this.staff = staff;
-
-            keysignature =
-                track
-                    .Adornment
-                    .KeySignatures
-                    .Intersecting(duration)
-                    .Single()
-                    .Value;
+            this.keysignature = keysignature;
 
             BreakFractions();
-
             LayoutChords();
-
+            LayoutBeams();
         }
 
         void BreakFractions() {

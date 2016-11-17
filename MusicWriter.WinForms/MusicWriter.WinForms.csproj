@@ -46,9 +46,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ITrackItem.cs" />
-    <Compile Include="ITrackItemEditor.cs" />
-    <Compile Include="NoteCaret.cs" />
     <Compile Include="FileEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -59,7 +56,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderedClefSymbol.cs" />
     <Compile Include="RenderedMeasure.cs" />
+    <Compile Include="RenderedSheetMusicItemPerceptualCog.cs" />
     <Compile Include="RenderedSheetMusicItem.cs" />
+    <Compile Include="ScreenView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ScreenView.Designer.cs">
+      <DependentUpon>ScreenView.cs</DependentUpon>
+    </Compile>
     <Compile Include="SheetMusicEditor.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -68,12 +72,7 @@
     </Compile>
     <Compile Include="SheetMusicRenderSettings.cs" />
     <Compile Include="RenderedTimeSignatureSimple.cs" />
-    <Compile Include="TrackEditor.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="TrackEditor.Designer.cs">
-      <DependentUpon>TrackEditor.cs</DependentUpon>
-    </Compile>
+    <Compile Include="SheetMusicTrackRenderer.cs" />
     <EmbeddedResource Include="FileEditorForm.resx">
       <DependentUpon>FileEditorForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -86,8 +85,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="TrackEditor.resx">
-      <DependentUpon>TrackEditor.cs</DependentUpon>
+    <EmbeddedResource Include="ScreenView.resx">
+      <DependentUpon>ScreenView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SheetMusicEditor.resx">
+      <DependentUpon>SheetMusicEditor.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

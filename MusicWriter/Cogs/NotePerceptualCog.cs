@@ -6,26 +6,40 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class NotePerceptualCog : IPerceptualCog<PerceptualNote> {
-        readonly DurationField<PerceptualNote> knowledge =
-            new DurationField<PerceptualNote>();
-        readonly Dictionary<NoteID, PerceptualNote[]> perceptualnotes_map =
-            new Dictionary<NoteID, PerceptualNote[]>();
-        
-        public IDurationField<PerceptualNote> Knowledge {
-            get { return knowledge; }
+        public sealed class MemoryModule : EditableMemoryModule<PerceptualNote> {
+            internal readonly Dictionary<NoteID, PerceptualNote[]> perceptualnotes_map =
+                new Dictionary<NoteID, PerceptualNote[]>();
+
+            public override void Forget(Duration duration) {
+                var notes =
+                    Editable
+                        .Intersecting(duration)
+                        .Select(perceptualnote => perceptualnote.Value.Note)
+                        .Distinct();
+                
+                foreach (var note in notes)
+                    perceptualnotes_map.Remove(note.ID);
+
+                base.Forget(duration);
+            }
         }
 
         public bool Analyze(
                 Duration duration,
-                MusicBrain brain
+                MusicBrain brain,
+                PerceptualMemory memory
             ) {
             bool flag = false;
 
+            var memorymodule =
+                (MemoryModule)
+                memory.MemoryModule<PerceptualNote>();
+
             var notes =
-                brain.Anlyses<Note>(duration);
+                memory.Analyses<Note>(duration);
             
             foreach (Note note in notes) {
-                if (perceptualnotes_map.ContainsKey(note.ID))
+                if (memorymodule.perceptualnotes_map.ContainsKey(note.ID))
                     continue;
 
                 var perceptualnotes =
@@ -36,7 +50,7 @@ namespace MusicWriter {
 
                 if (singlelength.Key == default(PerceptualTime)) {
                     var cells =
-                        brain.Anlyses<Cell>(note.Duration);
+                        memory.Analyses<Cell>(note.Duration);
 
                     var i = 0;
 
@@ -65,13 +79,13 @@ namespace MusicWriter {
                                     note
                                 );
 
-                            knowledge.Add(perceptualnote, cutduration);
+                            memorymodule.Editable.Add(perceptualnote, cutduration);
 
                             perceptualnotes.Add(perceptualnote);
                         }
                     }
 
-                    perceptualnotes_map.Add(note.ID, perceptualnotes.ToArray());
+                    memorymodule.perceptualnotes_map.Add(note.ID, perceptualnotes.ToArray());
                 }
                 else {
                     var perceptualnote =
@@ -86,30 +100,15 @@ namespace MusicWriter {
                                 note
                             );
                     
-                    knowledge.Add(perceptualnote, note.Duration);
+                    memorymodule.Editable.Add(perceptualnote, note.Duration);
 
-                    perceptualnotes_map.Add(note.ID, new[] { perceptualnote });
+                    memorymodule.perceptualnotes_map.Add(note.ID, new[] { perceptualnote });
                 }
                 
                 flag = true;
             }
 
             return flag;
-        }
-
-        public void Forget(Duration delta) {
-            var notes =
-                knowledge
-                    .Intersecting(delta)
-                    .Select(perceptualnote => perceptualnote.Value.Note)
-                    .Distinct();
-
-            foreach (var note in notes) {
-                foreach (var perceptualnote in perceptualnotes_map[note.ID])
-                    knowledge.Remove(perceptualnote);
-
-                perceptualnotes_map.Remove(note.ID);
-            }
         }
     }
 }

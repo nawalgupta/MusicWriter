@@ -28,11 +28,11 @@ namespace MusicWriter {
             notes_field.Add(noteID, duration);
 
             var note =
-                new Note(noteID) {
-                    Duration = duration,
-                    Tone = tone,
-                    Velocity = 0.5f
-                };
+                new Note(
+                        noteID,
+                        duration,
+                        tone
+                    );
 
             notes_lookup.Add(noteID, note);
 
@@ -40,8 +40,15 @@ namespace MusicWriter {
         }
 
         public void UpdateNote(Note note, Duration newduration) {
+            var newnote =
+                new Note(
+                        note.ID,
+                        newduration,
+                        note.Tone
+                    );
+
             notes_field.Remove(note.ID, note.Duration);
-            notes_field.Add(note.ID, note.Duration = newduration);
+            notes_field.Add(note.ID, newduration);
         }
 
         public void DeleteNote(Note note) {

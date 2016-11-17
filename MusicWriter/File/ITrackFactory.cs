@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MusicWriter.WinForms {
-    public interface ITrackItemEditor {
+namespace MusicWriter {
+    public interface ITrackFactory {
+        string Name { get; }
 
+        ITrack Create();
     }
 }

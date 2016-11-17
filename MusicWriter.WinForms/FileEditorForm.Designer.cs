@@ -23,67 +23,103 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            MusicWriter.WinForms.SheetMusicRenderSettings sheetMusicRenderSettings1 = new MusicWriter.WinForms.SheetMusicRenderSettings();
-            this.Editor = new MusicWriter.WinForms.SheetMusicEditor();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel2.SuspendLayout();
-            this.splitContainer1.SuspendLayout();
+            this.components = new System.ComponentModel.Container();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.stubMenuItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tabScreens = new System.Windows.Forms.TabControl();
+            this.mnuHeader = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.mnuHeaderRenameBox = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.mnuHeaderClose = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStrip1.SuspendLayout();
+            this.mnuHeader.SuspendLayout();
             this.SuspendLayout();
             // 
-            // Editor
+            // menuStrip1
             // 
-            this.Editor.Brain = null;
-            this.Editor.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.Editor.Location = new System.Drawing.Point(0, 0);
-            this.Editor.Name = "Editor";
-            this.Editor.ScrollX = 0F;
-            sheetMusicRenderSettings1.MarginalBottomHalfLines = 3;
-            sheetMusicRenderSettings1.MarginalTopHalfLines = 3;
-            sheetMusicRenderSettings1.NoteHeadRadius = 4.5F;
-            sheetMusicRenderSettings1.PixelsPerHalfLine = 10F;
-            sheetMusicRenderSettings1.PixelsPerLine = 20F;
-            sheetMusicRenderSettings1.PixelsPerX = 100F;
-            sheetMusicRenderSettings1.PixelsScale = 1F;
-            sheetMusicRenderSettings1.TimeSignatureFont = new System.Drawing.Font("Times New Roman", 18F);
-            this.Editor.Settings = sheetMusicRenderSettings1;
-            this.Editor.Size = new System.Drawing.Size(492, 392);
-            this.Editor.TabIndex = 0;
-            this.Editor.Track = null;
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.stubMenuItemToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(743, 24);
+            this.menuStrip1.TabIndex = 0;
+            this.menuStrip1.Text = "menuStrip1";
             // 
-            // splitContainer1
+            // stubMenuItemToolStripMenuItem
             // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Name = "splitContainer1";
+            this.stubMenuItemToolStripMenuItem.Name = "stubMenuItemToolStripMenuItem";
+            this.stubMenuItemToolStripMenuItem.Size = new System.Drawing.Size(104, 20);
+            this.stubMenuItemToolStripMenuItem.Text = "Stub Menu Item";
             // 
-            // splitContainer1.Panel2
+            // tabScreens
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.Editor);
-            this.splitContainer1.Size = new System.Drawing.Size(743, 392);
-            this.splitContainer1.SplitterDistance = 247;
-            this.splitContainer1.TabIndex = 1;
+            this.tabScreens.ContextMenuStrip = this.mnuHeader;
+            this.tabScreens.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabScreens.Location = new System.Drawing.Point(0, 24);
+            this.tabScreens.Name = "tabScreens";
+            this.tabScreens.SelectedIndex = 0;
+            this.tabScreens.Size = new System.Drawing.Size(743, 368);
+            this.tabScreens.TabIndex = 1;
+            // 
+            // mnuHeader
+            // 
+            this.mnuHeader.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnuHeaderRenameBox,
+            this.toolStripSeparator1,
+            this.mnuHeaderClose});
+            this.mnuHeader.Name = "mnuHeader";
+            this.mnuHeader.Size = new System.Drawing.Size(161, 79);
+            this.mnuHeader.Closing += new System.Windows.Forms.ToolStripDropDownClosingEventHandler(this.mnuHeader_Closing);
+            this.mnuHeader.Opening += new System.ComponentModel.CancelEventHandler(this.mnuHeader_Opening);
+            // 
+            // mnuHeaderRenameBox
+            // 
+            this.mnuHeaderRenameBox.Name = "mnuHeaderRenameBox";
+            this.mnuHeaderRenameBox.Size = new System.Drawing.Size(100, 23);
+            this.mnuHeaderRenameBox.TextChanged += new System.EventHandler(this.mnuHeaderRenameBox_TextChanged);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(157, 6);
+            // 
+            // mnuHeaderClose
+            // 
+            this.mnuHeaderClose.Name = "mnuHeaderClose";
+            this.mnuHeaderClose.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F4)));
+            this.mnuHeaderClose.Size = new System.Drawing.Size(160, 22);
+            this.mnuHeaderClose.Text = "Close";
+            this.mnuHeaderClose.Click += new System.EventHandler(this.mnuHeaderClose_Click);
             // 
             // FileEditorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(743, 392);
-            this.Controls.Add(this.splitContainer1);
+            this.Controls.Add(this.tabScreens);
+            this.Controls.Add(this.menuStrip1);
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "FileEditorForm";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.MainForm_Load);
-            this.splitContainer1.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-            this.splitContainer1.ResumeLayout(false);
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
+            this.mnuHeader.ResumeLayout(false);
+            this.mnuHeader.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
-        private SheetMusicEditor Editor;
-        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem stubMenuItemToolStripMenuItem;
+        private System.Windows.Forms.TabControl tabScreens;
+        private System.Windows.Forms.ContextMenuStrip mnuHeader;
+        private System.Windows.Forms.ToolStripTextBox mnuHeaderRenameBox;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem mnuHeaderClose;
     }
 }
 

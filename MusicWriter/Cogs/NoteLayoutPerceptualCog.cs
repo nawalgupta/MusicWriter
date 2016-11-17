@@ -6,37 +6,47 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class NoteLayoutPerceptualCog : IPerceptualCog<NoteLayout> {
-        readonly DurationField<NoteLayout> knowledge =
-            new DurationField<NoteLayout>();
+        public sealed class MemoryModule : EditableMemoryModule<NoteLayout> {
+            internal readonly List<PerceptualNoteID> known_notes =
+                new List<PerceptualNoteID>();
 
-        readonly List<PerceptualNoteID> known_notes =
-            new List<PerceptualNoteID>();
-        
-        public IDurationField<NoteLayout> Knowledge {
-            get { return knowledge; }
+            public override void Forget(Duration duration) {
+                foreach (var note in Knowledge.Intersecting(duration))
+                    known_notes.Remove(note.Value.Core.ID);
+
+                base.Forget(duration);
+            }
         }
 
-        public bool Analyze(Duration delta, MusicBrain brain) {
+        public bool Analyze(
+                Duration delta,
+                MusicBrain brain,
+                PerceptualMemory memory
+            ) {
             bool flag = false;
 
+            var memorymodule =
+                (MemoryModule)
+                memory.MemoryModule<NoteLayout>();
+
             var perceptualnotes_items =
-                brain.Anlyses<PerceptualNote>(delta);
+                memory.Analyses<PerceptualNote>(delta);
 
             foreach (var perceptualnote_item in perceptualnotes_items) {
-                if (known_notes.Contains(perceptualnote_item.Value.ID))
+                if (memorymodule.known_notes.Contains(perceptualnote_item.Value.ID))
                     continue;
 
-                known_notes.Add(perceptualnote_item.Value.ID);
+                memorymodule.known_notes.Add(perceptualnote_item.Value.ID);
 
                 var staff =
-                    brain
-                        .Anlyses<Staff>(perceptualnote_item.Duration)
+                    memory
+                        .Analyses<Staff>(perceptualnote_item.Duration)
                         .Single()
                         .Value;
 
                 var keysignature =
-                    brain
-                        .Anlyses<KeySignature>(perceptualnote_item.Duration)
+                    memory
+                        .Analyses<KeySignature>(perceptualnote_item.Duration)
                         .Single()
                         .Value;
 
@@ -68,19 +78,12 @@ namespace MusicWriter {
                             transform
                         );
 
-                knowledge.Add(notelayout, perceptualnote_item.Duration);
+                memorymodule.Editable.Add(notelayout, perceptualnote_item.Duration);
 
                 flag = true;
             }
 
             return flag;
-        }
-
-        public void Forget(Duration delta) {
-            foreach (var item in knowledge.Intersecting(delta).ToArray()) {
-                knowledge.Remove(item);
-                known_notes.Remove(item.Value.Core.ID);
-            }
         }
     }
 }
