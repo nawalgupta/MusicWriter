@@ -39,7 +39,7 @@ namespace MusicWriter.WinForms {
                 items_clefsymbols.Clear(duration);
             }
         }
-
+        
         public bool Analyze(
                 Duration delta, 
                 MusicBrain brain,

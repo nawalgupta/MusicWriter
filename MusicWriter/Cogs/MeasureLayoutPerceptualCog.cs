@@ -23,14 +23,14 @@ namespace MusicWriter {
             var measures =
                 notes
                     .GroupBy(
-                            note => memory.Analyses<Measure>(note.Duration).Single()
+                            note => memory.Analyses<Measure>(note.Duration).Single().Duration
                         );
 
             foreach (var measure in measures) {
                 var duration =
-                    measure.Key.Duration;
+                    measure.Key;
 
-                if (memorymodule.Knowledge.AnyItemIn(measure.Key.Duration))
+                if (memorymodule.Knowledge.AnyItemIn(measure.Key))
                     continue;
 
                 var measure_notes =

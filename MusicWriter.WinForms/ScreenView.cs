@@ -310,14 +310,16 @@ namespace MusicWriter.WinForms {
             var track =
                 lsvTracks.Items[e.Item].Tag as ITrack;
 
-            track.Name.Value = e.Label;
+            if (e.Label != null)
+                track.Name.Value = e.Label;
         }
 
         private void lsvControllers_AfterLabelEdit(object sender, LabelEditEventArgs e) {
             var controller =
                 lsvControllers.Items[e.Item].Tag as ITrackController<Control>;
 
-            controller.Name.Value = e.Label;
+            if (e.Label != null)
+                controller.Name.Value = e.Label;
         }
 
         private void lsvControllers_ItemChecked(object sender, ItemCheckedEventArgs e) {

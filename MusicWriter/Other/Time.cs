@@ -85,6 +85,9 @@ namespace MusicWriter {
             ticks = copy.ticks;
         }
 
+        public override string ToString() =>
+            Notes.ToString();
+
         private const int TicksPerNote_2nd = TicksPerNote / 2;
         private const int TicksPerNote_4th = TicksPerNote / 4;
         private const int TicksPerNote_8th = TicksPerNote / 8;

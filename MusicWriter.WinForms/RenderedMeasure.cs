@@ -71,7 +71,7 @@ namespace MusicWriter.WinForms {
                     x,
                     chord.FlagDirection,
                     chord.FlagLength,
-                    chord.StemStartHalfLines,
+                    settings.YVal(chord.StemStartHalfLines),
                     chord.FlagSlope,
                     chord.Flags,
                     chord.StemDirection,
@@ -91,14 +91,15 @@ namespace MusicWriter.WinForms {
                 SheetMusicRenderSettings settings
             ) {
             var diff = stemdirection == NoteStemDirection.Down ? -1 : 1;
+            var dir_scale = direction == FlagDirection.Left ? -1 : 1;
 
             for (int i = 0; i < flags; i++)
                 gfx.DrawLine(
                         pen_flag,
                         x,
-                        y_start + diff * i * 0.3F * settings.PixelsPerLine,
-                        x + width,
-                        y_start + diff * i * 0.3F * settings.PixelsPerLine + slope * width
+                        y_start + diff * i * 0.25F * settings.PixelsPerLine,
+                        x + width * dir_scale * Width(settings),
+                        y_start + diff * i * 0.25F * settings.PixelsPerLine + slope * width * Width(settings)
                     );
         }
 
@@ -139,7 +140,7 @@ namespace MusicWriter.WinForms {
                 gfx.FillEllipse(Brushes.Black, x, y - settings.NoteHeadRadius, 2 * settings.NoteHeadRadius, 2 * settings.NoteHeadRadius);
 
             for (int i = 0; i < dots; i++)
-                gfx.FillEllipse(Brushes.Black, x + i * 3.5F + 1F, y_dots - 1.2F, 2.4F, 2.4F);
+                gfx.FillEllipse(Brushes.Black, x + i * settings.DotSpacing + settings.DotInitialSpacing, y_dots - settings.DotRadius, settings.DotRadius * 2F, settings.DotRadius * 2F);
         }
 
         void DrawNoteHead_R(Graphics gfx, float x, float y, float y_dots, bool fill, int dots, SheetMusicRenderSettings settings) {
@@ -149,7 +150,7 @@ namespace MusicWriter.WinForms {
                 gfx.FillEllipse(Brushes.Black, x, y - settings.NoteHeadRadius, 2 * settings.NoteHeadRadius, 2 * settings.NoteHeadRadius);
 
             for (int i = 0; i < dots; i++)
-                gfx.FillEllipse(Brushes.Black, x + settings.NoteHeadRadius * 2 + i * 3.5F + 2F, y_dots - 1.2F, 2.4F, 2.4F);
+                gfx.FillEllipse(Brushes.Black, x + settings.NoteHeadRadius * 2 + i * settings.DotSpacing + settings.DotInitialSpacing, y_dots - settings.DotRadius, settings.DotRadius * 2F, settings.DotRadius * 2F);
         }
 
         void DrawNoteStem(Graphics gfx, float x, float y, NoteStemDirection direction, float y_end) {

@@ -9,7 +9,8 @@ namespace MusicWriter {
         ObservableProperty<string> Name { get; }
 
         MusicBrain Brain { get; set; }
-        Caret Caret { get; set; }
+
+        CaretController CaretController { get; set; }
 
         TView View { get; }
 

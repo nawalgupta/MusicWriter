@@ -19,6 +19,8 @@ namespace MusicWriter {
         public MeterSignature(Time length, Cell[] cells = null) {
             if (cells != null)
                 Cells.AddRange(cells);
+
+            Update();
         }
 
         public void Update() {
@@ -27,6 +29,8 @@ namespace MusicWriter {
 
         void SetupCells() {
             var offset = Time.Zero;
+
+            cellscircle.Length = Cells.Aggregate(Time.Zero, (acc, cell) => acc + cell.Length);
 
             foreach (var cell in Cells)
                 cellscircle
@@ -37,8 +41,6 @@ namespace MusicWriter {
                                 End = offset += cell.Length
                             }
                         );
-
-            cellscircle.Length = offset;
         }
 
         public IEnumerable<IDuratedItem<Cell>> Intersecting(Time point) =>

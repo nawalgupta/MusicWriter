@@ -108,7 +108,7 @@ namespace MusicWriter {
                             bucket.ToArray()
                         );
 
-                if (chordlayout.Length.Length <= LengthClass.Half)
+                if (chordlayout.Length.Length < LengthClass.Half)
                     direction = NoteStemDirection.None;
 
                 // ask the property graph what direction the stem should be
@@ -130,6 +130,9 @@ namespace MusicWriter {
                 new List<ChordLayout[]>();
 
             foreach (var chord in chords) {
+                if (chord.Flags != 0)
+                    continue; // already hit
+
                 if (chord.Duration.Length < Time.Note_4th) {
                     var cell =
                         chord.Notes[0].Core.Cell;
@@ -208,11 +211,22 @@ namespace MusicWriter {
                             item.StemStartHalfLines = stemoffset + item.X * m + b;
                         }
                     }
+                    else {
+                        chord.Flags = chord.Length.Length - LengthClass.Quarter;
+                        chord.FlagSlope = -1;
+                        chord.FlagLength = ToVirtualPX(chord.Duration.Length) / 4f;
+
+                        if (chord.StemDirection == NoteStemDirection.Down)
+                            chord.FlagDirection = FlagDirection.Left;
+                        else {
+                            chord.FlagDirection = FlagDirection.Right;
+                        }
+                    }
                 }
             }
         }
 
         float ToVirtualPX(Time time) =>
-            (time / Time.Note_128th_3rd_5th_7th) * 0.1F;
+            (time / (duration.Length / 1000)) / 1000F;
     }
 }

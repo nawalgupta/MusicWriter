@@ -25,19 +25,24 @@ namespace MusicWriter.WinForms {
         private void MainForm_Load(object sender, EventArgs e) {
             capabilities.ControllerFactories.Add(new NewControllerFactory<SheetMusicEditor, Control> { Name = "Sheet Music Editor" });
             capabilities.TrackFactories.Add(new MusicTrackFactory());
-
+            
             NewScreen();
         }
 
         void NewScreen() {
             var screen =
-                new Screen<Control>(capabilities);
+                new Screen<Control>(capabilities, file.Brain);
 
             var editor =
                 new SheetMusicEditor();
-
+            
             var track1 =
-                capabilities.TrackFactories[0].Create();
+                (MusicTrack)capabilities.TrackFactories[0].Create();
+
+            track1.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Zero, Length = Time.Note_4th + Time.Note_4th / 2 });
+            track1.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Note_4th + Time.Note_4th / 2, Length = Time.Note_4th / 2 });
+            track1.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Note_2nd, Length = Time.Note_4th });
+            track1.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Note_2nd + Time.Note_4th, Length = Time.Note_4th });
 
             track1.Name.Value = "Track 1";
             editor.Tracks.Add(track1);

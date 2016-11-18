@@ -11,6 +11,11 @@ namespace MusicWriter {
         readonly Dictionary<NoteID, Note> notes_lookup = new Dictionary<NoteID, Note>();
         int next_noteID = 0;
 
+        public Note this[NoteID noteID] {
+            get { return notes_lookup[noteID]; }
+            set { UpdateNote(noteID, value.Duration, value.Tone); }
+        }
+
         public IEnumerable<Note> NotesInTime(Duration duration) =>
             notes_field
                 .Intersecting(duration)
@@ -39,16 +44,19 @@ namespace MusicWriter {
             return note;
         }
 
-        public void UpdateNote(Note note, Duration newduration) {
+        public void UpdateNote(NoteID noteID, Duration newduration, SemiTone newtone) {
             var newnote =
                 new Note(
-                        note.ID,
+                        noteID,
                         newduration,
-                        note.Tone
+                        newtone
                     );
 
-            notes_field.Remove(note.ID, note.Duration);
-            notes_field.Add(note.ID, newduration);
+            var oldnoteduration =
+                notes_lookup[noteID].Duration;
+
+            notes_field.Remove(noteID, oldnoteduration);
+            notes_field.Add(noteID, newduration);
         }
 
         public void DeleteNote(Note note) {
@@ -65,5 +73,11 @@ namespace MusicWriter {
             notes_field
                 .Intersecting(duration)
                 .Select(noteID => notes_lookup[noteID.Value]);
+
+        public bool HasNoteID(NoteID noteID) =>
+            notes_lookup.ContainsKey(noteID);
+
+        public bool TryGetNote(NoteID noteID, out Note note) =>
+            notes_lookup.TryGetValue(noteID, out note);
     }
 }

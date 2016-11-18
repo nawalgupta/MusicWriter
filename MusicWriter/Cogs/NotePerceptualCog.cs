@@ -48,10 +48,10 @@ namespace MusicWriter {
                 var singlelength =
                     PerceptualTime.Decompose(note.Duration.Length).SingleOrDefault();
 
-                if (singlelength.Key == default(PerceptualTime)) {
-                    var cells =
-                        memory.Analyses<Cell>(note.Duration);
+                var cells =
+                    memory.Analyses<Cell>(note.Duration);
 
+                if (singlelength.Key == default(PerceptualTime)) {
                     var i = 0;
 
                     foreach (var cell_durateditem in cells) {
@@ -96,7 +96,7 @@ namespace MusicWriter {
                                     ),
                                 note.Duration,
                                 singlelength.Key,
-                                null,
+                                cells.First(),
                                 note
                             );
                     

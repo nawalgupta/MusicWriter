@@ -52,6 +52,12 @@
     <Compile Include="FileEditorForm.Designer.cs">
       <DependentUpon>FileEditorForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="KeyboardCaretManipulator.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="KeyboardCaretManipulator.Designer.cs">
+      <DependentUpon>KeyboardCaretManipulator.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderedClefSymbol.cs" />

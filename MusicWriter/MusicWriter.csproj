@@ -47,6 +47,10 @@
     <Compile Include="File\NewControllerFactory.cs" />
     <Compile Include="File\NewTrackFactory.cs" />
     <Compile Include="File\Screen.cs" />
+    <Compile Include="Input\CaretMode.cs" />
+    <Compile Include="Input\ICaretManipulator.cs" />
+    <Compile Include="Input\TimeChangedDelegate.cs" />
+    <Compile Include="Input\ToneChangedDelegate.cs" />
     <Compile Include="Metadata\IMemoryModule.cs" />
     <Compile Include="Metadata\PerceptualMemory.cs" />
     <Compile Include="MusicTrack\AdornmentTrack.cs" />
@@ -60,7 +64,7 @@
     <Compile Include="Fields\DurationField.cs" />
     <Compile Include="Metadata\ExplicitPropertyGraphlet.cs" />
     <Compile Include="MusicTrack\MusicTrackFactory.cs" />
-    <Compile Include="Other\Caret.cs" />
+    <Compile Include="Input\CaretController.cs" />
     <Compile Include="Other\ConverterList.cs" />
     <Compile Include="Other\Extensions.cs" />
     <Compile Include="Other\ObservableProperty.cs" />

@@ -34,6 +34,9 @@ namespace MusicWriter {
             };
         }
 
+        public override string ToString() =>
+            $"{Start}+{length}";
+
         public bool Equals(Duration that) =>
             length == that.length &&
             offset == that.offset;
