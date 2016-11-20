@@ -105,7 +105,7 @@ namespace MusicWriter {
 
             PreviewToneChanged?.Invoke(tone.Value, tone_mode.Value);
         }
-
+        
         public void FinishTime() {
             TimeChanged?.Invoke(time.Value, time_mode.Value);
         }

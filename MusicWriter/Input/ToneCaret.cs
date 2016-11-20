@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class ToneCaret {
-        public SemiTone Tone { get; set; }
+        public SemiTone Tone { get; set; } = SemiTone.C4;
 
         public Caret Caret { get; } = new Caret();
     }

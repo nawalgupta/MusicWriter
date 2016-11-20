@@ -129,8 +129,14 @@ namespace MusicWriter.WinForms {
                 var track = selected.Key.Value;
                 var note = track.Melody[noteID];
                 
-                var newduration =
+                var oldduration =
                     note.Duration;
+
+                var newduration =
+                    new Duration {
+                        Start = oldduration.Start,
+                        Length = oldduration.Length
+                    };
 
                 if (is_start) {
                     if (mode == CaretMode.Absolute)
@@ -153,13 +159,15 @@ namespace MusicWriter.WinForms {
                 Caret.Caret.Focus = time;
             else if (mode == CaretMode.Delta)
                 Caret.Caret.Focus += time;
+
+            Invalidate();
         }
 
         private void InputController_PreviewToneChanged(int tone, CaretMode mode) =>
-            InputController_PreviewToneChanged(tone, mode);
+            InputController_ToneChanged(tone, mode);
 
         private void InputController_PreviewTimeChanged(Time time, CaretMode mode) =>
-            InputController_PreviewTimeChanged(time, mode);
+            InputController_TimeChanged(time, mode);
 
         private void InputController_TimeStart() {
             foreach (var note_ref in selectednotes_start.Keys)
@@ -223,13 +231,12 @@ namespace MusicWriter.WinForms {
         }
 
         private void InputController_NotePlacementFinish() {
-            throw new NotImplementedException();
         }
 
         private void InputController_NotePlacementStart() {
             var note =
                 ActiveTrack.Melody.AddNote(Caret.Tone, Caret.Caret.Duration);
-
+            
             var kvp =
                 new KeyValuePair<NoteID, MusicTrack>(note.ID, ActiveTrack);
 

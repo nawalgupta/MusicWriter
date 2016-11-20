@@ -12,6 +12,9 @@ namespace MusicWriter {
             ID = id;
         }
 
+        public override string ToString() =>
+            ID.ToString();
+
         public bool Equals(NoteID that) =>
             this == that;
 

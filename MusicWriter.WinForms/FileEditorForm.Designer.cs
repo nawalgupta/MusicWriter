@@ -68,7 +68,7 @@
             this.toolStripSeparator1,
             this.mnuHeaderClose});
             this.mnuHeader.Name = "mnuHeader";
-            this.mnuHeader.Size = new System.Drawing.Size(161, 79);
+            this.mnuHeader.Size = new System.Drawing.Size(161, 57);
             this.mnuHeader.Closing += new System.Windows.Forms.ToolStripDropDownClosingEventHandler(this.mnuHeader_Closing);
             this.mnuHeader.Opening += new System.ComponentModel.CancelEventHandler(this.mnuHeader_Opening);
             // 
@@ -98,6 +98,7 @@
             this.ClientSize = new System.Drawing.Size(743, 392);
             this.Controls.Add(this.tabScreens);
             this.Controls.Add(this.menuStrip1);
+            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FileEditorForm";
             this.Text = "Form1";

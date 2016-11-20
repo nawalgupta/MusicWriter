@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MusicWriter.WinForms {
-    public partial class KeyboardCaretManipulator : Control, IInputSource {
+    public class KeyboardInputSource : IInputSource {
         List<Keys> previewactions = new List<Keys>();
 
         public InputController Controller { get; set; }
@@ -32,12 +32,8 @@ namespace MusicWriter.WinForms {
             old_y = 0;
         Keys dragging_key1 = default(Keys);
         Keys dragging_key2 = default(Keys);
-
-        public KeyboardCaretManipulator() {
-            InitializeComponent();
-        }
         
-        protected override void OnKeyDown(KeyEventArgs e) {
+        public void OnKeyDown(KeyEventArgs e) {
             if (e.Modifiers.HasFlag(Keys.Control)) {
                 // shift by semitones
 
@@ -58,18 +54,20 @@ namespace MusicWriter.WinForms {
 
             int x, y;
             if(GetXY(e.KeyCode, out x, out y)) {
-                if (dragging) {
+                if (dragging_key1 != default(Keys)) {
                     var dx = x - old_x;
                     var dy = y - old_y;
 
-                    Controller.OffsetTime(dx * Controller.UnitTime);
-                    Controller.OffsetTone(dy);
+                    if (dx != 0)
+                        Controller.OffsetTime(dx * Controller.UnitTime);
 
+                    if (dy != 0)
+                        Controller.OffsetTone(dy);
+
+                    dragging = true;
                     dragging_key2 = e.KeyCode;
                 }
                 else {
-                    dragging = true;
-
                     if (e.Shift) {
                         Controller.StartSelecting();
                         selecting = true;
@@ -90,9 +88,11 @@ namespace MusicWriter.WinForms {
             if (e.KeyCode == Keys.Enter) {
                 Controller.FinishTime();
                 Controller.FinishTone();
-            }
 
-            base.OnKeyDown(e);
+                dragging = false;
+                drawing = false;
+                selecting = false;
+            }
         }
         
         bool GetXY(Keys key, out int x, out int y) {
@@ -105,7 +105,7 @@ namespace MusicWriter.WinForms {
             return false;
         }
 
-        protected override void OnKeyUp(KeyEventArgs e) {
+        public void OnKeyUp(KeyEventArgs e) {
             if (dragging) {
                 if (e.KeyCode == dragging_key1) {
                     dragging_key1 = dragging_key2;
@@ -115,18 +115,18 @@ namespace MusicWriter.WinForms {
                         Controller.FinishTime();
                         Controller.FinishTone();
 
-                        dragging = false;
-
                         if (drawing)
                             Controller.FinishDrawingNote();
 
                         if (selecting)
                             Controller.FinishSelecting();
+
+                        dragging = false;
+                        drawing = false;
+                        selecting = false;
                     }
                 }
             }
-
-            base.OnKeyUp(e);
         }
     }
 }

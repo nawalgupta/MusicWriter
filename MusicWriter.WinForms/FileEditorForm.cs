@@ -13,6 +13,10 @@ namespace MusicWriter.WinForms {
         EditorFile file = new EditorFile();
         FileCapabilities<Control> capabilities =
             new FileCapabilities<Control>();
+        KeyboardInputSource input_keyboard =
+            new KeyboardInputSource();
+        InputController inputcontroller =
+            new InputController();
 
         public Screen<Control> ActiveScreen {
             get { return (tabScreens.SelectedTab as ScreenView)?.Screen; }
@@ -22,16 +26,45 @@ namespace MusicWriter.WinForms {
             InitializeComponent();
         }
 
-        private void MainForm_Load(object sender, EventArgs e) {
+        void InitInputSources() {
+            input_keyboard.Controller = inputcontroller;
+        }
+
+        void InitControllerFactories() {
             capabilities.ControllerFactories.Add(new SheetMusicEditor.Factory());
+        }
+
+        void InitTrackFactories() {
             capabilities.TrackFactories.Add(new MusicTrackFactory());
-            
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e) {
+            input_keyboard.OnKeyDown(e);
+
+            base.OnKeyDown(e);
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e) {
+            input_keyboard.OnKeyUp(e);
+
+            base.OnKeyUp(e);
+        }
+
+        private void MainForm_Load(object sender, EventArgs e) {
+            InitControllerFactories();
+            InitTrackFactories();
+            InitInputSources();
+
             NewScreen();
         }
 
         void NewScreen() {
             var screen =
-                new Screen<Control>(capabilities, file);
+                new Screen<Control>(
+                        capabilities,
+                        file,
+                        inputcontroller
+                    );
 
             var editor =
                 new SheetMusicEditor();
