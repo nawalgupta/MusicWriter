@@ -8,17 +8,27 @@ namespace MusicWriter {
     public sealed class MusicBrain {
         readonly Dictionary<Type, IPerceptualCog<object>> cogs =
             new Dictionary<Type, IPerceptualCog<object>>();
+        readonly Dictionary<Type, int> refcounts =
+            new Dictionary<Type, int>();
         
         public void InsertCog<T>(IPerceptualCog<T> cog) where T : class {
             var type = typeof(T);
 
-            cogs.Add(type, cog);
+            if (cogs.ContainsKey(type))
+                refcounts[type]++;
+            else {
+                cogs.Add(type, cog);
+                refcounts.Add(type, 1);
+            }
         }
         
         public void RemoveCog<T>() {
             var type = typeof(T);
 
-            cogs.Remove(type);
+            if (--refcounts[type] == 1) {
+                cogs.Remove(type);
+                refcounts.Remove(type);
+            }
         }
 
         public void Invalidate(

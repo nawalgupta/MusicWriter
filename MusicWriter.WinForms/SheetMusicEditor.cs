@@ -21,6 +21,10 @@ namespace MusicWriter.WinForms {
         public MusicBrain Brain {
             get { return brain; }
             set {
+                if(brain != null) {
+                    brain.RemoveCog<RenderedSheetMusicItemPerceptualCog>();
+                }
+
                 brain = value;
 
                 brain.InsertCog(new RenderedSheetMusicItemPerceptualCog());
