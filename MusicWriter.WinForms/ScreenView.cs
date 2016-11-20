@@ -268,7 +268,7 @@ namespace MusicWriter.WinForms {
                 e.ClickedItem.Tag;
 
             var newcontroller =
-                controllerfactory.Create();
+                controllerfactory.Create(File);
             
             screen.Controllers.Add(newcontroller);
         }

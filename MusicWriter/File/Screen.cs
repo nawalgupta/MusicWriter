@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace MusicWriter {
     public sealed class Screen<View> {
         readonly FileCapabilities<View> capabilities;
-        readonly MusicBrain brain;
+        readonly EditorFile file;
 
         public ObservableProperty<string> Name { get; } =
             new ObservableProperty<string>("");
@@ -17,9 +17,9 @@ namespace MusicWriter {
         public FileCapabilities<View> Capabilities {
             get { return capabilities; }
         }
-
-        public MusicBrain Brain {
-            get { return brain; }
+        
+        public EditorFile File {
+            get { return file; }
         }
 
         public ObservableCollection<ITrackController<View>> Controllers { get; } =
@@ -27,17 +27,18 @@ namespace MusicWriter {
 
         public Screen(
                 FileCapabilities<View> capabilities,
-                MusicBrain brain
+                EditorFile file
             ) {
             this.capabilities = capabilities;
-            this.brain = brain;
+            this.file = file;
 
             Controllers.CollectionChanged += Controllers_CollectionChanged;
         }
 
         private void Controllers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-            foreach (ITrackController<View> newitem in e.NewItems)
-                newitem.Brain = Brain;
+            foreach (ITrackController<View> newitem in e.NewItems) {
+                // do anything that needs to be carried accross all this screens controllers here
+            }
         }
     }
 }

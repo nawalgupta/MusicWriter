@@ -23,7 +23,7 @@ namespace MusicWriter.WinForms {
         }
 
         private void MainForm_Load(object sender, EventArgs e) {
-            capabilities.ControllerFactories.Add(new NewControllerFactory<SheetMusicEditor, Control> { Name = "Sheet Music Editor" });
+            capabilities.ControllerFactories.Add(new SheetMusicEditor.Factory());
             capabilities.TrackFactories.Add(new MusicTrackFactory());
             
             NewScreen();
@@ -31,11 +31,13 @@ namespace MusicWriter.WinForms {
 
         void NewScreen() {
             var screen =
-                new Screen<Control>(capabilities, file.Brain);
+                new Screen<Control>(capabilities, file);
 
             var editor =
                 new SheetMusicEditor();
-            
+
+            editor.File = file;
+
             var track1 =
                 (MusicTrack)capabilities.TrackFactories[0].Create();
 

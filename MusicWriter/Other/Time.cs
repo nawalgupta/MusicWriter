@@ -76,7 +76,25 @@ namespace MusicWriter {
                 return new Time(ticks / div);
             }
         }
-        
+
+        public Time? Dotted(int dots = 1) {
+            var acc = this;
+
+            var half = Half;
+
+            while (dots > 0 && half.HasValue) {
+                acc += half.Value;
+                half = half.Value.Half;
+
+                dots--;
+            }
+
+            if (dots != 0)
+                return null;
+
+            return acc;
+        }
+
         private Time(int ticks) {
             this.ticks = ticks;
         }
@@ -105,6 +123,11 @@ namespace MusicWriter {
         public static readonly Time Zero = new Time(0);
         public static readonly Time Note = new Time(TicksPerNote);
         public static readonly Time Note_128th_3rd_5th_7th = new Time(TicksPerNote_128th / (3 * 5 * 7));
+        public static readonly Time Note_128th = new Time(TicksPerNote_128th);
+        public static readonly Time Note_64th = new Time(TicksPerNote_64th);
+        public static readonly Time Note_32nd = new Time(TicksPerNote_32nd);
+        public static readonly Time Note_16th = new Time(TicksPerNote_16th);
+        public static readonly Time Note_8th = new Time(TicksPerNote_8th);
         public static readonly Time Note_4th = new Time(TicksPerNote_4th);
         public static readonly Time Note_2nd = new Time(TicksPerNote_2nd);
         public static readonly Time Eternity = new Time(int.MaxValue);

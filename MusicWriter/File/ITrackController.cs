@@ -8,12 +8,14 @@ namespace MusicWriter {
     public interface ITrackController<TView> {
         ObservableProperty<string> Name { get; }
 
-        MusicBrain Brain { get; set; }
+        EditorFile File { get; }
 
-        CaretController CaretController { get; set; }
+        InputController InputController { get; set; }
 
         TView View { get; }
 
         IList<ITrack> Tracks { get; }
+
+        Pin Pin { get; }
     }
 }

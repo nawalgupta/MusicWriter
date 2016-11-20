@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public interface ICaretManipulator {
-        CaretController Controller { get; set; }
+    public sealed class ToneCaret {
+        public SemiTone Tone { get; set; }
+
+        public Caret Caret { get; } = new Caret();
     }
 }

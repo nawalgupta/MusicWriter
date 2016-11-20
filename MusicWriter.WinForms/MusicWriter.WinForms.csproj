@@ -76,6 +76,9 @@
     <Compile Include="SheetMusicEditor.Designer.cs">
       <DependentUpon>SheetMusicEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="SheetMusicEditor.Factory.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="SheetMusicRenderSettings.cs" />
     <Compile Include="RenderedTimeSignatureSimple.cs" />
     <Compile Include="SheetMusicTrackRenderer.cs" />

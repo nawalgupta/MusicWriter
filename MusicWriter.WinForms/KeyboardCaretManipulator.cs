@@ -10,21 +10,23 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MusicWriter.WinForms {
-    public partial class KeyboardCaretManipulator : Control, ICaretManipulator {
+    public partial class KeyboardCaretManipulator : Control, IInputSource {
         List<Keys> previewactions = new List<Keys>();
 
-        public CaretController Controller { get; set; }
+        public InputController Controller { get; set; }
 
         public ObservableCollection<MusicTrack> Tracks { get; } =
             new ObservableCollection<MusicTrack>();
 
         private Keys[][] keymap = new Keys[][] {
             new Keys[] { Keys.Oemtilde, Keys.D1, Keys.D2, Keys.D3, Keys.D4, Keys.D5, Keys.D6, Keys.D7, Keys.D8, Keys.D9, Keys.D0, Keys.OemMinus, Keys.Oemplus },
-            new Keys[] { Keys.Tab, Keys.Q, Keys.W, Keys.E, Keys.R, Keys.T, Keys.Y, Keys.U, Keys.I, Keys.O, Keys.P, Keys.OemOpenBrackets, Keys.OemCloseBrackets, Keys.OemBackslash },
-            new Keys[] { Keys.CapsLock, Keys.A, Keys.S, Keys.D, Keys.F, Keys.G, Keys.H, Keys.J, Keys.K, Keys.L, Keys.OemSemicolon, Keys.OemQuotes },
-            new Keys[] { Keys.LShiftKey, Keys.Z, Keys.X, Keys.C, Keys.V, Keys.B, Keys.N, Keys.M, Keys.Oemcomma, Keys.OemPeriod, Keys.OemQuestion }
+            new Keys[] { Keys.NoName, Keys.Q, Keys.W, Keys.E, Keys.R, Keys.T, Keys.Y, Keys.U, Keys.I, Keys.O, Keys.P, Keys.OemOpenBrackets, Keys.OemCloseBrackets, Keys.OemBackslash },
+            new Keys[] { Keys.NoName, Keys.A, Keys.S, Keys.D, Keys.F, Keys.G, Keys.H, Keys.J, Keys.K, Keys.L, Keys.OemSemicolon, Keys.OemQuotes },
+            new Keys[] { Keys.NoName, Keys.Z, Keys.X, Keys.C, Keys.V, Keys.B, Keys.N, Keys.M, Keys.Oemcomma, Keys.OemPeriod, Keys.OemQuestion }
         };
 
+        bool drawing = false;
+        bool selecting = false;
         bool dragging = false;
         int old_x = 0,
             old_y = 0;
@@ -68,6 +70,16 @@ namespace MusicWriter.WinForms {
                 else {
                     dragging = true;
 
+                    if (e.Shift) {
+                        Controller.StartSelecting();
+                        selecting = true;
+                    }
+
+                    if (e.Control) {
+                        Controller.StartDrawingNote();
+                        drawing = true;
+                    }
+
                     dragging_key1 = e.KeyCode;
                 }
 
@@ -94,13 +106,23 @@ namespace MusicWriter.WinForms {
         }
 
         protected override void OnKeyUp(KeyEventArgs e) {
-            if (e.KeyCode == dragging_key1) {
-                dragging_key1 = dragging_key2;
-                dragging_key2 = default(Keys);
+            if (dragging) {
+                if (e.KeyCode == dragging_key1) {
+                    dragging_key1 = dragging_key2;
+                    dragging_key2 = default(Keys);
 
-                if (dragging_key1 == default(Keys)) {
-                    Controller.FinishTime();
-                    Controller.FinishTone();
+                    if (dragging_key1 == default(Keys)) {
+                        Controller.FinishTime();
+                        Controller.FinishTone();
+
+                        dragging = false;
+
+                        if (drawing)
+                            Controller.FinishDrawingNote();
+
+                        if (selecting)
+                            Controller.FinishSelecting();
+                    }
                 }
             }
 

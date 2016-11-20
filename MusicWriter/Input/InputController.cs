@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public sealed class CaretController {
+    public sealed class InputController {
         public event TimeChangedDelegate PreviewTimeChanged;
         public event ToneChangedDelegate PreviewToneChanged;
         public event TimeChangedDelegate TimeChanged;
@@ -14,6 +14,10 @@ namespace MusicWriter {
         public event Action ToneReset;
         public event Action TimeStart;
         public event Action ToneStart;
+        public event Action NotePlacementStart;
+        public event Action NotePlacementFinish;
+        public event Action SelectionStart;
+        public event Action SelectionFinish;
 
         int? tone = null;
         CaretMode? tone_mode = null;
@@ -21,7 +25,40 @@ namespace MusicWriter {
         Time? time = null;
         CaretMode? time_mode = null;
 
-        public Time UnitTime { get; set; } = Time.Note_4th;
+        public Time UnitTime { get; set; } = Time.Note_8th;
+
+        public void StartDrawingNote() {
+            NotePlacementStart?.Invoke();
+
+            time = Time.Zero;
+            time_mode = CaretMode.Delta;
+
+            tone = 0;
+            tone_mode = CaretMode.Delta;
+        }
+
+        public void FinishDrawingNote() {
+            NotePlacementFinish?.Invoke();
+
+            time = null;
+            time_mode = null;
+            tone = null;
+            tone_mode = null;
+        }
+
+        public void StartSelecting() {
+            SelectionStart?.Invoke();
+
+            time = Time.Zero;
+            time_mode = CaretMode.Delta;
+        }
+
+        public void FinishSelecting() {
+            SelectionFinish?.Invoke();
+
+            time = null;
+            time_mode = null;
+        }
 
         public void OffsetTime(Time offset) {
             if (time_mode == null) {
