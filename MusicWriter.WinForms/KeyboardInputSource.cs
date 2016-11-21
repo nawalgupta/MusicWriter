@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace MusicWriter.WinForms {
-    public class KeyboardInputSource : IInputSource {
+namespace MusicWriter.WinForms
+{
+    public class KeyboardInputSource : IInputSource
+    {
         List<Keys> previewactions = new List<Keys>();
 
         public InputController Controller { get; set; }
@@ -32,8 +35,9 @@ namespace MusicWriter.WinForms {
             old_y = 0;
         Keys dragging_key1 = default(Keys);
         Keys dragging_key2 = default(Keys);
-        
-        public void OnKeyDown(KeyEventArgs e) {
+
+        public void OnKeyDown(KeyEventArgs e)
+        {
             if (e.Modifiers.HasFlag(Keys.Control)) {
                 // shift by semitones
 
@@ -53,7 +57,7 @@ namespace MusicWriter.WinForms {
             }
 
             int x, y;
-            if(GetXY(e.KeyCode, out x, out y)) {
+            if (GetXY(e.KeyCode, out x, out y)) {
                 if (dragging_key1 != default(Keys)) {
                     var dx = x - old_x;
                     var dy = y - old_y;
@@ -94,8 +98,9 @@ namespace MusicWriter.WinForms {
                 selecting = false;
             }
         }
-        
-        bool GetXY(Keys key, out int x, out int y) {
+
+        bool GetXY(Keys key, out int x, out int y)
+        {
             for (y = 0; y < keymap.Length; y++)
                 for (x = 0; x < keymap[y].Length; x++)
                     if (keymap[y][x] == key)
@@ -105,26 +110,25 @@ namespace MusicWriter.WinForms {
             return false;
         }
 
-        public void OnKeyUp(KeyEventArgs e) {
-            if (dragging) {
-                if (e.KeyCode == dragging_key1) {
-                    dragging_key1 = dragging_key2;
-                    dragging_key2 = default(Keys);
+        public void OnKeyUp(KeyEventArgs e)
+        {
+            if (e.KeyCode == dragging_key1) {
+                dragging_key1 = dragging_key2;
+                dragging_key2 = default(Keys);
 
-                    if (dragging_key1 == default(Keys)) {
-                        Controller.FinishTime();
-                        Controller.FinishTone();
+                if (dragging_key1 == default(Keys)) {
+                    Controller.FinishTime();
+                    Controller.FinishTone();
 
-                        if (drawing)
-                            Controller.FinishDrawingNote();
+                    if (drawing)
+                        Controller.FinishDrawingNote();
 
-                        if (selecting)
-                            Controller.FinishSelecting();
+                    if (selecting)
+                        Controller.FinishSelecting();
 
-                        dragging = false;
-                        drawing = false;
-                        selecting = false;
-                    }
+                    dragging = false;
+                    drawing = false;
+                    selecting = false;
                 }
             }
         }

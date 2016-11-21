@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -54,6 +55,8 @@ namespace MusicWriter {
 
             var oldnoteduration =
                 notes_lookup[noteID].Duration;
+
+            notes_lookup[noteID] = newnote;
 
             notes_field.Remove(noteID, oldnoteduration);
             notes_field.Add(noteID, newduration);

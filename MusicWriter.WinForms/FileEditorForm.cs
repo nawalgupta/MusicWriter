@@ -38,14 +38,21 @@ namespace MusicWriter.WinForms {
             capabilities.TrackFactories.Add(new MusicTrackFactory());
         }
 
+        List<Keys> keys_pressed = new List<Keys>();
         protected override void OnKeyDown(KeyEventArgs e) {
-            input_keyboard.OnKeyDown(e);
+            if (!keys_pressed.Contains(e.KeyCode)) {
+                input_keyboard.OnKeyDown(e);
+                keys_pressed.Add(e.KeyCode);
+            }
 
             base.OnKeyDown(e);
         }
 
         protected override void OnKeyUp(KeyEventArgs e) {
             input_keyboard.OnKeyUp(e);
+
+            if (keys_pressed.Contains(e.KeyCode))
+                keys_pressed.Remove(e.KeyCode);
 
             base.OnKeyUp(e);
         }

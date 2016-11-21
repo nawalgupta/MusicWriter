@@ -46,7 +46,7 @@ namespace MusicWriter {
                     new List<PerceptualNote>();
 
                 var singlelength =
-                    PerceptualTime.Decompose(note.Duration.Length).SingleOrDefault();
+                    PerceptualTime.Decompose(note.Duration.Length).OneOrNothing();
 
                 var cells =
                     memory.Analyses<Cell>(note.Duration);

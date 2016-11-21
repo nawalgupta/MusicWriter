@@ -105,9 +105,15 @@ namespace MusicWriter {
 
             PreviewToneChanged?.Invoke(tone.Value, tone_mode.Value);
         }
-        
-        public void FinishTime() {
-            TimeChanged?.Invoke(time.Value, time_mode.Value);
+
+        public void FinishTime()
+        {
+            if (time.HasValue) {
+                TimeChanged?.Invoke(time.Value, time_mode.Value);
+
+                time = null;
+                time_mode = null;
+            }
         }
 
         public void CancelTime() {
@@ -117,8 +123,14 @@ namespace MusicWriter {
             time_mode = null;
         }
 
-        public void FinishTone() {
-            ToneChanged?.Invoke(tone.Value, tone_mode.Value);
+        public void FinishTone()
+        {
+            if (tone.HasValue) {
+                ToneChanged?.Invoke(tone.Value, tone_mode.Value);
+
+                tone = null;
+                tone_mode = null;
+            }
         }
 
         public void CancelTone() {

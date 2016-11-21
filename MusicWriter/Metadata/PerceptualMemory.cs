@@ -69,7 +69,8 @@ namespace MusicWriter {
         }
 
         public void Forget(Duration duration) {
-            
+            foreach (var module in memorymodules.Values)
+                module.Forget(duration);
         }
     }
 }

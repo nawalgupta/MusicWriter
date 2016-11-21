@@ -137,7 +137,7 @@ namespace MusicWriter.WinForms {
             gfx.DrawEllipse(pen_note, x - settings.NoteHeadRadius * 2, y - settings.NoteHeadRadius, 2 * settings.NoteHeadRadius, 2 * settings.NoteHeadRadius);
 
             if (fill)
-                gfx.FillEllipse(Brushes.Black, x, y - settings.NoteHeadRadius, 2 * settings.NoteHeadRadius, 2 * settings.NoteHeadRadius);
+                gfx.FillEllipse(Brushes.Black, x - settings.NoteHeadRadius * 2, y - settings.NoteHeadRadius, 2 * settings.NoteHeadRadius, 2 * settings.NoteHeadRadius);
 
             for (int i = 0; i < dots; i++)
                 gfx.FillEllipse(Brushes.Black, x + i * settings.DotSpacing + settings.DotInitialSpacing, y_dots - settings.DotRadius, settings.DotRadius * 2F, settings.DotRadius * 2F);

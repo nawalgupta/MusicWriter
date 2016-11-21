@@ -17,5 +17,21 @@ namespace MusicWriter {
 
             return value;
         }
+
+        public static T OneOrNothing<T>(this IEnumerable<T> sequence) {
+            var iter =
+                sequence.GetEnumerator();
+
+            if (!iter.MoveNext())
+                return default(T);
+
+            var item =
+                iter.Current;
+
+            if (iter.MoveNext())
+                return default(T);
+
+            return item;
+        }
     }
 }

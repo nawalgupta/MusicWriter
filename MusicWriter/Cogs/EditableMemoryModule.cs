@@ -18,7 +18,7 @@ namespace MusicWriter {
         }
 
         public virtual void Forget(Duration duration) {
-            foreach (var item in knowledge.Intersecting(duration))
+            foreach (var item in knowledge.Intersecting(duration).ToArray())
                 knowledge.Remove(item);
         }
     }
