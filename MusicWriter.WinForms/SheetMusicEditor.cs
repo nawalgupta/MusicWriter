@@ -102,6 +102,8 @@ namespace MusicWriter.WinForms {
             InitializeComponent();
 
             tracks.SpecialCollection.CollectionChanged += Tracks_CollectionChanged;
+
+            Pin.Time.Offset.Value += Time.Note_4th;
         }
 
         private void InputController_ToneChanged(int tone, CaretMode mode) {
@@ -417,7 +419,7 @@ namespace MusicWriter.WinForms {
             var left = 0f;
 
             foreach (var chunk in minwidths) {
-                if (chunk.Key.Start < time)
+                if (chunk.Key.End < time)
                     left += chunk.Value;
                 else {
                     left += Time.FloatDiv(time - chunk.Key.Start, chunk.Key.Length) * chunk.Value;
@@ -433,6 +435,8 @@ namespace MusicWriter.WinForms {
         protected override void OnPaint(PaintEventArgs pe) {
             timesRedrawn++;
             pe.Graphics.DrawString(timesRedrawn.ToString(), Font, Brushes.Red, PointF.Empty);
+
+            var scrollX = GetLeft(Pin.Time.Offset.Value);
 
             foreach (var track in tracks.SpecialCollection) {
                 // draw staff
@@ -466,7 +470,7 @@ namespace MusicWriter.WinForms {
 
                     var focusitems = new List<RenderedSheetMusicItem>();
 
-                    float x = GetLeft(focusstarttime);
+                    float x = GetLeft(focusstarttime) - scrollX;
 
                     while (x < Width) {
                         if (focusitems.Count == 0) {
