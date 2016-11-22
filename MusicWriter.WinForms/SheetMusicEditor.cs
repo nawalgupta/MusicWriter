@@ -77,7 +77,13 @@ namespace MusicWriter.WinForms {
         readonly Dictionary<KeyValuePair<NoteID, MusicTrack>, Time> selectednotes_start = new Dictionary<KeyValuePair<NoteID, MusicTrack>, Time>();
         readonly Dictionary<KeyValuePair<NoteID, MusicTrack>, Time> selectednotes_end = new Dictionary<KeyValuePair<NoteID, MusicTrack>, Time>();
         readonly Dictionary<KeyValuePair<NoteID, MusicTrack>, SemiTone> selectednotes_tone = new Dictionary<KeyValuePair<NoteID, MusicTrack>, SemiTone>();
+        
+        readonly Dictionary<Duration, float> minwidths =
+            new Dictionary<Duration, float>();
 
+        readonly Dictionary<MusicTrack, Dictionary<RenderedSheetMusicItem, float>> itemwidths =
+            new Dictionary<MusicTrack, Dictionary<RenderedSheetMusicItem, float>>();
+        
         int activetrack_index = 0;
 
         public MusicTrack ActiveTrack {
@@ -274,7 +280,7 @@ namespace MusicWriter.WinForms {
             if (e.NewItems != null)
                 foreach (MusicTrack track in e.NewItems)
                     track.Memory.InsertMemoryModule(new RenderedSheetMusicItemPerceptualCog.MemoryModule());
-            
+
             Invalidate();
         }
 
@@ -284,7 +290,143 @@ namespace MusicWriter.WinForms {
             foreach (var track in tracks.SpecialCollection)
                 file.Brain.Invalidate(track.Memory, Duration.Eternity);
 
+            MeasureAndLayoutTrackItems();
+
             base.OnInvalidated(e);
+        }
+
+        void MeasureAndLayoutTrackItems() {
+            // we're extracting every key point in all the tracks and looking for times
+            // where they share the same time. This is used to identify how much to stretch
+            // each track item when its rendered.
+
+            var samepoints =
+                tracks
+                    .SpecialCollection
+                    .Select(
+                            musictrack =>
+                                musictrack
+                                    .Memory
+                                    .Analyses<RenderedSheetMusicItem>(Duration.Eternity)
+                                    .Select(item => item.Duration.Start)
+                                    .Concat(
+                                            new Time[] {
+                                                musictrack
+                                                    .Memory
+                                                    .Analyses<RenderedSheetMusicItem>(Duration.Eternity)
+                                                    .Select(item => item.Duration.End)
+                                                    .Max()
+                                            }
+                                        )
+                        )
+                    .Aggregate((a, b) => a.Intersect(b));
+
+            var samedurations = new List<Duration>();
+
+            Time oldsamepoint = Time.Zero;
+            foreach (var samepoint in samepoints) {
+                if (samepoint != Time.Zero)
+                    samedurations.Add(new Duration { Start = oldsamepoint, End = samepoint });
+
+                oldsamepoint = samepoint;
+            }
+
+            itemwidths.Clear();
+            minwidths.Clear();
+
+            var desireditemchunkwidths_stretchy =
+                new Dictionary<MusicTrack, Dictionary<Duration, float>>();
+            var desireditemchunkwidths_fixed =
+                new Dictionary<MusicTrack, Dictionary<Duration, float>>();
+            var desireditemchunkwidths =
+                new Dictionary<MusicTrack, Dictionary<Duration, float>>();
+
+            foreach (var track in tracks.SpecialCollection) {
+                desireditemchunkwidths.Add(track, new Dictionary<Duration, float>());
+                desireditemchunkwidths_stretchy.Add(track, new Dictionary<Duration, float>());
+                desireditemchunkwidths_fixed.Add(track, new Dictionary<Duration, float>());
+                itemwidths.Add(track, new Dictionary<RenderedSheetMusicItem, float>());
+            }
+
+            // Measure
+            foreach (var duration in samedurations) {
+                var minwidth = 0f;
+                foreach (var track in tracks.SpecialCollection) {
+                    var items =
+                        track
+                            .Memory
+                            .Analyses<RenderedSheetMusicItem>(duration);
+
+                    var desired = 0f;
+                    var desired_stretchy = 0f;
+                    var desired_fixed = 0f;
+
+                    foreach (var item in items) {
+                        var minwidth_item =
+                            item.Value.MinWidth(Settings);
+
+                        if (item.Value.Stretchy)
+                            desired_stretchy += minwidth_item;
+                        else desired_fixed += minwidth_item;
+
+                        desired += minwidth_item;
+                    }
+                    
+                    minwidth =
+                        Math.Max(
+                            minwidth,
+                            desired
+                            );
+
+                    desireditemchunkwidths_fixed[track].Add(duration, desired_fixed);
+                    desireditemchunkwidths_stretchy[track].Add(duration, desired_stretchy);
+                    desireditemchunkwidths[track].Add(duration, desired);
+                }
+
+                minwidths.Add(duration, minwidth);
+            }
+
+            // Layout
+            foreach (var minwidthkvp in minwidths) {
+                foreach (var track in tracks.SpecialCollection) {
+                    var items =
+                        track
+                            .Memory
+                            .Analyses<RenderedSheetMusicItem>(minwidthkvp.Key);
+
+                    var factor_stretchy_width =
+                        (minwidthkvp.Value - desireditemchunkwidths_fixed[track][minwidthkvp.Key]) / desireditemchunkwidths[track][minwidthkvp.Key];
+
+                    var expandabilitydivisor =
+                        items.Count(item => item.Value.Stretchy);
+                    
+                    foreach (var item in items) {
+                        var width =
+                            item.Value.MinWidth(Settings);
+
+                        if (item.Value.Stretchy)
+                            width *= factor_stretchy_width;
+
+                        itemwidths[track].Add(item.Value, width);
+                    }
+                }
+            }
+        }
+
+        float GetLeft(Time time) {
+            var left = 0f;
+
+            foreach (var chunk in minwidths) {
+                if (chunk.Key.Start < time)
+                    left += chunk.Value;
+                else {
+                    left += Time.FloatDiv(time - chunk.Key.Start, chunk.Key.Length) * chunk.Value;
+
+                    break;
+                }
+            }
+
+            return left;
         }
 
         int timesRedrawn = 0;
@@ -324,7 +466,7 @@ namespace MusicWriter.WinForms {
 
                     var focusitems = new List<RenderedSheetMusicItem>();
 
-                    float x = 0; //TODO: make it scroll with the pin
+                    float x = GetLeft(focusstarttime);
 
                     while (x < Width) {
                         if (focusitems.Count == 0) {
@@ -348,9 +490,9 @@ namespace MusicWriter.WinForms {
                         var item = focusitems[0];
                         focusitems.RemoveAt(0);
 
-                        var width = item.Width(Settings);
+                        var width = itemwidths[track][item];
                         if (x + width > 0)
-                            pe.Graphics.DrawImageUnscaled(item.Draw(Settings), (int)x, 0);
+                            pe.Graphics.DrawImageUnscaled(item.Draw(Settings, (int)width), (int)x, 0);
 
                         x += width;
                     }

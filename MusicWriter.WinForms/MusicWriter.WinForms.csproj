@@ -79,7 +79,6 @@
     </Compile>
     <Compile Include="SheetMusicRenderSettings.cs" />
     <Compile Include="RenderedTimeSignatureSimple.cs" />
-    <Compile Include="SheetMusicTrackRenderer.cs" />
     <EmbeddedResource Include="FileEditorForm.resx">
       <DependentUpon>FileEditorForm.cs</DependentUpon>
     </EmbeddedResource>

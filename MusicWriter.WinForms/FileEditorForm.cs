@@ -90,6 +90,17 @@ namespace MusicWriter.WinForms {
             editor.Tracks.Add(track1);
             file.Tracks.Add(track1);
 
+            var track2 =
+                (MusicTrack)capabilities.TrackFactories[0].Create();
+
+            track2.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Zero, Length = Time.Note_2nd });
+            track2.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Note_2nd, Length = Time.Note_2nd });
+
+            track2.Name.Value = "Track 2";
+            editor.Tracks.Add(track2);
+            file.Tracks.Add(track2);
+
+
             screen.Controllers.Add(editor);
             screen.Name.Value = "Screen 1";
             

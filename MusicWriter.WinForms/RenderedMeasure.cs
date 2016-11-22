@@ -29,32 +29,30 @@ namespace MusicWriter.WinForms {
             this.layoutmeasure = layoutmeasure;
         }
 
-        public override float Width(SheetMusicRenderSettings settings) =>
+        public override float MinWidth(SheetMusicRenderSettings settings) =>
             layoutmeasure.ScaleX * settings.PixelsPerX * settings.PixelsScale + 2 * Margin;
 
-        protected override void Render(Graphics gfx, SheetMusicRenderSettings settings) {
+        protected override void Render(Graphics gfx, SheetMusicRenderSettings settings, int width) {
             gfx.TranslateTransform(Margin, 0);
 
             foreach (var chord in layoutmeasure.Chords)
-                DrawChord(gfx, chord, settings);
+                DrawChord(gfx, chord, settings, width);
 
-            DrawMeasureDivision(gfx, settings);
+            DrawMeasureDivision(gfx, settings, width);
         }
 
-        void DrawMeasureDivision(Graphics gfx, SheetMusicRenderSettings settings) {
-            var w = Width(settings);
-
+        void DrawMeasureDivision(Graphics gfx, SheetMusicRenderSettings settings, int width) {
             gfx.DrawLine(
                     pen_measuredivision,
-                    w - 2 * pen_measuredivision.Width - Margin,
+                    width - 2 * pen_measuredivision.Width - Margin,
                     settings.YVal(settings.Staff.Lines * 2 - 2),
-                    w - 2 * pen_measuredivision.Width - Margin,
+                    width - 2 * pen_measuredivision.Width - Margin,
                     settings.YVal(0)
                 );
         }
         
-        void DrawChord(Graphics gfx, ChordLayout chord, SheetMusicRenderSettings settings) {
-            var x = chord.X * Width(settings);
+        void DrawChord(Graphics gfx, ChordLayout chord, SheetMusicRenderSettings settings, int width) {
+            var x = chord.X * width;
 
             foreach (var note in chord.Notes)
                 DrawNote(
@@ -75,7 +73,8 @@ namespace MusicWriter.WinForms {
                     chord.FlagSlope,
                     chord.Flags,
                     chord.StemDirection,
-                    settings
+                    settings,
+                    width
                 );
         }
 
@@ -88,7 +87,8 @@ namespace MusicWriter.WinForms {
                 float slope,
                 int flags,
                 NoteStemDirection stemdirection,
-                SheetMusicRenderSettings settings
+                SheetMusicRenderSettings settings,
+                int w
             ) {
             var diff = stemdirection == NoteStemDirection.Down ? -1 : 1;
             var dir_scale = direction == FlagDirection.Left ? -1 : 1;
@@ -98,8 +98,8 @@ namespace MusicWriter.WinForms {
                         pen_flag,
                         x,
                         y_start + diff * i * 0.25F * settings.PixelsPerLine,
-                        x + width * dir_scale * Width(settings),
-                        y_start + diff * i * 0.25F * settings.PixelsPerLine + slope * width * Width(settings)
+                        x + width * dir_scale * w,
+                        y_start + diff * i * 0.25F * settings.PixelsPerLine + slope * width * w
                     );
         }
 

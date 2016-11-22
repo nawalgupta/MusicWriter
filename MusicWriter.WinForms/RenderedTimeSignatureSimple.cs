@@ -9,6 +9,10 @@ namespace MusicWriter.WinForms {
     public sealed class RenderedTimeSignatureSimple : RenderedSheetMusicItem {
         readonly TimeSignatureSimpleLayout timesignaturesimple;
 
+        public override bool Stretchy {
+            get { return false; }
+        }
+
         public override int Priority {
             get { return 3; }
         }
@@ -17,7 +21,7 @@ namespace MusicWriter.WinForms {
             this.timesignaturesimple = timesignaturesimple;
         }
         
-        protected override void Render(Graphics gfx, SheetMusicRenderSettings settings) {
+        protected override void Render(Graphics gfx, SheetMusicRenderSettings settings, int width) {
             var upper_str = timesignaturesimple.Simple.Upper.ToString();
             var lower_str = timesignaturesimple.Simple.Lower.ToString();
 
@@ -28,7 +32,7 @@ namespace MusicWriter.WinForms {
             gfx.DrawString(lower_str, settings.TimeSignatureFont, Brushes.Black, 0, settings.YVal(0) - lower_sz.Height);
         }
 
-        public override float Width(SheetMusicRenderSettings settings) =>
+        public override float MinWidth(SheetMusicRenderSettings settings) =>
             (float)Math.Max(
                     Math.Ceiling(Math.Log10(timesignaturesimple.Simple.Upper)),
                     Math.Ceiling(Math.Log10(timesignaturesimple.Simple.Lower))

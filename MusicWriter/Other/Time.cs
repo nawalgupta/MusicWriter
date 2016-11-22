@@ -186,5 +186,8 @@ namespace MusicWriter {
 
         public int CompareTo(Time other) =>
             ticks.CompareTo(other.ticks);
+
+        public static float FloatDiv(Time num, Time den) =>
+            num.ticks / (float)den.ticks;
     }
 }

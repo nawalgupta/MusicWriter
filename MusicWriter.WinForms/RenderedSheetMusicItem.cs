@@ -11,15 +11,19 @@ namespace MusicWriter.WinForms {
     public abstract class RenderedSheetMusicItem : IDisposable {
         Bitmap bmp = null;
 
+        public virtual bool Stretchy { get { return true; } }
+
         public abstract int Priority { get; }
 
-        public Bitmap Draw(SheetMusicRenderSettings settings) {
-            if (bmp == null) {
+        int lastwidth = 0;
+
+        public Bitmap Draw(SheetMusicRenderSettings settings, int width) {
+            if (lastwidth != width) {
                 bmp =
-                new Bitmap(
-                        (int)Width(settings),
-                        (int)settings.Height
-                    );
+                    new Bitmap(
+                            width,
+                            (int)settings.Height
+                        );
 
                 using (var gfx = Graphics.FromImage(bmp)) {
                     gfx.CompositingQuality = CompositingQuality.HighQuality;
@@ -28,16 +32,18 @@ namespace MusicWriter.WinForms {
                     gfx.SmoothingMode = SmoothingMode.HighQuality;
                     gfx.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
 
-                    Render(gfx, settings);
+                    Render(gfx, settings, width);
                 }
+
+                lastwidth = width;
             }
 
             return bmp;
         }
 
-        protected abstract void Render(Graphics gfx, SheetMusicRenderSettings settings);
+        protected abstract void Render(Graphics gfx, SheetMusicRenderSettings settings, int width);
 
-        public abstract float Width(SheetMusicRenderSettings settings);
+        public abstract float MinWidth(SheetMusicRenderSettings settings);
 
         public void Dispose() {
             if (bmp != null)
