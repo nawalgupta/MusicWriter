@@ -102,8 +102,6 @@ namespace MusicWriter.WinForms {
             InitializeComponent();
 
             tracks.SpecialCollection.CollectionChanged += Tracks_CollectionChanged;
-
-            Pin.Time.Offset.Value += Time.Note_4th;
         }
 
         private void InputController_ToneChanged(int tone, CaretMode mode) {
@@ -302,20 +300,22 @@ namespace MusicWriter.WinForms {
             // where they share the same time. This is used to identify how much to stretch
             // each track item when its rendered.
 
+            //TODO: handle 0 samepoints
+            if (tracks.Count == 0)
+                return;
+            
             var samepoints =
                 tracks
                     .SpecialCollection
+                    .Select(track => track.Memory.Analyses<RenderedSheetMusicItem>(Duration.Eternity))
+                    .Where(items => items.Any())
                     .Select(
-                            musictrack =>
-                                musictrack
-                                    .Memory
-                                    .Analyses<RenderedSheetMusicItem>(Duration.Eternity)
+                            items =>
+                                items
                                     .Select(item => item.Duration.Start)
                                     .Concat(
                                             new Time[] {
-                                                musictrack
-                                                    .Memory
-                                                    .Analyses<RenderedSheetMusicItem>(Duration.Eternity)
+                                                items
                                                     .Select(item => item.Duration.End)
                                                     .Max()
                                             }
@@ -504,6 +504,16 @@ namespace MusicWriter.WinForms {
 
                 pe.Graphics.TranslateTransform(0, Settings.Height);
             }
+
+            var caretx = GetLeft(Caret.Caret.Focus) - scrollX;
+            pe.Graphics.DrawLine(Pens.Black,
+                    caretx,
+                    0,
+                    caretx,
+                    Height
+                );
+
+            pe.Graphics.DrawLine(Pens.Red, 20, 20, 50, 100);
 
             base.OnPaint(pe);
         }
