@@ -18,6 +18,7 @@ namespace MusicWriter.WinForms {
         public float DotRadius { get; set; } = 3;
         public float DotSpacing { get; set; } = 6;
         public float DotInitialSpacing { get; set; } = 7f;
+        public float LinesBetweenFlags { get; set; } = 0.55F;
 
         public float PixelsPerLine {
             get { return PixelsPerHalfLine * 2; }

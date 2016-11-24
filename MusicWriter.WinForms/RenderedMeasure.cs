@@ -101,7 +101,6 @@ namespace MusicWriter.WinForms {
             // line / vpx -> px[y] / px[x]
             // multiply by (px/line) / (px/vpx)
             
-
             if (side == NoteStemSide.Left)
                 startX -= settings.NoteHeadRadius;
             else if (side == NoteStemSide.Right)
@@ -111,9 +110,9 @@ namespace MusicWriter.WinForms {
                 gfx.DrawLine(
                         pen_flag,
                         startX,
-                        y_start + diff * i * settings.PixelsPerLine,
+                        y_start + diff * i * settings.LinesBetweenFlags * settings.PixelsPerLine,
                         x + length * dir_scale * width,
-                        y_start + diff * i * settings.PixelsPerLine + (slope * (length - 1.6f * (startX - x) / width)) * -dir_scale * width / settings.PixelsPerLine
+                        y_start + diff * i * settings.LinesBetweenFlags * settings.PixelsPerLine + 0.5f * (slope * settings.PixelsPerLine) * ((startX - (x + length * dir_scale * width)) / width)
                     );
         }
 

@@ -107,10 +107,10 @@ namespace MusicWriter.WinForms {
             track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 1, Length = Time.Note_8th });
             track3.Melody.AddNote(SemiTone.C4 + 2, new Duration { Start = Time.Note_8th * 2, Length = Time.Note_8th });
             track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 3, Length = Time.Note_8th });
-            track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 4, Length = Time.Note_8th });
-            track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 5, Length = Time.Note_8th });
-            track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 6, Length = Time.Note_8th });
-            track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 7, Length = Time.Note_8th });
+            track3.Melody.AddNote(SemiTone.C4 + 4, new Duration { Start = Time.Note_8th * 4, Length = Time.Note_8th });
+            track3.Melody.AddNote(SemiTone.C4 + 2, new Duration { Start = Time.Note_8th * 5, Length = Time.Note_8th });
+            track3.Melody.AddNote(SemiTone.C4 + 5, new Duration { Start = Time.Note_8th * 6, Length = Time.Note_8th });
+            track3.Melody.AddNote(SemiTone.C4 + 16, new Duration { Start = Time.Note_8th * 7, Length = Time.Note_8th });
 
             track3.Name.Value = "Track 3";
             editor.Tracks.Add(track3);
