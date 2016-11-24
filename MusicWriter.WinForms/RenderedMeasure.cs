@@ -113,7 +113,7 @@ namespace MusicWriter.WinForms {
                         startX,
                         y_start + diff * i * settings.PixelsPerLine,
                         x + length * dir_scale * width,
-                        y_start + diff * i * settings.PixelsPerLine + (slope * (length - (startX - x) / width)) * -dir_scale * width / settings.PixelsPerLine
+                        y_start + diff * i * settings.PixelsPerLine + (slope * (length - 1.6f * (startX - x) / width)) * -dir_scale * width / settings.PixelsPerLine
                     );
         }
 
