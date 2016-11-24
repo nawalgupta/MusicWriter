@@ -11,6 +11,8 @@ namespace MusicWriter.WinForms {
     public abstract class RenderedSheetMusicItem : IDisposable {
         Bitmap bmp = null;
 
+        public virtual float PixelAtTime(Time offset, float width, SheetMusicRenderSettings settings) => float.NaN;
+
         public virtual bool Stretchy { get { return true; } }
 
         public abstract int Priority { get; }

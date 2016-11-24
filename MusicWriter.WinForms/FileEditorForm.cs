@@ -116,7 +116,6 @@ namespace MusicWriter.WinForms {
             editor.Tracks.Add(track3);
             file.Tracks.Add(track3);
 
-
             screen.Controllers.Add(editor);
             screen.Name.Value = "Screen 1";
             

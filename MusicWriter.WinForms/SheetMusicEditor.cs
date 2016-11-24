@@ -357,7 +357,8 @@ namespace MusicWriter.WinForms {
                     var items =
                         track
                             .Memory
-                            .Analyses<RenderedSheetMusicItem>(duration);
+                            .Analyses<RenderedSheetMusicItem>(duration)
+                            .ToArray();
 
                     var desired = 0f;
                     var desired_stretchy = 0f;
@@ -376,8 +377,8 @@ namespace MusicWriter.WinForms {
                     
                     minwidth =
                         Math.Max(
-                            minwidth,
-                            desired
+                                minwidth,
+                                desired
                             );
 
                     desireditemchunkwidths_fixed[track].Add(duration, desired_fixed);
@@ -417,7 +418,7 @@ namespace MusicWriter.WinForms {
 
         float GetLeft(Time time) {
             var left = 0f;
-
+            
             foreach (var chunk in minwidths) {
                 if (chunk.Key.End < time)
                     left += chunk.Value;
@@ -425,6 +426,39 @@ namespace MusicWriter.WinForms {
                     left += Time.FloatDiv(time - chunk.Key.Start, chunk.Key.Length) * chunk.Value;
 
                     break;
+                }
+            }
+
+            return left;
+        }
+
+        float GetLeft(Time time, MusicTrack track) {
+            var left = 0f;
+
+            foreach(var item in track.Memory.Analyses<RenderedSheetMusicItem>(new Duration { End = time })) {
+                if (item.Duration.End < time)
+                    left += itemwidths[track][item.Value];
+                else {
+                    var samepoints =
+                        track
+                            .Memory
+                            .Analyses<RenderedSheetMusicItem>(item.Duration);
+
+                    var localtime = time - item.Duration.Start;
+
+                    foreach (var samepoint in samepoints) {
+                        //TODO: enforce all have same duration
+                        var itemwidth = itemwidths[track][samepoint.Value];
+
+                        var px = samepoint.Value.PixelAtTime(localtime, itemwidth, Settings);
+
+                        if (float.IsNaN(px))
+                            left += itemwidth;
+                        else {
+                            left += px;
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -439,6 +473,9 @@ namespace MusicWriter.WinForms {
             var scrollX = GetLeft(Pin.Time.Offset.Value);
 
             foreach (var track in tracks.SpecialCollection) {
+                var active =
+                    ReferenceEquals(track, ActiveTrack);
+
                 // draw staff
                 if (Settings?.Staff != null)
                     for (int line = 0; line < Settings.Staff.Lines; line++)
@@ -502,18 +539,74 @@ namespace MusicWriter.WinForms {
                     }
                 }
 
+                var caretx =
+                    GetLeft(Caret.Caret.Focus, track) - scrollX;
+
+                var caretunitx =
+                    GetLeft(Caret.Caret.Focus + inputcontroller.UnitTime, track) - scrollX;
+
+                var caretstaff =
+                    track
+                        .Adornment
+                        .Staffs
+                        .Intersecting(Caret.Caret.Focus)
+                        .First()
+                        .Value;
+
+                PitchTransform transform;
+
+                var caretkey =
+                    track
+                        .Adornment
+                        .KeySignatures
+                        .Intersecting(Caret.Caret.Focus)
+                        .First()
+                        .Value
+                        .Key(Caret.Tone, out transform);
+
+                var carety =
+                    Settings.YVal(caretstaff.GetHalfLine(caretkey));
+
+                var caret_pen_x =
+                    new Pen(Color.DarkSeaGreen, active ? 2.5f : 1.2f);
+
+                var caret_pen_y =
+                    new Pen(Color.Red, active ? 3f : 1.4f);
+
+                pe
+                    .Graphics
+                    .DrawLine(
+                            caret_pen_x,
+                            caretx,
+                            0,
+                            caretx,
+                            Settings.Height
+                        );
+
+                pe
+                    .Graphics
+                    .DrawLine(
+                            caret_pen_y,
+                            caretx,
+                            carety,
+                            caretunitx,
+                            carety
+                        );
+
+                if (active) {
+                    pe
+                        .Graphics
+                        .FillEllipse(
+                                new SolidBrush(Color.FromArgb(200, Color.DeepSkyBlue)),
+                                caretx - Settings.NoteHeadRadius,
+                                carety - Settings.NoteHeadRadius,
+                                Settings.NoteHeadRadius * 2,
+                                Settings.NoteHeadRadius * 2
+                            );
+                }
+
                 pe.Graphics.TranslateTransform(0, Settings.Height);
             }
-
-            pe.Graphics.ResetTransform();
-
-            var caretx = GetLeft(Caret.Caret.Focus) - scrollX;
-            pe.Graphics.DrawLine(Pens.Black,
-                    caretx,
-                    0,
-                    caretx,
-                    Height
-                );
 
             base.OnPaint(pe);
         }

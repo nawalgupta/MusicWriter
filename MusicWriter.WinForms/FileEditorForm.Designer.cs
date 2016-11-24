@@ -98,6 +98,7 @@
             this.ClientSize = new System.Drawing.Size(743, 392);
             this.Controls.Add(this.tabScreens);
             this.Controls.Add(this.menuStrip1);
+            this.DoubleBuffered = true;
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "FileEditorForm";

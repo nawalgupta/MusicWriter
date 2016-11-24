@@ -29,6 +29,9 @@ namespace MusicWriter.WinForms {
             this.layoutmeasure = layoutmeasure;
         }
 
+        public override float PixelAtTime(Time offset, float width, SheetMusicRenderSettings settings) =>
+            Time.FloatDiv(offset, layoutmeasure.Duration.Length) * (width + 1 * Margin) + Margin + 0 * settings.NoteHeadRadius;
+
         public override float MinWidth(SheetMusicRenderSettings settings) =>
             layoutmeasure.ScaleX * settings.PixelsPerX * settings.PixelsScale + 2 * Margin;
 

@@ -73,6 +73,16 @@ namespace MusicWriter {
                 octave
             );
 
+        public static DiatonicTone Key(
+                this KeySignature signature,
+                SemiTone tone,
+                out PitchTransform transform
+            ) =>
+            new DiatonicTone(
+                    signature.KeyOfPitchClass(tone.PitchClass, out transform),
+                    tone.Octave
+                );
+
         public static DiatonicToneClass ToRight(this DiatonicToneClass key) =>
             (DiatonicToneClass)(((int)key + 1) % 7);
 
