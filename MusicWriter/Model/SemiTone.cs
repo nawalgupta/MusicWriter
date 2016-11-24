@@ -34,5 +34,11 @@ namespace MusicWriter {
 
         public static SemiTone operator -(SemiTone a, SemiTone b) =>
             new SemiTone(a.Semitones - b.Semitones);
+
+        public static SemiTone operator +(SemiTone a, int delta) =>
+            new SemiTone(a.Semitones + delta);
+
+        public static SemiTone operator -(SemiTone a, int delta) =>
+            new SemiTone(a.Semitones - delta);
     }
 }

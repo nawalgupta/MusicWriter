@@ -97,8 +97,24 @@ namespace MusicWriter.WinForms {
             track2.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Note_2nd, Length = Time.Note_2nd });
 
             track2.Name.Value = "Track 2";
-            editor.Tracks.Add(track2);
+            //editor.Tracks.Add(track2);
             file.Tracks.Add(track2);
+
+            var track3 =
+                (MusicTrack)capabilities.TrackFactories[0].Create();
+
+            track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 0, Length = Time.Note_8th });
+            track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 1, Length = Time.Note_8th });
+            track3.Melody.AddNote(SemiTone.C4 + 2, new Duration { Start = Time.Note_8th * 2, Length = Time.Note_8th });
+            track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 3, Length = Time.Note_8th });
+            track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 4, Length = Time.Note_8th });
+            track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 5, Length = Time.Note_8th });
+            track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 6, Length = Time.Note_8th });
+            track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 7, Length = Time.Note_8th });
+
+            track3.Name.Value = "Track 3";
+            editor.Tracks.Add(track3);
+            file.Tracks.Add(track3);
 
 
             screen.Controllers.Add(editor);

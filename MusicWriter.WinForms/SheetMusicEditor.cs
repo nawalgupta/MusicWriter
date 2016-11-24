@@ -505,6 +505,8 @@ namespace MusicWriter.WinForms {
                 pe.Graphics.TranslateTransform(0, Settings.Height);
             }
 
+            pe.Graphics.ResetTransform();
+
             var caretx = GetLeft(Caret.Caret.Focus) - scrollX;
             pe.Graphics.DrawLine(Pens.Black,
                     caretx,
@@ -512,8 +514,6 @@ namespace MusicWriter.WinForms {
                     caretx,
                     Height
                 );
-
-            pe.Graphics.DrawLine(Pens.Red, 20, 20, 50, 100);
 
             base.OnPaint(pe);
         }

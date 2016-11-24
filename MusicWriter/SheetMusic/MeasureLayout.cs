@@ -115,9 +115,11 @@ namespace MusicWriter {
                 chordlayout.StemDirection = direction;
 
                 if (direction == NoteStemDirection.Down) {
+                    chordlayout.StemSide = NoteStemSide.Left;
                     chordlayout.StemStartHalfLines = chordlayout.Notes.Min(note => note.HalfLine) - 5F;
                 }
                 else {
+                    chordlayout.StemSide = NoteStemSide.Right;
                     chordlayout.StemStartHalfLines = chordlayout.Notes.Max(note => note.HalfLine) + 5F;
                 }
 
@@ -133,11 +135,11 @@ namespace MusicWriter {
                 if (chord.Flags != 0)
                     continue; // already hit
 
-                if (chord.Duration.Length < Time.Note_4th) {
+                if (chord.Length.Length > LengthClass.Quarter) {
                     var cell =
                         chord.Notes[0].Core.Cell;
 
-                    if (cell.Duration.End < cell.Duration.End) {
+                    if (chord.Duration.End < cell.Duration.End) {
                         var train =
                             new List<ChordLayout>();
 
@@ -163,6 +165,9 @@ namespace MusicWriter {
                             last = bestcandidate;
                         }
 
+                        if (last.Duration.End == cell.Duration.End)
+                            train.Add(last);
+
                         var Xs =
                             train.Select(item => item.X).ToArray();
 
@@ -176,10 +181,14 @@ namespace MusicWriter {
                         }
 
                         var stemdirection = NoteStemDirection.None;
-                        if (train.Average(chordi => chordi.Notes.Average(notei => (float)notei.HalfLine)) >= staff.MiddleHalfLine)
+                        var stemside = NoteStemSide.None;
+                        if (train.Average(chordi => chordi.Notes.Average(notei => (float)notei.HalfLine)) >= staff.MiddleHalfLine) {
                             stemdirection = NoteStemDirection.Down;
+                            stemside = NoteStemSide.Left;
+                        }
                         else {
                             stemdirection = NoteStemDirection.Up;
+                            stemside = NoteStemSide.Right;
                         }
 
                         float stemoffset = 3;
@@ -192,6 +201,7 @@ namespace MusicWriter {
                             var item = train[i];
 
                             item.StemDirection = stemdirection;
+                            item.StemSide = stemside;
                             item.FlagSlope = m;
 
                             if (is1) {

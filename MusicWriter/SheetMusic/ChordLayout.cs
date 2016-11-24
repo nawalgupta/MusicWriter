@@ -25,6 +25,7 @@ namespace MusicWriter {
         }
 
         public NoteStemDirection StemDirection { get; set; }
+        public NoteStemSide StemSide { get; set; }
         public float StemStartHalfLines { get; set; }
         public float FlagSlope { get; set; }
         public int Flags { get; set; }

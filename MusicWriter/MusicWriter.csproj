@@ -96,6 +96,7 @@
     <Compile Include="Cogs\NotePerceptualCog.cs" />
     <Compile Include="SheetMusic\NoteStemDirection.cs" />
     <Compile Include="Model\LengthClass.cs" />
+    <Compile Include="SheetMusic\NoteStemSide.cs" />
     <Compile Include="SheetMusic\PerceptualNote.cs" />
     <Compile Include="SheetMusic\PerceptualNoteID.cs" />
     <Compile Include="SheetMusic\PerceptualTime.cs" />
