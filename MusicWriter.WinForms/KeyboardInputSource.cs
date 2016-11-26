@@ -41,19 +41,27 @@ namespace MusicWriter.WinForms
             if (e.Modifiers.HasFlag(Keys.Control)) {
                 // shift by semitones
 
-                if (e.KeyCode == Keys.Down)
+                if (e.KeyCode == Keys.Down) {
                     Controller.OffsetTone(-1);
-                if (e.KeyCode == Keys.Up)
+                    Controller.FinishTone();
+                }
+                if (e.KeyCode == Keys.Up) {
                     Controller.OffsetTone(+1);
+                    Controller.FinishTone();
+                }
             }
             else {
                 // shift by whole tones
                 //TODO
 
-                if (e.KeyCode == Keys.Down)
+                if (e.KeyCode == Keys.Down) {
                     Controller.OffsetTone(-1);
-                if (e.KeyCode == Keys.Up)
+                    Controller.FinishTone();
+                }
+                if (e.KeyCode == Keys.Up) {
                     Controller.OffsetTone(+1);
+                    Controller.FinishTone();
+                }
             }
 
             int x, y;
