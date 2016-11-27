@@ -21,6 +21,9 @@ namespace MusicWriter {
                 return Time.Zero;
             }
             set {
+                if (value < Time.Zero)
+                    value = Time.Zero;
+
                 if ((Side & FocusSide.Left) == FocusSide.Left)
                     Duration.Start = value;
 

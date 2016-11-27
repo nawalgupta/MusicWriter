@@ -20,7 +20,8 @@ namespace MusicWriter.WinForms {
 
         public Pin Pin { get; } = new Pin();
 
-        public ToneCaret Caret { get; } = new ToneCaret();
+        public Cursor MusicCursor { get; } = new Cursor();
+        Cursor MusicCursor_bak = new Cursor();
 
         public EditorFile File {
             get { return file; }
@@ -124,11 +125,17 @@ namespace MusicWriter.WinForms {
             
             foreach (var note_ref in selectednotes_end.Keys.ToArray())
                 selectednotes_end[note_ref] = note_ref.Value.Melody[note_ref.Key].Duration.End;
+
+            MusicCursor_bak.Caret.Duration.Start = MusicCursor.Caret.Duration.Start;
+            MusicCursor_bak.Caret.Duration.Length = MusicCursor.Caret.Duration.Length;
+            MusicCursor_bak.Caret.Side = MusicCursor.Caret.Side;
         }
 
         private void InputController_ToneStart() {
             foreach (var note_ref in selectednotes_tone.Keys.ToArray())
                 selectednotes_tone[note_ref] = note_ref.Value.Melody[note_ref.Key].Tone;
+
+            MusicCursor_bak.Tone = MusicCursor.Tone;
         }
 
         private void InputController_TimeReset() {
@@ -157,6 +164,12 @@ namespace MusicWriter.WinForms {
 
                 note_ref.Value.Melody.UpdateNote(note_ref.Key, newduration, note.Tone);
             }
+
+            MusicCursor.Caret.Duration.Start = MusicCursor_bak.Caret.Duration.Start;
+            MusicCursor.Caret.Duration.Length = MusicCursor_bak.Caret.Duration.Length;
+            MusicCursor.Caret.Side = MusicCursor_bak.Caret.Side;
+
+            Invalidate();
         }
 
         private void InputController_ToneReset() {
@@ -169,14 +182,18 @@ namespace MusicWriter.WinForms {
 
                 note_ref.Value.Melody.UpdateNote(note_ref.Key, note.Duration, newtone);
             }
+
+            MusicCursor.Tone = MusicCursor_bak.Tone;
+
+            Invalidate();
         }
 
         private void InputController_SelectionFinish() {
-            Caret.Caret.Side = MusicWriter.Caret.FocusSide.Both;
+            MusicCursor.Caret.Side = MusicWriter.Caret.FocusSide.Both;
         }
 
         private void InputController_SelectionStart() {
-            Caret.Caret.Side = MusicWriter.Caret.FocusSide.Right;
+            MusicCursor.Caret.Side = MusicWriter.Caret.FocusSide.Right;
         }
 
         private void InputController_NotePlacementFinish() {
@@ -185,14 +202,14 @@ namespace MusicWriter.WinForms {
         private void InputController_NotePlacementStart() {
             var tone =
                 //SemiTone.C4;
-                Caret.Tone;
+                MusicCursor.Tone;
 
             var duration =
                 //new Duration {
                 //    Start = Time.Note_8th,
                 //    Length = Time.Note_4th
                 //};
-                Caret.Caret.Duration;
+                MusicCursor.Caret.Duration;
 
             var note =
                 ActiveTrack.Melody.AddNote(tone, duration);
@@ -242,11 +259,12 @@ namespace MusicWriter.WinForms {
             }
 
             if (mode == CaretMode.Absolute)
-                Caret.Caret.Focus = time;
+                MusicCursor.Caret.Focus = time;
             else if (mode == CaretMode.Delta)
-                Caret.Caret.Focus += time;
+                MusicCursor.Caret.Focus += time;
 
-            Invalidate();
+            if (time != Time.Zero || mode == CaretMode.Absolute)
+                Invalidate();
         }
 
         void Effect_ToneChanged(int tone, CaretMode mode) {
@@ -267,9 +285,12 @@ namespace MusicWriter.WinForms {
             }
 
             if (mode == CaretMode.Absolute)
-                Caret.Tone = new SemiTone(tone);
+                MusicCursor.Tone = new SemiTone(tone);
             else if (mode == CaretMode.Delta)
-                Caret.Tone += new SemiTone(tone);
+                MusicCursor.Tone += tone;
+
+            if (tone != 0 || mode == CaretMode.Absolute)
+                Invalidate();
         }
 
         private void Tracks_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
@@ -540,16 +561,16 @@ namespace MusicWriter.WinForms {
                 }
 
                 var caretx =
-                    GetLeft(Caret.Caret.Focus, track) - scrollX;
+                    GetLeft(MusicCursor.Caret.Focus, track) - scrollX;
 
                 var caretunitx =
-                    GetLeft(Caret.Caret.Focus + inputcontroller.UnitTime, track) - scrollX;
+                    GetLeft(MusicCursor.Caret.Focus + inputcontroller.UnitTime, track) - scrollX;
 
                 var caretstaff =
                     track
                         .Adornment
                         .Staffs
-                        .Intersecting(Caret.Caret.Focus)
+                        .Intersecting(MusicCursor.Caret.Focus)
                         .First()
                         .Value;
 
@@ -559,10 +580,10 @@ namespace MusicWriter.WinForms {
                     track
                         .Adornment
                         .KeySignatures
-                        .Intersecting(Caret.Caret.Focus)
+                        .Intersecting(MusicCursor.Caret.Focus)
                         .First()
                         .Value
-                        .Key(Caret.Tone, out transform);
+                        .Key(MusicCursor.Tone, out transform);
 
                 var carety =
                     Settings.YVal(caretstaff.GetHalfLine(caretkey));
@@ -610,6 +631,5 @@ namespace MusicWriter.WinForms {
 
             base.OnPaint(pe);
         }
-
     }
 }

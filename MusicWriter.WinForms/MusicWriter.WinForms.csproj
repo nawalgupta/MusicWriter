@@ -55,6 +55,7 @@
     <Compile Include="FileEditorForm.Designer.cs">
       <DependentUpon>FileEditorForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="InternalExtensions.cs" />
     <Compile Include="KeyboardInputSource.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -79,6 +80,7 @@
     </Compile>
     <Compile Include="SheetMusicRenderSettings.cs" />
     <Compile Include="RenderedTimeSignatureSimple.cs" />
+    <Compile Include="Theme.cs" />
     <EmbeddedResource Include="FileEditorForm.resx">
       <DependentUpon>FileEditorForm.cs</DependentUpon>
     </EmbeddedResource>

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public sealed class ToneCaret {
+    public sealed class Cursor {
         public SemiTone Tone { get; set; } = SemiTone.C4;
 
         public Caret Caret { get; } = new Caret();

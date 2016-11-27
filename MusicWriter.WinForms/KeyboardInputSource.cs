@@ -22,10 +22,10 @@ namespace MusicWriter.WinForms
             new ObservableCollection<MusicTrack>();
 
         private Keys[][] keymap = new Keys[][] {
-            new Keys[] { Keys.Oemtilde, Keys.D1, Keys.D2, Keys.D3, Keys.D4, Keys.D5, Keys.D6, Keys.D7, Keys.D8, Keys.D9, Keys.D0, Keys.OemMinus, Keys.Oemplus },
-            new Keys[] { Keys.NoName, Keys.Q, Keys.W, Keys.E, Keys.R, Keys.T, Keys.Y, Keys.U, Keys.I, Keys.O, Keys.P, Keys.OemOpenBrackets, Keys.OemCloseBrackets, Keys.OemBackslash },
+            new Keys[] { Keys.NoName, Keys.Z, Keys.X, Keys.C, Keys.V, Keys.B, Keys.N, Keys.M, Keys.Oemcomma, Keys.OemPeriod, Keys.OemQuestion },
             new Keys[] { Keys.NoName, Keys.A, Keys.S, Keys.D, Keys.F, Keys.G, Keys.H, Keys.J, Keys.K, Keys.L, Keys.OemSemicolon, Keys.OemQuotes },
-            new Keys[] { Keys.NoName, Keys.Z, Keys.X, Keys.C, Keys.V, Keys.B, Keys.N, Keys.M, Keys.Oemcomma, Keys.OemPeriod, Keys.OemQuestion }
+            new Keys[] { Keys.NoName, Keys.Q, Keys.W, Keys.E, Keys.R, Keys.T, Keys.Y, Keys.U, Keys.I, Keys.O, Keys.P, Keys.OemOpenBrackets, Keys.OemCloseBrackets, Keys.OemBackslash },
+            new Keys[] { Keys.Oemtilde, Keys.D1, Keys.D2, Keys.D3, Keys.D4, Keys.D5, Keys.D6, Keys.D7, Keys.D8, Keys.D9, Keys.D0, Keys.OemMinus, Keys.Oemplus },
         };
 
         bool drawing = false;
@@ -36,8 +36,7 @@ namespace MusicWriter.WinForms
         Keys dragging_key1 = default(Keys);
         Keys dragging_key2 = default(Keys);
 
-        public void OnKeyDown(KeyEventArgs e)
-        {
+        public void OnKeyDown(KeyEventArgs e) {
             if (e.Modifiers.HasFlag(Keys.Control)) {
                 // shift by semitones
 
@@ -107,8 +106,7 @@ namespace MusicWriter.WinForms
             }
         }
 
-        bool GetXY(Keys key, out int x, out int y)
-        {
+        bool GetXY(Keys key, out int x, out int y) {
             for (y = 0; y < keymap.Length; y++)
                 for (x = 0; x < keymap[y].Length; x++)
                     if (keymap[y][x] == key)
@@ -118,8 +116,7 @@ namespace MusicWriter.WinForms
             return false;
         }
 
-        public void OnKeyUp(KeyEventArgs e)
-        {
+        public void OnKeyUp(KeyEventArgs e) {
             if (e.KeyCode == dragging_key1) {
                 dragging_key1 = dragging_key2;
                 dragging_key2 = default(Keys);
@@ -138,6 +135,13 @@ namespace MusicWriter.WinForms
                     drawing = false;
                     selecting = false;
                 }
+            }
+            else if (e.KeyCode == dragging_key2 && dragging) {
+                dragging_key2 = default(Keys);
+                GetXY(dragging_key1, out old_x, out old_y);
+
+                Controller.CancelTime();
+                Controller.CancelTone();
             }
         }
     }

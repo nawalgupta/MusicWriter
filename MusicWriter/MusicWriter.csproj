@@ -54,7 +54,7 @@
     <Compile Include="Input\IInputSource.cs" />
     <Compile Include="Input\NotePlacedDelegate.cs" />
     <Compile Include="Input\TimeChangedDelegate.cs" />
-    <Compile Include="Input\ToneCaret.cs" />
+    <Compile Include="Input\Cursor.cs" />
     <Compile Include="Input\ToneChangedDelegate.cs" />
     <Compile Include="Metadata\IMemoryModule.cs" />
     <Compile Include="Metadata\PerceptualMemory.cs" />
