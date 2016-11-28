@@ -274,23 +274,46 @@ namespace MusicWriter.WinForms {
                 var note = track.Melody[noteID];
 
                 var newtone =
-                    note.Tone;
-
-                if (mode == CaretMode.Absolute)
-                    newtone = new SemiTone(tone);
-                else if (mode == CaretMode.Delta)
-                    newtone += new SemiTone(tone);
+                    Effect_ToneChanged_affect(note.Tone, note.Duration.Start, tone, mode, track);
 
                 track.Melody.UpdateNote(note.ID, note.Duration, newtone);
             }
 
-            if (mode == CaretMode.Absolute)
-                MusicCursor.Tone = new SemiTone(tone);
-            else if (mode == CaretMode.Delta)
-                MusicCursor.Tone += tone;
+            MusicCursor.Tone = Effect_ToneChanged_affect(MusicCursor.Tone, MusicCursor.Caret.Focus, tone, mode, ActiveTrack);
 
-            if (tone != 0 || mode == CaretMode.Absolute)
+            if (tone != 0 || mode.HasFlag(CaretMode.Absolute))
                 Invalidate();
+        }
+
+        SemiTone Effect_ToneChanged_affect(SemiTone tone, Time time, int delta, CaretMode mode, MusicTrack track) {
+            if (mode.HasFlag(CaretMode.Absolute))
+                return new SemiTone(delta);
+            else if (!mode.HasFlag(CaretMode.Delta))
+                throw new InvalidOperationException();
+
+            if (mode.HasFlag(CaretMode.SemiTones))
+                tone += delta;
+            else if (mode.HasFlag(CaretMode.WholeTones)) {
+                var keysig =
+                    track
+                        .Adornment
+                        .KeySignatures
+                        .Intersecting(time)
+                        .First()
+                        .Value;
+
+                if (delta > 0) {
+                    while (delta-- > 0)
+                        tone = keysig.Right(tone);
+                }
+                else if (delta < 0) {
+                    while (delta++ < 0)
+                        tone = keysig.Left(tone);
+                }
+            }
+            else throw new InvalidOperationException();
+
+            return tone;
         }
 
         private void Tracks_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {

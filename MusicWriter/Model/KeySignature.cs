@@ -22,25 +22,79 @@ namespace MusicWriter {
             set { keytransforms[key] = value; }
         }
 
+        public SemiTone SemiToneOfKey(DiatonicTone diatone, PitchTransform transform) =>
+            transform * (this[diatone.KeyClass] * new SemiTone(diatone.KeyClass.GetPitchClass(), diatone.Octave));
+
+        public SemiTone SemiToneOfKey(DiatonicTone diatone) =>
+            this[diatone.KeyClass] * new SemiTone(diatone.KeyClass.GetPitchClass(), diatone.Octave);
+
         public DiatonicToneClass KeyOfPitchClass(
                 ChromaticPitchClass pitch,
-                out PitchTransform transform
+                out PitchTransform displaytransform
             ) {
-            foreach (var keytransform in keytransforms) {
-                if (keytransform.Value * keytransform.Key.GetPitchClass() == pitch) {
-                    transform = keytransform.Value;
-                    return keytransform.Key;
+            foreach (var keytransformkvp in keytransforms) {
+                if (SemiToneOfKey(new DiatonicTone(keytransformkvp.Key, 0)).PitchClass == pitch) {
+                    displaytransform = PitchTransform.Natural;
+                    return keytransformkvp.Key;
                 }
             }
-
+            
             var naturalkey =
-                pitch.GetNaturalKeyClass();
+                keytransforms
+                    .Sum(keytransformkvp => keytransformkvp.Value.Steps) > 0 ?
+                        pitch.GetNaturalKeyClass_PreferSharps() :
+                        pitch.GetNaturalKeyClass_PreferFlats();
 
             var naturalpitch =
                 naturalkey.GetPitchClass();
 
-            transform = new PitchTransform((int)pitch - (int)naturalpitch);
+            var keytransform =
+                this[naturalkey];
+
+            displaytransform = new PitchTransform((int)pitch - (int)naturalpitch);
             return naturalkey;
+        }
+
+        static readonly PitchTransform[] wholesteps = new PitchTransform[] {
+                PitchTransform.DoubleSharp,
+                PitchTransform.DoubleSharp,
+                PitchTransform.Sharp,
+                PitchTransform.DoubleSharp,
+                PitchTransform.DoubleSharp,
+                PitchTransform.DoubleSharp,
+                PitchTransform.Sharp
+            };
+
+        public SemiTone Left(SemiTone wholetone) {
+            PitchTransform transform;
+
+            var diatone =
+                this.Key(wholetone, out transform);
+
+            //if (transform.Steps != 0)
+            //    return this[diatone.KeyClass] * new SemiTone(diatone.KeyClass.GetPitchClass(), wholetone.Octave);
+
+            var wholestep =
+                -wholesteps[((int)diatone.KeyClass - 1 + 7) % 7];
+            
+            return
+                wholestep * SemiToneOfKey(diatone, transform);
+        }
+
+        public SemiTone Right(SemiTone wholetone) {
+            PitchTransform transform;
+
+            var diatone =
+                this.Key(wholetone, out transform);
+
+            //if (transform.Steps != 0)
+            //    return this[diatone.KeyClass] * new SemiTone(diatone.KeyClass.GetPitchClass(), wholetone.Octave);
+
+            var wholestep =
+                wholesteps[(int)diatone.KeyClass];
+
+            return
+                wholestep * SemiToneOfKey(diatone, transform);
         }
 
         public static KeySignature Create(
@@ -101,7 +155,8 @@ namespace MusicWriter {
                 transform += modesteps[i];
                 transform -= keysteps[i];
 
-                pitch = modesteps[i] * pitch;
+                //TODO: should modesteps[i] or transform be used here
+                pitch = modesteps[i].Transform(pitch);
                 key = key.ToRight();
             }
 

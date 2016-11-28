@@ -34,12 +34,45 @@ namespace MusicWriter {
             }
         }
 
-        public static DiatonicToneClass GetNaturalKeyClass(this ChromaticPitchClass pitch) {
+        public static DiatonicToneClass GetNaturalKeyClass_PreferSharps(this ChromaticPitchClass pitch) {
             switch (pitch) {
                 case ChromaticPitchClass.C:
                 case ChromaticPitchClass.Dflat:
                     return DiatonicToneClass.C;
 
+                case ChromaticPitchClass.D:
+                case ChromaticPitchClass.Eflat:
+                    return DiatonicToneClass.D;
+
+                case ChromaticPitchClass.E:
+                    return DiatonicToneClass.E;
+
+                case ChromaticPitchClass.F:
+                case ChromaticPitchClass.Gflat:
+                    return DiatonicToneClass.F;
+
+                case ChromaticPitchClass.G:
+                case ChromaticPitchClass.Aflat:
+                    return DiatonicToneClass.G;
+
+                case ChromaticPitchClass.A:
+                case ChromaticPitchClass.Bflat:
+                    return DiatonicToneClass.A;
+
+                case ChromaticPitchClass.B:
+                    return DiatonicToneClass.B;
+
+                default:
+                    return (DiatonicToneClass)pitch;
+            }
+        }
+
+        public static DiatonicToneClass GetNaturalKeyClass_PreferFlats(this ChromaticPitchClass pitch) {
+            switch (pitch) {
+                case ChromaticPitchClass.C:
+                    return DiatonicToneClass.C;
+
+                case ChromaticPitchClass.Dflat:
                 case ChromaticPitchClass.D:
                     return DiatonicToneClass.D;
 
@@ -72,6 +105,12 @@ namespace MusicWriter {
                 keyclass,
                 octave
             );
+
+        public static ChromaticPitchClass Transform(
+                this PitchTransform transform,
+                ChromaticPitchClass pitch
+            ) =>
+            (ChromaticPitchClass)(((int)pitch + transform.Steps + 12) % 12);
 
         public static DiatonicTone Key(
                 this KeySignature signature,

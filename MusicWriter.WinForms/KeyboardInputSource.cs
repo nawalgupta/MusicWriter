@@ -37,15 +37,15 @@ namespace MusicWriter.WinForms
         Keys dragging_key2 = default(Keys);
 
         public void OnKeyDown(KeyEventArgs e) {
-            if (e.Modifiers.HasFlag(Keys.Control)) {
+            if (e.Alt) {
                 // shift by semitones
 
                 if (e.KeyCode == Keys.Down) {
-                    Controller.OffsetTone(-1);
+                    Controller.OffsetTone(-1, false);
                     Controller.FinishTone();
                 }
                 if (e.KeyCode == Keys.Up) {
-                    Controller.OffsetTone(+1);
+                    Controller.OffsetTone(+1, false);
                     Controller.FinishTone();
                 }
             }
@@ -54,11 +54,11 @@ namespace MusicWriter.WinForms
                 //TODO
 
                 if (e.KeyCode == Keys.Down) {
-                    Controller.OffsetTone(-1);
+                    Controller.OffsetTone(-1, true);
                     Controller.FinishTone();
                 }
                 if (e.KeyCode == Keys.Up) {
-                    Controller.OffsetTone(+1);
+                    Controller.OffsetTone(+1, true);
                     Controller.FinishTone();
                 }
             }
@@ -73,7 +73,7 @@ namespace MusicWriter.WinForms
                         Controller.OffsetTime(dx * Controller.UnitTime);
 
                     if (dy != 0)
-                        Controller.OffsetTone(dy);
+                        Controller.OffsetTone(dy, !e.Alt);
 
                     dragging = true;
                     dragging_key2 = e.KeyCode;

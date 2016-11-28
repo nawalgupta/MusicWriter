@@ -53,13 +53,9 @@ namespace MusicWriter {
                 PitchTransform transform;
 
                 var key =
-                    new DiatonicTone(
-                            keysignature
-                                .KeyOfPitchClass(
-                                        perceptualnote_item.Value.Note.Tone.PitchClass,
-                                        out transform
-                                    ),
-                            perceptualnote_item.Value.Note.Tone.Octave
+                    keysignature.Key(
+                            perceptualnote_item.Value.Note.Tone,
+                            out transform
                         );
 
                 var halfline =

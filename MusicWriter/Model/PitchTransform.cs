@@ -16,8 +16,11 @@ namespace MusicWriter {
             this.steps = steps;
         }
 
-        public ChromaticPitchClass Transform(ChromaticPitchClass natural) =>
-            (ChromaticPitchClass)(((int)natural + steps) % 12);
+        public SemiTone Transform(SemiTone natural) =>
+            natural + steps;
+
+        public static PitchTransform operator -(PitchTransform that) =>
+            new PitchTransform(-that.steps);
 
         public static PitchTransform operator +(PitchTransform a, PitchTransform b) =>
             new PitchTransform(a.steps + b.steps);
@@ -25,7 +28,7 @@ namespace MusicWriter {
         public static PitchTransform operator -(PitchTransform a, PitchTransform b) =>
             new PitchTransform(a.steps - b.steps);
 
-        public static ChromaticPitchClass operator *(PitchTransform a, ChromaticPitchClass b) =>
+        public static SemiTone operator *(PitchTransform a, SemiTone b) =>
             a.Transform(b);
 
         public static readonly PitchTransform Natural = new PitchTransform(0);

@@ -9,7 +9,7 @@ namespace MusicWriter {
         public DiatonicToneClass KeyClass { get; set; }
         public int Octave { get; set; } = 0;
 
-        public int Keys {
+        public int Tones {
             get { return Octave * 7 + (int)KeyClass; }
         }
 
@@ -21,18 +21,18 @@ namespace MusicWriter {
             Octave = octave;
         }
 
-        public DiatonicTone(int keys) {
-            KeyClass = (DiatonicToneClass)(keys % 7);
-            Octave = keys / 7;
+        public DiatonicTone(int tones) {
+            KeyClass = (DiatonicToneClass)(tones % 7);
+            Octave = tones / 7;
         }
 
         public static DiatonicTone operator +(DiatonicTone a, int b) =>
-            new DiatonicTone(a.Keys + b);
+            new DiatonicTone(a.Tones + b);
 
         public static DiatonicTone operator -(DiatonicTone a, int b) =>
-            new DiatonicTone(a.Keys - b);
+            new DiatonicTone(a.Tones - b);
 
         public static int operator -(DiatonicTone a, DiatonicTone b) =>
-            a.Keys - b.Keys;
+            a.Tones - b.Tones;
     }
 }

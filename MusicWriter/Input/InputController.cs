@@ -70,12 +70,13 @@ namespace MusicWriter {
 
             time += offset;
 
-            PreviewTimeChanged?.Invoke(time.Value, time_mode.Value);
+            if ((time != Time.Zero && time_mode.Value.HasFlag(CaretMode.Delta)) || !time_mode.Value.HasFlag(CaretMode.Delta))
+                PreviewTimeChanged?.Invoke(time.Value, time_mode.Value);
         }
 
-        public void OffsetTone(int offset) {
+        public void OffsetTone(int offset, bool wholetones) {
             if (tone_mode == null) {
-                tone_mode = CaretMode.Delta;
+                tone_mode = CaretMode.Delta | (wholetones ? CaretMode.WholeTones : CaretMode.SemiTones);
                 tone = 0;
 
                 ToneStart?.Invoke();
@@ -83,7 +84,8 @@ namespace MusicWriter {
 
             tone += offset;
 
-            PreviewToneChanged?.Invoke(tone.Value, tone_mode.Value);
+            if ((tone != 0 && tone_mode.Value.HasFlag(CaretMode.Delta)) || !tone_mode.Value.HasFlag(CaretMode.Delta))
+                PreviewToneChanged?.Invoke(tone.Value, tone_mode.Value);
         }
 
         public void SetTime(Time value) {

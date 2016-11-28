@@ -62,15 +62,10 @@ namespace MusicWriter {
 
         NoteLayout LayoutNote(PerceptualNote note) {
             PitchTransform transform;
-            var keyclass =
-                keysignature.KeyOfPitchClass(note.Note.Tone.PitchClass, out transform);
 
             var key =
-                new DiatonicTone(
-                        keyclass,
-                        note.Note.Tone.Octave
-                    );
-
+                keysignature.Key(note.Note.Tone, out transform);
+            
             var halfline =
                 staff.GetHalfLine(key);
 
