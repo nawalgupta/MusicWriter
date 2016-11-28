@@ -126,7 +126,7 @@ namespace MusicWriter {
             var beamsequences =
                 new List<ChordLayout[]>();
 
-            foreach (var chord in chords) {
+            foreach (var chord in chords.OrderByDescending(chord => chord.Duration.Length.Ticks)) {
                 if (chord.Flags != 0)
                     continue; // already hit
 
@@ -211,13 +211,14 @@ namespace MusicWriter {
                             if (is1 || is2)
                                 item.FlagLength /= 2F;
 
-                            item.Flags = item.Length.Length - LengthClass.Quarter;
+                            item.TiedFlags = item.Length.Length - LengthClass.Quarter;
+                            //TODO: also identify which are free flags
 
                             item.StemStartHalfLines = stemoffset + item.X * m + b;
                         }
                     }
                     else {
-                        chord.Flags = chord.Length.Length - LengthClass.Quarter;
+                        chord.FreeFlags = chord.Length.Length - LengthClass.Quarter;
                         chord.FlagSlope = -1;
                         chord.FlagLength = ToVirtualPX(chord.Duration.Length) / 4f;
 

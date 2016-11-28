@@ -28,11 +28,13 @@ namespace MusicWriter {
         public NoteStemSide StemSide { get; set; }
         public float StemStartHalfLines { get; set; }
         public float FlagSlope { get; set; }
-        public int Flags { get; set; }
+        public int FreeFlags { get; set; }
+        public int TiedFlags { get; set; }
+        public int Flags { get { return FreeFlags + TiedFlags; } }
         public float FlagLength { get; set; }
         public FlagDirection FlagDirection { get; set; }
 
-        public ChordLayout(NoteLayout[] notes) {
+        public ChordLayout(params NoteLayout[] notes) {
             this.notes = notes;
         }
     }

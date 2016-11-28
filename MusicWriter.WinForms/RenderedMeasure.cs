@@ -8,11 +8,8 @@ using System.Threading.Tasks;
 namespace MusicWriter.WinForms {
     public sealed class RenderedMeasure : RenderedSheetMusicItem {
         readonly MeasureLayout layoutmeasure;
-
-        static readonly Pen pen_stem = new Pen(Color.Black, 3.0f);
-        static readonly Pen pen_flag = new Pen(Color.Black, 5.0f);
+        
         static readonly Pen pen_tie = new Pen(Color.Black, 2.5f);
-        static readonly Pen pen_note = new Pen(Color.Black, 2.5f);
         static readonly Pen pen_measuredivision = new Pen(Color.Black, 1.5f);
 
         public float Margin { get; set; } = 15f;
@@ -39,7 +36,7 @@ namespace MusicWriter.WinForms {
             gfx.TranslateTransform(Margin, 0);
 
             foreach (var chord in layoutmeasure.Chords)
-                DrawChord(gfx, chord, settings, width);
+                NoteRenderer.DrawChord(gfx, settings, Color.Black, chord, width);
 
             DrawMeasureDivision(gfx, settings, width);
         }
@@ -52,134 +49,6 @@ namespace MusicWriter.WinForms {
                     width - 2 * pen_measuredivision.Width - Margin,
                     settings.YVal(0)
                 );
-        }
-        
-        void DrawChord(Graphics gfx, ChordLayout chord, SheetMusicRenderSettings settings, int width) {
-            var x = chord.X * width;
-
-            foreach (var note in chord.Notes)
-                DrawNote(
-                        gfx,
-                        note,
-                        chord.StemDirection,
-                        chord.StemSide,
-                        x,
-                        settings.YVal(chord.StemStartHalfLines),
-                        settings
-                    );
-
-            DrawFlags(
-                    gfx,
-                    x,
-                    chord.FlagDirection,
-                    chord.FlagLength,
-                    settings.YVal(chord.StemStartHalfLines),
-                    chord.FlagSlope,
-                    chord.Flags,
-                    chord.StemDirection,
-                    chord.StemSide,
-                    settings,
-                    width
-                );
-        }
-
-        void DrawFlags(
-                Graphics gfx,
-                float x,
-                FlagDirection direction,
-                float length,
-                float y_start,
-                float slope,
-                int flags,
-                NoteStemDirection stemdirection,
-                NoteStemSide side,
-                SheetMusicRenderSettings settings,
-                int width
-            ) {
-            var diff = stemdirection == NoteStemDirection.Down ? -1 : 1;
-            var dir_scale = direction == FlagDirection.Left ? -1 : 1;
-            
-            var startX = x;
-
-            // line / vpx -> px[y] / px[x]
-            // multiply by (px/line) / (px/vpx)
-            
-            if (side == NoteStemSide.Left)
-                startX -= settings.NoteHeadRadius;
-            else if (side == NoteStemSide.Right)
-                startX += settings.NoteHeadRadius;
-            
-            for (int i = 0; i < flags; i++)
-                gfx.DrawLine(
-                        pen_flag,
-                        startX,
-                        y_start + diff * i * settings.LinesBetweenFlags * settings.PixelsPerLine,
-                        x + length * dir_scale * width,
-                        y_start + diff * i * settings.LinesBetweenFlags * settings.PixelsPerLine + 0.5f * (slope * settings.PixelsPerLine) * ((startX - (x + length * dir_scale * width)) / width)
-                    );
-        }
-
-        void DrawNote(
-                Graphics gfx,
-                NoteLayout note,
-                NoteStemDirection direction,
-                NoteStemSide side,
-                float x,
-                float stem_end,
-                SheetMusicRenderSettings settings
-            ) {
-            var halfline =
-                settings.Staff.GetHalfLine(note.Key);
-
-            var y =
-                settings.YVal(note.HalfLine);
-
-            var fill = note.Core.Length.Length > LengthClass.Half;
-            var dots = note.Core.Length.Dots;
-
-            var y_dots =
-                settings.YVal(note.HalfLine + (note.HalfLine + 1) % 2);
-            
-            DrawNoteHead(gfx, x, y, y_dots, fill, dots, settings);
-            
-            if (side == NoteStemSide.Left)
-                DrawNoteStem_L(gfx, x, y, direction, stem_end, settings);
-            else if(side == NoteStemSide.Right)
-                DrawNoteStem_R(gfx, x, y, direction, stem_end, settings);
-        }
-        
-        void DrawNoteHead(Graphics gfx, float x, float y, float y_dots, bool fill, int dots, SheetMusicRenderSettings settings) {
-            gfx.DrawEllipse(pen_note, x - settings.NoteHeadRadius, y - settings.NoteHeadRadius, 2 * settings.NoteHeadRadius, 2 * settings.NoteHeadRadius);
-
-            if (fill)
-                gfx.FillEllipse(Brushes.Black, x - settings.NoteHeadRadius, y - settings.NoteHeadRadius, 2 * settings.NoteHeadRadius, 2 * settings.NoteHeadRadius);
-
-            for (int i = 0; i < dots; i++)
-                gfx.FillEllipse(Brushes.Black, x + settings.NoteHeadRadius + i * settings.DotSpacing + settings.DotInitialSpacing, y_dots - settings.DotRadius, settings.DotRadius * 2F, settings.DotRadius * 2F);
-        }
-
-        void DrawNoteStem_R(
-                Graphics gfx, 
-                float x, 
-                float y, 
-                NoteStemDirection direction, 
-                float y_end,
-                SheetMusicRenderSettings settings
-            ) {
-            if (direction != NoteStemDirection.None)
-                gfx.DrawLine(pen_stem, x + settings.NoteHeadRadius, y, x + settings.NoteHeadRadius, y_end);
-        }
-
-        void DrawNoteStem_L(
-                Graphics gfx,
-                float x,
-                float y,
-                NoteStemDirection direction,
-                float y_end,
-                SheetMusicRenderSettings settings
-            ) {
-            if (direction != NoteStemDirection.None)
-                gfx.DrawLine(pen_stem, x - settings.NoteHeadRadius, y, x - settings.NoteHeadRadius, y_end);
         }
 
         void DrawTie(Graphics gfx, float x0, float x1, float y) {

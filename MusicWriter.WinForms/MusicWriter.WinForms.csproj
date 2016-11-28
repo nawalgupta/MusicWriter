@@ -57,6 +57,7 @@
     </Compile>
     <Compile Include="InternalExtensions.cs" />
     <Compile Include="KeyboardInputSource.cs" />
+    <Compile Include="NoteRenderer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderedClefSymbol.cs" />

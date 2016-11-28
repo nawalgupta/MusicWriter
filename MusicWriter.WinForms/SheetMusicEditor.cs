@@ -508,7 +508,7 @@ namespace MusicWriter.WinForms {
 
             return left;
         }
-
+        
         int timesRedrawn = 0;
         protected override void OnPaint(PaintEventArgs pe) {
             timesRedrawn++;
@@ -583,76 +583,138 @@ namespace MusicWriter.WinForms {
                     }
                 }
 
-                var caretx =
-                    GetLeft(MusicCursor.Caret.Focus, track) - scrollX;
-
-                var caretunitx =
-                    GetLeft(MusicCursor.Caret.Focus + inputcontroller.UnitTime, track) - scrollX;
-
-                var caretstaff =
-                    track
-                        .Adornment
-                        .Staffs
-                        .Intersecting(MusicCursor.Caret.Focus)
-                        .First()
-                        .Value;
-
-                PitchTransform transform;
-
-                var caretkey =
-                    track
-                        .Adornment
-                        .KeySignatures
-                        .Intersecting(MusicCursor.Caret.Focus)
-                        .First()
-                        .Value
-                        .Key(MusicCursor.Tone, out transform);
-
-                var carety =
-                    Settings.YVal(caretstaff.GetHalfLine(caretkey));
-
-                var caret_pen_x =
-                    new Pen(Color.DarkSeaGreen, active ? 2.5f : 1.2f);
-
-                var caret_pen_y =
-                    new Pen(Color.Red, active ? 3f : 1.4f);
-
-                pe
-                    .Graphics
-                    .DrawLine(
-                            caret_pen_x,
-                            caretx,
-                            0,
-                            caretx,
-                            Settings.Height
-                        );
-
-                pe
-                    .Graphics
-                    .DrawLine(
-                            caret_pen_y,
-                            caretx,
-                            carety,
-                            caretunitx,
-                            carety
-                        );
-
-                if (active) {
-                    pe
-                        .Graphics
-                        .FillEllipse(
-                                new SolidBrush(Color.FromArgb(200, Color.DeepSkyBlue)),
-                                caretx - Settings.NoteHeadRadius,
-                                carety - Settings.NoteHeadRadius,
-                                Settings.NoteHeadRadius * 2,
-                                Settings.NoteHeadRadius * 2
-                            );
-                }
-
+                DrawCaret(pe.Graphics, active, track, scrollX);
+                
                 pe.Graphics.TranslateTransform(0, Settings.Height);
             }
 
             base.OnPaint(pe);
+        }
+
+        void DrawCaret(
+                Graphics gfx,
+                bool active,
+                MusicTrack track,
+                float scrollX
+            ) {
+            var caretx =
+                GetLeft(MusicCursor.Caret.Focus, track) - scrollX;
+
+            var caretunitx =
+                GetLeft(MusicCursor.Caret.Focus + inputcontroller.UnitTime, track) - scrollX;
+
+            var caretstaff =
+                track
+                    .Adornment
+                    .Staffs
+                    .Intersecting(MusicCursor.Caret.Focus)
+                    .First()
+                    .Value;
+
+            PitchTransform transform;
+
+            var caretkey =
+                track
+                    .Adornment
+                    .KeySignatures
+                    .Intersecting(MusicCursor.Caret.Focus)
+                    .First()
+                    .Value
+                    .Key(MusicCursor.Tone, out transform);
+
+            var carety =
+                Settings.YVal(caretstaff.GetHalfLine(caretkey));
+
+            var caret_pen_x =
+                new Pen(Color.DarkSeaGreen, active ? 2.5f : 1.2f);
+
+            var caret_pen_y =
+                new Pen(Color.Red, active ? 3f : 1.4f);
+
+            gfx
+                .DrawLine(
+                        caret_pen_x,
+                        caretx,
+                        0,
+                        caretx,
+                        Settings.Height
+                    );
+
+            gfx
+                .DrawLine(
+                        caret_pen_y,
+                        caretx,
+                        carety,
+                        caretunitx,
+                        carety
+                    );
+
+            var cursorcolor =
+                active ?
+                    Color.FromArgb(200, Color.DeepSkyBlue) :
+                    Color.FromArgb(100, Color.Aquamarine);
+
+            var cursor_focusduration =
+                new Duration {
+                    Start = MusicCursor.Caret.Focus,
+                    Length = InputController.UnitTime
+                };
+
+            var cursor_notelayout =
+                new NoteLayout(
+                        new PerceptualNote(
+                                default(PerceptualNoteID),
+                                cursor_focusduration,
+                                PerceptualTime.Decompose(InputController.UnitTime).First().Key,
+                                track.Rhythm.Intersecting(cursor_focusduration).First(),
+                                new Note(
+                                        default(NoteID),
+                                        cursor_focusduration,
+                                        MusicCursor.Tone
+                                    )
+                            ),
+                        Settings
+                            .Staff
+                            .GetHalfLine(caretkey),
+                        0,
+                        caretkey,
+                        transform
+                    );
+
+            var cursor_chordlayout =
+                new ChordLayout(cursor_notelayout);
+
+            if (cursor_chordlayout.Length.Length > LengthClass.Whole) {
+                cursor_chordlayout.StemDirection =
+                    Settings.Staff.GetStemDirection(cursor_notelayout.Key);
+
+                cursor_chordlayout.StemSide =
+                    cursor_chordlayout.StemDirection == NoteStemDirection.Down ?
+                        NoteStemSide.Left :
+                        NoteStemSide.Right;
+
+                cursor_chordlayout.StemStartHalfLines =
+                    cursor_chordlayout.StemDirection == NoteStemDirection.Down ?
+                        cursor_notelayout.HalfLine - 5 :
+                        cursor_notelayout.HalfLine + 5;
+            }
+
+            if (cursor_chordlayout.Length.Length > LengthClass.Quarter) {
+                cursor_chordlayout.FreeFlags = cursor_chordlayout.Length.Length - LengthClass.Quarter;
+                cursor_chordlayout.FlagDirection = cursor_chordlayout.StemDirection == NoteStemDirection.Down ? FlagDirection.Left : FlagDirection.Right;
+            }
+            gfx.TranslateTransform(caretx, 0);
+
+            NoteRenderer
+                .DrawChord(
+                        gfx,
+                        Settings,
+                        cursorcolor,
+                        cursor_chordlayout,
+                        500
+                    );
+
+            gfx.TranslateTransform(-caretx, 0);
         }
     }
 }
