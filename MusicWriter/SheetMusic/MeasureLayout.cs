@@ -155,7 +155,10 @@ namespace MusicWriter {
                                             candidate =>
                                                 candidate.Notes.Min(note => Math.Abs(note.HalfLine - last.Notes.Min(note2 => note2.HalfLine)))
                                         )
-                                    .First();
+                                    .FirstOrDefault();
+
+                            if (bestcandidate == null)
+                                break;
 
                             last = bestcandidate;
                         }
@@ -163,65 +166,74 @@ namespace MusicWriter {
                         if (last.Duration.End == cell.Duration.End)
                             train.Add(last);
 
-                        var Xs =
-                            train.Select(item => item.X).ToArray();
+                        if (train.Count > 1) {
+                            var Xs =
+                                train.Select(item => item.X).ToArray();
 
-                        var Ys =
-                            train.Select(item => item.Notes.Average(note => (float)note.HalfLine)).ToArray();
+                            var Ys =
+                                train.Select(item => item.Notes.Average(note => (float)note.HalfLine)).ToArray();
 
-                        float m, b;
-                        if (!Statistics.LinearRegression(Xs, Ys, out m, out b)) {
-                            b = 0;
-                            m = 0;
-                        }
+                            float m, b;
+                            if (!Statistics.LinearRegression(Xs, Ys, out m, out b)) {
+                                b = 0;
+                                m = 0;
+                            }
 
-                        var stemdirection = NoteStemDirection.None;
-                        var stemside = NoteStemSide.None;
-                        if (train.Average(chordi => chordi.Notes.Average(notei => (float)notei.HalfLine)) >= staff.MiddleHalfLine) {
-                            stemdirection = NoteStemDirection.Down;
-                            stemside = NoteStemSide.Left;
-                        }
-                        else {
-                            stemdirection = NoteStemDirection.Up;
-                            stemside = NoteStemSide.Right;
-                        }
-
-                        float stemoffset = 3;
-                        if (stemdirection == NoteStemDirection.Down)
-                            stemoffset *= -1;
-
-                        for (var i = 0; i < train.Count; i++) {
-                            var is1 = i == 0;
-                            var is2 = i == 1;
-                            var item = train[i];
-
-                            item.StemDirection = stemdirection;
-                            item.StemSide = stemside;
-                            item.FlagSlope = m;
-
-                            if (is1) {
-                                item.FlagDirection = FlagDirection.Right;
-                                item.FlagLength = ToVirtualPX(item.Duration.Length);
+                            var stemdirection = NoteStemDirection.None;
+                            var stemside = NoteStemSide.None;
+                            if (train.Average(chordi => chordi.Notes.Average(notei => (float)notei.HalfLine)) >= staff.MiddleHalfLine) {
+                                stemdirection = NoteStemDirection.Down;
+                                stemside = NoteStemSide.Left;
                             }
                             else {
-                                item.FlagDirection = FlagDirection.Left;
-                                item.FlagLength = ToVirtualPX(train[i - 1].Duration.Length);
+                                stemdirection = NoteStemDirection.Up;
+                                stemside = NoteStemSide.Right;
                             }
 
-                            if (is1 || is2)
-                                item.FlagLength /= 2F;
+                            float stemoffset = 3;
+                            if (stemdirection == NoteStemDirection.Down)
+                                stemoffset *= -1;
 
-                            item.TiedFlags = item.Length.Length - LengthClass.Quarter;
-                            //TODO: also identify which are free flags
+                            for (var i = 0; i < train.Count; i++) {
+                                var is1 = i == 0;
+                                var is2 = i == 1;
+                                var item = train[i];
 
-                            item.StemStartHalfLines = stemoffset + item.X * m + b;
+                                item.StemDirection = stemdirection;
+                                item.StemSide = stemside;
+                                item.FlagSlope = m;
+
+                                if (is1) {
+                                    item.FlagDirection = FlagDirection.Right;
+                                    item.FlagLength = ToVirtualPX(item.Duration.Length);
+                                }
+                                else {
+                                    item.FlagDirection = FlagDirection.Left;
+                                    item.FlagLength = ToVirtualPX(train[i - 1].Duration.Length);
+                                }
+
+                                if (is1 || is2)
+                                    item.FlagLength /= 2F;
+
+                                item.TiedFlags = item.Length.Length - LengthClass.Quarter;
+                                //TODO: also identify which are free flags
+
+                                item.StemStartHalfLines = stemoffset + item.X * m + b;
+                            }
+                        }
+                        else {
+                            chord.FreeFlags = chord.Length.Length - LengthClass.Quarter;
+
+                            if (chord.StemDirection == NoteStemDirection.Down)
+                                chord.FlagDirection = FlagDirection.Left;
+                            else {
+                                chord.FlagDirection = FlagDirection.Right;
+                            }
                         }
                     }
                     else {
                         chord.FreeFlags = chord.Length.Length - LengthClass.Quarter;
-                        chord.FlagSlope = -1;
-                        chord.FlagLength = ToVirtualPX(chord.Duration.Length) / 4f;
-
+                        
                         if (chord.StemDirection == NoteStemDirection.Down)
                             chord.FlagDirection = FlagDirection.Left;
                         else {

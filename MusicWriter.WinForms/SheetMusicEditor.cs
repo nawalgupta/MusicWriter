@@ -35,10 +35,10 @@ namespace MusicWriter.WinForms {
             }
         }
 
-        public SheetMusicRenderSettings Settings { get; set; } = new SheetMusicRenderSettings();
+        public SheetMusicRenderSettings TemplateSettings { get; set; } = new SheetMusicRenderSettings();
         ObservableProperty<string> ITrackController<Control>.Name { get; } =
             new ObservableProperty<string>("abc");
-
+        
         public InputController InputController {
             get { return inputcontroller; }
             set {
@@ -84,7 +84,10 @@ namespace MusicWriter.WinForms {
 
         readonly Dictionary<MusicTrack, Dictionary<RenderedSheetMusicItem, float>> itemwidths =
             new Dictionary<MusicTrack, Dictionary<RenderedSheetMusicItem, float>>();
-        
+
+        readonly Dictionary<MusicTrack, float> trackheights =
+            new Dictionary<MusicTrack, float>();
+
         int activetrack_index = 0;
 
         public MusicTrack ActiveTrack {
@@ -329,12 +332,13 @@ namespace MusicWriter.WinForms {
         }
 
         protected override void OnInvalidated(InvalidateEventArgs e) {
-            Height = (int)(Settings.Height * tracks.Count);
 
             foreach (var track in tracks.SpecialCollection)
                 file.Brain.Invalidate(track.Memory, Duration.Eternity);
 
             MeasureAndLayoutTrackItems();
+
+            Height = (int)trackheights.Values.Sum();
 
             base.OnInvalidated(e);
         }
@@ -347,6 +351,10 @@ namespace MusicWriter.WinForms {
             //TODO: handle 0 samepoints
             if (tracks.Count == 0)
                 return;
+
+            trackheights.Clear();
+            foreach (var track in tracks.SpecialCollection)
+                trackheights.Add(track, 0);
             
             var samepoints =
                 tracks
@@ -409,8 +417,14 @@ namespace MusicWriter.WinForms {
                     var desired_fixed = 0f;
 
                     foreach (var item in items) {
+                        var item_settings =
+                            GetSettings(item.Duration.Start, track);
+
+                        if (trackheights[track] < item_settings.Height)
+                            trackheights[track] = item_settings.Height;
+
                         var minwidth_item =
-                            item.Value.MinWidth(Settings);
+                            item.Value.MinWidth(item_settings);
 
                         if (item.Value.Stretchy)
                             desired_stretchy += minwidth_item;
@@ -449,7 +463,7 @@ namespace MusicWriter.WinForms {
                     
                     foreach (var item in items) {
                         var width =
-                            item.Value.MinWidth(Settings);
+                            item.Value.MinWidth(GetSettings(item.Duration.Start, track));
 
                         if (item.Value.Stretchy)
                             width *= factor_stretchy_width;
@@ -489,12 +503,14 @@ namespace MusicWriter.WinForms {
                             .Analyses<RenderedSheetMusicItem>(item.Duration);
 
                     var localtime = time - item.Duration.Start;
+                    var settings =
+                        GetSettings(item.Duration.Start, track);
 
                     foreach (var samepoint in samepoints) {
                         //TODO: enforce all have same duration
                         var itemwidth = itemwidths[track][samepoint.Value];
 
-                        var px = samepoint.Value.PixelAtTime(localtime, itemwidth, Settings);
+                        var px = samepoint.Value.PixelAtTime(localtime, itemwidth, settings);
 
                         if (float.IsNaN(px))
                             left += itemwidth;
@@ -508,7 +524,24 @@ namespace MusicWriter.WinForms {
 
             return left;
         }
-        
+
+        SheetMusicRenderSettings GetSettings(Time time, MusicTrack track) =>
+           new SheetMusicRenderSettings {
+               DotInitialSpacing = TemplateSettings.DotInitialSpacing,
+               DotRadius = TemplateSettings.DotRadius,
+               DotSpacing = TemplateSettings.DotSpacing,
+               LinesBetweenFlags=TemplateSettings.LinesBetweenFlags,
+               MarginalBottomHalfLines = TemplateSettings.MarginalBottomHalfLines,
+               MarginalTopHalfLines = TemplateSettings.MarginalTopHalfLines,
+               NoteHeadRadius = TemplateSettings.NoteHeadRadius,
+               PixelsPerHalfLine = TemplateSettings.PixelsPerHalfLine,
+               PixelsPerLine = TemplateSettings.PixelsPerLine,
+               PixelsPerX = TemplateSettings.PixelsPerX,
+               PixelsScale = TemplateSettings.PixelsScale,
+               Staff = track.Adornment.Staffs.Intersecting(time).First().Value,
+               TimeSignatureFont = TemplateSettings.TimeSignatureFont
+           };
+
         int timesRedrawn = 0;
         protected override void OnPaint(PaintEventArgs pe) {
             timesRedrawn++;
@@ -519,18 +552,7 @@ namespace MusicWriter.WinForms {
             foreach (var track in tracks.SpecialCollection) {
                 var active =
                     ReferenceEquals(track, ActiveTrack);
-
-                // draw staff
-                if (Settings?.Staff != null)
-                    for (int line = 0; line < Settings.Staff.Lines; line++)
-                        pe.Graphics.DrawLine(
-                                Pens.Black,
-                                0,
-                                Settings.YVal(line * 2),
-                                Width,
-                                Settings.YVal(line * 2)
-                            );
-
+                
                 // draw sheet items
                 var rendered = new List<RenderedSheetMusicItem>();
 
@@ -544,6 +566,8 @@ namespace MusicWriter.WinForms {
                         .ToList();
 
                 starttimes.Sort();
+
+                SheetMusicRenderSettings focussettings = null;
 
                 if (starttimes.Count != 0) {
                     var focusstarttime =
@@ -570,22 +594,34 @@ namespace MusicWriter.WinForms {
                                     );
 
                             focusitems.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+
+                            focussettings = GetSettings(focusstarttime, track);
+                            
+                            // draw staff
+                            for (int line = 0; line < focussettings.Staff.Lines; line++)
+                                pe.Graphics.DrawLine(
+                                        Pens.Black,
+                                        x,
+                                        focussettings.YVal(line * 2),
+                                        x + focusitems.Sum(focusitem => itemwidths[track][focusitem]),
+                                        focussettings.YVal(line * 2)
+                                    );
                         }
 
                         var item = focusitems[0];
                         focusitems.RemoveAt(0);
-
+                        
                         var width = itemwidths[track][item];
                         if (x + width > 0)
-                            pe.Graphics.DrawImageUnscaled(item.Draw(Settings, (int)width), (int)x, 0);
+                            pe.Graphics.DrawImageUnscaled(item.Draw(focussettings, (int)width), (int)x, 0);
 
                         x += width;
                     }
                 }
 
-                DrawCaret(pe.Graphics, active, track, scrollX);
+                DrawCaret(pe.Graphics, GetSettings(MusicCursor.Caret.Focus, track), active, track, scrollX);
                 
-                pe.Graphics.TranslateTransform(0, Settings.Height);
+                pe.Graphics.TranslateTransform(0, trackheights[track]);
             }
 
             base.OnPaint(pe);
@@ -593,6 +629,7 @@ namespace MusicWriter.WinForms {
 
         void DrawCaret(
                 Graphics gfx,
+                SheetMusicRenderSettings settings,
                 bool active,
                 MusicTrack track,
                 float scrollX
@@ -623,7 +660,7 @@ namespace MusicWriter.WinForms {
                     .Key(MusicCursor.Tone, out transform);
 
             var carety =
-                Settings.YVal(caretstaff.GetHalfLine(caretkey));
+                settings.YVal(caretstaff.GetHalfLine(caretkey));
 
             var caret_pen_x =
                 new Pen(Color.DarkSeaGreen, active ? 2.5f : 1.2f);
@@ -637,7 +674,7 @@ namespace MusicWriter.WinForms {
                         caretx,
                         0,
                         caretx,
-                        Settings.Height
+                        settings.Height
                     );
 
             gfx
@@ -673,7 +710,7 @@ namespace MusicWriter.WinForms {
                                         MusicCursor.Tone
                                     )
                             ),
-                        Settings
+                        settings
                             .Staff
                             .GetHalfLine(caretkey),
                         0,
@@ -686,7 +723,7 @@ namespace MusicWriter.WinForms {
 
             if (cursor_chordlayout.Length.Length > LengthClass.Whole) {
                 cursor_chordlayout.StemDirection =
-                    Settings.Staff.GetStemDirection(cursor_notelayout.Key);
+                    settings.Staff.GetStemDirection(cursor_notelayout.Key);
 
                 cursor_chordlayout.StemSide =
                     cursor_chordlayout.StemDirection == NoteStemDirection.Down ?
@@ -708,7 +745,7 @@ namespace MusicWriter.WinForms {
             NoteRenderer
                 .DrawChord(
                         gfx,
-                        Settings,
+                        settings,
                         cursorcolor,
                         cursor_chordlayout,
                         500
