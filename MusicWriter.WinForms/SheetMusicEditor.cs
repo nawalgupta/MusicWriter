@@ -530,7 +530,7 @@ namespace MusicWriter.WinForms {
                DotInitialSpacing = TemplateSettings.DotInitialSpacing,
                DotRadius = TemplateSettings.DotRadius,
                DotSpacing = TemplateSettings.DotSpacing,
-               LinesBetweenFlags=TemplateSettings.LinesBetweenFlags,
+               LinesBetweenFlags = TemplateSettings.LinesBetweenFlags,
                MarginalBottomHalfLines = TemplateSettings.MarginalBottomHalfLines,
                MarginalTopHalfLines = TemplateSettings.MarginalTopHalfLines,
                NoteHeadRadius = TemplateSettings.NoteHeadRadius,
@@ -539,7 +539,9 @@ namespace MusicWriter.WinForms {
                PixelsPerX = TemplateSettings.PixelsPerX,
                PixelsScale = TemplateSettings.PixelsScale,
                Staff = track.Adornment.Staffs.Intersecting(time).First().Value,
-               TimeSignatureFont = TemplateSettings.TimeSignatureFont
+               TimeSignatureFont = TemplateSettings.TimeSignatureFont,
+               StaffLinePen = TemplateSettings.StaffLinePen,
+               LedgerPixelWidth = TemplateSettings.LedgerPixelWidth
            };
 
         int timesRedrawn = 0;
@@ -600,7 +602,7 @@ namespace MusicWriter.WinForms {
                             // draw staff
                             for (int line = 0; line < focussettings.Staff.Lines; line++)
                                 pe.Graphics.DrawLine(
-                                        Pens.Black,
+                                        focussettings.StaffLinePen,
                                         x,
                                         focussettings.YVal(line * 2),
                                         x + focusitems.Sum(focusitem => itemwidths[track][focusitem]),
@@ -620,8 +622,9 @@ namespace MusicWriter.WinForms {
                 }
 
                 DrawCaret(pe.Graphics, GetSettings(MusicCursor.Caret.Focus, track), active, track, scrollX);
-                
-                pe.Graphics.TranslateTransform(0, trackheights[track]);
+
+                if (trackheights.ContainsKey(track))
+                    pe.Graphics.TranslateTransform(0, trackheights[track]);
             }
 
             base.OnPaint(pe);

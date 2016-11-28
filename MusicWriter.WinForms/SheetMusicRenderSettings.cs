@@ -19,6 +19,8 @@ namespace MusicWriter.WinForms {
         public float DotSpacing { get; set; } = 6;
         public float DotInitialSpacing { get; set; } = 7f;
         public float LinesBetweenFlags { get; set; } = 0.55F;
+        public Pen StaffLinePen { get; set; } = Pens.Black;
+        public float LedgerPixelWidth { get; set; } = 25f;
 
         public float PixelsPerLine {
             get { return PixelsPerHalfLine * 2; }

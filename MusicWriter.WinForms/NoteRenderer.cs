@@ -110,6 +110,12 @@ namespace MusicWriter.WinForms
             var halfline =
                 settings.Staff.GetHalfLine(note.Key);
 
+            for (int i = halfline / 2; i < 0; i++)
+                DrawLedger(gfx, x, 2 * i, settings);
+
+            for (int i = (halfline / 2 - settings.Staff.Lines + 1); i > 0; i--)
+                DrawLedger(gfx, x, 2 * (settings.Staff.Lines + i - 1), settings);
+
             var y =
                 settings.YVal(note.HalfLine);
 
@@ -126,6 +132,15 @@ namespace MusicWriter.WinForms
             else if (side == NoteStemSide.Right)
                 DrawNoteStem_R(gfx, color, x, y, direction, stem_end, settings);
         }
+
+        static void DrawLedger(Graphics gfx, float x, float halfline, SheetMusicRenderSettings settings) =>
+            gfx.DrawLine(
+                    settings.StaffLinePen,
+                    x - settings.LedgerPixelWidth / 2,
+                    settings.YVal(halfline),
+                    x + settings.LedgerPixelWidth / 2,
+                    settings.YVal(halfline)
+                );
 
         static void DrawNoteHead(Graphics gfx, Color color, float x, float y, float y_dots, bool fill, int dots, SheetMusicRenderSettings settings) {
             gfx.DrawEllipse(new Pen(color, 2.5f), x - settings.NoteHeadRadius, y - settings.NoteHeadRadius, 2 * settings.NoteHeadRadius, 2 * settings.NoteHeadRadius);
