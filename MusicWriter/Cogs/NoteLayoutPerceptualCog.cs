@@ -70,6 +70,7 @@ namespace MusicWriter {
                             perceptualnote_item.Value,
                             halfline,
                             x,
+                            0,
                             key,
                             transform
                         );

@@ -19,6 +19,8 @@ namespace MusicWriter.WinForms {
 
         int lastwidth = 0;
 
+
+
         public Bitmap Draw(SheetMusicRenderSettings settings, int width) {
             if (lastwidth != width) {
                 bmp =

@@ -21,6 +21,11 @@ namespace MusicWriter.WinForms {
         public float LinesBetweenFlags { get; set; } = 0.55F;
         public Pen StaffLinePen { get; set; } = Pens.Black;
         public float LedgerPixelWidth { get; set; } = 25f;
+        public NoteSelection Selection { get; set; } = new NoteSelection();
+        public float ThumbMarginX { get; set; } = 2.5f;
+        public float ThumbMarginY { get; set; } = 1.7f;
+        public float ThumbWidth { get; set; } = 1f;
+        public float ThumbPadding { get; set; } = 10f;
 
         public float PixelsPerLine {
             get { return PixelsPerHalfLine * 2; }

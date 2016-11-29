@@ -13,20 +13,27 @@ namespace MusicWriter.WinForms
                 Graphics graphics,
                 SheetMusicRenderSettings settings,
                 Color color,
+                Color fieldcolor,
                 ChordLayout chord,
+                bool drawfield,
                 int width
             ) {
             var x = chord.X * width;
+
+            var notewidth = chord.Width * width;
 
             foreach (var note in chord.Notes)
                 DrawNote(
                         graphics,
                         color,
+                        fieldcolor,
                         note,
                         chord.StemDirection,
                         chord.StemSide,
                         x,
+                        notewidth,
                         settings.YVal(chord.StemStartHalfLines),
+                        drawfield,
                         settings
                     );
 
@@ -100,11 +107,14 @@ namespace MusicWriter.WinForms
         static void DrawNote(
                 Graphics gfx,
                 Color color,
+                Color fieldcolor,
                 NoteLayout note,
                 NoteStemDirection direction,
                 NoteStemSide side,
                 float x,
+                float notewidth,
                 float stem_end,
+                bool drawfield,
                 SheetMusicRenderSettings settings
             ) {
             var halfline =
@@ -125,8 +135,54 @@ namespace MusicWriter.WinForms
             var y_dots =
                 settings.YVal(note.HalfLine + (note.HalfLine + 1) % 2);
 
-            DrawNoteHead(gfx, color, x, y, y_dots, fill, dots, settings);
+            var selected_start =
+                settings.Selection.Selected_Start.Contains(note.Core.Note.ID);
+            var selected_end =
+                settings.Selection.Selected_End.Contains(note.Core.Note.ID);
+            var selected_tone =
+                settings.Selection.Selected_Tone.Contains(note.Core.Note.ID);
 
+            var fieldcolorinterpolation =
+                (selected_end ? 1 : 0) +
+                (selected_start ? 1 : 0) +
+                (selected_tone ? 1 : 0);
+
+            if (note.Core.ID.Instance == 0) {
+                if (drawfield) {
+                    var fieldbcolor = color.Lerp(fieldcolor, fieldcolorinterpolation / 3f).Alpha(0.5);
+                    var fieldfcolor = fieldcolorinterpolation == 3 ? fieldcolor : color;
+                    var thumbpen = new Pen(fieldfcolor, settings.ThumbWidth);
+
+                    var fieldy = y;
+
+                    gfx.FillRectangle(
+                            new SolidBrush(fieldbcolor),
+                            x,
+                            fieldy - settings.PixelsPerHalfLine / 2,
+                            notewidth,
+                            settings.PixelsPerHalfLine
+                        );
+
+                    gfx.DrawLine(
+                            thumbpen,
+                            x + settings.ThumbPadding,
+                            fieldy,
+                            x + notewidth - 2 * settings.ThumbPadding,
+                            fieldy
+                        );
+
+                    gfx.DrawLine(
+                            thumbpen,
+                            x + notewidth - settings.ThumbMarginX,
+                            fieldy - settings.PixelsPerHalfLine / 2 + settings.ThumbMarginY,
+                            x + notewidth - settings.ThumbMarginX,
+                            fieldy + settings.PixelsPerHalfLine / 2 - settings.ThumbMarginY
+                        );
+                }
+            }
+
+            DrawNoteHead(gfx, fieldcolorinterpolation == 3 ? fieldcolor : color, x, y, y_dots, fill, dots, settings);
+            
             if (side == NoteStemSide.Left)
                 DrawNoteStem_L(gfx, color, x, y, direction, stem_end, settings);
             else if (side == NoteStemSide.Right)

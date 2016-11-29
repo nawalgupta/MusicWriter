@@ -16,6 +16,10 @@ namespace MusicWriter {
             get { return notes[0].X; }
         }
 
+        public float Width {
+            get { return notes[0].Width; }
+        }
+
         public Duration Duration {
             get { return notes[0].Core.Duration; }
         }

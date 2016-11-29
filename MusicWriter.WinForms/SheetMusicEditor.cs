@@ -75,10 +75,9 @@ namespace MusicWriter.WinForms {
         readonly ConverterList<ITrack, MusicTrack> tracks =
             new ConverterList<ITrack, MusicTrack>();
 
-        readonly Dictionary<KeyValuePair<NoteID, MusicTrack>, Time> selectednotes_start = new Dictionary<KeyValuePair<NoteID, MusicTrack>, Time>();
-        readonly Dictionary<KeyValuePair<NoteID, MusicTrack>, Time> selectednotes_end = new Dictionary<KeyValuePair<NoteID, MusicTrack>, Time>();
-        readonly Dictionary<KeyValuePair<NoteID, MusicTrack>, SemiTone> selectednotes_tone = new Dictionary<KeyValuePair<NoteID, MusicTrack>, SemiTone>();
-        
+        readonly Dictionary<MusicTrack, NoteSelection> noteselections =
+            new Dictionary<MusicTrack, NoteSelection>();
+
         readonly Dictionary<Duration, float> minwidths =
             new Dictionary<Duration, float>();
 
@@ -123,11 +122,8 @@ namespace MusicWriter.WinForms {
             Effect_TimeChanged(time, mode);
 
         private void InputController_TimeStart() {
-            foreach (var note_ref in selectednotes_start.Keys.ToArray())
-                selectednotes_start[note_ref] = note_ref.Value.Melody[note_ref.Key].Duration.Start;
-            
-            foreach (var note_ref in selectednotes_end.Keys.ToArray())
-                selectednotes_end[note_ref] = note_ref.Value.Melody[note_ref.Key].Duration.End;
+            foreach (var selection in noteselections)
+                selection.Value.Save_Time(selection.Key);
 
             MusicCursor_bak.Caret.Duration.Start = MusicCursor.Caret.Duration.Start;
             MusicCursor_bak.Caret.Duration.Length = MusicCursor.Caret.Duration.Length;
@@ -135,38 +131,15 @@ namespace MusicWriter.WinForms {
         }
 
         private void InputController_ToneStart() {
-            foreach (var note_ref in selectednotes_tone.Keys.ToArray())
-                selectednotes_tone[note_ref] = note_ref.Value.Melody[note_ref.Key].Tone;
+            foreach (var selection in noteselections)
+                selection.Value.Save_Tone(selection.Key);
 
             MusicCursor_bak.Tone = MusicCursor.Tone;
         }
 
         private void InputController_TimeReset() {
-            foreach (var note_ref in selectednotes_start.Keys.Concat(selectednotes_end.Keys)) {
-                var is_start = selectednotes_start.ContainsKey(note_ref);
-                var is_end = selectednotes_end.ContainsKey(note_ref);
-
-                var note =
-                    note_ref.Value.Melody[note_ref.Key];
-
-                var new_start =
-                    is_start ?
-                        selectednotes_start[note_ref] :
-                        note.Duration.Start;
-
-                var new_end =
-                    is_start ?
-                        selectednotes_start[note_ref] :
-                        note.Duration.Start;
-
-                var newduration =
-                    new Duration {
-                        Start = new_start,
-                        End = new_end
-                    };
-
-                note_ref.Value.Melody.UpdateNote(note_ref.Key, newduration, note.Tone);
-            }
+            foreach (var selection in noteselections)
+                selection.Value.Restore_Time(selection.Key);
 
             MusicCursor.Caret.Duration.Start = MusicCursor_bak.Caret.Duration.Start;
             MusicCursor.Caret.Duration.Length = MusicCursor_bak.Caret.Duration.Length;
@@ -176,15 +149,8 @@ namespace MusicWriter.WinForms {
         }
 
         private void InputController_ToneReset() {
-            foreach (var note_ref in selectednotes_tone.Keys) {
-                var note =
-                    note_ref.Value.Melody[note_ref.Key];
-
-                var newtone =
-                    selectednotes_tone[note_ref];
-
-                note_ref.Value.Melody.UpdateNote(note_ref.Key, note.Duration, newtone);
-            }
+            foreach (var selection in noteselections)
+                selection.Value.Restore_Tone(selection.Key);
 
             MusicCursor.Tone = MusicCursor_bak.Tone;
 
@@ -192,11 +158,11 @@ namespace MusicWriter.WinForms {
         }
 
         private void InputController_SelectionFinish() {
-            MusicCursor.Caret.Side = MusicWriter.Caret.FocusSide.Both;
+            MusicCursor.Caret.Side = Caret.FocusSide.Both;
         }
 
         private void InputController_SelectionStart() {
-            MusicCursor.Caret.Side = MusicWriter.Caret.FocusSide.Right;
+            MusicCursor.Caret.Side = Caret.FocusSide.Right;
         }
 
         private void InputController_NotePlacementFinish() {
@@ -204,61 +170,55 @@ namespace MusicWriter.WinForms {
 
         private void InputController_NotePlacementStart() {
             var tone =
-                //SemiTone.C4;
                 MusicCursor.Tone;
 
             var duration =
-                //new Duration {
-                //    Start = Time.Note_8th,
-                //    Length = Time.Note_4th
-                //};
                 MusicCursor.Caret.Duration;
 
             var note =
                 ActiveTrack.Melody.AddNote(tone, duration);
-
-            var kvp =
-                new KeyValuePair<NoteID, MusicTrack>(note.ID, ActiveTrack);
-
-            selectednotes_end.Add(kvp, note.Duration.End);
-            selectednotes_tone.Add(kvp, note.Tone);
+            
+            noteselections[ActiveTrack].Selected_End.Add(note.ID);
+            noteselections[ActiveTrack].Selected_Tone.Add(note.ID);
             
             Invalidate();
         }
 
         void Effect_TimeChanged(Time time, CaretMode mode) {
-            foreach (var selected in selectednotes_start.Concat(selectednotes_end)) {
-                var is_start = selectednotes_start.ContainsKey(selected.Key);
-                var is_end = selectednotes_end.ContainsKey(selected.Key);
+            foreach (var trackkvp in noteselections) {
+                var track = trackkvp.Key;
 
-                var noteID = selected.Key.Key;
-                var track = selected.Key.Value;
-                var note = track.Melody[noteID];
+                foreach (var noteID in trackkvp.Value.Selected_Start.Concat(trackkvp.Value.Selected_End)) {
+                    var is_start = trackkvp.Value.Selected_Start.Contains(noteID);
+                    var is_end = trackkvp.Value.Selected_End.Contains(noteID);
 
-                var oldduration =
-                    note.Duration;
+                    var note = track.Melody[noteID];
 
-                var newduration =
-                    new Duration {
-                        Start = oldduration.Start,
-                        Length = oldduration.Length
-                    };
+                    var oldduration =
+                        note.Duration;
 
-                if (is_start) {
-                    if (mode == CaretMode.Absolute)
-                        newduration.Start = time;
-                    else if (mode == CaretMode.Delta)
-                        newduration.Start += time;
+                    var newduration =
+                        new Duration {
+                            Start = oldduration.Start,
+                            Length = oldduration.Length
+                        };
+
+                    if (is_start) {
+                        if (mode == CaretMode.Absolute)
+                            newduration.Start = time;
+                        else if (mode == CaretMode.Delta)
+                            newduration.Start += time;
+                    }
+
+                    if (is_end) {
+                        if (mode == CaretMode.Absolute)
+                            newduration.End = time;
+                        else if (mode == CaretMode.Delta)
+                            newduration.End += time;
+                    }
+
+                    track.Melody.UpdateNote(note.ID, newduration, note.Tone);
                 }
-
-                if (is_end) {
-                    if (mode == CaretMode.Absolute)
-                        newduration.End = time;
-                    else if (mode == CaretMode.Delta)
-                        newduration.End += time;
-                }
-
-                track.Melody.UpdateNote(note.ID, newduration, note.Tone);
             }
 
             if (mode == CaretMode.Absolute)
@@ -271,15 +231,17 @@ namespace MusicWriter.WinForms {
         }
 
         void Effect_ToneChanged(int tone, CaretMode mode) {
-            foreach (var selected in selectednotes_tone) {
-                var noteID = selected.Key.Key;
-                var track = selected.Key.Value;
-                var note = track.Melody[noteID];
+            foreach (var trackkvp in noteselections) {
+                var track = trackkvp.Key;
 
-                var newtone =
-                    Effect_ToneChanged_affect(note.Tone, note.Duration.Start, tone, mode, track);
+                foreach (var noteID in trackkvp.Value.Selected_Tone) {
+                    var note = track.Melody[noteID];
 
-                track.Melody.UpdateNote(note.ID, note.Duration, newtone);
+                    var newtone =
+                        Effect_ToneChanged_affect(note.Tone, note.Duration.Start, tone, mode, track);
+
+                    track.Melody.UpdateNote(note.ID, note.Duration, newtone);
+                }
             }
 
             MusicCursor.Tone = Effect_ToneChanged_affect(MusicCursor.Tone, MusicCursor.Caret.Focus, tone, mode, ActiveTrack);
@@ -321,18 +283,21 @@ namespace MusicWriter.WinForms {
 
         private void Tracks_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             if (e.OldItems != null)
-                foreach (MusicTrack track in e.OldItems)
+                foreach (MusicTrack track in e.OldItems) {
                     track.Memory.RemoveMemoryModule<RenderedSheetMusicItem>();
+                    noteselections.Remove(track);
+                }
 
             if (e.NewItems != null)
-                foreach (MusicTrack track in e.NewItems)
+                foreach (MusicTrack track in e.NewItems) {
                     track.Memory.InsertMemoryModule(new RenderedSheetMusicItemPerceptualCog.MemoryModule());
+                    noteselections.Add(track, new NoteSelection());
+                }
 
             Invalidate();
         }
 
         protected override void OnInvalidated(InvalidateEventArgs e) {
-
             foreach (var track in tracks.SpecialCollection)
                 file.Brain.Invalidate(track.Memory, Duration.Eternity);
 
@@ -541,8 +506,16 @@ namespace MusicWriter.WinForms {
                Staff = track.Adornment.Staffs.Intersecting(time).First().Value,
                TimeSignatureFont = TemplateSettings.TimeSignatureFont,
                StaffLinePen = TemplateSettings.StaffLinePen,
-               LedgerPixelWidth = TemplateSettings.LedgerPixelWidth
+               LedgerPixelWidth = TemplateSettings.LedgerPixelWidth,
+               Selection = GetSelection(track),
+               ThumbMarginX = TemplateSettings.ThumbMarginX,
+               ThumbMarginY = TemplateSettings.ThumbMarginY,
+               ThumbPadding = TemplateSettings.ThumbPadding,
+               ThumbWidth = TemplateSettings.ThumbWidth
            };
+
+        NoteSelection GetSelection(MusicTrack track) =>
+            noteselections[track];
 
         int timesRedrawn = 0;
         protected override void OnPaint(PaintEventArgs pe) {
@@ -717,6 +690,7 @@ namespace MusicWriter.WinForms {
                             .Staff
                             .GetHalfLine(caretkey),
                         0,
+                        0,
                         caretkey,
                         transform
                     );
@@ -750,7 +724,9 @@ namespace MusicWriter.WinForms {
                         gfx,
                         settings,
                         cursorcolor,
+                        Color.SeaGreen,
                         cursor_chordlayout,
+                        false,
                         500
                     );
 

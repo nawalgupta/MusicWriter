@@ -36,7 +36,7 @@ namespace MusicWriter.WinForms {
             gfx.TranslateTransform(Margin, 0);
 
             foreach (var chord in layoutmeasure.Chords)
-                NoteRenderer.DrawChord(gfx, settings, Color.Black, chord, width);
+                NoteRenderer.DrawChord(gfx, settings, Color.Black, Color.Blue, chord, true, width);
 
             DrawMeasureDivision(gfx, settings, width);
         }

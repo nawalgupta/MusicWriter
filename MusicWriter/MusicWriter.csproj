@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="Cogs\EditableMemoryModule.cs" />
     <Compile Include="Cogs\IgnorantMemoryModule.cs" />
+    <Compile Include="EditorUtils\NoteSelection.cs" />
     <Compile Include="File\FileCapabilities.cs" />
     <Compile Include="File\ITrack.cs" />
     <Compile Include="File\ITrackController.cs" />
