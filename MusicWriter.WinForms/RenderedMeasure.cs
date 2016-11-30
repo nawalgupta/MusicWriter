@@ -26,6 +26,53 @@ namespace MusicWriter.WinForms {
             this.layoutmeasure = layoutmeasure;
         }
 
+        public override void Select(
+                NoteSelection selection,
+                RectangleF rectangle,
+                SheetMusicRenderSettings settings,
+                float width
+            ) {
+            foreach (var chord in layoutmeasure.Chords) {
+                var x = chord.X * width;
+                var w = chord.Width * width;
+
+                foreach (var note in chord.Notes) {
+                    var y = settings.YVal(note.HalfLine);
+
+                    var noteID = note.Core.Note.ID;
+
+                    var rect_head =
+                        new RectangleF(
+                                x - settings.NoteHeadRadius,
+                                y - settings.NoteHeadRadius,
+                                2 * settings.NoteHeadRadius,
+                                2 * settings.NoteHeadRadius
+                            );
+
+                    if (rect_head.IntersectsWith(rectangle)) {
+                        selection.Selected_Start.Add(noteID);
+                        selection.Selected_End.Add(noteID);
+                        selection.Selected_Tone.Add(noteID);
+                    }
+                    else {
+                        var boxy = y;
+                        boxy -= settings.PixelsPerHalfLine * note.Transform.Steps;
+
+                        var rect_tail =
+                            new RectangleF(
+                                    x + width - 2 * settings.ThumbMarginX,
+                                    boxy - settings.PixelsPerHalfLine / 2,
+                                    2 * settings.ThumbMarginX,
+                                    settings.PixelsPerHalfLine
+                                );
+
+                        if (rect_tail.IntersectsWith(rectangle))
+                            selection.Selected_End.Add(noteID);
+                    }
+                }
+            }
+        }
+
         public override float PixelAtTime(Time offset, float width, SheetMusicRenderSettings settings) =>
             Time.FloatDiv(offset, layoutmeasure.Duration.Length) * (width + 1 * Margin) + Margin + 0 * settings.NoteHeadRadius;
 

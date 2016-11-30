@@ -54,6 +54,7 @@
     <Compile Include="Input\CaretMode.cs" />
     <Compile Include="Input\IInputSource.cs" />
     <Compile Include="Input\NotePlacedDelegate.cs" />
+    <Compile Include="Input\NoteSelectionMode.cs" />
     <Compile Include="Input\TimeChangedDelegate.cs" />
     <Compile Include="Input\Cursor.cs" />
     <Compile Include="Input\ToneChangedDelegate.cs" />

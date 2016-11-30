@@ -87,6 +87,9 @@ namespace MusicWriter.WinForms {
         readonly Dictionary<MusicTrack, float> trackheights =
             new Dictionary<MusicTrack, float>();
 
+        readonly RectangleMouseSelector mouseselector =
+            new RectangleMouseSelector();
+
         int activetrack_index = 0;
 
         public MusicTrack ActiveTrack {
@@ -105,6 +108,113 @@ namespace MusicWriter.WinForms {
             InitializeComponent();
 
             tracks.SpecialCollection.CollectionChanged += Tracks_CollectionChanged;
+
+            mouseselector.Selected += Mouseselector_Selected;
+            mouseselector.Redraw += () => Invalidate();
+            
+            DoubleBuffered = true;
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e) {
+            mouseselector.MouseDown(e, ModifierKeys);
+
+            base.OnMouseDown(e);
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e) {
+            mouseselector.MouseMove(e, ModifierKeys);
+
+            base.OnMouseMove(e);
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e) {
+            mouseselector.MouseUp(e);
+
+            base.OnMouseUp(e);
+        }
+
+        private void Mouseselector_Selected(RectangleF rect, NoteSelectionMode mode) {
+            //TODO: does this work when a track has different staves throughout its duration?
+            
+            if (mode == NoteSelectionMode.Replace) {
+                foreach (var selection in noteselections.Values) {
+                    selection.Selected_Start.Clear();
+                    selection.Selected_End.Clear();
+                    selection.Selected_Tone.Clear();
+                }
+            }
+
+            for (int i = 0; i < tracks.SpecialCollection.Count; i++) {
+                var track =
+                    tracks.SpecialCollection[i];
+                
+                var selection = noteselections[track];
+
+                var fakeselection = new NoteSelection();
+
+                foreach (var itemtuple in GetItemsWithRects(track)) {
+                    if (itemtuple.Item1.IntersectsWith(rect)) {
+                        rect.Offset(-itemtuple.Item1.X, -itemtuple.Item1.Y);
+
+                        itemtuple.Item3.Select(fakeselection, rect, itemtuple.Item2, itemtuple.Item1.Width);
+
+                        rect.Offset(+itemtuple.Item1.X, +itemtuple.Item1.Y);
+                    }
+                }
+
+                switch (mode) {
+                    case NoteSelectionMode.Replace:
+                    case NoteSelectionMode.Add:
+                        foreach (var noteID in fakeselection.Selected_Start)
+                            selection.Selected_Start.Add(noteID);
+                        foreach (var noteID in fakeselection.Selected_End)
+                            selection.Selected_End.Add(noteID);
+                        foreach (var noteID in fakeselection.Selected_Tone)
+                            selection.Selected_Tone.Add(noteID);
+                        break;
+
+                    case NoteSelectionMode.Intersect:
+                        foreach (var noteID in selection.Selected_Start)
+                            if (!fakeselection.Selected_Start.Contains(noteID))
+                                selection.Selected_Start.Remove(noteID);
+                        foreach (var noteID in selection.Selected_End)
+                            if (!fakeselection.Selected_End.Contains(noteID))
+                                selection.Selected_End.Remove(noteID);
+                        foreach (var noteID in selection.Selected_Tone)
+                            if (!fakeselection.Selected_Tone.Contains(noteID))
+                                selection.Selected_Tone.Remove(noteID);
+                        break;
+
+                    case NoteSelectionMode.Subtract:
+                        foreach (var noteID in selection.Selected_Start)
+                            if (fakeselection.Selected_Start.Contains(noteID))
+                                selection.Selected_Start.Remove(noteID);
+                        foreach (var noteID in selection.Selected_End)
+                            if (fakeselection.Selected_End.Contains(noteID))
+                                selection.Selected_End.Remove(noteID);
+                        foreach (var noteID in selection.Selected_Tone)
+                            if (fakeselection.Selected_Tone.Contains(noteID))
+                                selection.Selected_Tone.Remove(noteID);
+                        break;
+
+                    case NoteSelectionMode.Xor:
+                        foreach (var noteID in fakeselection.Selected_Start)
+                            if (selection.Selected_Start.Contains(noteID))
+                                selection.Selected_Start.Remove(noteID);
+                            else selection.Selected_Start.Add(noteID);
+                        foreach (var noteID in fakeselection.Selected_End)
+                            if (selection.Selected_End.Contains(noteID))
+                                selection.Selected_End.Remove(noteID);
+                            else selection.Selected_End.Add(noteID);
+                        foreach (var noteID in fakeselection.Selected_Tone)
+                            if (selection.Selected_Tone.Contains(noteID))
+                                selection.Selected_Tone.Remove(noteID);
+                            else selection.Selected_Tone.Add(noteID);
+                        break;
+                }
+            }
+
+            Invalidate();
         }
 
         private void InputController_ToneChanged(int tone, CaretMode mode) {
@@ -210,7 +320,7 @@ namespace MusicWriter.WinForms {
                             newduration.Start += time;
                     }
 
-                    if (is_end) {
+                    if (is_end && !is_start) {
                         if (mode == CaretMode.Absolute)
                             newduration.End = time;
                         else if (mode == CaretMode.Delta)
@@ -306,6 +416,74 @@ namespace MusicWriter.WinForms {
             Height = (int)trackheights.Values.Sum();
 
             base.OnInvalidated(e);
+        }
+
+        IEnumerable<Tuple<RectangleF, SheetMusicRenderSettings, RenderedSheetMusicItem>> GetItemsWithRects(MusicTrack track) {
+            var scrollX = GetLeft(Pin.ActualTime.Value);
+            var yoffset = tracks.SpecialCollection.TakeWhile(t => !ReferenceEquals(t, track)).Sum(t => trackheights[t]);
+
+            // draw sheet items
+            var starttimes =
+                track
+                    .Memory
+                    .Analyses<RenderedSheetMusicItem>(Duration.Eternity)
+                    .Select(item => item.Duration)
+                    .Select(duration => duration.Start)
+                    .Distinct()
+                    .ToList();
+
+            starttimes.Sort();
+
+            SheetMusicRenderSettings focussettings = null;
+
+            if (starttimes.Count != 0) {
+                var focusstarttime =
+                    starttimes[0];
+
+                var focusitems = new List<RenderedSheetMusicItem>();
+
+                float x = GetLeft(focusstarttime) - scrollX;
+
+                while (x < Width) {
+                    if (focusitems.Count == 0) {
+                        if (starttimes.Count == 0)
+                            break;
+
+                        focusstarttime = starttimes[0];
+                        starttimes.RemoveAt(0);
+
+                        focusitems
+                            .AddRange(
+                                    track
+                                        .Memory
+                                        .Analyses<RenderedSheetMusicItem>(focusstarttime)
+                                        .Select(focusitem => focusitem.Value)
+                                );
+
+                        focusitems.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+
+                        focussettings = GetSettings(focusstarttime, track);
+                    }
+
+                    var item = focusitems[0];
+                    focusitems.RemoveAt(0);
+
+                    var width = itemwidths[track][item];
+                    yield return
+                        new Tuple<RectangleF, SheetMusicRenderSettings, RenderedSheetMusicItem>(
+                                new RectangleF(
+                                        x,
+                                        yoffset,
+                                        width,
+                                        focussettings.Height
+                                    ),
+                                focussettings,
+                                item
+                            );
+
+                    x += width;
+                }
+            }
         }
 
         void MeasureAndLayoutTrackItems() {
@@ -518,19 +696,17 @@ namespace MusicWriter.WinForms {
             noteselections[track];
 
         int timesRedrawn = 0;
-        protected override void OnPaint(PaintEventArgs pe) {
+        void DrawToGraphics(Graphics gfx) {
             timesRedrawn++;
-            pe.Graphics.DrawString(timesRedrawn.ToString(), Font, Brushes.Red, PointF.Empty);
+            gfx.DrawString(timesRedrawn.ToString(), Font, Brushes.Red, PointF.Empty);
 
-            var scrollX = GetLeft(Pin.Time.Offset.Value);
+            var scrollX = GetLeft(Pin.ActualTime.Value);
 
             foreach (var track in tracks.SpecialCollection) {
                 var active =
                     ReferenceEquals(track, ActiveTrack);
                 
                 // draw sheet items
-                var rendered = new List<RenderedSheetMusicItem>();
-
                 var starttimes =
                     track
                         .Memory
@@ -574,7 +750,7 @@ namespace MusicWriter.WinForms {
                             
                             // draw staff
                             for (int line = 0; line < focussettings.Staff.Lines; line++)
-                                pe.Graphics.DrawLine(
+                                gfx.DrawLine(
                                         focussettings.StaffLinePen,
                                         x,
                                         focussettings.YVal(line * 2),
@@ -588,19 +764,26 @@ namespace MusicWriter.WinForms {
                         
                         var width = itemwidths[track][item];
                         if (x + width > 0)
-                            pe.Graphics.DrawImageUnscaled(item.Draw(focussettings, (int)width), (int)x, 0);
+                            gfx.DrawImageUnscaled(item.Draw(focussettings, (int)width), (int)x, 0);
 
                         x += width;
                     }
                 }
 
-                DrawCaret(pe.Graphics, GetSettings(MusicCursor.Caret.Focus, track), active, track, scrollX);
+                DrawCaret(gfx, GetSettings(MusicCursor.Caret.Focus, track), active, track, scrollX);
 
                 if (trackheights.ContainsKey(track))
-                    pe.Graphics.TranslateTransform(0, trackheights[track]);
+                    gfx.TranslateTransform(0, trackheights[track]);
             }
 
-            base.OnPaint(pe);
+            gfx.ResetTransform();
+            mouseselector.Draw(gfx);
+        }
+        
+        protected override void OnPaint(PaintEventArgs e) {
+            DrawToGraphics(e.Graphics);
+
+            base.OnPaint(e);
         }
 
         void DrawCaret(

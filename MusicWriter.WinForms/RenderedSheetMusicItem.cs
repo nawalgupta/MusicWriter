@@ -19,7 +19,13 @@ namespace MusicWriter.WinForms {
 
         int lastwidth = 0;
 
-
+        public virtual void Select(
+                NoteSelection selection,
+                RectangleF rectangle,
+                SheetMusicRenderSettings settings,
+                float width
+            ) {
+        }
 
         public Bitmap Draw(SheetMusicRenderSettings settings, int width) {
             if (lastwidth != width) {
