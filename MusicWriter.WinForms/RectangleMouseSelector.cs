@@ -24,17 +24,17 @@ namespace MusicWriter.WinForms
                 rect.Width = args.X - rect.X;
                 rect.Height = args.Y - rect.Y;
 
+                if (modifiers == Keys.Shift)
+                    mode = NoteSelectionMode.Add;
+                else if (modifiers == Keys.Alt)
+                    mode = NoteSelectionMode.Intersect;
+                else if (modifiers == Keys.Control)
+                    mode = NoteSelectionMode.Subtract;
+                else if (modifiers == Keys.Space)
+                    mode = NoteSelectionMode.Replace;
+
                 Redraw?.Invoke();
             }
-
-            if (modifiers == Keys.Shift)
-                mode = NoteSelectionMode.Add;
-            else if (modifiers == Keys.Alt)
-                mode = NoteSelectionMode.Intersect;
-            else if (modifiers == Keys.Control)
-                mode = NoteSelectionMode.Subtract;
-            else if (modifiers == Keys.Space)
-                mode = NoteSelectionMode.Replace;
         }
 
         public void MouseDown(MouseEventArgs args, Keys modifiers) {
@@ -51,6 +51,16 @@ namespace MusicWriter.WinForms
         }
 
         public void MouseUp(MouseEventArgs args) {
+            if (rect.Width < 0) {
+                rect.X += rect.Width;
+                rect.Width *= -1;
+            }
+
+            if (rect.Height < 0) {
+                rect.Y += rect.Height;
+                rect.Height *= -1;
+            }
+
             Selected?.Invoke(rect, mode);
 
             mode = NoteSelectionMode.None;

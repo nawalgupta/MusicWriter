@@ -35,8 +35,7 @@ namespace MusicWriter {
                 PerceptualMemory memory,
                 Duration duration
             ) {
-            foreach (var cog in cogs.Values)
-                memory.Forget(duration);
+            memory.Forget(duration);
             
             bool flag;
             do {

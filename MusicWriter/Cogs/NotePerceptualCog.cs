@@ -85,7 +85,10 @@ namespace MusicWriter {
                         }
                     }
 
-                    memorymodule.perceptualnotes_map.Add(note.ID, perceptualnotes.ToArray());
+                    if (perceptualnotes.Count > 0) {
+                        memorymodule.perceptualnotes_map.Add(note.ID, perceptualnotes.ToArray());
+                        flag = true;
+                    }
                 }
                 else {
                     var perceptualnote =
@@ -103,9 +106,9 @@ namespace MusicWriter {
                     memorymodule.Editable.Add(perceptualnote, note.Duration);
 
                     memorymodule.perceptualnotes_map.Add(note.ID, new[] { perceptualnote });
+                    flag = true;
                 }
                 
-                flag = true;
             }
 
             return flag;

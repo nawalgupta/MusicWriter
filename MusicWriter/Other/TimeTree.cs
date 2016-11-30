@@ -52,11 +52,23 @@ namespace MusicWriter {
                 if (left == null)
                     left = new TimeTree<V>(time);
 
+                //if (left == null || left.pivot < time) {
+                //    var newleft = new TimeTree<V>(time);
+                //    newleft.left = left;
+                //    left = newleft;
+                //}
+
                 left.Add(item, time);
             }
             else { // time > pivot
                 if (right == null)
                     right = new TimeTree<V>(time);
+
+                //if (right == null || right.pivot > time) {
+                //    var newright = new TimeTree<V>(time);
+                //    newright.right = right;
+                //    right = newright;
+                //}
 
                 right.Add(item, time);
             }

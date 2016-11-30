@@ -113,7 +113,7 @@ namespace MusicWriter.WinForms {
             track3.Melody.AddNote(SemiTone.C4 + 16, new Duration { Start = Time.Note_8th * 7, Length = Time.Note_8th });
 
             track3.Name.Value = "Track 3";
-            editor.Tracks.Add(track3);
+            //editor.Tracks.Add(track3);
             file.Tracks.Add(track3);
 
             screen.Controllers.Add(editor);

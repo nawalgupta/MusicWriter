@@ -174,25 +174,25 @@ namespace MusicWriter.WinForms {
                         break;
 
                     case NoteSelectionMode.Intersect:
-                        foreach (var noteID in selection.Selected_Start)
+                        foreach (var noteID in selection.Selected_Start.ToArray())
                             if (!fakeselection.Selected_Start.Contains(noteID))
                                 selection.Selected_Start.Remove(noteID);
-                        foreach (var noteID in selection.Selected_End)
+                        foreach (var noteID in selection.Selected_End.ToArray())
                             if (!fakeselection.Selected_End.Contains(noteID))
                                 selection.Selected_End.Remove(noteID);
-                        foreach (var noteID in selection.Selected_Tone)
+                        foreach (var noteID in selection.Selected_Tone.ToArray())
                             if (!fakeselection.Selected_Tone.Contains(noteID))
                                 selection.Selected_Tone.Remove(noteID);
                         break;
 
                     case NoteSelectionMode.Subtract:
-                        foreach (var noteID in selection.Selected_Start)
+                        foreach (var noteID in selection.Selected_Start.ToArray())
                             if (fakeselection.Selected_Start.Contains(noteID))
                                 selection.Selected_Start.Remove(noteID);
-                        foreach (var noteID in selection.Selected_End)
+                        foreach (var noteID in selection.Selected_End.ToArray())
                             if (fakeselection.Selected_End.Contains(noteID))
                                 selection.Selected_End.Remove(noteID);
-                        foreach (var noteID in selection.Selected_Tone)
+                        foreach (var noteID in selection.Selected_Tone.ToArray())
                             if (fakeselection.Selected_Tone.Contains(noteID))
                                 selection.Selected_Tone.Remove(noteID);
                         break;
