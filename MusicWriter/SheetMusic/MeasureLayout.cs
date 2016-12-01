@@ -130,7 +130,7 @@ namespace MusicWriter {
             var beamsequences =
                 new List<ChordLayout[]>();
 
-            foreach (var chord in chords.OrderByDescending(chord => chord.Duration.Length.Ticks)) {
+            foreach (var chord in chords.OrderBy(chord => chord.Duration.Start).OrderByDescending(chord => chord.Duration.Length.Ticks)) {
                 if (chord.Flags != 0)
                     continue; // already hit
 

@@ -220,6 +220,12 @@ namespace MusicWriter.WinForms {
                 item.Checked = SelectedController.Tracks.Contains(track);
             }
 
+            for (int i = 0; i < lsvControllers.Items.Count; i++) {
+                var selected = lsvControllers.SelectedIndices.Contains(i);
+
+                screen.Controllers[i].CommandCenter.Enabled = selected;
+            }
+
             lsvTracks_disabled = false;
         }
 
@@ -238,7 +244,7 @@ namespace MusicWriter.WinForms {
         }
 
         private void btnAddController_Click(object sender, EventArgs e) {
-            mnuAddController.Show(btnAddView, new Point(btnAddView.Width, btnAddView.Height), ToolStripDropDownDirection.BelowRight);
+            mnuAddController.Show(btnAddView, new Point(btnAddView.Width, btnAddView.Height), ToolStripDropDownDirection.BelowLeft);
         }
         
         private void txtSearchTracks_TextChanged(object sender, EventArgs e) {

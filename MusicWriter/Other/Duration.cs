@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public sealed class Duration : IEquatable<Duration> {
+    public sealed class Duration : IEquatable<Duration>
+    {
         Time offset, length;
 
         public Time Start {
@@ -22,6 +23,12 @@ namespace MusicWriter {
             get { return length; }
             set { length = value; }
         }
+
+        public Duration Union(Duration other) =>
+            new Duration {
+                Start = Time.Min(Start, other.Start),
+                End = Time.Max(End, other.End)
+            };
 
         public Duration Intersection(Duration duration) {
             if (Start > duration.End ||
@@ -46,7 +53,7 @@ namespace MusicWriter {
             Equals((Duration)obj);
 
         public override int GetHashCode() =>
-            offset.GetHashCode() ^ 
+            offset.GetHashCode() ^
             length.GetHashCode();
 
         public static readonly Duration Eternity = new Duration {
@@ -66,10 +73,19 @@ namespace MusicWriter {
                 Length = duration.Length
             };
 
-        public static bool operator ==(Duration a, Duration b) =>
-            a.Equals(b);
+        public static bool operator ==(Duration a, Duration b) {
+            var anull = ReferenceEquals(a, null);
+            var bnull = ReferenceEquals(b, null);
+
+            if (anull && bnull)
+                return true;
+            else if (anull ^ bnull)
+                return false;
+
+            return a.Equals(b);
+        }
 
         public static bool operator !=(Duration a, Duration b) =>
-            !a.Equals(b);
+            !(a == b);
     }
 }

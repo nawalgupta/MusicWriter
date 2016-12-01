@@ -39,11 +39,12 @@
   <ItemGroup>
     <Compile Include="Cogs\EditableMemoryModule.cs" />
     <Compile Include="Cogs\IgnorantMemoryModule.cs" />
+    <Compile Include="EditorUtils\CommandCenter.cs" />
     <Compile Include="EditorUtils\NoteSelection.cs" />
     <Compile Include="File\FileCapabilities.cs" />
     <Compile Include="File\ITrack.cs" />
-    <Compile Include="File\ITrackController.cs" />
-    <Compile Include="File\ITrackControllerFactory.cs" />
+    <Compile Include="EditorUtils\ITrackController.cs" />
+    <Compile Include="EditorUtils\ITrackControllerFactory.cs" />
     <Compile Include="File\ITrackFactory.cs" />
     <Compile Include="File\NewTrackFactory.cs" />
     <Compile Include="Grouping\Pin.cs" />

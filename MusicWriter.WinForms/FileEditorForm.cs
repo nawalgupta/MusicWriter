@@ -17,6 +17,10 @@ namespace MusicWriter.WinForms {
             new KeyboardInputSource();
         InputController inputcontroller =
             new InputController();
+        KeyboardMenuShortcuts shortcutter =
+            new KeyboardMenuShortcuts();
+        CommandCenter commandcenter =
+            new CommandCenter();
 
         public Screen<Control> ActiveScreen {
             get { return (tabScreens.SelectedTab as ScreenView)?.Screen; }
@@ -24,6 +28,8 @@ namespace MusicWriter.WinForms {
 
         public FileEditorForm() {
             InitializeComponent();
+
+            shortcutter.Menu = mnuMainMenu;
         }
 
         void InitInputSources() {
@@ -37,19 +43,23 @@ namespace MusicWriter.WinForms {
         void InitTrackFactories() {
             capabilities.TrackFactories.Add(new MusicTrackFactory());
         }
-
+        
         List<Keys> keys_pressed = new List<Keys>();
         protected override void OnKeyDown(KeyEventArgs e) {
             if (!keys_pressed.Contains(e.KeyCode)) {
                 input_keyboard.OnKeyDown(e);
+
+                shortcutter.OnKeyDown(e);
+
                 keys_pressed.Add(e.KeyCode);
             }
-
+            
             base.OnKeyDown(e);
         }
 
         protected override void OnKeyUp(KeyEventArgs e) {
             input_keyboard.OnKeyUp(e);
+            shortcutter.OnKeyUp(e);
 
             if (keys_pressed.Contains(e.KeyCode))
                 keys_pressed.Remove(e.KeyCode);
@@ -127,11 +137,19 @@ namespace MusicWriter.WinForms {
             view.Screen = screen;
             view.File = file;
 
+            screen.CommandCenter.SubscribeTo(commandcenter);
+            screen.CommandCenter.Enabled = false;
+
             tabScreens.Controls.Add(view);
+            if (tabScreens.Controls.Count == 1)
+                tabScreens_SelectedIndexChanged(this, new EventArgs());
         }
 
         void CloseScreen(Screen<Control> screen) {
-            tabScreens.Controls.RemoveByKey($"tabScreen_{screen.Name}");
+            ScreenView tab = (ScreenView)tabScreens.Controls[$"tabScreen_{screen.Name}"];
+            tab.Screen.CommandCenter.DesubscribeFrom(commandcenter);
+
+            tabScreens.Controls.Remove(tab);
         }
 
         private void mnuHeader_Opening(object sender, CancelEventArgs e) {
@@ -154,6 +172,111 @@ namespace MusicWriter.WinForms {
 
         private void mnuHeaderClose_Click(object sender, EventArgs e) {
             CloseScreen(ActiveScreen);
+        }
+
+        private void tabScreens_SelectedIndexChanged(object sender, EventArgs e) {
+            foreach (ScreenView view in tabScreens.Controls) {
+                view.Screen.CommandCenter.Enabled = ReferenceEquals(view, tabScreens.SelectedTab);
+            }
+        }
+
+        private void mnuFileNew_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuFileOpen_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuFileSave_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuFileSaveAs_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuFilePrint_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuFilePrintPreview_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuFileExit_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuEditUndo_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuEditRedo_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuEditCut_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuEditCopy_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuEditPaste_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuEditSelectAll_Click(object sender, EventArgs e) =>
+            commandcenter.SelectAll();
+
+        private void mnuEditDeselectAll_Click(object sender, EventArgs e) =>
+            commandcenter.DeselectAll();
+
+        private void mnuEditToggleSelectAll_Click(object sender, EventArgs e) =>
+            commandcenter.ToggleSelectAll();
+
+        private void mnuViewCursorDouble_Click(object sender, EventArgs e) =>
+            commandcenter.MultiplyCursor(2);
+
+        private void mnuViewCursorHalf_Click(object sender, EventArgs e) =>
+            commandcenter.DivideCursor(2);
+
+        private void mnuViewCursor3rd_Click(object sender, EventArgs e) =>
+            commandcenter.DivideCursor(3);
+
+        private void mnuViewCursor5th_Click(object sender, EventArgs e) =>
+            commandcenter.DivideCursor(5);
+
+        private void mnuViewCursor7th_Click(object sender, EventArgs e) =>
+            commandcenter.DivideCursor(7);
+
+        private void mnuViewCursorResetToOneNote_Click(object sender, EventArgs e) =>
+            commandcenter.ResetCursorToOne();
+
+        private void mnuToolsCustomize_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuToolsOptions_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuHelpContents_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuHelpIndex_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuHelpSearch_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuHelpAbout_Click(object sender, EventArgs e) {
+
         }
     }
 }

@@ -70,6 +70,8 @@ namespace MusicWriter.WinForms {
             }
         }
 
+        public CommandCenter CommandCenter { get; } = new CommandCenter();
+
         InputController inputcontroller;
 
         readonly ConverterList<ITrack, MusicTrack> tracks =
@@ -112,6 +114,14 @@ namespace MusicWriter.WinForms {
             mouseselector.Selected += Mouseselector_Selected;
             mouseselector.Redraw += () => Invalidate();
             
+            CommandCenter.WhenSelectAll += CommandCenter_WhenSelectAll;
+            CommandCenter.WhenDeselectAll += CommandCenter_WhenDeselectAll;
+            CommandCenter.WhenToggleSelectAll += CommandCenter_WhenToggleSelectAll;
+
+            CommandCenter.WhenCursor_ResetOne += CommandCenter_WhenCursor_ResetOne;
+            CommandCenter.WhenCursor_Multiply += CommandCenter_WhenCursor_Multiply;
+            CommandCenter.WhenCursor_Divide += CommandCenter_WhenCursor_Divide;
+
             DoubleBuffered = true;
         }
 
@@ -217,6 +227,75 @@ namespace MusicWriter.WinForms {
             Invalidate();
         }
 
+        private void CommandCenter_WhenCursor_Divide(int divisor) {
+            MusicCursor.Caret.Duration.Length /= divisor;
+
+            Invalidate();
+        }
+
+        private void CommandCenter_WhenCursor_Multiply(int factor) {
+            MusicCursor.Caret.Duration.Length *= factor;
+
+            Invalidate();
+        }
+
+        private void CommandCenter_WhenCursor_ResetOne() {
+            MusicCursor.Caret.Duration.Length = Time.Note;
+
+            Invalidate();
+        }
+
+        private void CommandCenter_WhenToggleSelectAll() {
+            var any =
+                noteselections
+                    .Values
+                    .Any(
+                            selection =>
+                                selection.Selected_Start.Any() ||
+                                selection.Selected_End.Any() ||
+                                selection.Selected_Tone.Any()
+                        );
+
+            if (any)
+                CommandCenter_WhenDeselectAll();
+            else CommandCenter_WhenSelectAll();
+        }
+
+        private void CommandCenter_WhenDeselectAll() {
+            foreach (var selection in noteselections.Values) {
+                selection.Selected_Start.Clear();
+                selection.Selected_End.Clear();
+                selection.Selected_Tone.Clear();
+            }
+
+            Invalidate();
+        }
+
+        private void CommandCenter_WhenSelectAll() {
+            foreach (var selectionkvp in noteselections) {
+                var noteIDs =
+                    selectionkvp
+                        .Key
+                        .Melody
+                        .AllNotes()
+                        .Select(note => note.ID);
+
+                var selection =
+                    selectionkvp.Value;
+
+                foreach (var noteID in noteIDs) {
+                    if (!selection.Selected_Start.Contains(noteID))
+                        selection.Selected_Start.Add(noteID);
+                    if (!selection.Selected_End.Contains(noteID))
+                        selection.Selected_End.Add(noteID);
+                    if (!selection.Selected_Tone.Contains(noteID))
+                        selection.Selected_Tone.Add(noteID);
+                }
+            }
+
+            Invalidate();
+        }
+
         private void InputController_ToneChanged(int tone, CaretMode mode) {
             // action was already handled by preview
         }
@@ -295,6 +374,8 @@ namespace MusicWriter.WinForms {
         }
 
         void Effect_TimeChanged(Time time, CaretMode mode) {
+            Duration affectedduration = null;
+
             foreach (var trackkvp in noteselections) {
                 var track = trackkvp.Key;
 
@@ -312,6 +393,13 @@ namespace MusicWriter.WinForms {
                             Start = oldduration.Start,
                             Length = oldduration.Length
                         };
+
+                    if (affectedduration == null)
+                        affectedduration = oldduration.Union(newduration);
+                    else {
+                        affectedduration = affectedduration.Union(oldduration);
+                        affectedduration = affectedduration.Union(newduration);
+                    }
 
                     if (is_start) {
                         if (mode == CaretMode.Absolute)
@@ -335,6 +423,8 @@ namespace MusicWriter.WinForms {
                 MusicCursor.Caret.Focus = time;
             else if (mode == CaretMode.Delta)
                 MusicCursor.Caret.Focus += time;
+
+            //TODO: update only the affected duration
 
             if (time != Time.Zero || mode == CaretMode.Absolute)
                 Invalidate();

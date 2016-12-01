@@ -208,6 +208,7 @@
             this.lsvTracks.HideSelection = false;
             this.lsvTracks.LabelEdit = true;
             this.lsvTracks.Location = new System.Drawing.Point(0, 22);
+            this.lsvTracks.MultiSelect = false;
             this.lsvTracks.Name = "lsvTracks";
             this.lsvTracks.Size = new System.Drawing.Size(211, 165);
             this.lsvTracks.TabIndex = 2;
