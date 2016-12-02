@@ -10,6 +10,8 @@ namespace MusicWriter {
 
         public FocusSide Side { get; set; } = FocusSide.Both;
 
+        public Time Unit { get; set; } = Time.Note_8th;
+
         public Time Focus {
             get {
                 if ((Side & FocusSide.Left) == FocusSide.Left)

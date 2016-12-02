@@ -15,8 +15,7 @@ namespace MusicWriter.WinForms {
             new FileCapabilities<Control>();
         KeyboardInputSource input_keyboard =
             new KeyboardInputSource();
-        InputController inputcontroller =
-            new InputController();
+        InputController inputcontroller;
         KeyboardMenuShortcuts shortcutter =
             new KeyboardMenuShortcuts();
         CommandCenter commandcenter =
@@ -30,6 +29,7 @@ namespace MusicWriter.WinForms {
             InitializeComponent();
 
             shortcutter.Menu = mnuMainMenu;
+            inputcontroller = new InputController(commandcenter);
         }
 
         void InitInputSources() {

@@ -38,42 +38,9 @@ namespace MusicWriter.WinForms {
         public SheetMusicRenderSettings TemplateSettings { get; set; } = new SheetMusicRenderSettings();
         ObservableProperty<string> ITrackController<Control>.Name { get; } =
             new ObservableProperty<string>("abc");
-        
-        public InputController InputController {
-            get { return inputcontroller; }
-            set {
-                if (inputcontroller != null) {
-                    inputcontroller.PreviewTimeChanged -= InputController_PreviewTimeChanged;
-                    inputcontroller.PreviewToneChanged -= InputController_PreviewToneChanged;
-                    inputcontroller.TimeChanged -= InputController_TimeChanged;
-                    inputcontroller.ToneChanged -= InputController_ToneChanged;
-                    inputcontroller.TimeReset -= InputController_TimeReset;
-                    inputcontroller.ToneReset -= InputController_ToneReset;
-                    inputcontroller.TimeStart -= InputController_TimeStart;
-                    inputcontroller.ToneStart -= InputController_ToneStart;
-                }
-
-                inputcontroller = value;
-
-                inputcontroller.PreviewTimeChanged += InputController_PreviewTimeChanged;
-                inputcontroller.PreviewToneChanged += InputController_PreviewToneChanged;
-                inputcontroller.TimeChanged += InputController_TimeChanged;
-                inputcontroller.ToneChanged += InputController_ToneChanged;
-                inputcontroller.TimeReset += InputController_TimeReset;
-                inputcontroller.ToneReset += InputController_ToneReset;
-                inputcontroller.TimeStart += InputController_TimeStart;
-                inputcontroller.ToneStart += InputController_ToneStart;
-                inputcontroller.NotePlacementStart += InputController_NotePlacementStart;
-                inputcontroller.NotePlacementFinish += InputController_NotePlacementFinish;
-                inputcontroller.SelectionStart += InputController_SelectionStart;
-                inputcontroller.SelectionFinish += InputController_SelectionFinish;
-            }
-        }
 
         public CommandCenter CommandCenter { get; } = new CommandCenter();
-
-        InputController inputcontroller;
-
+        
         readonly ConverterList<ITrack, MusicTrack> tracks =
             new ConverterList<ITrack, MusicTrack>();
 
@@ -121,6 +88,24 @@ namespace MusicWriter.WinForms {
             CommandCenter.WhenCursor_ResetOne += CommandCenter_WhenCursor_ResetOne;
             CommandCenter.WhenCursor_Multiply += CommandCenter_WhenCursor_Multiply;
             CommandCenter.WhenCursor_Divide += CommandCenter_WhenCursor_Divide;
+
+            CommandCenter.WhenPreviewTimeChanged += CommandCenter_PreviewTimeChanged;
+            CommandCenter.WhenPreviewTimeChanged += CommandCenter_PreviewTimeChanged;
+            CommandCenter.WhenTimeChanged += CommandCenter_TimeChanged;
+            CommandCenter.WhenToneChanged += CommandCenter_ToneChanged;
+
+            CommandCenter.WhenTimeStart += CommandCenter_TimeStart;
+            CommandCenter.WhenToneStart += CommandCenter_ToneStart;
+            CommandCenter.WhenTimeReset += CommandCenter_TimeReset;
+            CommandCenter.WhenToneReset += CommandCenter_ToneReset;
+
+            CommandCenter.WhenNotePlacementStart += CommandCenter_NotePlacementStart;
+            CommandCenter.WhenNotePlacementFinish += CommandCenter_NotePlacementFinish;
+
+            CommandCenter.WhenSelectionStart += CommandCenter_SelectionStart;
+            CommandCenter.WhenSelectionFinish += CommandCenter_SelectionFinish;
+
+            CommandCenter.WhenUnitPicking += CommandCenter_WhenUnitPicking;
 
             DoubleBuffered = true;
         }
@@ -228,21 +213,21 @@ namespace MusicWriter.WinForms {
         }
 
         private void CommandCenter_WhenCursor_Divide(int divisor) {
-            MusicCursor.Caret.Duration.Length /= divisor;
+            MusicCursor.Caret.Unit /= divisor;
 
-            Invalidate();
+            Refresh();
         }
 
         private void CommandCenter_WhenCursor_Multiply(int factor) {
-            MusicCursor.Caret.Duration.Length *= factor;
+            MusicCursor.Caret.Unit *= factor;
 
-            Invalidate();
+            Refresh();
         }
 
         private void CommandCenter_WhenCursor_ResetOne() {
-            MusicCursor.Caret.Duration.Length = Time.Note;
+            MusicCursor.Caret.Unit = Time.Note;
 
-            Invalidate();
+            Refresh();
         }
 
         private void CommandCenter_WhenToggleSelectAll() {
@@ -296,21 +281,21 @@ namespace MusicWriter.WinForms {
             Invalidate();
         }
 
-        private void InputController_ToneChanged(int tone, CaretMode mode) {
+        private void CommandCenter_ToneChanged(int tone, CaretMode mode) {
             // action was already handled by preview
         }
 
-        private void InputController_TimeChanged(Time time, CaretMode mode) {
+        private void CommandCenter_TimeChanged(Time time, CaretMode mode) {
             // action was already handled by preview
         }
 
-        private void InputController_PreviewToneChanged(int tone, CaretMode mode) =>
+        private void CommandCenter_PreviewToneChanged(int tone, CaretMode mode) =>
             Effect_ToneChanged(tone, mode);
 
-        private void InputController_PreviewTimeChanged(Time time, CaretMode mode) =>
+        private void CommandCenter_PreviewTimeChanged(Time time, CaretMode mode) =>
             Effect_TimeChanged(time, mode);
 
-        private void InputController_TimeStart() {
+        private void CommandCenter_TimeStart() {
             foreach (var selection in noteselections)
                 selection.Value.Save_Time(selection.Key);
 
@@ -319,14 +304,14 @@ namespace MusicWriter.WinForms {
             MusicCursor_bak.Caret.Side = MusicCursor.Caret.Side;
         }
 
-        private void InputController_ToneStart() {
+        private void CommandCenter_ToneStart() {
             foreach (var selection in noteselections)
                 selection.Value.Save_Tone(selection.Key);
 
             MusicCursor_bak.Tone = MusicCursor.Tone;
         }
 
-        private void InputController_TimeReset() {
+        private void CommandCenter_TimeReset() {
             foreach (var selection in noteselections)
                 selection.Value.Restore_Time(selection.Key);
 
@@ -337,7 +322,7 @@ namespace MusicWriter.WinForms {
             Invalidate();
         }
 
-        private void InputController_ToneReset() {
+        private void CommandCenter_ToneReset() {
             foreach (var selection in noteselections)
                 selection.Value.Restore_Tone(selection.Key);
 
@@ -346,18 +331,18 @@ namespace MusicWriter.WinForms {
             Invalidate();
         }
 
-        private void InputController_SelectionFinish() {
+        private void CommandCenter_SelectionFinish() {
             MusicCursor.Caret.Side = Caret.FocusSide.Both;
         }
 
-        private void InputController_SelectionStart() {
+        private void CommandCenter_SelectionStart() {
             MusicCursor.Caret.Side = Caret.FocusSide.Right;
         }
 
-        private void InputController_NotePlacementFinish() {
+        private void CommandCenter_NotePlacementFinish() {
         }
 
-        private void InputController_NotePlacementStart() {
+        private void CommandCenter_NotePlacementStart() {
             var tone =
                 MusicCursor.Tone;
 
@@ -371,6 +356,11 @@ namespace MusicWriter.WinForms {
             noteselections[ActiveTrack].Selected_Tone.Add(note.ID);
             
             Invalidate();
+        }
+
+        private void CommandCenter_WhenUnitPicking(CaretUnitPickerEventArgs args) {
+            args.Length = MusicCursor.Caret.Unit;
+            args.Handled = true;
         }
 
         void Effect_TimeChanged(Time time, CaretMode mode) {
@@ -887,7 +877,7 @@ namespace MusicWriter.WinForms {
                 GetLeft(MusicCursor.Caret.Focus, track) - scrollX;
 
             var caretunitx =
-                GetLeft(MusicCursor.Caret.Focus + inputcontroller.UnitTime, track) - scrollX;
+                GetLeft(MusicCursor.Caret.Focus + MusicCursor.Caret.Unit, track) - scrollX;
 
             var caretstaff =
                 track
@@ -943,7 +933,7 @@ namespace MusicWriter.WinForms {
             var cursor_focusduration =
                 new Duration {
                     Start = MusicCursor.Caret.Focus,
-                    Length = InputController.UnitTime
+                    Length = MusicCursor.Caret.Unit
                 };
 
             var cursor_notelayout =
@@ -951,7 +941,7 @@ namespace MusicWriter.WinForms {
                         new PerceptualNote(
                                 default(PerceptualNoteID),
                                 cursor_focusduration,
-                                PerceptualTime.Decompose(InputController.UnitTime).First().Key,
+                                PerceptualTime.Decompose(MusicCursor.Caret.Unit).First().Key,
                                 track.Rhythm.Intersecting(cursor_focusduration).First(),
                                 new Note(
                                         default(NoteID),

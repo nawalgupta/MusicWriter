@@ -70,7 +70,7 @@ namespace MusicWriter.WinForms
                     var dy = y - old_y;
 
                     if (dx != 0)
-                        Controller.OffsetTime(dx * Controller.UnitTime);
+                        Controller.OffsetTime(dx * Controller.UnitLength);
 
                     if (dy != 0)
                         Controller.OffsetTone(dy, !e.Alt);

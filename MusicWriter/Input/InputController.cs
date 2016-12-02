@@ -6,29 +6,42 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class InputController {
-        public event TimeChangedDelegate PreviewTimeChanged;
-        public event ToneChangedDelegate PreviewToneChanged;
-        public event TimeChangedDelegate TimeChanged;
-        public event ToneChangedDelegate ToneChanged;
-        public event Action TimeReset;
-        public event Action ToneReset;
-        public event Action TimeStart;
-        public event Action ToneStart;
-        public event Action NotePlacementStart;
-        public event Action NotePlacementFinish;
-        public event Action SelectionStart;
-        public event Action SelectionFinish;
+        readonly CommandCenter commandcenter;
+        //public event TimeChangedDelegate PreviewTimeChanged;
+        //public event ToneChangedDelegate PreviewToneChanged;
+        //public event TimeChangedDelegate TimeChanged;
+        //public event ToneChangedDelegate ToneChanged;
+        //public event Action TimeReset;
+        //public event Action ToneReset;
+        //public event Action TimeStart;
+        //public event Action ToneStart;
+        //public event Action NotePlacementStart;
+        //public event Action NotePlacementFinish;
+        //public event Action SelectionStart;
+        //public event Action SelectionFinish;
 
         int? tone = null;
         CaretMode? tone_mode = null;
 
         Time? time = null;
         CaretMode? time_mode = null;
+        
+        public CommandCenter CommandCenter {
+            get { return commandcenter; }
+        }
 
-        public Time UnitTime { get; set; } = Time.Note_8th;
+        public Time UnitLength {
+            get { return commandcenter.PickCaretUnit().Value; }
+        }
+
+        public InputController(
+                CommandCenter commandcenter
+            ) {
+            this.commandcenter = commandcenter;
+        }
 
         public void StartDrawingNote() {
-            NotePlacementStart?.Invoke();
+            commandcenter.StartNotePlacement();
 
             time = Time.Zero;
             time_mode = CaretMode.Delta;
@@ -38,7 +51,7 @@ namespace MusicWriter {
         }
 
         public void FinishDrawingNote() {
-            NotePlacementFinish?.Invoke();
+            commandcenter.FinishNotePlacement();
 
             time = null;
             time_mode = null;
@@ -47,14 +60,14 @@ namespace MusicWriter {
         }
 
         public void StartSelecting() {
-            SelectionStart?.Invoke();
+            commandcenter.StartSelection();
 
             time = Time.Zero;
             time_mode = CaretMode.Delta;
         }
 
         public void FinishSelecting() {
-            SelectionFinish?.Invoke();
+            commandcenter.FinishSelection();
 
             time = null;
             time_mode = null;
@@ -65,13 +78,13 @@ namespace MusicWriter {
                 time_mode = CaretMode.Delta;
                 time = Time.Zero;
 
-                TimeStart?.Invoke();
+                commandcenter.StartTime();
             }
 
             time += offset;
 
             if ((time != Time.Zero && time_mode.Value.HasFlag(CaretMode.Delta)) || !time_mode.Value.HasFlag(CaretMode.Delta))
-                PreviewTimeChanged?.Invoke(time.Value, time_mode.Value);
+                commandcenter.ChangeTime_Preview(time.Value, time_mode.Value);
         }
 
         public void OffsetTone(int offset, bool wholetones) {
@@ -79,39 +92,38 @@ namespace MusicWriter {
                 tone_mode = CaretMode.Delta | (wholetones ? CaretMode.WholeTones : CaretMode.SemiTones);
                 tone = 0;
 
-                ToneStart?.Invoke();
+                commandcenter.StartTone();
             }
 
             tone += offset;
 
             if ((tone != 0 && tone_mode.Value.HasFlag(CaretMode.Delta)) || !tone_mode.Value.HasFlag(CaretMode.Delta))
-                PreviewToneChanged?.Invoke(tone.Value, tone_mode.Value);
+                commandcenter.ChangeTone_Preview(tone.Value, tone_mode.Value);
         }
 
         public void SetTime(Time value) {
             if (time_mode == null)
-                TimeStart?.Invoke();
+                commandcenter.StartTime();
 
             time_mode = CaretMode.Absolute;
             time = value;
 
-            PreviewTimeChanged?.Invoke(time.Value, time_mode.Value);
+            commandcenter.ChangeTime_Preview(time.Value, time_mode.Value);
         }
 
         public void SetTone(int value) {
             if (tone_mode == null)
-                ToneStart?.Invoke();
+                commandcenter.StartTone();
 
             tone_mode = CaretMode.Absolute;
             tone = value;
 
-            PreviewToneChanged?.Invoke(tone.Value, tone_mode.Value);
+            commandcenter.ChangeTone_Preview(tone.Value, tone_mode.Value);
         }
 
-        public void FinishTime()
-        {
+        public void FinishTime() {
             if (time.HasValue) {
-                TimeChanged?.Invoke(time.Value, time_mode.Value);
+                commandcenter.ChangeTime(time.Value, time_mode.Value);
 
                 time = null;
                 time_mode = null;
@@ -119,16 +131,15 @@ namespace MusicWriter {
         }
 
         public void CancelTime() {
-            TimeReset?.Invoke();
+            commandcenter.ResetTime();
 
             time = null;
             time_mode = null;
         }
 
-        public void FinishTone()
-        {
+        public void FinishTone() {
             if (tone.HasValue) {
-                ToneChanged?.Invoke(tone.Value, tone_mode.Value);
+                commandcenter.ChangeTone(tone.Value, tone_mode.Value);
 
                 tone = null;
                 tone_mode = null;
@@ -136,7 +147,7 @@ namespace MusicWriter {
         }
 
         public void CancelTone() {
-            ToneReset?.Invoke();
+            commandcenter.ResetTone();
 
             tone = null;
             tone_mode = null;

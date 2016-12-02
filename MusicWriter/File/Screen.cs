@@ -50,7 +50,6 @@ namespace MusicWriter {
         private void Controllers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             if (e.NewItems != null) {
                 foreach (ITrackController<View> newitem in e.NewItems) {
-                    newitem.InputController = InputController;
                     newitem.CommandCenter.SubscribeTo(commandcenter);
                 }
             }

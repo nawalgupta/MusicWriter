@@ -11,9 +11,7 @@ namespace MusicWriter {
         EditorFile File { get; }
 
         CommandCenter CommandCenter { get; }
-
-        InputController InputController { get; set; }
-
+        
         TView View { get; }
 
         IList<ITrack> Tracks { get; }
