@@ -37,6 +37,7 @@
             this.lsvControllers = new System.Windows.Forms.ListView();
             this.clmViewName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.lsvTracks = new System.Windows.Forms.ListView();
+            this.clmTrackName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.pnlViews = new System.Windows.Forms.Panel();
             this.mnuAddController = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.mnuAddTrack = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -156,6 +157,7 @@
             this.spltMasterDetail.Size = new System.Drawing.Size(637, 381);
             this.spltMasterDetail.SplitterDistance = 211;
             this.spltMasterDetail.TabIndex = 3;
+            this.spltMasterDetail.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.spltMasterDetail_SplitterMoved);
             // 
             // spltSidebar
             // 
@@ -183,6 +185,8 @@
             this.lsvControllers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.clmViewName});
             this.lsvControllers.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lsvControllers.FullRowSelect = true;
+            this.lsvControllers.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
             this.lsvControllers.HideSelection = false;
             this.lsvControllers.LabelEdit = true;
             this.lsvControllers.Location = new System.Drawing.Point(0, 22);
@@ -204,7 +208,11 @@
             // lsvTracks
             // 
             this.lsvTracks.CheckBoxes = true;
+            this.lsvTracks.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.clmTrackName});
             this.lsvTracks.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lsvTracks.FullRowSelect = true;
+            this.lsvTracks.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
             this.lsvTracks.HideSelection = false;
             this.lsvTracks.LabelEdit = true;
             this.lsvTracks.Location = new System.Drawing.Point(0, 22);
@@ -216,6 +224,11 @@
             this.lsvTracks.View = System.Windows.Forms.View.List;
             this.lsvTracks.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.lsvTracks_AfterLabelEdit);
             this.lsvTracks.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.lsvTracks_ItemChecked);
+            // 
+            // clmTrackName
+            // 
+            this.clmTrackName.Text = "Name";
+            this.clmTrackName.Width = 200;
             // 
             // pnlViews
             // 
@@ -276,5 +289,6 @@
         private System.Windows.Forms.ContextMenuStrip mnuAddController;
         private System.Windows.Forms.ContextMenuStrip mnuAddTrack;
         private System.Windows.Forms.ColumnHeader clmViewName;
+        private System.Windows.Forms.ColumnHeader clmTrackName;
     }
 }

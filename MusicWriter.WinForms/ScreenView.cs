@@ -195,8 +195,15 @@ namespace MusicWriter.WinForms {
                         value.View.Dock = DockStyle.Top;
 
                         lsvControllers.Items.Insert(e.NewStartingIndex + i, item);
+                        
                         pnlViews.Controls.Add(value.View);
                         pnlViews.Controls.SetChildIndex(value.View, e.NewStartingIndex + i);
+
+                        value.View.Focus();
+
+                        value.View.GotFocus += View_GotFocus;
+                        value.View.ParentChanged += View_Dispose;
+                        value.View.Disposed += View_Dispose;
                     }
                 }
             }
@@ -206,6 +213,22 @@ namespace MusicWriter.WinForms {
                 lsvControllers.Items[0].Selected = true;
                 Invalidate(true);
             }
+        }
+
+        private void View_Dispose(object sender, EventArgs e) {
+            var ctrl = sender as Control;
+
+            ctrl.Disposed -= View_Dispose;
+            ctrl.ParentChanged -= View_Dispose;
+            ctrl.GotFocus -= View_GotFocus;
+        }
+
+        private void View_GotFocus(object sender, EventArgs e) {
+            var itemindex = pnlViews.Controls.GetChildIndex(sender as Control);
+
+            var item = lsvControllers.Items[itemindex];
+
+            item.Selected = true;
         }
 
         private void lsvControllers_SelectedIndexChanged(object sender, EventArgs e) {
@@ -224,6 +247,9 @@ namespace MusicWriter.WinForms {
                 var selected = lsvControllers.SelectedIndices.Contains(i);
 
                 screen.Controllers[i].CommandCenter.Enabled = selected;
+
+                if (selected)
+                    screen.Controllers[i].View.Focus();
             }
 
             lsvTracks_disabled = false;
@@ -332,17 +358,14 @@ namespace MusicWriter.WinForms {
             var controller =
                 e.Item.Tag as ITrackController<Control>;
 
-            if (!e.Item.Checked) {
-                pnlViews.Controls.Remove(controller.View);
-            }
-            else {
-                controller.View.Height = 10;
-                pnlViews.Controls.Add(controller.View);
-                pnlViews.Controls.SetChildIndex(controller.View, e.Item.Index);
-                controller.View.Invalidate(true);
-            }
+            controller.View.Visible = e.Item.Checked;
 
             pnlViews.Invalidate(true);
+        }
+
+        private void spltMasterDetail_SplitterMoved(object sender, SplitterEventArgs e) {
+            clmTrackName.Width = spltMasterDetail.Panel1.Width - 4;
+            clmViewName.Width = spltMasterDetail.Panel1.Width - 4;
         }
     }
 }

@@ -72,7 +72,7 @@ namespace MusicWriter.WinForms {
         public Control View {
             get { return this; }
         }
-        
+
         public SheetMusicEditor() {
             InitializeComponent();
 
@@ -90,7 +90,7 @@ namespace MusicWriter.WinForms {
             CommandCenter.WhenCursor_Divide += CommandCenter_WhenCursor_Divide;
 
             CommandCenter.WhenPreviewTimeChanged += CommandCenter_PreviewTimeChanged;
-            CommandCenter.WhenPreviewTimeChanged += CommandCenter_PreviewTimeChanged;
+            CommandCenter.WhenPreviewToneChanged += CommandCenter_PreviewToneChanged;
             CommandCenter.WhenTimeChanged += CommandCenter_TimeChanged;
             CommandCenter.WhenToneChanged += CommandCenter_ToneChanged;
 
@@ -110,13 +110,31 @@ namespace MusicWriter.WinForms {
             DoubleBuffered = true;
         }
 
+        protected override void OnGotFocus(EventArgs e) {
+            BackColor = Color.FromArgb(255, 251, 227);
+
+            base.OnGotFocus(e);
+        }
+
+        protected override void OnLostFocus(EventArgs e) {
+            BackColor = Color.FromArgb(241, 234, 200);
+
+            base.OnLostFocus(e);
+        }
+
         protected override void OnMouseDown(MouseEventArgs e) {
+            if (!Focused)
+                Focus();
+
             mouseselector.MouseDown(e, ModifierKeys);
 
             base.OnMouseDown(e);
         }
-
+        
         protected override void OnMouseMove(MouseEventArgs e) {
+            if (!Focused)
+                Focus();
+
             mouseselector.MouseMove(e, ModifierKeys);
 
             base.OnMouseMove(e);

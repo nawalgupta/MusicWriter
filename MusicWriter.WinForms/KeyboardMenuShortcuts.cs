@@ -12,10 +12,11 @@ namespace MusicWriter.WinForms
         public MenuStrip Menu { get; set; }
 
         Keys potentialcommandkey = Keys.None;
+        Keys nonmodifieractivekeys = Keys.None;
 
         Dictionary<Keys, string> keymappings = new Dictionary<Keys, string> {
             {Keys.OemBackslash, "\\" },
-                {Keys.OemCloseBrackets, "}" },
+            {Keys.OemCloseBrackets, "}" },
             {Keys.Oemcomma, "," },
             {Keys.OemMinus, "-" },
             {Keys.OemOpenBrackets, "{" },
@@ -28,45 +29,54 @@ namespace MusicWriter.WinForms
             {Keys.Oemtilde, "~" }
         };
 
-        public void OnKeyUp(KeyEventArgs args) {
-            if (potentialcommandkey == args.KeyCode) {
-                var shortcut = args.KeyCode.ToString();
+        const int shortcutmask = (int)(Keys.Shift | Keys.Alt | Keys.Control);
+        const int shortcutkeysmask = (int)(Keys.ControlKey | Keys.LControlKey | Keys.RControlKey | Keys.ShiftKey | Keys.LShiftKey | Keys.RShiftKey);
 
-                if (shortcut[0] == 'D' && char.IsDigit(shortcut[1]))
+        public void OnKeyUp(KeyEventArgs args) {
+            if (potentialcommandkey == args.KeyData || 
+                (((int)potentialcommandkey & ~shortcutmask) == ((int)args.KeyData & ~shortcutmask) &&
+                ((int)args.KeyData & ~shortcutmask) != 0)) {
+                var shortcut = ((Keys)((int)potentialcommandkey & ~shortcutmask)).ToString();
+
+                if (shortcut.Length >= 2 && shortcut[0] == 'D' && char.IsDigit(shortcut[1]))
                     shortcut = shortcut.Substring(1);
                 else {
-                    const int shortcutmask = (int)Keys.Shift | (int)Keys.Alt | (int)Keys.Control;
-
                     foreach (var keymap in keymappings)
-                        if ((~shortcutmask & (int)args.KeyCode) == (int)keymap.Key &&
-                            (~(int)args.KeyCode & (int)keymap.Key) == 0)
+                        if ((~shortcutmask & (int)potentialcommandkey) == (int)keymap.Key &&
+                            (~(int)potentialcommandkey & (int)keymap.Key) == 0)
                             shortcut = keymap.Value;
                 }
 
-                if (args.Alt)
+                if ((potentialcommandkey & Keys.Alt) != 0)
                     shortcut = "Alt+" + shortcut;
 
-                if (args.Shift)
+                if ((potentialcommandkey & Keys.Shift) != 0)
                     shortcut = "Shift+" + shortcut;
 
-                if (args.Control)
+                if ((potentialcommandkey & Keys.Control) != 0)
                     shortcut = "Ctrl+" + shortcut;
 
                 foreach (ToolStripMenuItem item in Menu.Items)
                     OnKeyDown(shortcut, item);
             }
 
-            potentialcommandkey = Keys.None;
+            if (((int)args.KeyData & ~shortcutmask & ~shortcutkeysmask) != 0)
+                potentialcommandkey = Keys.None;
+
+            nonmodifieractivekeys &= (Keys)((int)args.KeyData & ~shortcutmask & ~shortcutkeysmask);
         }
 
         public void OnKeyDown(KeyEventArgs args) {
-            if (args.Control || args.Alt)
+            if (((int)args.KeyData & ~shortcutmask & ~shortcutkeysmask) == 0)
                 return;
-
-            if (potentialcommandkey == Keys.None)
-                potentialcommandkey = args.KeyCode;
-            else if (potentialcommandkey != args.KeyCode)
+            
+            //if(nonmodifieractivekeys == Keys.None)
+            if (((int)potentialcommandkey & ~shortcutmask) == (int)Keys.None)
+                potentialcommandkey = args.KeyData;
+            else if (((int)potentialcommandkey & ~shortcutmask) != ((int)args.KeyData & ~shortcutmask))
                 potentialcommandkey = Keys.NoName; // impossible to execute
+
+            nonmodifieractivekeys |= (Keys)((int)args.KeyData & ~shortcutkeysmask & ~shortcutmask);
         }
 
         void OnKeyDown(string keys, ToolStripMenuItem strip) {
