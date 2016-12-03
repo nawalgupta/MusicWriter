@@ -85,10 +85,12 @@ namespace MusicWriter {
                     );
 
         public IEnumerable<IDuratedItem<T>> Intersecting(Duration duration) =>
-            elements_start
-                .BeforeOrAt(duration.End)
-                .Select(kvp => kvp.Value)
-                .Intersect(
+            duration.Length == Time.Zero ?
+                Intersecting(duration.Start) :
+                Enumerable.Intersect(
+                        elements_start
+                            .Before(duration.End)
+                            .Select(kvp => kvp.Value),
                         elements_end
                             .After(duration.Start)
                             .Select(kvp => kvp.Value)

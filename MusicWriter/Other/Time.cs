@@ -135,6 +135,9 @@ namespace MusicWriter {
         public static Time Fraction(int numerator, int denominator) =>
             new Time(TicksPerNote * numerator / denominator);
 
+        public bool CanDivideInto(int divisor) =>
+            (ticks % divisor) == 0;
+
         public override bool Equals(object obj) =>
             obj is Time &&
             Equals((Time)obj);

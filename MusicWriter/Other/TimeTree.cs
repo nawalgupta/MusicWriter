@@ -140,7 +140,7 @@ namespace MusicWriter {
             }
 
             if (right != null)
-                foreach (var item in right.BeforeOrAt(bar))
+                foreach (var item in right.Before(bar))
                     yield return item;
         }
 

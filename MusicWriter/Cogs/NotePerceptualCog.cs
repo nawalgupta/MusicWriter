@@ -108,7 +108,6 @@ namespace MusicWriter {
                     memorymodule.perceptualnotes_map.Add(note.ID, new[] { perceptualnote });
                     flag = true;
                 }
-                
             }
 
             return flag;

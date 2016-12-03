@@ -231,6 +231,9 @@ namespace MusicWriter.WinForms {
         }
 
         private void CommandCenter_WhenCursor_Divide(int divisor) {
+            if (!MusicCursor.Caret.Unit.CanDivideInto(divisor))
+                return;
+
             MusicCursor.Caret.Unit /= divisor;
 
             Refresh();
@@ -694,7 +697,8 @@ namespace MusicWriter.WinForms {
                     var items =
                         track
                             .Memory
-                            .Analyses<RenderedSheetMusicItem>(minwidthkvp.Key);
+                            .Analyses<RenderedSheetMusicItem>(minwidthkvp.Key)
+                            .ToArray();
 
                     var factor_stretchy_width =
                         (minwidthkvp.Value - desireditemchunkwidths_fixed[track][minwidthkvp.Key]) / desireditemchunkwidths[track][minwidthkvp.Key];
