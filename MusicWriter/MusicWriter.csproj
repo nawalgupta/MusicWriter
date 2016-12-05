@@ -47,6 +47,7 @@
     <Compile Include="EditorUtils\ITrackControllerFactory.cs" />
     <Compile Include="File\ITrackFactory.cs" />
     <Compile Include="File\NewTrackFactory.cs" />
+    <Compile Include="File\TrackControllerHints.cs" />
     <Compile Include="Grouping\Pin.cs" />
     <Compile Include="Grouping\PinMode.cs" />
     <Compile Include="File\Screen.cs" />

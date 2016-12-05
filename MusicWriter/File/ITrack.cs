@@ -8,6 +8,8 @@ namespace MusicWriter {
     public interface ITrack {
         ObservableProperty<string> Name { get; }
 
+        ObservableProperty<Time> Length { get; }
+
         void Erase(Duration window);
         void Delete(Duration window);
 

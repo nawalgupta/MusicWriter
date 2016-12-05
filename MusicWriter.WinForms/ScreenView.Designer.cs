@@ -39,6 +39,7 @@
             this.lsvTracks = new System.Windows.Forms.ListView();
             this.clmTrackName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.pnlViews = new System.Windows.Forms.Panel();
+            this.sclOffset = new System.Windows.Forms.HScrollBar();
             this.mnuAddController = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.mnuAddTrack = new System.Windows.Forms.ContextMenuStrip(this.components);
             pnlViewTools = new System.Windows.Forms.Panel();
@@ -154,6 +155,7 @@
             // spltMasterDetail.Panel2
             // 
             this.spltMasterDetail.Panel2.Controls.Add(this.pnlViews);
+            this.spltMasterDetail.Panel2.Controls.Add(this.sclOffset);
             this.spltMasterDetail.Size = new System.Drawing.Size(637, 381);
             this.spltMasterDetail.SplitterDistance = 211;
             this.spltMasterDetail.TabIndex = 3;
@@ -237,8 +239,19 @@
             this.pnlViews.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlViews.Location = new System.Drawing.Point(0, 0);
             this.pnlViews.Name = "pnlViews";
-            this.pnlViews.Size = new System.Drawing.Size(422, 381);
-            this.pnlViews.TabIndex = 0;
+            this.pnlViews.Size = new System.Drawing.Size(422, 364);
+            this.pnlViews.TabIndex = 4;
+            // 
+            // sclOffset
+            // 
+            this.sclOffset.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.sclOffset.LargeChange = 1000;
+            this.sclOffset.Location = new System.Drawing.Point(0, 364);
+            this.sclOffset.Maximum = 10000;
+            this.sclOffset.Name = "sclOffset";
+            this.sclOffset.Size = new System.Drawing.Size(422, 17);
+            this.sclOffset.TabIndex = 3;
+            this.sclOffset.Scroll += new System.Windows.Forms.ScrollEventHandler(this.sclOffset_Scroll);
             // 
             // mnuAddController
             // 
@@ -256,7 +269,6 @@
             // 
             this.Controls.Add(this.spltMasterDetail);
             this.Size = new System.Drawing.Size(637, 381);
-            this.Text = "5";
             pnlViewTools.ResumeLayout(false);
             pnlViewTools.PerformLayout();
             panel1.ResumeLayout(false);
@@ -277,7 +289,6 @@
 
         private System.Windows.Forms.SplitContainer spltMasterDetail;
         private System.Windows.Forms.SplitContainer spltSidebar;
-        private System.Windows.Forms.Panel pnlViews;
         private System.Windows.Forms.ListView lsvControllers;
         private System.Windows.Forms.TextBox txtSearchControllers;
         private System.Windows.Forms.Button btnDeleteController;
@@ -290,5 +301,7 @@
         private System.Windows.Forms.ContextMenuStrip mnuAddTrack;
         private System.Windows.Forms.ColumnHeader clmViewName;
         private System.Windows.Forms.ColumnHeader clmTrackName;
+        private System.Windows.Forms.HScrollBar sclOffset;
+        private System.Windows.Forms.Panel pnlViews;
     }
 }

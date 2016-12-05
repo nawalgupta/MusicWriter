@@ -23,6 +23,45 @@ namespace MusicWriter.WinForms {
         public Cursor MusicCursor { get; } = new Cursor();
         Cursor MusicCursor_bak = new Cursor();
 
+        private class OverrideTrackControllerHints : TrackControllerHints
+        {
+            public SheetMusicEditor Editor { get; set; }
+
+            public override Time UnitSize(Time here) =>
+                Editor
+                    .ActiveTrack
+                    .Rhythm
+                    .Intersecting(here)
+                    .First()
+                    .Duration
+                    .Length;
+
+            public override Time WordSize(Time here) =>
+                Editor
+                    .ActiveTrack
+                    .Rhythm
+                    .TimeSignatures
+                    .Intersecting_children(here)
+                    .First()
+                    .Duration
+                    .Length;
+                //Editor
+                //    .ActiveTrack
+                //    .Rhythm
+                //    .TimeSignatures
+                //    .Intersecting_children(here)
+                //    .First()
+                //    .Duration
+                //    .End - here;
+        }
+
+        readonly OverrideTrackControllerHints hints =
+            new OverrideTrackControllerHints();
+
+        public TrackControllerHints Hints {
+            get { return hints; }
+        }
+
         public EditorFile File {
             get { return file; }
             set {
@@ -110,7 +149,15 @@ namespace MusicWriter.WinForms {
 
             CommandCenter.WhenUnitPicking += CommandCenter_WhenUnitPicking;
 
+            hints.Editor = this;
+
+            Pin.ActualTime.AfterChange += Pin_Moved;
+
             DoubleBuffered = true;
+        }
+
+        private void Pin_Moved(Time old, Time @new) {
+            Refresh();
         }
 
         protected override void OnGotFocus(EventArgs e) {
@@ -433,7 +480,7 @@ namespace MusicWriter.WinForms {
             foreach (var trackkvp in noteselections) {
                 var track = trackkvp.Key;
 
-                foreach (var noteID in trackkvp.Value.Selected_Start.Concat(trackkvp.Value.Selected_End)) {
+                foreach (var noteID in trackkvp.Value.Selected_Start.Union(trackkvp.Value.Selected_End)) {
                     var is_start = trackkvp.Value.Selected_Start.Contains(noteID);
                     var is_end = trackkvp.Value.Selected_End.Contains(noteID);
 
@@ -642,8 +689,8 @@ namespace MusicWriter.WinForms {
             trackheights.Clear();
             foreach (var track in tracks.SpecialCollection)
                 trackheights.Add(track, 0);
-            
-            var samepoints =
+
+            var unjoinedsamepoints =
                 tracks
                     .SpecialCollection
                     .Select(track => track.Memory.Analyses<RenderedSheetMusicItem>(Duration.Eternity))
@@ -659,8 +706,13 @@ namespace MusicWriter.WinForms {
                                                     .Max()
                                             }
                                         )
-                        )
-                    .Aggregate((a, b) => a.Intersect(b));
+                        );
+
+            var samepoints =
+                unjoinedsamepoints
+                    .Any() ?
+                    unjoinedsamepoints.Aggregate(Enumerable.Intersect) :
+                    new Time[0];
 
             var samedurations = new List<Duration>();
 

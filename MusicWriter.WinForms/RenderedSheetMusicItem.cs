@@ -59,8 +59,5 @@ namespace MusicWriter.WinForms {
             if (bmp != null)
                 bmp.Dispose();
         }
-
-        public override bool Equals(object that) =>
-            ReferenceEquals(this, that);
     }
 }

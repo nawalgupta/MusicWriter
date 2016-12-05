@@ -114,7 +114,8 @@ namespace MusicWriter.WinForms {
                         lsvTracks.Items.RemoveAt(e.OldStartingIndex + i);
 
                         var track = (ITrack)e.OldItems[i];
-                        track.Name.AfterChange -= Tracks_NameChanged;  
+                        track.Name.AfterChange -= Tracks_NameChanged;
+                        track.Length.AfterChange -= Tracks_LengthChanged;
                     }
                 }
             }
@@ -128,13 +129,21 @@ namespace MusicWriter.WinForms {
                         new ListViewItem();
 
                     value.Name.AfterChange += Tracks_NameChanged;
-                    
+                    value.Length.AfterChange += Tracks_LengthChanged;
+
                     item.Text = value.Name.Value;
                     item.Tag = value;
 
                     lsvTracks.Items.Insert(e.NewStartingIndex + i, item);
                 }
             }
+        }
+
+        private void Tracks_LengthChanged(Time old, Time @new) {
+            var longestlength =
+                SelectedController.Tracks.Max(track => track.Length.Value);
+
+            sclOffset.Maximum = longestlength.Ticks;
         }
 
         private void Tracks_NameChanged(string old, string @new) {
@@ -202,6 +211,7 @@ namespace MusicWriter.WinForms {
                         value.View.Focus();
 
                         value.View.GotFocus += View_GotFocus;
+                        value.View.LostFocus += View_LostFocus;
                         value.View.ParentChanged += View_Dispose;
                         value.View.Disposed += View_Dispose;
                     }
@@ -223,12 +233,40 @@ namespace MusicWriter.WinForms {
             ctrl.GotFocus -= View_GotFocus;
         }
 
+        private void View_LostFocus(object sender, EventArgs e) {
+            var itemindex = pnlViews.Controls.GetChildIndex(sender as Control);
+
+            var controller = screen.Controllers[itemindex];
+
+            foreach (var track in controller.Tracks) {
+                track.Length.AfterChange -= Tracks_LengthChanged;
+            }
+
+            controller.Pin.ActualTime.AfterChange -= ActiveController_PinMoved;
+        }
+
         private void View_GotFocus(object sender, EventArgs e) {
             var itemindex = pnlViews.Controls.GetChildIndex(sender as Control);
 
             var item = lsvControllers.Items[itemindex];
 
             item.Selected = true;
+
+            var controller = screen.Controllers[itemindex];
+
+            foreach (var track in controller.Tracks) {
+                track.Length.AfterChange += Tracks_LengthChanged;
+            }
+
+            controller.Pin.ActualTime.AfterChange += ActiveController_PinMoved;
+        }
+
+        private void ActiveController_PinMoved(Time old, Time @new) {
+            var word = SelectedController.Hints.WordSize(@new);
+            var unit = SelectedController.Hints.UnitSize(@new);
+
+            sclOffset.LargeChange = word.Ticks;
+            sclOffset.SmallChange = unit.Ticks;
         }
 
         private void lsvControllers_SelectedIndexChanged(object sender, EventArgs e) {
@@ -248,8 +286,9 @@ namespace MusicWriter.WinForms {
 
                 screen.Controllers[i].CommandCenter.Enabled = selected;
 
-                if (selected)
+                if (selected) {
                     screen.Controllers[i].View.Focus();
+                }
             }
 
             lsvTracks_disabled = false;
@@ -366,6 +405,10 @@ namespace MusicWriter.WinForms {
         private void spltMasterDetail_SplitterMoved(object sender, SplitterEventArgs e) {
             clmTrackName.Width = spltMasterDetail.Panel1.Width - 4;
             clmViewName.Width = spltMasterDetail.Panel1.Width - 4;
+        }
+
+        private void sclOffset_Scroll(object sender, ScrollEventArgs e) {
+            SelectedController.Pin.Time.Offset.Value += Time.FromTicks(e.NewValue - e.OldValue);
         }
     }
 }

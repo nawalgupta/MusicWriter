@@ -192,5 +192,8 @@ namespace MusicWriter {
 
         public static float FloatDiv(Time num, Time den) =>
             num.ticks / (float)den.ticks;
+
+        public static Time FromTicks(int ticks) =>
+            new Time(ticks);
     }
 }

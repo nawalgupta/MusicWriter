@@ -35,6 +35,9 @@ namespace MusicWriter {
         public ObservableProperty<string> Name { get; } =
             new ObservableProperty<string>("");
 
+        public ObservableProperty<Time> Length { get; } =
+            new ObservableProperty<Time>(Time.Zero);
+
         public MusicTrack(
                 MelodyTrack melody,
                 RhythmTrack rhythm,
@@ -47,6 +50,30 @@ namespace MusicWriter {
             this.adornment = adornment;
             this.memory = memory;
             this.propertygraphlet = propertygraphlet;
+
+            melody.FieldChanged += Update;
+        }
+
+        void Update() {
+            var end =
+                melody
+                    .AllNotes()
+                    .Select(note => note.Duration.End)
+                    .Aggregate(
+                            Time.Zero,
+                            Time.Max
+                        );
+
+            end =
+                rhythm
+                    .TimeSignatures
+                    .Intersecting_children(end)
+                    .First()
+                    .Duration
+                    .End;
+
+            if (end != Length.Value)
+                Length.Value = end;
         }
 
         private class ClipboardData {

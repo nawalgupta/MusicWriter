@@ -17,5 +17,7 @@ namespace MusicWriter {
         IList<ITrack> Tracks { get; }
 
         Pin Pin { get; }
+
+        TrackControllerHints Hints { get; }
     }
 }

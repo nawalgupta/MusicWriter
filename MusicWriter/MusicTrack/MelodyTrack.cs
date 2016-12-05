@@ -12,6 +12,8 @@ namespace MusicWriter {
         readonly Dictionary<NoteID, Note> notes_lookup = new Dictionary<NoteID, Note>();
         int next_noteID = 0;
 
+        public event Action FieldChanged;
+
         public Note this[NoteID noteID] {
             get { return notes_lookup[noteID]; }
             set { UpdateNote(noteID, value.Duration, value.Tone); }
@@ -42,6 +44,8 @@ namespace MusicWriter {
 
             notes_lookup.Add(noteID, note);
 
+            FieldChanged?.Invoke();
+
             return note;
         }
 
@@ -60,11 +64,15 @@ namespace MusicWriter {
 
             notes_field.Remove(noteID, oldnoteduration);
             notes_field.Add(noteID, newduration);
+
+            FieldChanged?.Invoke();
         }
 
         public void DeleteNote(NoteID noteID) {
             notes_field.Remove(noteID, notes_lookup[noteID].Duration);
             notes_lookup.Remove(noteID);
+
+            FieldChanged?.Invoke();
         }
 
         public IEnumerable<IDuratedItem<Note>> Intersecting(Time point) =>
