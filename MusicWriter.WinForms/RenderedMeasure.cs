@@ -32,6 +32,8 @@ namespace MusicWriter.WinForms {
                 SheetMusicRenderSettings settings,
                 float width
             ) {
+            rectangle.X -= Margin;
+
             foreach (var chord in layoutmeasure.Chords) {
                 var x = chord.X * width;
                 var w = chord.Width * width;

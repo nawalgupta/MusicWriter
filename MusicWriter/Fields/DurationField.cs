@@ -8,7 +8,6 @@ namespace MusicWriter {
     public sealed class DurationField<T> : IDurationField<T> {
         readonly TimeTree<DuratedItem<T>> elements_start = new TimeTree<DuratedItem<T>>();
         readonly TimeTree<DuratedItem<T>> elements_end = new TimeTree<DuratedItem<T>>();
-        //readonly Dictionary<T, DuratedItem<T>> durations = new Dictionary<T, DuratedItem<T>>();
         readonly List<DuratedItem<T>> items = new List<DuratedItem<T>>();
 
         public void Translate(Time delta) {
@@ -16,16 +15,30 @@ namespace MusicWriter {
                 item.Duration.Start += delta;
         }
         
-        //public Duration this[T item] {
-        //    get { return durations[item].Duration; }
-        //    set {
-        //        var oldduration = durations[item];
+        public void Translate(Duration startduration, Time delta) {
+            var items =
+                elements_start
+                    .AfterOrAt(startduration.Start)
+                    .Select(item => item.Value)
+                    .Intersect(
+                            elements_start
+                                .Before(startduration.End)
+                                .Select(item => item.Value)
+                        )
+                    .ToArray();
 
-        //        elements_start[oldduration, oldduration.Duration.Start] = value.Start;
-        //        elements_end[oldduration, oldduration.Duration.End] = value.End;
-        //        oldduration.Duration = value;
-        //    }
-        //}
+            foreach (var item in items) {
+                Remove(item);
+
+                var newduration =
+                    new Duration {
+                        Start = item.Duration.Start + delta,
+                        Length = item.Duration.Length
+                    };
+
+                Add(item.Value, newduration);
+            }
+        }
 
         public void Clear(Duration duration) {
             foreach (var item in Intersecting(duration).ToArray())

@@ -62,9 +62,9 @@ namespace MusicWriter {
             notes_field.Add(noteID, newduration);
         }
 
-        public void DeleteNote(Note note) {
-            notes_lookup.Remove(note.ID);
-            notes_field.Remove(note.ID, note.Duration);
+        public void DeleteNote(NoteID noteID) {
+            notes_field.Remove(noteID, notes_lookup[noteID].Duration);
+            notes_lookup.Remove(noteID);
         }
 
         public IEnumerable<IDuratedItem<Note>> Intersecting(Time point) =>

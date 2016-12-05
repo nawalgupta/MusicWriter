@@ -9,9 +9,9 @@ namespace MusicWriter {
         ObservableProperty<string> Name { get; }
 
         void Erase(Duration window);
+        void Delete(Duration window);
 
         object Copy(Duration window);
-        
         void Paste(object data, Time insert);
     }
 }

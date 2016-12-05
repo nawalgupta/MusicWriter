@@ -173,5 +173,20 @@ namespace MusicWriter {
                 Duration duration
             ) =>
             field.Intersecting(duration).Any();
+
+        public static void ScootAndOverwrite<T>(
+                this DurationField<T> field,
+                T item,
+                Duration duration
+            ) {
+            foreach (var oldstaff in field.Intersecting(duration).ToArray()) {
+                field.Remove(oldstaff);
+
+                foreach (var cutduration in oldstaff.Duration.Subtract(duration))
+                    field.Add(oldstaff.Value, cutduration);
+            }
+
+            field.Add(item, duration);
+        }
     }
 }

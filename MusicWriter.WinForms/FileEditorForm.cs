@@ -237,6 +237,12 @@ namespace MusicWriter.WinForms {
         private void mnuEditToggleSelectAll_Click(object sender, EventArgs e) =>
             commandcenter.ToggleSelectAll();
 
+        private void mnuEditErase_Click(object sender, EventArgs e) =>
+            commandcenter.EraseSelection();
+
+        private void mnuEditDelete_Click(object sender, EventArgs e) =>
+            commandcenter.DeleteSelection();
+
         private void mnuViewCursorDouble_Click(object sender, EventArgs e) =>
             commandcenter.MultiplyCursor(2);
 

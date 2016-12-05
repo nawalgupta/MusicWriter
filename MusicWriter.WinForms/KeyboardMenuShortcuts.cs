@@ -26,7 +26,10 @@ namespace MusicWriter.WinForms
             {Keys.OemQuestion, "?" },
             {Keys.OemQuotes, "\"" },
             {Keys.OemSemicolon, ";" },
-            {Keys.Oemtilde, "~" }
+            {Keys.Oemtilde, "~" },
+            {Keys.Delete, "Del" },
+            {Keys.Insert, "Ins" },
+            {Keys.Escape, "Esc" },
         };
 
         const int shortcutmask = (int)(Keys.Shift | Keys.Alt | Keys.Control);

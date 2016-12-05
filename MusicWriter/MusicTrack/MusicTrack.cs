@@ -60,12 +60,82 @@ namespace MusicWriter {
         }
 
         public void Erase(Duration window) {
-            // Key signatures, time signatures, and meters aren't removed
-            // becasue they aren't events - they are completely fields.
-            // Only notes are erased.
+            // Erasing just applies to notes - discreet events
 
-            foreach (var note in melody.Intersecting(window))
-                melody.DeleteNote(note.Value);
+            foreach (Note note in melody.Intersecting(window).ToArray()) {
+                var subtractedtime =
+                    note.Duration.Subtract_Time(window);
+
+                if (subtractedtime == null)
+                    melody.DeleteNote(note.ID);
+                else {
+                    melody.UpdateNote(note.ID, subtractedtime, note.Tone);
+                }
+            }
+        }
+
+        public void Delete(Duration window) {
+            // Deleting applies to everything
+            Erase(window);
+
+            var beyond =
+                new Duration {
+                    Start = window.End,
+                    End = Time.Eternity
+                };
+
+            var throughandbeyond =
+                new Duration {
+                    Start = window.Start,
+                    End = Time.Eternity
+                };
+
+            foreach (Note note in melody.Intersecting(beyond).ToArray()) {
+                var subtractedtime =
+                    note.Duration - window.Length;
+
+                melody.UpdateNote(note.ID, subtractedtime, note.Tone);
+            }
+
+            foreach (var timesig in rhythm.TimeSignatures.Intersecting(throughandbeyond).ToArray()) {
+                var subtractedtime =
+                    timesig.Duration.Subtract_Time(window);
+
+                rhythm.TimeSignatures.Remove(timesig);
+
+                if (subtractedtime != null)
+                    rhythm.TimeSignatures.Add(timesig.Value, subtractedtime);
+            }
+
+            foreach (var metersig in rhythm.MeterSignatures.Intersecting(throughandbeyond).ToArray()) {
+                var subtractedtime =
+                    metersig.Duration.Subtract_Time(window);
+
+                rhythm.MeterSignatures.Remove(metersig);
+
+                if (subtractedtime != null)
+                    rhythm.MeterSignatures.Add(metersig.Value, subtractedtime);
+            }
+
+            foreach (var staff in adornment.Staffs.Intersecting(throughandbeyond).ToArray()) {
+                var subtractedtime =
+                    staff.Duration.Subtract_Time(window);
+
+                adornment.Staffs.Remove(staff);
+
+                if (subtractedtime != null)
+                    adornment.Staffs.Add(staff.Value, subtractedtime);
+            }
+
+            foreach (var keysig in adornment.KeySignatures.Intersecting(throughandbeyond).ToArray()) {
+                var subtractedtime =
+                    keysig.Duration.Subtract_Time(window);
+
+                adornment.KeySignatures.Remove(keysig);
+
+                if (subtractedtime != null)
+                    adornment.KeySignatures.Add(keysig.Value, subtractedtime);
+            }
         }
 
         public object Copy(Duration window) =>
@@ -165,16 +235,16 @@ namespace MusicWriter {
                     );
 
             foreach (var signature in clipboard.TimeSignatures)
-                rhythm.SetTimeSignature(signature.Value, signature.Duration + insert);
+                rhythm.TimeSignatures.ScootAndOverwrite(signature.Value, signature.Duration + insert);
 
             foreach (var signature in clipboard.MeterSignatures)
-                rhythm.SetMeter(signature.Value, signature.Duration + insert);
+                rhythm.MeterSignatures.ScootAndOverwrite(signature.Value, signature.Duration + insert);
 
             foreach (var signature in clipboard.KeySignatures)
-                adornment.SetKeySignature(signature.Value, signature.Duration + insert);
+                adornment.KeySignatures.ScootAndOverwrite(signature.Value, signature.Duration + insert);
 
             foreach (var staff in clipboard.Staffs)
-                adornment.SetStaff(staff.Value, staff.Duration + insert);
+                adornment.Staffs.ScootAndOverwrite(staff.Value, staff.Duration + insert);
 
             var translated_propertygraphletdata =
                 clipboard

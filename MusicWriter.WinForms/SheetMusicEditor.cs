@@ -105,6 +105,9 @@ namespace MusicWriter.WinForms {
             CommandCenter.WhenSelectionStart += CommandCenter_SelectionStart;
             CommandCenter.WhenSelectionFinish += CommandCenter_SelectionFinish;
 
+            CommandCenter.WhenDeleteSelection += CommandCenter_WhenDeleteSelection;
+            CommandCenter.WhenEraseSelection += CommandCenter_WhenEraseSelection;
+
             CommandCenter.WhenUnitPicking += CommandCenter_WhenUnitPicking;
 
             DoubleBuffered = true;
@@ -377,6 +380,46 @@ namespace MusicWriter.WinForms {
             noteselections[ActiveTrack].Selected_Tone.Add(note.ID);
             
             Invalidate();
+        }
+
+        private void CommandCenter_WhenDeleteSelection() {
+            CommandCenter_WhenDeleteSelectedNotes();
+
+            foreach (var track in tracks.SpecialCollection)
+                track.Delete(MusicCursor.Caret.Duration);
+        }
+
+        private void CommandCenter_WhenEraseSelection() {
+            CommandCenter_WhenDeleteSelectedNotes();
+
+            foreach (var track in tracks.SpecialCollection)
+                track.Erase(MusicCursor.Caret.Duration);
+        }
+
+        public void CommandCenter_WhenDeleteSelectedNotes() {
+            foreach (var selectionkvp in noteselections) {
+                var track =
+                    selectionkvp.Key;
+
+                var selection =
+                    new NoteID[0]
+                        .Concat(selectionkvp.Value.Selected_End)
+                        .Concat(selectionkvp.Value.Selected_Start)
+                        .Concat(selectionkvp.Value.Selected_Tone)
+                        .Distinct()
+                        .ToArray();
+
+                foreach (var noteID in selection) {
+                    track.Melody.DeleteNote(noteID);
+
+                    if (selectionkvp.Value.Selected_Start.Contains(noteID))
+                        selectionkvp.Value.Selected_Start.Remove(noteID);
+                    if (selectionkvp.Value.Selected_End.Contains(noteID))
+                        selectionkvp.Value.Selected_End.Remove(noteID);
+                    if (selectionkvp.Value.Selected_Tone.Contains(noteID))
+                        selectionkvp.Value.Selected_Tone.Remove(noteID);
+                }
+            }
         }
 
         private void CommandCenter_WhenUnitPicking(CaretUnitPickerEventArgs args) {

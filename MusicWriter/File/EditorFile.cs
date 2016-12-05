@@ -84,10 +84,10 @@ namespace MusicWriter {
 
             track.Name.Value = name;
 
-            track.Rhythm.SetTimeSignature(new TimeSignature(new TimeSignature.Simple(4, 4)), Duration.Eternity);
-            track.Rhythm.SetMeter(MeterSignature.Default(track.Rhythm.TimeSignaturesInTime(Duration.Eternity).Single().Value.Simples[0]), Duration.Eternity);
-            track.Adornment.SetStaff(Staff.Treble, Duration.Eternity);
-            track.Adornment.SetKeySignature(KeySignature.Create(DiatonicToneClass.C, PitchTransform.Natural, Mode.Major), Duration.Eternity);
+            track.Rhythm.TimeSignatures.ScootAndOverwrite(new TimeSignature(new Simple(4, 4)), Duration.Eternity);
+            track.Rhythm.MeterSignatures.ScootAndOverwrite(MeterSignature.Default(track.Rhythm.TimeSignaturesInTime(Duration.Eternity).Single().Value.Simples[0]), Duration.Eternity);
+            track.Adornment.Staffs.ScootAndOverwrite(Staff.Treble, Duration.Eternity);
+            track.Adornment.KeySignatures.ScootAndOverwrite(KeySignature.Create(DiatonicToneClass.C, PitchTransform.Natural, Mode.Major), Duration.Eternity);
             
             perceptualmemory.InsertMemoryModule(new EditableMemoryModule<NoteLayout>());
             perceptualmemory.InsertMemoryModule(new EditableMemoryModule<ChordLayout>());

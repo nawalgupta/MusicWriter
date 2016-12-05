@@ -41,6 +41,78 @@ namespace MusicWriter {
             };
         }
 
+        public Duration Subtract_Time(Duration cut) {
+            if (Start < cut.Start) {
+                if (End > cut.End) {
+                    // cut some time out of inside of note
+                    return new Duration {
+                        Start = Start,
+                        Length = Length - cut.Length
+                    };
+                }
+                else if (End > cut.Start) {
+                    return
+                        new Duration {
+                            Start = Start,
+                            End = cut.Start
+                        };
+                }
+                else return this; // End <= cut.start
+            }
+            else if (Start < cut.End) {
+                if (End > cut.End) {
+                    return
+                        new Duration {
+                            Start = cut.End,
+                            End = End
+                        };
+                }
+                else return null;
+            }
+            // Start >= cut.End
+            return this - cut.length;
+        }
+
+        public Duration[] Subtract(Duration cut) {
+            if (Start < cut.Start) {
+                if (End > cut.End) {
+                    return new Duration[] {
+                        new Duration {
+                            Start = Start,
+                            Length = cut.Start
+                        },
+                        new Duration {
+                            Start = cut.End,
+                            End = End
+                        }
+                    };
+                }
+                else if (End > cut.Start) {
+                    return
+                        new Duration[] {
+                            new Duration {
+                                Start = Start,
+                                End = cut.Start
+                            }
+                        };
+                }
+            }
+            else if (Start < cut.End) {
+                if (End > cut.End) {
+                    return
+                        new Duration[] {
+                            new Duration {
+                                Start = cut.End,
+                                End = End
+                            }
+                        };
+                }
+                else return new Duration[0];
+            }
+
+            return new Duration[] { this };
+        }
+
         public override string ToString() =>
             $"{Start}+{length}";
 
@@ -72,6 +144,10 @@ namespace MusicWriter {
                 Start = duration.Start - offset,
                 Length = duration.Length
             };
+
+        public bool IsInside(Duration container) =>
+            container.Start <= Start &&
+            container.End >= End;
 
         public static bool operator ==(Duration a, Duration b) {
             var anull = ReferenceEquals(a, null);

@@ -32,6 +32,9 @@ namespace MusicWriter
         public event Action WhenSelectionStart;
         public event Action WhenSelectionFinish;
 
+        public event Action WhenDeleteSelection;
+        public event Action WhenEraseSelection;
+
         public event CaretUnitPickerDelegate WhenUnitPicking;
 
         public bool Enabled { get; set; } = true;
@@ -90,6 +93,12 @@ namespace MusicWriter
         public void FinishSelection() =>
             Do(() => WhenSelectionFinish?.Invoke());
 
+        public void DeleteSelection() =>
+            Do(() => WhenDeleteSelection?.Invoke());
+
+        public void EraseSelection() =>
+            Do(() => WhenEraseSelection?.Invoke());
+
         public void Delegate_CaretUnitPicking(CaretUnitPickerEventArgs args) =>
             Do(() => {
                 foreach (CaretUnitPickerDelegate invoc in WhenUnitPicking.GetInvocationList()) {
@@ -144,6 +153,9 @@ namespace MusicWriter
             master.WhenSelectionStart += StartSelection;
             master.WhenSelectionFinish += FinishSelection;
 
+            master.WhenDeleteSelection += DeleteSelection;
+            master.WhenEraseSelection += EraseSelection;
+
             master.WhenUnitPicking += Delegate_CaretUnitPicking;
         }
 
@@ -171,6 +183,9 @@ namespace MusicWriter
 
             master.WhenSelectionStart -= StartSelection;
             master.WhenSelectionFinish -= FinishSelection;
+
+            master.WhenDeleteSelection -= DeleteSelection;
+            master.WhenEraseSelection -= EraseSelection;
 
             master.WhenUnitPicking -= Delegate_CaretUnitPicking;
         }
