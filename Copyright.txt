@@ -3,3 +3,6 @@ copyright (c) 2016 Isaac A. Valdez and available under the MIT license, which
 is available in the License.txt file.
 
 All files in the notes/ directory are put in the public domain.
+
+All files in the dependencies/ directory are property of their respective
+copyright owners under their stated licenses.

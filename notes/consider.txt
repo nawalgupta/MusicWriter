@@ -1,4 +1,3 @@
-Large pieces of code to consider using with MusicWriter
+Large pieces of 3rd party code to consider using with MusicWriter:
 
 http://vstnet.codeplex.com/
-https://github.com/naudio/NAudio
