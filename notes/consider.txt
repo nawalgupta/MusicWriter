@@ -1,0 +1,4 @@
+Large pieces of code to consider using with MusicWriter
+
+http://vstnet.codeplex.com/
+https://github.com/naudio/NAudio
