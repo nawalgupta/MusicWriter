@@ -1,0 +1,5 @@
+All the code in the MusicWriter/ and MusicWriter.WinForms/ directories are
+copyright (c) 2016 Isaac A. Valdez and available under the MIT license, which
+is available in the License.txt file.
+
+All files in the notes/ directory are put in the public domain.
