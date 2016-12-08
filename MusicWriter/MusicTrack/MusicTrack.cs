@@ -12,6 +12,8 @@ namespace MusicWriter {
         readonly PerceptualMemory memory;
         readonly IPropertyGraphlet<NoteID> propertygraphlet;
 
+        public event Action Dirtied;
+
         public MelodyTrack Melody {
             get { return melody; }
         }
@@ -30,6 +32,10 @@ namespace MusicWriter {
 
         public IPropertyGraphlet<NoteID> PropertyGraphlet {
             get { return propertygraphlet; }
+        }
+
+        public ITrackFactory Factory {
+            get { return MusicTrackFactory.Instance; }
         }
 
         public ObservableProperty<string> Name { get; } =
@@ -72,8 +78,10 @@ namespace MusicWriter {
                     .Duration
                     .End;
 
-            if (end != Length.Value)
+            if (end != Length.Value) {
                 Length.Value = end;
+                Dirtied?.Invoke();
+            }
         }
 
         private class ClipboardData {

@@ -10,6 +10,10 @@ namespace MusicWriter {
 
         ObservableProperty<Time> Length { get; }
 
+        ITrackFactory Factory { get; }
+
+        event Action Dirtied;
+
         void Erase(Duration window);
         void Delete(Duration window);
 

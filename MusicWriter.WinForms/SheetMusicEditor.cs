@@ -16,7 +16,7 @@ namespace MusicWriter.WinForms {
     public partial class SheetMusicEditor :
         Control,
         ITrackController<Control> {
-        EditorFile file;
+        EditorFile<Control> file;
 
         public Pin Pin { get; } = new Pin();
 
@@ -62,7 +62,7 @@ namespace MusicWriter.WinForms {
             get { return hints; }
         }
 
-        public EditorFile File {
+        public EditorFile<Control> File {
             get { return file; }
             set {
                 if (file != null) {
@@ -72,6 +72,10 @@ namespace MusicWriter.WinForms {
                 file = value;
                 file.Brain.InsertCog(new RenderedSheetMusicItemPerceptualCog());
             }
+        }
+
+        public ITrackControllerFactory<Control> Factory {
+            get { return FactoryClass.Instance; }
         }
 
         public SheetMusicRenderSettings TemplateSettings { get; set; } = new SheetMusicRenderSettings();

@@ -30,6 +30,13 @@ namespace MusicWriter {
         public IEnumerable<Note> AllNotes() =>
             notes_lookup.Values;
 
+        public void AddNote(Note note) {
+            notes_field.Add(note.ID, note.Duration);
+            notes_lookup.Add(note.ID, note);
+
+            next_noteID = Math.Max(next_noteID, note.ID.ID);
+        }
+
         public Note AddNote(SemiTone tone, Duration duration) {
             var noteID = new NoteID(next_noteID++);
 

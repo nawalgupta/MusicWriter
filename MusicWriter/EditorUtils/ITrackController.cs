@@ -8,9 +8,11 @@ namespace MusicWriter {
     public interface ITrackController<TView> {
         ObservableProperty<string> Name { get; }
 
-        EditorFile File { get; }
+        EditorFile<TView> File { get; }
 
         CommandCenter CommandCenter { get; }
+
+        ITrackControllerFactory<TView> Factory { get; }
         
         TView View { get; }
 

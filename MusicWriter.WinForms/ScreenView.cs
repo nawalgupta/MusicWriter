@@ -13,7 +13,7 @@ using System.Collections;
 
 namespace MusicWriter.WinForms {
     public partial class ScreenView : TabPage {
-        EditorFile file;
+        EditorFile<Control> file;
         Screen<Control> screen;
 
         public ITrackController<Control> SelectedController {
@@ -39,10 +39,7 @@ namespace MusicWriter.WinForms {
             set {
                 if (screen != null) {
                     screen.Name.AfterChange -= Name_AfterChange;
-                    screen.Controllers.CollectionChanged -= Controllers_CollectionChanged;
-
-                    screen.Capabilities.ControllerFactories.CollectionChanged -= ControllerFactories_CollectionChanged;
-                    screen.Capabilities.TrackFactories.CollectionChanged -= TrackFactories_CollectionChanged;
+                    screen.Controllers.CollectionChanged -= ScreenControllers_CollectionChanged;
                 }
 
                 var old = screen;
@@ -51,28 +48,36 @@ namespace MusicWriter.WinForms {
                 Name_AfterChange(old?.Name.Value, screen.Name.Value);
                 screen.Name.AfterChange += Name_AfterChange;
 
-                screen.Controllers.CollectionChanged += Controllers_CollectionChanged;
-                Controllers_CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, (IList)screen.Controllers, (IList<ITrackController<Control>>)old?.Controllers ?? new List<ITrackController<Control>>(), 0));
-
-                screen.Capabilities.ControllerFactories.CollectionChanged += ControllerFactories_CollectionChanged;
-                ControllerFactories_CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, screen.Capabilities.ControllerFactories, (IList<ITrackControllerFactory<Control>>)old?.Capabilities.ControllerFactories ?? new List<ITrackControllerFactory<Control>>()));
-
-                screen.Capabilities.TrackFactories.CollectionChanged += TrackFactories_CollectionChanged;
-                TrackFactories_CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, screen.Capabilities.TrackFactories, (IList<ITrackFactory>)old?.Capabilities.TrackFactories ?? new List<ITrackFactory>()));
+                screen.Controllers.CollectionChanged += ScreenControllers_CollectionChanged;
+                ScreenControllers_CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, (IList)screen.Controllers, (IList<ITrackController<Control>>)old?.Controllers ?? new List<ITrackController<Control>>(), 0));
             }
         }
 
-        public EditorFile File {
+        public EditorFile<Control> File {
             get { return file; }
             set {
-                if (file != null)
+                if (file != null) {
                     file.Tracks.CollectionChanged -= Tracks_CollectionChanged;
+                    
+                    file.Capabilities.ControllerFactories.CollectionChanged -= ControllerFactories_CollectionChanged;
+                    file.Capabilities.TrackFactories.CollectionChanged -= TrackFactories_CollectionChanged;
+                }
 
                 var old = file;
 
                 file = value;
+
                 Tracks_CollectionChanged(file, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, file.Tracks, (IList<ITrack>)old?.Tracks ?? new List<ITrack>(), 0));
                 file.Tracks.CollectionChanged += Tracks_CollectionChanged;
+
+                ScreenControllers_CollectionChanged(file, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, file.Controllers, (IList<ITrackController<Control>>)old?.Controllers ?? new List<ITrackController<Control>>(), 0));
+                file.Controllers.CollectionChanged += FileControllers_CollectionChanged;
+
+                file.Capabilities.ControllerFactories.CollectionChanged += ControllerFactories_CollectionChanged;
+                ControllerFactories_CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, file.Capabilities.ControllerFactories, (IList<ITrackControllerFactory<Control>>)old?.Capabilities.ControllerFactories ?? new List<ITrackControllerFactory<Control>>()));
+
+                file.Capabilities.TrackFactories.CollectionChanged += TrackFactories_CollectionChanged;
+                TrackFactories_CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, file.Capabilities.TrackFactories, (IList<ITrackFactory>)old?.Capabilities.TrackFactories ?? new List<ITrackFactory>()));
             }
         }
 
@@ -80,10 +85,54 @@ namespace MusicWriter.WinForms {
             InitializeComponent();
         }
 
+        private void FileControllers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+            var newitems = ExpandWierdArgs<ITrackController<Control>>(e.NewItems).ToArray();
+
+            if (e.OldItems != null) {
+                for (var i = 0; i < e.OldItems.Count; i++) {
+                    if (lsvControllers.Items.Count > i)
+                        lsvControllers.Items.RemoveAt(e.OldStartingIndex + i);
+
+                    if (pnlViews.Controls.Count > i)
+                        pnlViews.Controls.RemoveAt(e.OldStartingIndex + i);
+                }
+            }
+
+            if (e.NewItems != null) {
+                for (var i = 0; i < newitems.Length; i++) {
+                    var value =
+                        newitems[i] as ITrackController<Control>;
+
+                    if (value != null) {
+                        var item =
+                            new ListViewItem();
+
+                        item.Text = value.Name.Value;
+                        item.Tag = value;
+                        item.Checked = true;
+
+                        value.View.Dock = DockStyle.Top;
+
+                        lsvControllers.Items.Insert(e.NewStartingIndex + i, item);
+
+                        pnlViews.Controls.Add(value.View);
+                        pnlViews.Controls.SetChildIndex(value.View, e.NewStartingIndex + i);
+
+                        //value.View.Focus();
+
+                        value.View.GotFocus += View_GotFocus;
+                        value.View.LostFocus += View_LostFocus;
+                        value.View.ParentChanged += View_Dispose;
+                        value.View.Disposed += View_Dispose;
+                    }
+                }
+            }
+        }
+
         private void ControllerFactories_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             mnuAddController.Items.Clear();
 
-            foreach (var controllerfactory in screen.Capabilities.ControllerFactories)
+            foreach (var controllerfactory in file.Capabilities.ControllerFactories)
                 mnuAddController.Items.Add(new ToolStripMenuItem {
                     Text = controllerfactory.Name,
                     Tag = controllerfactory
@@ -93,7 +142,7 @@ namespace MusicWriter.WinForms {
         private void TrackFactories_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             mnuAddTrack.Items.Clear();
 
-            foreach (var trackfactory in screen.Capabilities.TrackFactories)
+            foreach (var trackfactory in file.Capabilities.TrackFactories)
                 mnuAddTrack.Items.Add(new ToolStripMenuItem {
                     Text = trackfactory.Name,
                     Tag = trackfactory
@@ -175,54 +224,28 @@ namespace MusicWriter.WinForms {
             }
         }
 
-        private void Controllers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+        private void ScreenControllers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             var newitems = ExpandWierdArgs<ITrackController<Control>>(e.NewItems).ToArray();
 
             if (e.OldItems != null) {
                 for (var i = 0; i < e.OldItems.Count; i++) {
                     if (lsvControllers.Items.Count > i)
-                        lsvControllers.Items.RemoveAt(e.OldStartingIndex + i);
-
-                    if (pnlViews.Controls.Count > i)
-                        pnlViews.Controls.RemoveAt(e.OldStartingIndex + i);
+                        lsvControllers.Items[e.OldStartingIndex + i].Checked = false;
                 }
             }
 
             if (e.NewItems != null) {
-                for (var i = 0; i < newitems.Length; i++) {
-                    var value =
-                        newitems[i] as ITrackController<Control>;
-
-                    if (value != null) {
-                        var item =
-                            new ListViewItem();
-
-                        item.Text = value.Name.Value;
-                        item.Tag = value;
-                        item.Checked = true;
-
-                        value.View.Dock = DockStyle.Top;
-
-                        lsvControllers.Items.Insert(e.NewStartingIndex + i, item);
-                        
-                        pnlViews.Controls.Add(value.View);
-                        pnlViews.Controls.SetChildIndex(value.View, e.NewStartingIndex + i);
-
-                        value.View.Focus();
-
-                        value.View.GotFocus += View_GotFocus;
-                        value.View.LostFocus += View_LostFocus;
-                        value.View.ParentChanged += View_Dispose;
-                        value.View.Disposed += View_Dispose;
-                    }
+                for (var i = 0; i < e.NewItems.Count; i++) {
+                    if (lsvControllers.Items.Count > i)
+                        lsvControllers.Items[e.NewStartingIndex + i].Checked = true;
                 }
             }
 
-            if (e.NewItems.Count == lsvControllers.Items.Count &&
-                e.NewItems.Count > 0) {// all items are fresh
-                lsvControllers.Items[0].Selected = true;
-                Invalidate(true);
-            }
+            //if (e.NewItems.Count == lsvControllers.Items.Count &&
+            //    e.NewItems.Count > 0) {// all items are fresh
+            //    lsvControllers.Items[0].Selected = true;
+            //    Invalidate(true);
+            //}
         }
 
         private void View_Dispose(object sender, EventArgs e) {
@@ -282,8 +305,10 @@ namespace MusicWriter.WinForms {
             }
 
             for (int i = 0; i < lsvControllers.Items.Count; i++) {
-                var selected = lsvControllers.SelectedIndices.Contains(i);
-
+                var selected =
+                    lsvControllers.SelectedIndices.Contains(i) &&
+                    screen.Controllers.Contains(lsvControllers.Items[i].Tag as ITrackController<Control>);
+                
                 screen.Controllers[i].CommandCenter.Enabled = selected;
 
                 if (selected) {
@@ -340,7 +365,8 @@ namespace MusicWriter.WinForms {
 
             var newcontroller =
                 controllerfactory.Create(File);
-            
+
+            file.Controllers.Add(newcontroller);
             screen.Controllers.Add(newcontroller);
         }
 

@@ -48,6 +48,9 @@
             this.mnuEditSelectAll = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuEditDeselectAll = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuEditToggleSelectAll = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuEditSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.mnuEditErase = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuEditDelete = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuView = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuViewCursorDouble = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuViewCursorHalf = new System.Windows.Forms.ToolStripMenuItem();
@@ -70,9 +73,8 @@
             this.mnuHeaderRenameBox = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuHeaderClose = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuEditSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuEditErase = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuEditDelete = new System.Windows.Forms.ToolStripMenuItem();
+            this.diagSaveFile = new System.Windows.Forms.SaveFileDialog();
+            this.diagOpenFile = new System.Windows.Forms.OpenFileDialog();
             this.mnuMainMenu.SuspendLayout();
             this.mnuHeader.SuspendLayout();
             this.SuspendLayout();
@@ -287,6 +289,27 @@
             this.mnuEditToggleSelectAll.Text = "&Toggle Select All";
             this.mnuEditToggleSelectAll.Click += new System.EventHandler(this.mnuEditToggleSelectAll_Click);
             // 
+            // mnuEditSeparator3
+            // 
+            this.mnuEditSeparator3.Name = "mnuEditSeparator3";
+            this.mnuEditSeparator3.Size = new System.Drawing.Size(206, 6);
+            // 
+            // mnuEditErase
+            // 
+            this.mnuEditErase.Name = "mnuEditErase";
+            this.mnuEditErase.ShortcutKeyDisplayString = "Shift+Del";
+            this.mnuEditErase.Size = new System.Drawing.Size(209, 22);
+            this.mnuEditErase.Text = "Era&se";
+            this.mnuEditErase.Click += new System.EventHandler(this.mnuEditErase_Click);
+            // 
+            // mnuEditDelete
+            // 
+            this.mnuEditDelete.Name = "mnuEditDelete";
+            this.mnuEditDelete.ShortcutKeyDisplayString = "Del";
+            this.mnuEditDelete.Size = new System.Drawing.Size(209, 22);
+            this.mnuEditDelete.Text = "D&elete";
+            this.mnuEditDelete.Click += new System.EventHandler(this.mnuEditDelete_Click);
+            // 
             // mnuView
             // 
             this.mnuView.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -463,26 +486,17 @@
             this.mnuHeaderClose.Text = "Close";
             this.mnuHeaderClose.Click += new System.EventHandler(this.mnuHeaderClose_Click);
             // 
-            // mnuEditSeparator3
+            // diagSaveFile
             // 
-            this.mnuEditSeparator3.Name = "mnuEditSeparator3";
-            this.mnuEditSeparator3.Size = new System.Drawing.Size(206, 6);
+            this.diagSaveFile.Filter = "Music Writer Files (*.musicwriter)|*.musicwriter";
+            this.diagSaveFile.Title = "Save File";
+            this.diagSaveFile.FileOk += new System.ComponentModel.CancelEventHandler(this.diagSaveFile_FileOk);
             // 
-            // mnuEditErase
+            // diagOpenFile
             // 
-            this.mnuEditErase.Name = "mnuEditErase";
-            this.mnuEditErase.ShortcutKeyDisplayString = "Shift+Del";
-            this.mnuEditErase.Size = new System.Drawing.Size(209, 22);
-            this.mnuEditErase.Text = "Era&se";
-            this.mnuEditErase.Click += new System.EventHandler(this.mnuEditErase_Click);
-            // 
-            // mnuEditDelete
-            // 
-            this.mnuEditDelete.Name = "mnuEditDelete";
-            this.mnuEditDelete.ShortcutKeyDisplayString = "Del";
-            this.mnuEditDelete.Size = new System.Drawing.Size(209, 22);
-            this.mnuEditDelete.Text = "D&elete";
-            this.mnuEditDelete.Click += new System.EventHandler(this.mnuEditDelete_Click);
+            this.diagOpenFile.Filter = "Music Writer Files (*.musicwriter)|*.musicwriter";
+            this.diagOpenFile.Title = "Open File";
+            this.diagOpenFile.FileOk += new System.ComponentModel.CancelEventHandler(this.diagOpenFile_FileOk);
             // 
             // FileEditorForm
             // 
@@ -556,6 +570,8 @@
         private System.Windows.Forms.ToolStripSeparator mnuEditSeparator3;
         private System.Windows.Forms.ToolStripMenuItem mnuEditErase;
         private System.Windows.Forms.ToolStripMenuItem mnuEditDelete;
+        private System.Windows.Forms.SaveFileDialog diagSaveFile;
+        private System.Windows.Forms.OpenFileDialog diagOpenFile;
     }
 }
 

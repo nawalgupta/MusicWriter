@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,9 +13,7 @@ using System.Windows.Forms;
 
 namespace MusicWriter.WinForms {
     public partial class FileEditorForm : Form {
-        EditorFile file = new EditorFile();
-        FileCapabilities<Control> capabilities =
-            new FileCapabilities<Control>();
+        EditorFile<Control> file = new EditorFile<Control>();
         KeyboardInputSource input_keyboard =
             new KeyboardInputSource();
         InputController inputcontroller;
@@ -20,6 +21,8 @@ namespace MusicWriter.WinForms {
             new KeyboardMenuShortcuts();
         CommandCenter commandcenter =
             new CommandCenter();
+
+        string filepath = null;
 
         public Screen<Control> ActiveScreen {
             get { return (tabScreens.SelectedTab as ScreenView)?.Screen; }
@@ -30,6 +33,47 @@ namespace MusicWriter.WinForms {
 
             shortcutter.Menu = mnuMainMenu;
             inputcontroller = new InputController(commandcenter);
+            file.Screens.CollectionChanged += Screens_CollectionChanged;
+        }
+
+        IEnumerable<T> ExpandWierdArgs<T>(IList wierdlist) where T : class {
+            if (wierdlist == null)
+                yield break;
+
+            foreach (var x in wierdlist) {
+                var list =
+                    x as IList<T>;
+
+                var t =
+                    x as T;
+
+                if (t != null)
+                    yield return t;
+
+                if (list != null)
+                    foreach (T t2 in list)
+                        yield return t2;
+            }
+        }
+
+        private void Screens_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+            var newitems = ExpandWierdArgs<Screen<Control>>(e.NewItems).ToArray();
+
+            if (e.OldItems != null) {
+                for (var i = 0; i < e.OldItems.Count; i++) {
+                    if (tabScreens.Controls.Count > i) {
+                        tabScreens.Controls.RemoveAt(e.OldStartingIndex + i);
+
+                        var screen = (Screen<Control>)e.OldItems[i];
+                    }
+                }
+            }
+
+            for (var i = 0; i < newitems.Length; i++) {
+                var screen = newitems[i];
+
+                LoadScreen(screen);
+            }
         }
 
         void InitInputSources() {
@@ -37,11 +81,11 @@ namespace MusicWriter.WinForms {
         }
 
         void InitControllerFactories() {
-            capabilities.ControllerFactories.Add(new SheetMusicEditor.Factory());
+            file.Capabilities.ControllerFactories.Add(SheetMusicEditor.FactoryClass.Instance);
         }
 
         void InitTrackFactories() {
-            capabilities.TrackFactories.Add(new MusicTrackFactory());
+            file.Capabilities.TrackFactories.Add(MusicTrackFactory.Instance);
         }
         
         List<Keys> keys_pressed = new List<Keys>();
@@ -76,60 +120,7 @@ namespace MusicWriter.WinForms {
         }
 
         void NewScreen() {
-            var screen =
-                new Screen<Control>(
-                        capabilities,
-                        file,
-                        inputcontroller
-                    );
-
-            var editor =
-                new SheetMusicEditor();
-
-            editor.File = file;
-
-            var track1 =
-                (MusicTrack)capabilities.TrackFactories[0].Create();
-
-            track1.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Zero, Length = Time.Note_4th + Time.Note_4th / 2 });
-            track1.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Note_4th + Time.Note_4th / 2, Length = Time.Note_4th / 2 });
-            track1.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Note_2nd, Length = Time.Note_4th });
-            track1.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Note_2nd + Time.Note_4th, Length = Time.Note_4th });
-
-            track1.Name.Value = "Track 1";
-            editor.Tracks.Add(track1);
-            file.Tracks.Add(track1);
-
-            var track2 =
-                (MusicTrack)capabilities.TrackFactories[0].Create();
-
-            track2.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Zero, Length = Time.Note_2nd });
-            track2.Melody.AddNote(SemiTone.C5, new Duration { Start = Time.Note_2nd, Length = Time.Note_2nd });
-
-            track2.Name.Value = "Track 2";
-            //editor.Tracks.Add(track2);
-            file.Tracks.Add(track2);
-
-            var track3 =
-                (MusicTrack)capabilities.TrackFactories[0].Create();
-
-            track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 0, Length = Time.Note_8th });
-            track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 1, Length = Time.Note_8th });
-            track3.Melody.AddNote(SemiTone.C4 + 2, new Duration { Start = Time.Note_8th * 2, Length = Time.Note_8th });
-            track3.Melody.AddNote(SemiTone.C4, new Duration { Start = Time.Note_8th * 3, Length = Time.Note_8th });
-            track3.Melody.AddNote(SemiTone.C4 + 4, new Duration { Start = Time.Note_8th * 4, Length = Time.Note_8th });
-            track3.Melody.AddNote(SemiTone.C4 + 2, new Duration { Start = Time.Note_8th * 5, Length = Time.Note_8th });
-            track3.Melody.AddNote(SemiTone.C4 + 5, new Duration { Start = Time.Note_8th * 6, Length = Time.Note_8th });
-            track3.Melody.AddNote(SemiTone.C4 + 16, new Duration { Start = Time.Note_8th * 7, Length = Time.Note_8th });
-
-            track3.Name.Value = "Track 3";
-            //editor.Tracks.Add(track3);
-            file.Tracks.Add(track3);
-
-            screen.Controllers.Add(editor);
-            screen.Name.Value = "Screen 1";
-            
-            LoadScreen(screen);
+            file.Screens.Add(new Screen<Control>(file));
         }
 
         void LoadScreen(Screen<Control> screen) {
@@ -184,17 +175,21 @@ namespace MusicWriter.WinForms {
 
         }
 
-        private void mnuFileOpen_Click(object sender, EventArgs e) {
-
-        }
+        private void mnuFileOpen_Click(object sender, EventArgs e) =>
+            diagOpenFile.ShowDialog(this);
 
         private void mnuFileSave_Click(object sender, EventArgs e) {
-
+            if (filepath == null)
+                mnuFileSaveAs_Click(sender, e);
+            else {
+                using (var stream = new FileStream(filepath, FileMode.Create)) {
+                    file.Save(stream);
+                }
+            }
         }
 
-        private void mnuFileSaveAs_Click(object sender, EventArgs e) {
-
-        }
+        private void mnuFileSaveAs_Click(object sender, EventArgs e) =>
+            diagSaveFile.ShowDialog(this);
 
         private void mnuFilePrint_Click(object sender, EventArgs e) {
 
@@ -283,6 +278,20 @@ namespace MusicWriter.WinForms {
 
         private void mnuHelpAbout_Click(object sender, EventArgs e) {
 
+        }
+
+        private void diagSaveFile_FileOk(object sender, CancelEventArgs e) {
+            filepath = diagSaveFile.FileName;
+
+            mnuFileSave_Click(sender, e);
+        }
+
+        private void diagOpenFile_FileOk(object sender, CancelEventArgs e) {
+            filepath = diagOpenFile.FileName;
+
+            using (var stream = diagOpenFile.OpenFile()) {
+                file.Load(stream);
+            }
         }
     }
 }

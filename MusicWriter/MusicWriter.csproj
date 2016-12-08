@@ -41,7 +41,6 @@
     <Compile Include="EditorUtils\ITrackController.cs" />
     <Compile Include="EditorUtils\ITrackControllerFactory.cs" />
     <Compile Include="File\ITrackFactory.cs" />
-    <Compile Include="File\NewTrackFactory.cs" />
     <Compile Include="File\TrackControllerHints.cs" />
     <Compile Include="Grouping\Pin.cs" />
     <Compile Include="Grouping\PinMode.cs" />
@@ -73,6 +72,7 @@
     <Compile Include="Other\ConverterList.cs" />
     <Compile Include="Other\Extensions.cs" />
     <Compile Include="Other\ObservableProperty.cs" />
+    <Compile Include="Other\CodeTools.cs" />
     <Compile Include="SheetMusic\FlagDirection.cs" />
     <Compile Include="Fields\IDuratedItem.cs" />
     <Compile Include="Fields\IDurationField.cs" />
@@ -124,6 +124,10 @@
       <HintPath>..\packages\NAudio.1.7.3\lib\net35\NAudio.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
