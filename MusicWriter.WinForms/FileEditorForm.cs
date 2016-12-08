@@ -121,6 +121,8 @@ namespace MusicWriter.WinForms {
 
         void NewScreen() {
             file.Screens.Add(new Screen<Control>(file));
+
+            tabScreens.SelectTab(tabScreens.Controls.Count - 1);
         }
 
         void LoadScreen(Screen<Control> screen) {
@@ -166,8 +168,18 @@ namespace MusicWriter.WinForms {
         }
 
         private void tabScreens_SelectedIndexChanged(object sender, EventArgs e) {
-            foreach (ScreenView view in tabScreens.Controls) {
-                view.Screen.CommandCenter.Enabled = ReferenceEquals(view, tabScreens.SelectedTab);
+            foreach (TabPage tab in tabScreens.Controls) {
+                var view = tab as ScreenView;
+
+                var seleced = ReferenceEquals(tab, tabScreens.SelectedTab);
+
+                if (view != null) {
+                    view.Screen.CommandCenter.Enabled = seleced;
+                }
+                else {
+                    if (seleced)
+                        NewScreen();
+                }
             }
         }
 

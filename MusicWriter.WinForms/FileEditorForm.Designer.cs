@@ -75,7 +75,9 @@
             this.mnuHeaderClose = new System.Windows.Forms.ToolStripMenuItem();
             this.diagSaveFile = new System.Windows.Forms.SaveFileDialog();
             this.diagOpenFile = new System.Windows.Forms.OpenFileDialog();
+            this.tabNewTab = new System.Windows.Forms.TabPage();
             this.mnuMainMenu.SuspendLayout();
+            this.tabScreens.SuspendLayout();
             this.mnuHeader.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -448,6 +450,7 @@
             // tabScreens
             // 
             this.tabScreens.ContextMenuStrip = this.mnuHeader;
+            this.tabScreens.Controls.Add(this.tabNewTab);
             this.tabScreens.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabScreens.Location = new System.Drawing.Point(0, 24);
             this.tabScreens.Name = "tabScreens";
@@ -498,6 +501,16 @@
             this.diagOpenFile.Title = "Open File";
             this.diagOpenFile.FileOk += new System.ComponentModel.CancelEventHandler(this.diagOpenFile_FileOk);
             // 
+            // tabNewTab
+            // 
+            this.tabNewTab.Location = new System.Drawing.Point(4, 22);
+            this.tabNewTab.Name = "tabNewTab";
+            this.tabNewTab.Padding = new System.Windows.Forms.Padding(3);
+            this.tabNewTab.Size = new System.Drawing.Size(735, 342);
+            this.tabNewTab.TabIndex = 0;
+            this.tabNewTab.Text = "+";
+            this.tabNewTab.UseVisualStyleBackColor = true;
+            // 
             // FileEditorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -513,6 +526,7 @@
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.mnuMainMenu.ResumeLayout(false);
             this.mnuMainMenu.PerformLayout();
+            this.tabScreens.ResumeLayout(false);
             this.mnuHeader.ResumeLayout(false);
             this.mnuHeader.PerformLayout();
             this.ResumeLayout(false);
@@ -572,6 +586,7 @@
         private System.Windows.Forms.ToolStripMenuItem mnuEditDelete;
         private System.Windows.Forms.SaveFileDialog diagSaveFile;
         private System.Windows.Forms.OpenFileDialog diagOpenFile;
+        private System.Windows.Forms.TabPage tabNewTab;
     }
 }
 
