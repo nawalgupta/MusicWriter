@@ -91,8 +91,38 @@ namespace MusicWriter.WinForms {
         void InitTrackFactories() {
             file.Capabilities.TrackFactories.Add(MusicTrackFactory.Instance);
         }
-        
-        List<Keys> keys_pressed = new List<Keys>();
+
+		void InitPorters() {
+			file.Capabilities.Porters.CollectionChanged += Porters_CollectionChanged;
+
+			file.Capabilities.Porters.Add(new MidiPorter());
+		}
+
+		private void Porters_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+			var filters_builder = new StringBuilder();
+
+			bool first = true;
+			foreach (var porter in file.Capabilities.Porters) {
+				if (first)
+					first = false;
+				else {
+					filters_builder.Append("|");
+				}
+
+				filters_builder.Append(porter.Name);
+				filters_builder.Append(" (");
+				filters_builder.Append(porter.FileExtension);
+				filters_builder.Append(")|");
+				filters_builder.Append(porter.FileExtension);
+			}
+
+			var filter = filters_builder.ToString();
+
+			diagOpenImportFile.Filter = filter;
+			diagSaveExportFile.Filter = filter;
+		}
+
+		List<Keys> keys_pressed = new List<Keys>();
         protected override void OnKeyDown(KeyEventArgs e) {
             if (!keys_pressed.Contains(e.KeyCode)) {
                 input_keyboard.OnKeyDown(e);
@@ -119,6 +149,7 @@ namespace MusicWriter.WinForms {
             InitControllerFactories();
             InitTrackFactories();
             InitInputSources();
+			InitPorters();
         }
 
         void NewScreen() {
@@ -181,8 +212,11 @@ namespace MusicWriter.WinForms {
 
         }
 
-        private void mnuFileOpen_Click(object sender, EventArgs e) =>
-            diagOpenFile.ShowDialog(this);
+		private void mnuFileOpen_Click(object sender, EventArgs e) =>
+			diagOpenFile.ShowDialog(this);
+
+		private void mnuFileOpenImport_Click(object sender, EventArgs e) =>
+			diagOpenImportFile.ShowDialog(this);
 
         private void mnuFileSave_Click(object sender, EventArgs e) {
             if (filepath == null)
@@ -196,6 +230,9 @@ namespace MusicWriter.WinForms {
 
         private void mnuFileSaveAs_Click(object sender, EventArgs e) =>
             diagSaveFile.ShowDialog(this);
+
+		private void mnuFileSaveExport_Click(object sender, EventArgs e) =>
+			diagSaveExportFile.ShowDialog(this);
 
         private void mnuFilePrint_Click(object sender, EventArgs e) {
 
@@ -306,5 +343,17 @@ namespace MusicWriter.WinForms {
                 file.Load(stream);
             }
         }
-    }
+
+		private void diagSaveExportFile_FileOk(object sender, CancelEventArgs e) {
+			var porter = file.Capabilities.Porters[diagSaveExportFile.FilterIndex - 1];
+
+			porter.Export(file, diagSaveExportFile.FileName);
+		}
+
+		private void diagOpenImportFile_FileOk(object sender, CancelEventArgs e) {
+			var porter = file.Capabilities.Porters[diagSaveExportFile.FilterIndex - 1];
+
+			porter.Import(file, diagOpenImportFile.FileName);
+		}
+	}
 }

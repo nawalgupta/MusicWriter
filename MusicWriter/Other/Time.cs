@@ -132,10 +132,13 @@ namespace MusicWriter {
         public static readonly Time Note_2nd = new Time(TicksPerNote_2nd);
         public static readonly Time Eternity = new Time(int.MaxValue);
 
-        public static Time Fraction(int numerator, int denominator) =>
-            new Time(TicksPerNote * numerator / denominator);
+		public static Time Fraction(int numerator, int denominator) =>
+			new Time(TicksPerNote * numerator / denominator);
 
-        public bool CanDivideInto(int divisor) =>
+		public static Time Fraction(long numerator, int denominator) =>
+			new Time((int)(TicksPerNote * numerator / denominator));
+
+		public bool CanDivideInto(int divisor) =>
             (ticks % divisor) == 0;
 
         public override bool Equals(object obj) =>
@@ -149,12 +152,12 @@ namespace MusicWriter {
             ticks;
 
         public static Time operator +(Time a, Time b) =>
-            new Time(a.ticks + b.ticks);
+            new Time((int)Math.Max(Math.Min((long)a.ticks + b.ticks, int.MaxValue), int.MinValue));
 
         public static Time operator -(Time a, Time b) =>
-            new Time(a.ticks - b.ticks);
+			new Time((int)Math.Max(Math.Min((long)a.ticks - b.ticks, int.MaxValue), int.MinValue));
 
-        public static Time operator *(int a, Time b) =>
+		public static Time operator *(int a, Time b) =>
             new Time(a * b.ticks);
 
         public static Time operator *(Time a, int b) =>

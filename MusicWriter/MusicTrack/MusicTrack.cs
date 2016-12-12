@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static MusicWriter.TimeSignature;
 
 namespace MusicWriter {
     public sealed class MusicTrack : ITrack {
@@ -58,9 +59,38 @@ namespace MusicWriter {
             this.propertygraphlet = propertygraphlet;
 
             melody.FieldChanged += Update;
-        }
+		}
 
-        void Update() {
+		public static MusicTrack Create() {
+			var track =
+				new MusicTrack(
+						new MelodyTrack(),
+						new RhythmTrack(),
+						new AdornmentTrack(),
+						new PerceptualMemory(),
+						new ExplicitPropertyGraphlet<NoteID>()
+					);
+
+			track.Rhythm.TimeSignatures.ScootAndOverwrite(new TimeSignature(new Simple(4, 4)), Duration.Eternity);
+			track.Rhythm.MeterSignatures.ScootAndOverwrite(MeterSignature.Default(track.Rhythm.TimeSignaturesInTime(Duration.Eternity).Single().Value.Simples[0]), Duration.Eternity);
+			track.Adornment.Staffs.ScootAndOverwrite(Staff.Treble, Duration.Eternity);
+			track.Adornment.KeySignatures.ScootAndOverwrite(KeySignature.Create(DiatonicToneClass.C, PitchTransform.Natural, Mode.Major), Duration.Eternity);
+
+			track.Memory.InsertMemoryModule(new EditableMemoryModule<NoteLayout>());
+			track.Memory.InsertMemoryModule(new EditableMemoryModule<ChordLayout>());
+			track.Memory.InsertMemoryModule(new EditableMemoryModule<MeasureLayout>());
+			track.Memory.InsertMemoryModule(new IgnorantMemoryModule<Cell>(track.Rhythm));
+			track.Memory.InsertMemoryModule(new IgnorantMemoryModule<Simple>(track.Rhythm));
+			track.Memory.InsertMemoryModule(new IgnorantMemoryModule<Measure>(track.Rhythm));
+			track.Memory.InsertMemoryModule(new IgnorantMemoryModule<Note>(track.Melody));
+			track.Memory.InsertMemoryModule(new IgnorantMemoryModule<KeySignature>(track.Adornment.KeySignatures));
+			track.Memory.InsertMemoryModule(new IgnorantMemoryModule<Staff>(track.Adornment.Staffs));
+			track.Memory.InsertMemoryModule(new NotePerceptualCog.MemoryModule());
+
+			return track;
+		}
+
+		void Update() {
             var end =
                 melody
                     .AllNotes()
