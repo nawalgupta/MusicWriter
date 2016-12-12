@@ -58,7 +58,8 @@ namespace MusicWriter.WinForms {
             set {
                 if (file != null) {
                     file.Tracks.CollectionChanged -= Tracks_CollectionChanged;
-                    
+                    file.Controllers.CollectionChanged -= FileControllers_CollectionChanged;
+
                     file.Capabilities.ControllerFactories.CollectionChanged -= ControllerFactories_CollectionChanged;
                     file.Capabilities.TrackFactories.CollectionChanged -= TrackFactories_CollectionChanged;
                 }
@@ -70,7 +71,7 @@ namespace MusicWriter.WinForms {
                 Tracks_CollectionChanged(file, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, file.Tracks, (IList<ITrack>)old?.Tracks ?? new List<ITrack>(), 0));
                 file.Tracks.CollectionChanged += Tracks_CollectionChanged;
 
-                ScreenControllers_CollectionChanged(file, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, file.Controllers, (IList<ITrackController<Control>>)old?.Controllers ?? new List<ITrackController<Control>>(), 0));
+                FileControllers_CollectionChanged(file, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, file.Controllers, (IList<ITrackController<Control>>)old?.Controllers ?? new List<ITrackController<Control>>(), 0));
                 file.Controllers.CollectionChanged += FileControllers_CollectionChanged;
 
                 file.Capabilities.ControllerFactories.CollectionChanged += ControllerFactories_CollectionChanged;
@@ -106,7 +107,7 @@ namespace MusicWriter.WinForms {
                     if (value != null) {
                         var item =
                             new ListViewItem();
-
+                        
                         item.Text = value.Name.Value;
                         item.Tag = value;
                         item.Checked = true;
@@ -235,7 +236,7 @@ namespace MusicWriter.WinForms {
             }
 
             if (e.NewItems != null) {
-                for (var i = 0; i < e.NewItems.Count; i++) {
+                for (var i = 0; i < newitems.Length; i++) {
                     if (lsvControllers.Items.Count > i)
                         lsvControllers.Items[e.NewStartingIndex + i].Checked = true;
                 }
@@ -255,10 +256,10 @@ namespace MusicWriter.WinForms {
             ctrl.ParentChanged -= View_Dispose;
             ctrl.GotFocus -= View_GotFocus;
         }
-
+        
         private void View_LostFocus(object sender, EventArgs e) {
             var itemindex = pnlViews.Controls.GetChildIndex(sender as Control);
-
+             
             var controller = screen.Controllers[itemindex];
 
             foreach (var track in controller.Tracks) {
@@ -309,7 +310,7 @@ namespace MusicWriter.WinForms {
                     lsvControllers.SelectedIndices.Contains(i) &&
                     screen.Controllers.Contains(lsvControllers.Items[i].Tag as ITrackController<Control>);
                 
-                screen.Controllers[i].CommandCenter.Enabled = selected;
+                file.Controllers[i].CommandCenter.Enabled = selected;
 
                 if (selected) {
                     screen.Controllers[i].View.Focus();

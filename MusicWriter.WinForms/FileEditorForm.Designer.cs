@@ -75,9 +75,10 @@
             this.mnuHeaderClose = new System.Windows.Forms.ToolStripMenuItem();
             this.diagSaveFile = new System.Windows.Forms.SaveFileDialog();
             this.diagOpenFile = new System.Windows.Forms.OpenFileDialog();
-            this.tabNewTab = new System.Windows.Forms.TabPage();
+            this.mnuScreen = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuScreenNew = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuScreenArchive = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuMainMenu.SuspendLayout();
-            this.tabScreens.SuspendLayout();
             this.mnuHeader.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -87,6 +88,7 @@
             this.mnuFile,
             this.mnuEdit,
             this.mnuView,
+            this.mnuScreen,
             this.mnuTools,
             this.mnuHelp});
             this.mnuMainMenu.Location = new System.Drawing.Point(0, 0);
@@ -450,7 +452,6 @@
             // tabScreens
             // 
             this.tabScreens.ContextMenuStrip = this.mnuHeader;
-            this.tabScreens.Controls.Add(this.tabNewTab);
             this.tabScreens.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabScreens.Location = new System.Drawing.Point(0, 24);
             this.tabScreens.Name = "tabScreens";
@@ -501,15 +502,28 @@
             this.diagOpenFile.Title = "Open File";
             this.diagOpenFile.FileOk += new System.ComponentModel.CancelEventHandler(this.diagOpenFile_FileOk);
             // 
-            // tabNewTab
+            // mnuScreen
             // 
-            this.tabNewTab.Location = new System.Drawing.Point(4, 22);
-            this.tabNewTab.Name = "tabNewTab";
-            this.tabNewTab.Padding = new System.Windows.Forms.Padding(3);
-            this.tabNewTab.Size = new System.Drawing.Size(735, 342);
-            this.tabNewTab.TabIndex = 0;
-            this.tabNewTab.Text = "+";
-            this.tabNewTab.UseVisualStyleBackColor = true;
+            this.mnuScreen.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.mnuScreenNew,
+            this.mnuScreenArchive});
+            this.mnuScreen.Name = "mnuScreen";
+            this.mnuScreen.Size = new System.Drawing.Size(54, 20);
+            this.mnuScreen.Text = "&Screen";
+            // 
+            // mnuScreenNew
+            // 
+            this.mnuScreenNew.Name = "mnuScreenNew";
+            this.mnuScreenNew.Size = new System.Drawing.Size(152, 22);
+            this.mnuScreenNew.Text = "&New";
+            this.mnuScreenNew.Click += new System.EventHandler(this.mnuScreenNew_Click);
+            // 
+            // mnuScreenArchive
+            // 
+            this.mnuScreenArchive.Name = "mnuScreenArchive";
+            this.mnuScreenArchive.Size = new System.Drawing.Size(152, 22);
+            this.mnuScreenArchive.Text = "A&rchive...";
+            this.mnuScreenArchive.Click += new System.EventHandler(this.mnuScreenArchive_Click);
             // 
             // FileEditorForm
             // 
@@ -526,7 +540,6 @@
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.mnuMainMenu.ResumeLayout(false);
             this.mnuMainMenu.PerformLayout();
-            this.tabScreens.ResumeLayout(false);
             this.mnuHeader.ResumeLayout(false);
             this.mnuHeader.PerformLayout();
             this.ResumeLayout(false);
@@ -586,7 +599,9 @@
         private System.Windows.Forms.ToolStripMenuItem mnuEditDelete;
         private System.Windows.Forms.SaveFileDialog diagSaveFile;
         private System.Windows.Forms.OpenFileDialog diagOpenFile;
-        private System.Windows.Forms.TabPage tabNewTab;
+        private System.Windows.Forms.ToolStripMenuItem mnuScreen;
+        private System.Windows.Forms.ToolStripMenuItem mnuScreenNew;
+        private System.Windows.Forms.ToolStripMenuItem mnuScreenArchive;
     }
 }
 

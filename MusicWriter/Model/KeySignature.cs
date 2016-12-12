@@ -22,6 +22,27 @@ namespace MusicWriter {
             set { keytransforms[key] = value; }
         }
 
+        public KeySignature() {
+        }
+
+        public KeySignature(
+                PitchTransform transform_c,
+                PitchTransform transform_d,
+                PitchTransform transform_e,
+                PitchTransform transform_f,
+                PitchTransform transform_g,
+                PitchTransform transform_a,
+                PitchTransform transform_b
+            ) {
+            this[DiatonicToneClass.C] = transform_c;
+            this[DiatonicToneClass.D] = transform_d;
+            this[DiatonicToneClass.E] = transform_e;
+            this[DiatonicToneClass.F] = transform_f;
+            this[DiatonicToneClass.G] = transform_g;
+            this[DiatonicToneClass.A] = transform_a;
+            this[DiatonicToneClass.B] = transform_b;
+        }
+
         public SemiTone SemiToneOfKey(DiatonicTone diatone, PitchTransform transform) =>
             transform * (this[diatone.KeyClass] * new SemiTone(diatone.KeyClass.GetPitchClass(), diatone.Octave));
 

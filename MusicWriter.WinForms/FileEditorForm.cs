@@ -59,20 +59,24 @@ namespace MusicWriter.WinForms {
         private void Screens_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
             var newitems = ExpandWierdArgs<Screen<Control>>(e.NewItems).ToArray();
 
-            if (e.OldItems != null) {
-                for (var i = 0; i < e.OldItems.Count; i++) {
-                    if (tabScreens.Controls.Count > i) {
-                        tabScreens.Controls.RemoveAt(e.OldStartingIndex + i);
+            if (e.Action == NotifyCollectionChangedAction.Reset) 
+                tabScreens.Controls.Clear();
+            else {
+                if (e.OldItems != null) {
+                    for (var i = 0; i < e.OldItems.Count; i++) {
+                        if (tabScreens.Controls.Count > i) {
+                            tabScreens.Controls.RemoveAt(e.OldStartingIndex + i);
 
-                        var screen = (Screen<Control>)e.OldItems[i];
+                            var screen = (Screen<Control>)e.OldItems[i];
+                        }
                     }
                 }
-            }
 
-            for (var i = 0; i < newitems.Length; i++) {
-                var screen = newitems[i];
+                for (var i = 0; i < newitems.Length; i++) {
+                    var screen = newitems[i];
 
-                LoadScreen(screen);
+                    LoadScreen(screen);
+                }
             }
         }
 
@@ -115,8 +119,6 @@ namespace MusicWriter.WinForms {
             InitControllerFactories();
             InitTrackFactories();
             InitInputSources();
-
-            NewScreen();
         }
 
         void NewScreen() {
@@ -127,8 +129,8 @@ namespace MusicWriter.WinForms {
 
         void LoadScreen(Screen<Control> screen) {
             ScreenView view = new ScreenView();
-            view.Screen = screen;
             view.File = file;
+            view.Screen = screen;
 
             screen.CommandCenter.SubscribeTo(commandcenter);
             screen.CommandCenter.Enabled = false;
@@ -168,18 +170,10 @@ namespace MusicWriter.WinForms {
         }
 
         private void tabScreens_SelectedIndexChanged(object sender, EventArgs e) {
-            foreach (TabPage tab in tabScreens.Controls) {
-                var view = tab as ScreenView;
+            foreach (ScreenView view in tabScreens.Controls) {
+                var selected = ReferenceEquals(view, tabScreens.SelectedTab);
 
-                var seleced = ReferenceEquals(tab, tabScreens.SelectedTab);
-
-                if (view != null) {
-                    view.Screen.CommandCenter.Enabled = seleced;
-                }
-                else {
-                    if (seleced)
-                        NewScreen();
-                }
+                view.Screen.CommandCenter.Enabled = selected;
             }
         }
 
@@ -267,6 +261,13 @@ namespace MusicWriter.WinForms {
 
         private void mnuViewCursorResetToOneNote_Click(object sender, EventArgs e) =>
             commandcenter.ResetCursorToOne();
+
+        private void mnuScreenNew_Click(object sender, EventArgs e) =>
+            NewScreen();
+
+        private void mnuScreenArchive_Click(object sender, EventArgs e) {
+            //TODO
+        }
 
         private void mnuToolsCustomize_Click(object sender, EventArgs e) {
 

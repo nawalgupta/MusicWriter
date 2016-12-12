@@ -109,12 +109,12 @@ namespace MusicWriter {
                                         new MeterSignature(
                                                 CodeTools.ReadDuration(xmetersig.Attribute("duration").Value).Length,
                                                 xmetersig
-                                                    .Elements("cells")
+                                                    .Elements("cell")
                                                     .Select(
                                                             xcell =>
                                                                 new Cell {
                                                                     Length = CodeTools.ReadTime(xcell.Attribute("length").Value),
-                                                                    Stress = int.Parse(xcell.Attribute("stress").Value)
+                                                                    Stress = float.Parse(xcell.Attribute("stress").Value)
                                                                 }
                                                         )
                                                     .ToArray()
@@ -142,6 +142,68 @@ namespace MusicWriter {
 
             foreach (var note in notes)
                 melody.AddNote(note);
+
+            var xadornment =
+                xroot.Element("adornment");
+
+            var keysigs =
+                xadornment
+                    .Element("key-sigs")
+                    .Elements("key-sig")
+                    .Select(
+                            xkeysig =>
+                                new DuratedItem<KeySignature> {
+                                    Duration = CodeTools.ReadDuration(xkeysig.Attribute("duration").Value),
+                                    Value =
+                                        new KeySignature(
+                                                new PitchTransform(int.Parse(xkeysig.Element("c").Attribute("steps").Value)),
+                                                new PitchTransform(int.Parse(xkeysig.Element("d").Attribute("steps").Value)),
+                                                new PitchTransform(int.Parse(xkeysig.Element("e").Attribute("steps").Value)),
+                                                new PitchTransform(int.Parse(xkeysig.Element("f").Attribute("steps").Value)),
+                                                new PitchTransform(int.Parse(xkeysig.Element("g").Attribute("steps").Value)),
+                                                new PitchTransform(int.Parse(xkeysig.Element("a").Attribute("steps").Value)),
+                                                new PitchTransform(int.Parse(xkeysig.Element("b").Attribute("steps").Value))
+                                            )
+                                }
+                        );
+
+            foreach (var keysig in keysigs)
+                adornment.KeySignatures.Add(keysig.Value, keysig.Duration);
+
+            var staffs =
+                xadornment
+                    .Element("staffs")
+                    .Elements("staff")
+                    .Select(
+                            xstaff => {
+                                var duration =
+                                    CodeTools.ReadDuration(xstaff.Attribute("duration").Value);
+
+                                var lines =
+                                    int.Parse(xstaff.Attribute("lines").Value);
+
+                                var xclef =
+                                    xstaff.Element("clef");
+
+                                var clef =
+                                    new Clef(
+                                            (ClefSymbol)Enum.Parse(typeof(ClefSymbol), xclef.Attribute("symbol").Value),
+                                            new DiatonicTone(int.Parse(xclef.Attribute("bottom-key").Value))
+                                        );
+
+                                var staff =
+                                    new Staff(clef, lines);
+
+                                return
+                                    new DuratedItem<Staff> {
+                                        Duration = duration,
+                                        Value = staff
+                                    };
+                            }
+                        );
+
+            foreach (var staff in staffs)
+                adornment.Staffs.Add(staff.Value, staff.Duration);
 
             var memory =
                 new PerceptualMemory();
@@ -238,6 +300,52 @@ namespace MusicWriter {
                 }
 
                 xwriter.WriteEndElement(); // melody
+
+                xwriter.WriteStartElement("adornment");
+
+                xwriter.WriteStartElement("key-sigs");
+
+                foreach (var keysig in music.Adornment.KeySignatures.AllItems) {
+                    xwriter.WriteStartElement("key-sig");
+
+                    xwriter.WriteAttributeString("duration", CodeTools.WriteDuration(keysig.Duration));
+
+                    var keys = Enum.GetValues(typeof(DiatonicToneClass));
+
+                    foreach (DiatonicToneClass key in keys) {
+                        xwriter.WriteStartElement(key.ToString().ToLower());
+
+                        xwriter.WriteAttributeString("steps", keysig.Value[key].Steps.ToString());
+
+                        xwriter.WriteEndElement();
+                    }
+
+                    xwriter.WriteEndElement(); // key-sig
+                }
+
+                xwriter.WriteEndElement(); // key-sigs
+
+                xwriter.WriteStartElement("staffs");
+
+                foreach (var staff in music.Adornment.Staffs.AllItems) {
+                    xwriter.WriteStartElement("staff");
+
+                    xwriter.WriteAttributeString("duration", CodeTools.WriteDuration(staff.Duration));
+                    xwriter.WriteAttributeString("lines", staff.Value.Lines.ToString());
+
+                    xwriter.WriteStartElement("clef");
+
+                    xwriter.WriteAttributeString("symbol", staff.Value.Clef.Symbol.ToString());
+                    xwriter.WriteAttributeString("bottom-key", staff.Value.Clef.BottomKey.Tones.ToString());
+
+                    xwriter.WriteEndElement(); // clef
+
+                    xwriter.WriteEndElement(); // staff
+                }
+
+                xwriter.WriteEndElement(); // staffs
+
+                xwriter.WriteEndElement(); // adornment
 
                 xwriter.WriteEndElement(); // music-track
                 xwriter.WriteEndDocument();

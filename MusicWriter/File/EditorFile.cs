@@ -132,6 +132,7 @@ namespace MusicWriter {
         public void Load(Stream zipstream) {
             IsDirty = false;
 
+            trackmap.Clear();
             Tracks.Clear();
             Controllers.Clear();
             Screens.Clear();
@@ -151,7 +152,7 @@ namespace MusicWriter {
 
                         track.Name.Value = track_name.Key;
 
-                        Add(track);
+                        Tracks.Add(track);
                     }
                 }
 
