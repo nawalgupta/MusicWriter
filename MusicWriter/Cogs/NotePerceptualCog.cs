@@ -35,6 +35,9 @@ namespace MusicWriter {
                 (MemoryModule)
                 memory.MemoryModule<PerceptualNote>();
 
+			var measures =
+				memory.MemoryModule<Measure>();
+
             var notes =
                 memory.Analyses<Note>(duration);
             
@@ -51,7 +54,12 @@ namespace MusicWriter {
                 var cells =
                     memory.Analyses<Cell>(note.Duration);
 
-                if (singlelength.Key == default(PerceptualTime)) {
+				var measures_intersecting =
+					measures
+						.Knowledge
+						.Intersecting(note.Duration);
+				
+                if (singlelength.Key == default(PerceptualTime) || measures_intersecting.Count() > 1) {
                     var i = 0;
 
                     foreach (var cell_durateditem in cells) {
