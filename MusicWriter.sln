@@ -7,6 +7,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicWriter", "MusicWriter\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicWriter.WinForms", "MusicWriter.WinForms\MusicWriter.WinForms.csproj", "{550F014D-1E7D-43C4-BB0F-F45CADC06FBC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{BBB4344F-C4C0-42D6-A16E-B0B6A7F0E4AE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "midi", "midi", "{4EEDFE81-04BD-4D7B-A86F-F2D3E81E1AAE}"
+	ProjectSection(SolutionItems) = preProject
+		test\midi\44-up-the-scale-C.mid = test\midi\44-up-the-scale-C.mid
+		test\midi\changing-time-sigs.mid = test\midi\changing-time-sigs.mid
+		test\midi\different-time-sigs.mid = test\midi\different-time-sigs.mid
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,5 +53,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4EEDFE81-04BD-4D7B-A86F-F2D3E81E1AAE} = {BBB4344F-C4C0-42D6-A16E-B0B6A7F0E4AE}
 	EndGlobalSection
 EndGlobal
