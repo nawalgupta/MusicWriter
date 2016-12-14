@@ -30,6 +30,9 @@ namespace MusicWriter {
                 End = Time.Max(End, other.End)
             };
 
+        public bool Contains(Time time) =>
+            time >= offset && time < offset + length;
+
         public Duration Intersection(Duration duration) {
             if (Start > duration.End ||
                 End < duration.Start)

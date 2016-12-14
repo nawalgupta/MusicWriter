@@ -837,38 +837,64 @@ namespace MusicWriter.WinForms {
         }
 
         float GetLeft(Time time, MusicTrack track) {
-            var left = 0f;
+            // draw sheet items
+            var starttimes =
+                track
+                    .Memory
+                    .Analyses<RenderedSheetMusicItem>(Duration.Eternity)
+                    .Select(item => item.Duration)
+                    .Select(duration => duration.Start)
+                    .Distinct()
+                    .ToList();
 
-            foreach(var item in track.Memory.Analyses<RenderedSheetMusicItem>(new Duration { End = time })) {
-                if (item.Duration.End < time)
-                    left += itemwidths[track][item.Value];
-                else {
-                    var samepoints =
-                        track
-                            .Memory
-                            .Analyses<RenderedSheetMusicItem>(item.Duration);
+            starttimes.Sort();
 
-                    var localtime = time - item.Duration.Start;
-                    var settings =
-                        GetSettings(item.Duration.Start, track);
+            SheetMusicRenderSettings focussettings = null;
 
-                    foreach (var samepoint in samepoints) {
-                        //TODO: enforce all have same duration
-                        var itemwidth = itemwidths[track][samepoint.Value];
+            float x = 0;
 
-                        var px = samepoint.Value.PixelAtTime(localtime, itemwidth, settings);
+            if (starttimes.Count != 0) {
+                var focusstarttime = default(Time);
 
-                        if (float.IsNaN(px))
-                            left += itemwidth;
-                        else {
-                            left += px;
+                var focusitems = new List<IDuratedItem<RenderedSheetMusicItem>>();
+
+                x = GetLeft(focusstarttime);
+
+                while (x < Width) {
+                    if (focusitems.Count == 0) {
+                        if (starttimes.Count == 0)
                             break;
-                        }
+
+                        focusstarttime = starttimes[0];
+                        starttimes.RemoveAt(0);
+
+                        focusitems
+                            .AddRange(
+                                    track
+                                        .Memory
+                                        .Analyses<RenderedSheetMusicItem>(focusstarttime)
+                                );
+
+                        focusitems.Sort((a, b) => b.Value.Priority.CompareTo(a.Value.Priority));
+
+                        focussettings = GetSettings(focusstarttime, track);
                     }
+
+                    var focusitem = focusitems[0];
+                    var item = focusitem.Value;
+                    focusitems.RemoveAt(0);
+
+                    var width = itemwidths[track][item];
+
+                    if (item.Stretchy && focusitem.Duration.Contains(time))
+                        return x + item.PixelAtTime(time - focusitem.Duration.Start, width, focussettings);
+
+                    x += width;
                 }
             }
 
-            return left;
+
+            return x;
         }
 
         SheetMusicRenderSettings GetSettings(Time time, MusicTrack track) =>
@@ -924,8 +950,7 @@ namespace MusicWriter.WinForms {
                 SheetMusicRenderSettings focussettings = null;
 
                 if (starttimes.Count != 0) {
-                    var focusstarttime =
-                        starttimes[0];
+                    var focusstarttime = default(Time);
 
                     var focusitems = new List<RenderedSheetMusicItem>();
 
