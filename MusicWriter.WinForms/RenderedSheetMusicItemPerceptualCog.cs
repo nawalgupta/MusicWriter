@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static MusicWriter.TimeSignature;
 
 namespace MusicWriter.WinForms {
     public sealed class RenderedSheetMusicItemPerceptualCog :
@@ -62,14 +63,14 @@ namespace MusicWriter.WinForms {
                 flag = true;
             }
 
-            var layoutsimpletimesignatures =
-                memory.Analyses<TimeSignatureSimpleLayout>(delta);
+            var simples =
+                memory.Analyses<Simple>(delta);
 
-            foreach (var layoutsimpletimesignature in layoutsimpletimesignatures) {
-                if (memorymodule.items_timesigsimple.AnyItemIn(layoutsimpletimesignature.Duration))
+            foreach (var simple in simples) {
+                if (memorymodule.items_timesigsimple.AnyItemIn(simple.Duration))
                     continue;
-
-                memorymodule.items_timesigsimple.Add(new RenderedTimeSignatureSimple(layoutsimpletimesignature.Value), layoutsimpletimesignature.Duration);
+                
+                memorymodule.items_timesigsimple.Add(new RenderedTimeSignatureSimple(simple.Value), simple.Duration);
                 flag = true;
             }
 

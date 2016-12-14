@@ -109,7 +109,11 @@ namespace MusicWriter {
                     .End;
 
             if (end != Length.Value) {
+                //if (Length.Value > end)
+                //    memory.Forget(new Duration { Start = Length.Value, End = end });
+
                 Length.Value = end;
+
                 Dirtied?.Invoke();
             }
         }

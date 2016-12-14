@@ -471,6 +471,8 @@ namespace MusicWriter.WinForms {
                         selectionkvp.Value.Selected_Tone.Remove(noteID);
                 }
             }
+
+            Invalidate();
         }
 
         private void CommandCenter_WhenUnitPicking(CaretUnitPickerEventArgs args) {
@@ -604,7 +606,7 @@ namespace MusicWriter.WinForms {
 
         protected override void OnInvalidated(InvalidateEventArgs e) {
             foreach (var track in tracks.SpecialCollection)
-                file.Brain.Invalidate(track.Memory, Duration.Eternity);
+                file.Brain.Invalidate(track.Memory, new Duration { Length = track.Length.Value });
 
             MeasureAndLayoutTrackItems();
 
@@ -945,7 +947,7 @@ namespace MusicWriter.WinForms {
                                             .Select(focusitem => focusitem.Value)
                                     );
 
-                            focusitems.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+                            focusitems.Sort((a, b) => b.Priority.CompareTo(a.Priority));
 
                             focussettings = GetSettings(focusstarttime, track);
                             
