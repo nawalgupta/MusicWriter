@@ -202,7 +202,7 @@ namespace MusicWriter {
                                 var is1 = i == 0;
                                 var is2 = i == 1;
                                 var item = train[i];
-
+                                
                                 item.StemDirection = stemdirection;
                                 item.StemSide = stemside;
                                 item.FlagSlope = m;
@@ -218,6 +218,7 @@ namespace MusicWriter {
 
                                 if (is1 || is2)
                                     item.FlagLength /= 2F;
+                                else item.Past2nd = true;
 
                                 item.TiedFlags = item.Length.Length - LengthClass.Quarter;
                                 //TODO: also identify which are free flags

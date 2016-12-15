@@ -50,7 +50,8 @@ namespace MusicWriter.WinForms
                     chord.StemDirection,
                     chord.StemSide,
                     settings,
-                    width
+                    width,
+                    chord.Past2nd
                 );
         }
 
@@ -67,7 +68,8 @@ namespace MusicWriter.WinForms
                 NoteStemDirection stemdirection,
                 NoteStemSide side,
                 SheetMusicRenderSettings settings,
-                int width
+                int width,
+                bool past2nd
             ) {
             var diff = stemdirection == NoteStemDirection.Down ? -1 : 1;
             var dir_scale = direction == FlagDirection.Left ? -1 : 1;
@@ -76,11 +78,18 @@ namespace MusicWriter.WinForms
 
             // line / vpx -> px[y] / px[x]
             // multiply by (px/line) / (px/vpx)
-
+            
             if (side == NoteStemSide.Left)
                 startX -= settings.NoteHeadRadius;
             else if (side == NoteStemSide.Right)
                 startX += settings.NoteHeadRadius;
+
+            if(past2nd) {
+                if (side == NoteStemSide.Left)
+                    length += settings.NoteHeadRadius / width;
+                else if (side == NoteStemSide.Right)
+                    length -= settings.NoteHeadRadius / width;
+            }
 
             if (flags_tied > 0) {
                 for (int i = 0; i < flags_tied + flags_free; i++)

@@ -37,6 +37,6 @@ namespace MusicWriter.WinForms {
             (float)Math.Max(
                     Math.Ceiling(Math.Log10(simple.Upper)),
                     Math.Ceiling(Math.Log10(simple.Lower))
-                ) * settings.PixelsScale * 10F;
+                ) * settings.PixelsScale * 25F;
     }
 }
