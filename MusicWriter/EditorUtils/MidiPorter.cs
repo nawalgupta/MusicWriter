@@ -48,7 +48,7 @@ namespace MusicWriter
 										Length = length
 									};
 
-								track.Melody.AddNote(new SemiTone(e1.NoteNumber), duration);
+								track.Melody.AddNote(new SemiTone(e1.NoteNumber - 12), duration);
 
 								break;
 							}
