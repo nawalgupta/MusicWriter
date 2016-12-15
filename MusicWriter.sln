@@ -16,6 +16,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "midi", "midi", "{4EEDFE81-0
 		test\midi\different-time-sigs.mid = test\midi\different-time-sigs.mid
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{A3C9FFAD-D6D0-46AB-9B3F-9E0C0150D591}"
+	ProjectSection(SolutionItems) = preProject
+		test\files\file-2.musicwriter = test\files\file-2.musicwriter
+		test\files\first-file.musicwriter = test\files\first-file.musicwriter
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,5 +62,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4EEDFE81-04BD-4D7B-A86F-F2D3E81E1AAE} = {BBB4344F-C4C0-42D6-A16E-B0B6A7F0E4AE}
+		{A3C9FFAD-D6D0-46AB-9B3F-9E0C0150D591} = {BBB4344F-C4C0-42D6-A16E-B0B6A7F0E4AE}
 	EndGlobalSection
 EndGlobal

@@ -64,7 +64,7 @@ namespace MusicWriter {
                 simplescircle.Add(
                         simple,
                         new Duration {
-                            Length = simple.Length,
+                            Start = offset,
                             End = offset += simple.Length
                         }
                     );

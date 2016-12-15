@@ -62,7 +62,7 @@ namespace MusicWriter.WinForms {
 
                         var rect_tail =
                             new RectangleF(
-                                    x + width - 2 * settings.ThumbMarginX,
+                                    x + w - 2 * settings.ThumbMarginX,
                                     boxy - settings.PixelsPerHalfLine / 2,
                                     2 * settings.ThumbMarginX,
                                     settings.PixelsPerHalfLine

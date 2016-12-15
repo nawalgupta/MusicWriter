@@ -37,7 +37,7 @@ namespace MusicWriter {
                     .Add(
                             cell,
                             new Duration {
-                                Length = cell.Length,
+                                Start = offset,
                                 End = offset += cell.Length
                             }
                         );

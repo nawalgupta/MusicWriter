@@ -73,7 +73,7 @@ namespace MusicWriter {
                 ToVirtualPX(note.Duration.Start - duration.Start);
 
             var width =
-                ToVirtualPX(note.Duration.Length);
+                ToVirtualPX(note.Note.Duration.Length);
 
             return
                 new NoteLayout(
