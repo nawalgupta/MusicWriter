@@ -129,7 +129,7 @@
             this.mnuFileNew.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.mnuFileNew.Name = "mnuFileNew";
             this.mnuFileNew.ShortcutKeyDisplayString = "Ctrl+N";
-            this.mnuFileNew.Size = new System.Drawing.Size(179, 22);
+            this.mnuFileNew.Size = new System.Drawing.Size(185, 22);
             this.mnuFileNew.Text = "&New";
             this.mnuFileNew.Click += new System.EventHandler(this.mnuFileNew_Click);
             // 
@@ -139,7 +139,7 @@
             this.mnuFileOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.mnuFileOpen.Name = "mnuFileOpen";
             this.mnuFileOpen.ShortcutKeyDisplayString = "Ctrl+O";
-            this.mnuFileOpen.Size = new System.Drawing.Size(179, 22);
+            this.mnuFileOpen.Size = new System.Drawing.Size(185, 22);
             this.mnuFileOpen.Text = "&Open";
             this.mnuFileOpen.Click += new System.EventHandler(this.mnuFileOpen_Click);
             // 
@@ -148,7 +148,7 @@
             this.mnuFileOpenRecent.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuFileOpenRecentPlaceholder});
             this.mnuFileOpenRecent.Name = "mnuFileOpenRecent";
-            this.mnuFileOpenRecent.Size = new System.Drawing.Size(179, 22);
+            this.mnuFileOpenRecent.Size = new System.Drawing.Size(185, 22);
             this.mnuFileOpenRecent.Text = "Open &Recent";
             this.mnuFileOpenRecent.DropDownOpening += new System.EventHandler(this.mnuFileOpenRecent_DropDownOpening);
             // 
@@ -161,14 +161,15 @@
             // mnuFileImport
             // 
             this.mnuFileImport.Name = "mnuFileImport";
-            this.mnuFileImport.Size = new System.Drawing.Size(179, 22);
+            this.mnuFileImport.ShortcutKeyDisplayString = "Ctrl+Alt+O";
+            this.mnuFileImport.Size = new System.Drawing.Size(185, 22);
             this.mnuFileImport.Text = "I&mport...";
             this.mnuFileImport.Click += new System.EventHandler(this.mnuFileImport_Click);
             // 
             // mnuFileSeparator1
             // 
             this.mnuFileSeparator1.Name = "mnuFileSeparator1";
-            this.mnuFileSeparator1.Size = new System.Drawing.Size(176, 6);
+            this.mnuFileSeparator1.Size = new System.Drawing.Size(182, 6);
             // 
             // mnuFileSave
             // 
@@ -176,14 +177,14 @@
             this.mnuFileSave.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.mnuFileSave.Name = "mnuFileSave";
             this.mnuFileSave.ShortcutKeyDisplayString = "Ctrl+S";
-            this.mnuFileSave.Size = new System.Drawing.Size(179, 22);
+            this.mnuFileSave.Size = new System.Drawing.Size(185, 22);
             this.mnuFileSave.Text = "&Save";
             this.mnuFileSave.Click += new System.EventHandler(this.mnuFileSave_Click);
             // 
             // mnuFileSaveAs
             // 
             this.mnuFileSaveAs.Name = "mnuFileSaveAs";
-            this.mnuFileSaveAs.Size = new System.Drawing.Size(179, 22);
+            this.mnuFileSaveAs.Size = new System.Drawing.Size(185, 22);
             this.mnuFileSaveAs.Text = "Save &As";
             this.mnuFileSaveAs.Click += new System.EventHandler(this.mnuFileSaveAs_Click);
             // 
@@ -191,14 +192,14 @@
             // 
             this.mnuFileExport.Name = "mnuFileExport";
             this.mnuFileExport.ShortcutKeyDisplayString = "Ctrl+Alt+S";
-            this.mnuFileExport.Size = new System.Drawing.Size(179, 22);
+            this.mnuFileExport.Size = new System.Drawing.Size(185, 22);
             this.mnuFileExport.Text = "E&xport...";
             this.mnuFileExport.Click += new System.EventHandler(this.mnuFileExport_Click);
             // 
             // mnuFileSeparator2
             // 
             this.mnuFileSeparator2.Name = "mnuFileSeparator2";
-            this.mnuFileSeparator2.Size = new System.Drawing.Size(176, 6);
+            this.mnuFileSeparator2.Size = new System.Drawing.Size(182, 6);
             // 
             // mnuFilePrint
             // 
@@ -206,7 +207,7 @@
             this.mnuFilePrint.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.mnuFilePrint.Name = "mnuFilePrint";
             this.mnuFilePrint.ShortcutKeyDisplayString = "Ctrl+P";
-            this.mnuFilePrint.Size = new System.Drawing.Size(179, 22);
+            this.mnuFilePrint.Size = new System.Drawing.Size(185, 22);
             this.mnuFilePrint.Text = "&Print";
             this.mnuFilePrint.Click += new System.EventHandler(this.mnuFilePrint_Click);
             // 
@@ -215,20 +216,20 @@
             this.mnuFilePrintPreview.Image = ((System.Drawing.Image)(resources.GetObject("mnuFilePrintPreview.Image")));
             this.mnuFilePrintPreview.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.mnuFilePrintPreview.Name = "mnuFilePrintPreview";
-            this.mnuFilePrintPreview.Size = new System.Drawing.Size(179, 22);
+            this.mnuFilePrintPreview.Size = new System.Drawing.Size(185, 22);
             this.mnuFilePrintPreview.Text = "Print Pre&view";
             this.mnuFilePrintPreview.Click += new System.EventHandler(this.mnuFilePrintPreview_Click);
             // 
             // mnuFileSeparator3
             // 
             this.mnuFileSeparator3.Name = "mnuFileSeparator3";
-            this.mnuFileSeparator3.Size = new System.Drawing.Size(176, 6);
+            this.mnuFileSeparator3.Size = new System.Drawing.Size(182, 6);
             // 
             // mnuFileExit
             // 
             this.mnuFileExit.Name = "mnuFileExit";
             this.mnuFileExit.ShortcutKeyDisplayString = "Alt+F4";
-            this.mnuFileExit.Size = new System.Drawing.Size(179, 22);
+            this.mnuFileExit.Size = new System.Drawing.Size(185, 22);
             this.mnuFileExit.Text = "E&xit";
             this.mnuFileExit.Click += new System.EventHandler(this.mnuFileExit_Click);
             // 
