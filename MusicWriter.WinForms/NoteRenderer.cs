@@ -42,6 +42,7 @@ namespace MusicWriter.WinForms
                     color,
                     x,
                     chord.FlagDirection,
+                    chord,
                     chord.FlagLength,
                     settings.YVal(chord.StemStartHalfLines),
                     chord.FlagSlope,
@@ -60,6 +61,7 @@ namespace MusicWriter.WinForms
                 Color color,
                 float x,
                 FlagDirection direction,
+                ChordLayout chord,
                 float length,
                 float y_start,
                 float slope,
@@ -92,7 +94,7 @@ namespace MusicWriter.WinForms
             }
 
             if (flags_tied > 0) {
-                for (int i = 0; i < flags_tied + flags_free; i++)
+                for (int i = 0; i < flags_tied + flags_free; i++) {
                     gfx.DrawLine(
                             new Pen(color, 5.0f),
                             startX,
@@ -100,6 +102,13 @@ namespace MusicWriter.WinForms
                             x + length * dir_scale * width,
                             y_start + diff * i * settings.LinesBetweenFlags * settings.PixelsPerLine + 0.5f * (slope * settings.PixelsPerLine) * ((startX - (x + length * dir_scale * width)) / width)
                         );
+
+                    if (i == flags_free && past2nd) {
+                        if (chord.LastLengthClass < chord.Length.Length) {
+                            length /= 2f;
+                        }
+                    }
+                }
             }
             else if (flags_free > 0) {
                 for (int i = 0; i < flags_free; i++)

@@ -38,6 +38,7 @@ namespace MusicWriter {
         public float FlagLength { get; set; }
         public FlagDirection FlagDirection { get; set; }
         public bool Past2nd { get; set; } = false;
+        public LengthClass LastLengthClass { get; set; }
 
         public ChordLayout(params NoteLayout[] notes) {
             this.notes = notes;

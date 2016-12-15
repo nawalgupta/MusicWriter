@@ -198,6 +198,7 @@ namespace MusicWriter {
                             if (stemdirection == NoteStemDirection.Down)
                                 stemoffset *= -1;
 
+                            LengthClass lastlengthclass = LengthClass.Invalid;
                             for (var i = 0; i < train.Count; i++) {
                                 var is1 = i == 0;
                                 var is2 = i == 1;
@@ -206,6 +207,8 @@ namespace MusicWriter {
                                 item.StemDirection = stemdirection;
                                 item.StemSide = stemside;
                                 item.FlagSlope = m;
+                                item.LastLengthClass = lastlengthclass;
+                                lastlengthclass = item.Length.Length;
 
                                 if (is1) {
                                     item.FlagDirection = FlagDirection.Right;
