@@ -31,7 +31,7 @@ namespace MusicWriter {
         }
 
         public Time UnitLength {
-            get { return commandcenter.PickCaretUnit().Value; }
+            get { return commandcenter.PickCaretUnit().GetValueOrDefault(); }
         }
 
         public InputController(

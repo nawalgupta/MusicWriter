@@ -101,6 +101,9 @@ namespace MusicWriter
 
         public void Delegate_CaretUnitPicking(CaretUnitPickerEventArgs args) =>
             Do(() => {
+                if (WhenUnitPicking == null)
+                    return;
+
                 foreach (CaretUnitPickerDelegate invoc in WhenUnitPicking.GetInvocationList()) {
                     invoc(args);
 
