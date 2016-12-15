@@ -712,6 +712,7 @@ namespace MusicWriter.WinForms {
                                                     .Max()
                                             }
                                         )
+                                    .Distinct()
                         );
 
             var samepoints =
