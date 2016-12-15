@@ -149,7 +149,7 @@ namespace MusicWriter {
                 var step0 = modesteps[0];
                 for (int i = 1; i < modesteps.Length; i++)
                     modesteps[i - 1] = modesteps[i];
-                modesteps[modesteps.Length] = step0;
+                modesteps[modesteps.Length - 1] = step0;
 
                 mode_copy = (Mode)((int)mode_copy - 1);
             }
@@ -160,7 +160,7 @@ namespace MusicWriter {
                 var step0 = keysteps[0];
                 for (int i = 1; i < keysteps.Length; i++)
                     keysteps[i - 1] = keysteps[i];
-                keysteps[keysteps.Length] = step0;
+                keysteps[keysteps.Length - 1] = step0;
 
                 key_copy = (DiatonicToneClass)((int)key_copy - 1);
             }

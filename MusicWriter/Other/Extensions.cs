@@ -188,5 +188,22 @@ namespace MusicWriter {
 
             field.Add(item, duration);
         }
+
+        public static void OverwriteEverythingToRight<T>(
+                this DurationField<T> field,
+                T item,
+                Time start
+            ) =>
+            ScootAndOverwrite(
+                    field,
+                    item,
+                    new Duration {
+                        Start = start,
+                        End =
+                            field
+                                .Intersecting(start)
+                                .Max(item2 => item2.Duration.End)
+                    }
+                );
     }
 }

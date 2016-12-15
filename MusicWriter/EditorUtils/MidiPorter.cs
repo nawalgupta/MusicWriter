@@ -79,9 +79,50 @@ namespace MusicWriter
 
 										break;
 
-									case MetaEventType.KeySignature:
+									case MetaEventType.KeySignature: {
+                                            var keysigevent = (KeySignatureEvent)meta;
 
-										break;
+                                            var circle5index = (sbyte)keysigevent.SharpsFlats;
+
+                                            Mode mode;
+
+                                            switch (keysigevent.MajorMinor) {
+                                                case 1:
+                                                    mode = Mode.Major;
+                                                    break;
+
+                                                case 0:
+                                                    mode = Mode.Minor;
+                                                    break;
+
+                                                default:
+                                                    throw new InvalidOperationException();
+                                            }
+
+                                            PitchTransform transform;
+                                            var key =
+                                                CircleOfFifths.Index(circle5index, ChromaticPitchClass.C, out transform);
+
+                                            var sig =
+                                                KeySignature.Create(
+                                                        key,
+                                                        transform,
+                                                        mode
+                                                    );
+
+                                            var start =
+                                                ImportTime(keysigevent.AbsoluteTime, midifile);
+
+                                            track
+                                                .Adornment
+                                                .KeySignatures
+                                                .OverwriteEverythingToRight(
+                                                        sig,
+                                                        start
+                                                    );
+
+                                            break;
+                                        }
 
 									case MetaEventType.Lyric:
 
@@ -135,16 +176,13 @@ namespace MusicWriter
 															timesigevent.Denominator
 														)
 												);
-
+                                        
 										track
 											.Rhythm
 											.TimeSignatures
-											.ScootAndOverwrite(
+											.OverwriteEverythingToRight(
 													timesig,
-													new Duration {
-														Start = ImportTime(timesigevent.AbsoluteTime, midifile),
-														Length = Time.Eternity
-													}
+                                                    ImportTime(timesigevent.AbsoluteTime, midifile)
 												);
 
 										break;

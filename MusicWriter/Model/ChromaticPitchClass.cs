@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public enum ChromaticPitchClass : byte {
+    public enum ChromaticPitchClass : sbyte {
         C = 0,
         Dflat,
         D,

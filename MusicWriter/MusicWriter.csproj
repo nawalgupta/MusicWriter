@@ -59,6 +59,7 @@
     <Compile Include="Input\ToneChangedDelegate.cs" />
     <Compile Include="Metadata\IMemoryModule.cs" />
     <Compile Include="Metadata\PerceptualMemory.cs" />
+    <Compile Include="Model\CircleOfFifths.cs" />
     <Compile Include="MusicTrack\AdornmentTrack.cs" />
     <Compile Include="Fields\AggregateDurationField.cs" />
     <Compile Include="Model\Cell.cs" />
