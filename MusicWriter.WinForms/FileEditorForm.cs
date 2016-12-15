@@ -194,7 +194,7 @@ namespace MusicWriter.WinForms {
             mnuHeaderRenameBox.Text = ActiveScreen.Name.Value;
             ActiveScreen.Name.AfterChange += ActiveScreen_Name_AfterChange;
         }
-
+            
         private void mnuHeader_Closing(object sender, ToolStripDropDownClosingEventArgs e) {
             ActiveScreen.Name.AfterChange -= ActiveScreen_Name_AfterChange;
         }

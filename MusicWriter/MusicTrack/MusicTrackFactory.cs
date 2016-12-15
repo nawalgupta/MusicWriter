@@ -119,9 +119,6 @@ namespace MusicWriter {
             var melody =
                 new MelodyTrack(next_noteID);
 
-            foreach (var note in notes)
-                melody.AddNote(note);
-
             var xadornment =
                 xroot.Element("adornment");
 
@@ -198,6 +195,9 @@ namespace MusicWriter {
                         memory,
                         propertygraphlet
                     );
+
+            foreach (var note in notes)
+                melody.AddNote(note);
 
             memory.InsertMemoryModule(new EditableMemoryModule<NoteLayout>());
             memory.InsertMemoryModule(new EditableMemoryModule<ChordLayout>());

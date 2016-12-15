@@ -43,6 +43,8 @@ namespace MusicWriter {
             notes_lookup.Add(note.ID, note);
 
             next_noteID = Math.Max(next_noteID, note.ID.ID + 1);
+
+            FieldChanged?.Invoke();
         }
 
         public Note AddNote(SemiTone tone, Duration duration) {
