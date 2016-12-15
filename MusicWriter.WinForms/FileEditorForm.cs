@@ -187,17 +187,7 @@ namespace MusicWriter.WinForms {
                 file.Load(stream);
             }
 
-            if (Settings.Default.RecentFiles == null)
-                Settings.Default.RecentFiles = new StringCollection();
-
-            Settings
-                .Default
-                .RecentFiles
-                .Add(filename);
-
-            Settings
-                .Default
-                .Save();
+            RecentFiles.AddRecent(filepath);
         }
 
         private void mnuHeader_Opening(object sender, CancelEventArgs e) {
@@ -276,6 +266,8 @@ namespace MusicWriter.WinForms {
             else {
                 using (var stream = new FileStream(filepath, FileMode.Create)) {
                     file.Save(stream);
+
+                    RecentFiles.AddRecent(filepath);
                 }
             }
         }
