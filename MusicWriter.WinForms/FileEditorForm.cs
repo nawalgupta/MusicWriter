@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MusicWriter.WinForms.Properties;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -6,6 +7,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -178,6 +180,26 @@ namespace MusicWriter.WinForms {
             tabScreens.Controls.Remove(tab);
         }
 
+        void OpenFile(string filename) {
+            filepath = filename;
+
+            using (var stream = File.OpenRead(filepath)) {
+                file.Load(stream);
+            }
+
+            if (Settings.Default.RecentFiles == null)
+                Settings.Default.RecentFiles = new StringCollection();
+
+            Settings
+                .Default
+                .RecentFiles
+                .Add(filename);
+
+            Settings
+                .Default
+                .Save();
+        }
+
         private void mnuHeader_Opening(object sender, CancelEventArgs e) {
             mnuHeaderRenameBox.Text = ActiveScreen.Name.Value;
             ActiveScreen.Name.AfterChange += ActiveScreen_Name_AfterChange;
@@ -215,7 +237,37 @@ namespace MusicWriter.WinForms {
 		private void mnuFileOpen_Click(object sender, EventArgs e) =>
 			diagOpenFile.ShowDialog(this);
 
-		private void mnuFileOpenImport_Click(object sender, EventArgs e) =>
+        private void mnuFileOpenRecent_DropDownOpening(object sender, EventArgs e) {
+            var files =
+                Settings
+                    .Default
+                    .RecentFiles;
+
+            mnuFileOpenRecent.DropDownItems.Clear();
+
+            if (files != null) {
+                foreach (var file in files) {
+                    var menuitem =
+                        new ToolStripMenuItem();
+
+                    menuitem.Text = Path.GetFileName(file);
+                    menuitem.ToolTipText = file;
+                    menuitem.Click += mnuFileOpenRecent_FileClicked;
+                    menuitem.Tag = file;
+
+                    mnuFileOpenRecent.DropDownItems.Add(menuitem);
+                }
+            }
+        }
+
+        private void mnuFileOpenRecent_FileClicked(object sender, EventArgs e) {
+            var menuitem = (ToolStripMenuItem)sender;
+            var file = (string)menuitem.Tag;
+
+            OpenFile(file);
+        }
+        
+		private void mnuFileImport_Click(object sender, EventArgs e) =>
 			diagOpenImportFile.ShowDialog(this);
 
         private void mnuFileSave_Click(object sender, EventArgs e) {
@@ -233,6 +285,10 @@ namespace MusicWriter.WinForms {
 
 		private void mnuFileSaveExport_Click(object sender, EventArgs e) =>
 			diagSaveExportFile.ShowDialog(this);
+
+        private void mnuFileExport_Click(object sender, EventArgs e) {
+
+        }
 
         private void mnuFilePrint_Click(object sender, EventArgs e) {
 
@@ -336,13 +392,8 @@ namespace MusicWriter.WinForms {
             mnuFileSave_Click(sender, e);
         }
 
-        private void diagOpenFile_FileOk(object sender, CancelEventArgs e) {
-            filepath = diagOpenFile.FileName;
-
-            using (var stream = diagOpenFile.OpenFile()) {
-                file.Load(stream);
-            }
-        }
+        private void diagOpenFile_FileOk(object sender, CancelEventArgs e) =>
+            OpenFile(diagOpenFile.FileName);
 
 		private void diagSaveExportFile_FileOk(object sender, CancelEventArgs e) {
 			var porter = file.Capabilities.Porters[diagSaveExportFile.FilterIndex - 1];
@@ -355,5 +406,5 @@ namespace MusicWriter.WinForms {
 
 			porter.Import(file, diagOpenImportFile.FileName);
 		}
-	}
+    }
 }
