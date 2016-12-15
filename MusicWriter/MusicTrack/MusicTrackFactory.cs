@@ -24,9 +24,6 @@ namespace MusicWriter {
 			MusicTrack.Create();
 
         public ITrack Load(Stream stream) {
-            var melody =
-                new MelodyTrack();
-
             var rhythm =
                 new RhythmTrack();
 
@@ -101,9 +98,11 @@ namespace MusicWriter {
                     .MeterSignatures
                     .Add(metersig.Value, metersig.Duration);
 
+            var xmelody =
+                xroot.Element("melody");
+
             var notes =
-                xroot
-                    .Element("melody")
+                xmelody
                     .Elements("note")
                     .Select(
                             xnote =>
@@ -113,6 +112,12 @@ namespace MusicWriter {
                                         new SemiTone(int.Parse(xnote.Attribute("tone").Value))
                                     )
                         );
+
+            var next_noteID =
+                int.Parse(xmelody.Attribute("next_noteID").Value);
+
+            var melody =
+                new MelodyTrack(next_noteID);
 
             foreach (var note in notes)
                 melody.AddNote(note);
@@ -262,6 +267,8 @@ namespace MusicWriter {
                 xwriter.WriteEndElement(); // rhythm
 
                 xwriter.WriteStartElement("melody");
+
+                xwriter.WriteAttributeString("next_noteID", music.Melody.Next_NoteID.ToString());
 
                 foreach(var note in music.Melody.AllNotes()) {
                     xwriter.WriteStartElement("note");

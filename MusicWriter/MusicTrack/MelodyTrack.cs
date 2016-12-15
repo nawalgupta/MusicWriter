@@ -10,13 +10,21 @@ namespace MusicWriter {
         IDurationField<Note> {
         readonly DurationField<NoteID> notes_field = new DurationField<NoteID>();
         readonly Dictionary<NoteID, Note> notes_lookup = new Dictionary<NoteID, Note>();
-        int next_noteID = 0;
+        int next_noteID;
+
+        public int Next_NoteID {
+            get { return next_noteID; }
+        }
 
         public event Action FieldChanged;
 
         public Note this[NoteID noteID] {
             get { return notes_lookup[noteID]; }
             set { UpdateNote(noteID, value.Duration, value.Tone); }
+        }
+
+        public MelodyTrack(int next_noteID = 0) {
+            this.next_noteID = next_noteID;
         }
 
         public IEnumerable<Note> NotesInTime(Duration duration) =>
@@ -34,7 +42,7 @@ namespace MusicWriter {
             notes_field.Add(note.ID, note.Duration);
             notes_lookup.Add(note.ID, note);
 
-            next_noteID = Math.Max(next_noteID, note.ID.ID);
+            next_noteID = Math.Max(next_noteID, note.ID.ID + 1);
         }
 
         public Note AddNote(SemiTone tone, Duration duration) {
