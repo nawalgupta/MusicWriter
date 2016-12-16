@@ -49,6 +49,7 @@
     <Compile Include="Functions\GloballyPerspectiveFunction.cs" />
     <Compile Include="Functions\IDirectlyIntegratableFunction.cs" />
     <Compile Include="Functions\IFunction.cs" />
+    <Compile Include="Functions\PolylineFunction.cs" />
     <Compile Include="Functions\PolynomialFunction.cs" />
     <Compile Include="Functions\StepwiseIntegratedFunction.cs" />
     <Compile Include="Grouping\Pin.cs" />

@@ -25,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{A3C9FFAD
 		test\files\first-file.musicwriter = test\files\first-file.musicwriter
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicWriter.Tests", "MusicWriter.Tests\MusicWriter.Tests.csproj", "{BE707C35-0227-4137-B0AD-2A7FB481EA81}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,18 @@ Global
 		{550F014D-1E7D-43C4-BB0F-F45CADC06FBC}.Release|x64.Build.0 = Release|Any CPU
 		{550F014D-1E7D-43C4-BB0F-F45CADC06FBC}.Release|x86.ActiveCfg = Release|Any CPU
 		{550F014D-1E7D-43C4-BB0F-F45CADC06FBC}.Release|x86.Build.0 = Release|Any CPU
+		{BE707C35-0227-4137-B0AD-2A7FB481EA81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE707C35-0227-4137-B0AD-2A7FB481EA81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE707C35-0227-4137-B0AD-2A7FB481EA81}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BE707C35-0227-4137-B0AD-2A7FB481EA81}.Debug|x64.Build.0 = Debug|Any CPU
+		{BE707C35-0227-4137-B0AD-2A7FB481EA81}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BE707C35-0227-4137-B0AD-2A7FB481EA81}.Debug|x86.Build.0 = Debug|Any CPU
+		{BE707C35-0227-4137-B0AD-2A7FB481EA81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE707C35-0227-4137-B0AD-2A7FB481EA81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE707C35-0227-4137-B0AD-2A7FB481EA81}.Release|x64.ActiveCfg = Release|Any CPU
+		{BE707C35-0227-4137-B0AD-2A7FB481EA81}.Release|x64.Build.0 = Release|Any CPU
+		{BE707C35-0227-4137-B0AD-2A7FB481EA81}.Release|x86.ActiveCfg = Release|Any CPU
+		{BE707C35-0227-4137-B0AD-2A7FB481EA81}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
