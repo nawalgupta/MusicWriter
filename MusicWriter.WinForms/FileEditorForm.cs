@@ -417,15 +417,25 @@ namespace MusicWriter.WinForms {
             OpenFile(diagOpenFile.FileName);
 
 		private void diagSaveExportFile_FileOk(object sender, CancelEventArgs e) {
-			var porter = file.Capabilities.Porters[diagSaveExportFile.FilterIndex - 1];
+			var porter = file.Capabilities.Porters[diagSaveExportFile.FilterIndex];
 
-			porter.Export(file, diagSaveExportFile.FileName);
+            var options =
+                new PorterOptions {
+                    PortTempo = true
+                };
+
+			porter.Export(file, diagSaveExportFile.FileName, options);
 		}
 
 		private void diagOpenImportFile_FileOk(object sender, CancelEventArgs e) {
 			var porter = file.Capabilities.Porters[diagSaveExportFile.FilterIndex];
 
-			porter.Import(file, diagOpenImportFile.FileName);
+            var options =
+                new PorterOptions {
+                    PortTempo = true
+                };
+
+            porter.Import(file, diagOpenImportFile.FileName, options);
 		}
     }
 }

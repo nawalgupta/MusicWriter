@@ -18,12 +18,20 @@ namespace MusicWriter
 			get { return "*.mid"; }
 		}
 
-		public void Export<View>(EditorFile<View> editor, string filename) {
+		public void Export<View>(
+                EditorFile<View> editor,
+                string filename,
+                PorterOptions options
+            ) {
 			throw new NotImplementedException();
 		}
 
-		public void Import<View>(EditorFile<View> editor, string filename) {
-			var midifile = new MidiFile(filename);
+		public void Import<View>(
+                EditorFile<View> editor,
+                string filename,
+                PorterOptions options
+            ) {
+			var midifile = new MidiFile(filename, false);
 
 			for (int track_index = 0; track_index < midifile.Tracks; track_index++) {
 				var events = midifile.Events.GetTrackEvents(track_index);
@@ -155,9 +163,21 @@ namespace MusicWriter
 											break;
 										}
 
-									case MetaEventType.SetTempo:
+									case MetaEventType.SetTempo: 
+                                        var tempoevent = meta as TempoEvent;
+                                        // Can midi files have linear varying tempos?
+                                        // if so, then this code doesn't handle all midis.
 
-										break;
+                                        if (options.PortTempo) {
+                                            editor
+                                                .Tempo
+                                                .AddConstant(
+                                                        ImportTime(tempoevent.AbsoluteTime, midifile),
+                                                        60 / (float)tempoevent.Tempo
+                                                    );
+                                        }
+
+                                        break;
 
 									case MetaEventType.SmpteOffset:
 

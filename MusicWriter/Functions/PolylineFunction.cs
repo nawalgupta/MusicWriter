@@ -20,6 +20,18 @@ namespace MusicWriter
             Add(Time.Zero, constant);
         }
 
+        public void AddConstant(Time t, float value) {
+            var i = bsearch_time_left(t);
+
+            times.Insert(i + 1, t);
+            values.Insert(i + 1, value);
+
+            if (i > 0 && times[i] < t - Time.Note_128th_3rd_5th_7th) {
+                times.Insert(i + 1, t - Time.Note_128th_3rd_5th_7th);
+                values.Insert(i + 1, values[i]);
+            }
+        }
+
         public void Add(Time t, float value) {
             var i_left = bsearch_time_left(t);
 

@@ -12,11 +12,15 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "midi", "midi", "{4EEDFE81-04BD-4D7B-A86F-F2D3E81E1AAE}"
 	ProjectSection(SolutionItems) = preProject
 		test\midi\44-up-the-scale-C.mid = test\midi\44-up-the-scale-C.mid
+		test\midi\Beeth7th2.mid = test\midi\Beeth7th2.mid
 		test\midi\change-in-bpm.mid = test\midi\change-in-bpm.mid
 		test\midi\changing-key-sigs.mid = test\midi\changing-key-sigs.mid
 		test\midi\changing-time-sigs.mid = test\midi\changing-time-sigs.mid
 		test\midi\different-time-sigs.mid = test\midi\different-time-sigs.mid
+		test\midi\FugueGM.Mid = test\midi\FugueGM.Mid
 		test\midi\modes.mid = test\midi\modes.mid
+		test\midi\Sonata-c.Mid = test\midi\Sonata-c.Mid
+		test\midi\TurkishMarch.mid = test\midi\TurkishMarch.mid
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{A3C9FFAD-D6D0-46AB-9B3F-9E0C0150D591}"

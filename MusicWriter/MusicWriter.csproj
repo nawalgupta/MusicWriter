@@ -38,6 +38,7 @@
     <Compile Include="EditorUtils\IPorter.cs" />
     <Compile Include="EditorUtils\MidiPorter.cs" />
     <Compile Include="EditorUtils\NoteSelection.cs" />
+    <Compile Include="EditorUtils\PorterOptions.cs" />
     <Compile Include="File\FileCapabilities.cs" />
     <Compile Include="File\ITrack.cs" />
     <Compile Include="EditorUtils\ITrackController.cs" />

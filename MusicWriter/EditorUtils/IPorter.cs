@@ -12,8 +12,16 @@ namespace MusicWriter
 
 		string FileExtension { get; }
 
-		void Import<View>(EditorFile<View> editor, string filename);
+		void Import<View>(
+                EditorFile<View> editor,
+                string filename,
+                PorterOptions options
+            );
 
-		void Export<View>(EditorFile<View> editor, string filename);
+		void Export<View>(
+                EditorFile<View> editor,
+                string filename,
+                PorterOptions options
+            );
 	}
 }
