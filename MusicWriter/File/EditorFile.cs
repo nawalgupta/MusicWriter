@@ -13,6 +13,7 @@ namespace MusicWriter {
         readonly MusicBrain brain = new MusicBrain();
         readonly Dictionary<string, ITrack> trackmap =
             new Dictionary<string, ITrack>();
+        readonly PolylineFunction tempo = new PolylineFunction(2); // 120 bpm
 
         public ObservableCollection<ITrack> Tracks { get; } =
             new ObservableCollection<ITrack>();
@@ -27,6 +28,10 @@ namespace MusicWriter {
             new FileCapabilities<View>();
 
         public bool IsDirty { get; private set; } = false;
+
+        public PolylineFunction Tempo {
+            get { return tempo; }
+        }
 
         public ITrack this[string name] {
             get { return trackmap[name]; }

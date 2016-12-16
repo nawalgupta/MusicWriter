@@ -13,6 +13,13 @@ namespace MusicWriter
         readonly List<float> values =
             new List<float>();
 
+        public PolylineFunction() {
+        }
+
+        public PolylineFunction(float constant) {
+            Add(Time.Zero, constant);
+        }
+
         public void Add(Time t, float value) {
             var i_left = bsearch_time_left(t);
 
