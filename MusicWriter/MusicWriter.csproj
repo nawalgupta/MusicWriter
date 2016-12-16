@@ -44,6 +44,13 @@
     <Compile Include="EditorUtils\ITrackControllerFactory.cs" />
     <Compile Include="File\ITrackFactory.cs" />
     <Compile Include="File\TrackControllerHints.cs" />
+    <Compile Include="Functions\FunctionCall.cs" />
+    <Compile Include="Functions\FunctionIntegrator.cs" />
+    <Compile Include="Functions\GloballyPerspectiveFunction.cs" />
+    <Compile Include="Functions\IDirectlyIntegratableFunction.cs" />
+    <Compile Include="Functions\IFunction.cs" />
+    <Compile Include="Functions\PolynomialFunction.cs" />
+    <Compile Include="Functions\StepwiseIntegratedFunction.cs" />
     <Compile Include="Grouping\Pin.cs" />
     <Compile Include="Grouping\PinMode.cs" />
     <Compile Include="File\Screen.cs" />
