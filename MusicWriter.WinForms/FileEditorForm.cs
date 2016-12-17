@@ -29,7 +29,7 @@ namespace MusicWriter.WinForms {
 
         public FileEditorForm() {
             InitializeComponent();
-
+            
             shortcutter.Menu = mnuMainMenu;
             inputcontroller = new InputController(commandcenter);
             file.Screens.CollectionChanged += Screens_CollectionChanged;
@@ -138,6 +138,27 @@ namespace MusicWriter.WinForms {
                 mnuFileExport.DropDownItems.Add(mnuFileExportPorter);
             }
 		}
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
+            switch (keyData) {
+                case Keys.Left:
+                case Keys.Right:
+                case Keys.Up:
+                case Keys.Down:
+
+                case Keys.Shift | Keys.Left:
+                case Keys.Shift | Keys.Right:
+                case Keys.Shift | Keys.Up:
+                case Keys.Shift | Keys.Down:
+                    // for some reason, the arrow keys aren't fired when a controller is open
+                    if (ActiveScreen?.Controllers.Any() ?? false)
+                        OnKeyDown(new KeyEventArgs(keyData));
+
+                    break;
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
 
         List<Keys> keys_pressed = new List<Keys>();
         protected override void OnKeyDown(KeyEventArgs e) {
@@ -437,5 +458,9 @@ namespace MusicWriter.WinForms {
 
             porter.Import(file, diagOpenImportFile.FileName, options);
 		}
+
+        private void FileEditorForm_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e) {
+
+        }
     }
 }

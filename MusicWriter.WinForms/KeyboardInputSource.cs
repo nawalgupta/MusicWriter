@@ -37,7 +37,7 @@ namespace MusicWriter.WinForms
         Keys dragging_key2 = default(Keys);
 
         public void OnKeyDown(KeyEventArgs e) {
-            if (e.Alt) {
+            if (e.Shift) {
                 // shift by semitones
 
                 if (e.KeyCode == Keys.Down) {

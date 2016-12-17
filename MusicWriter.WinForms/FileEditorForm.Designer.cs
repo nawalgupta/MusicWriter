@@ -591,6 +591,7 @@
             this.Name = "FileEditorForm";
             this.Text = "Music Writer";
             this.Load += new System.EventHandler(this.MainForm_Load);
+            this.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.FileEditorForm_PreviewKeyDown);
             this.mnuMainMenu.ResumeLayout(false);
             this.mnuMainMenu.PerformLayout();
             this.mnuHeader.ResumeLayout(false);
