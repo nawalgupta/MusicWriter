@@ -12,6 +12,10 @@ namespace MusicWriter
         public List<NoteID> Selected_End { get; } = new List<NoteID>();
         public List<NoteID> Selected_Tone { get; } = new List<NoteID>();
 
+        public IEnumerable<NoteID> Selected_NoteIDs {
+            get { return Selected_End.Concat(Selected_Start).Concat(Selected_Tone); }
+        }
+
         readonly Dictionary<NoteID, Time> backups_start = new Dictionary<NoteID, Time>();
         readonly Dictionary<NoteID, Time> backups_end = new Dictionary<NoteID, Time>();
         readonly Dictionary<NoteID, SemiTone> backups_tone = new Dictionary<NoteID, SemiTone>();

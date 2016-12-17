@@ -31,6 +31,22 @@ namespace MusicWriter {
             }
         }
 
+        public void Invalidate<T>(
+                PerceptualMemory memory,
+                Duration duration
+            ) {
+            memory.Forget<T>(duration);
+
+            bool flag;
+            do {
+                flag = false;
+
+                foreach (var cog in cogs.Values)
+                    flag |= cog.Analyze(duration, this, memory);
+            }
+            while (flag);
+        }
+
         public void Invalidate(
                 PerceptualMemory memory,
                 Duration duration

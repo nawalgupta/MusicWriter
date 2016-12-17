@@ -202,9 +202,17 @@ namespace MusicWriter.WinForms {
 
         private void Mouseselector_Selected(RectangleF rect, NoteSelectionMode mode) {
             //TODO: does this work when a track has different staves throughout its duration?
-            
+
+            var effectedarea = default(Duration);
+
             if (mode == NoteSelectionMode.Replace) {
-                foreach (var selection in noteselections.Values) {
+                foreach (var selectionkvp in noteselections) {
+                    var track = selectionkvp.Key;
+                    var selection = selectionkvp.Value;
+
+                    foreach (var noteID in selection.Selected_NoteIDs)
+                        effectedarea = track.Melody[noteID].Duration.Union(effectedarea);
+
                     selection.Selected_Start.Clear();
                     selection.Selected_End.Clear();
                     selection.Selected_Tone.Clear();
@@ -214,7 +222,7 @@ namespace MusicWriter.WinForms {
             for (int i = 0; i < tracks.SpecialCollection.Count; i++) {
                 var track =
                     tracks.SpecialCollection[i];
-                
+
                 var selection = noteselections[track];
 
                 var fakeselection = new NoteSelection();
@@ -232,54 +240,105 @@ namespace MusicWriter.WinForms {
                 switch (mode) {
                     case NoteSelectionMode.Replace:
                     case NoteSelectionMode.Add:
-                        foreach (var noteID in fakeselection.Selected_Start)
+                        foreach (var noteID in fakeselection.Selected_Start) {
+                            var note = track.Melody[noteID];
+                            effectedarea = note.Duration.Union(effectedarea);
+
                             selection.Selected_Start.Add(noteID);
-                        foreach (var noteID in fakeselection.Selected_End)
+                        }
+                        foreach (var noteID in fakeselection.Selected_End) {
+                            var note = track.Melody[noteID];
+                            effectedarea = note.Duration.Union(effectedarea);
+
                             selection.Selected_End.Add(noteID);
-                        foreach (var noteID in fakeselection.Selected_Tone)
+                        }
+                        foreach (var noteID in fakeselection.Selected_Tone) {
+                            var note = track.Melody[noteID];
+                            effectedarea = note.Duration.Union(effectedarea);
+
                             selection.Selected_Tone.Add(noteID);
+                        }
                         break;
 
                     case NoteSelectionMode.Intersect:
                         foreach (var noteID in selection.Selected_Start.ToArray())
-                            if (!fakeselection.Selected_Start.Contains(noteID))
+                            if (!fakeselection.Selected_Start.Contains(noteID)) {
+                                var note = track.Melody[noteID];
+                                effectedarea = note.Duration.Union(effectedarea);
+
                                 selection.Selected_Start.Remove(noteID);
+                            }
                         foreach (var noteID in selection.Selected_End.ToArray())
-                            if (!fakeselection.Selected_End.Contains(noteID))
+                            if (!fakeselection.Selected_End.Contains(noteID)) {
+                                var note = track.Melody[noteID];
+                                effectedarea = note.Duration.Union(effectedarea);
+
                                 selection.Selected_End.Remove(noteID);
+                            }
                         foreach (var noteID in selection.Selected_Tone.ToArray())
-                            if (!fakeselection.Selected_Tone.Contains(noteID))
+                            if (!fakeselection.Selected_Tone.Contains(noteID)) {
+                                var note = track.Melody[noteID];
+                                effectedarea = note.Duration.Union(effectedarea);
+
                                 selection.Selected_Tone.Remove(noteID);
+                            }
                         break;
 
                     case NoteSelectionMode.Subtract:
                         foreach (var noteID in selection.Selected_Start.ToArray())
-                            if (fakeselection.Selected_Start.Contains(noteID))
+                            if (fakeselection.Selected_Start.Contains(noteID)) {
+                                var note = track.Melody[noteID];
+                                effectedarea = note.Duration.Union(effectedarea);
+
                                 selection.Selected_Start.Remove(noteID);
+                            }
                         foreach (var noteID in selection.Selected_End.ToArray())
-                            if (fakeselection.Selected_End.Contains(noteID))
+                            if (fakeselection.Selected_End.Contains(noteID)) {
+                                var note = track.Melody[noteID];
+                                effectedarea = note.Duration.Union(effectedarea);
+
                                 selection.Selected_End.Remove(noteID);
+                            }
                         foreach (var noteID in selection.Selected_Tone.ToArray())
-                            if (fakeselection.Selected_Tone.Contains(noteID))
+                            if (fakeselection.Selected_Tone.Contains(noteID)) {
+                                var note = track.Melody[noteID];
+                                effectedarea = note.Duration.Union(effectedarea);
+
                                 selection.Selected_Tone.Remove(noteID);
+                            }
                         break;
 
                     case NoteSelectionMode.Xor:
-                        foreach (var noteID in fakeselection.Selected_Start)
+                        foreach (var noteID in fakeselection.Selected_Start) {
+                            var note = track.Melody[noteID];
+                            effectedarea = note.Duration.Union(effectedarea);
+
                             if (selection.Selected_Start.Contains(noteID))
                                 selection.Selected_Start.Remove(noteID);
                             else selection.Selected_Start.Add(noteID);
-                        foreach (var noteID in fakeselection.Selected_End)
+                        }
+                        foreach (var noteID in fakeselection.Selected_End) {
+                            var note = track.Melody[noteID];
+                            effectedarea = note.Duration.Union(effectedarea);
+
                             if (selection.Selected_End.Contains(noteID))
                                 selection.Selected_End.Remove(noteID);
                             else selection.Selected_End.Add(noteID);
-                        foreach (var noteID in fakeselection.Selected_Tone)
+                        }
+                        foreach (var noteID in fakeselection.Selected_Tone) {
+                            var note = track.Melody[noteID];
+                            effectedarea = note.Duration.Union(effectedarea);
+
                             if (selection.Selected_Tone.Contains(noteID))
                                 selection.Selected_Tone.Remove(noteID);
                             else selection.Selected_Tone.Add(noteID);
+                        }
                         break;
                 }
             }
+
+            if (effectedarea != null)
+                RefreshTime(effectedarea);
 
             Invalidate();
         }
@@ -448,6 +507,8 @@ namespace MusicWriter.WinForms {
         }
 
         public void CommandCenter_WhenDeleteSelectedNotes() {
+            var effectedarea = default(Duration);
+
             foreach (var selectionkvp in noteselections) {
                 var track =
                     selectionkvp.Key;
@@ -461,6 +522,8 @@ namespace MusicWriter.WinForms {
                         .ToArray();
 
                 foreach (var noteID in selection) {
+                    var note = track.Melody[noteID];
+
                     track.Melody.DeleteNote(noteID);
 
                     if (selectionkvp.Value.Selected_Start.Contains(noteID))
@@ -469,10 +532,15 @@ namespace MusicWriter.WinForms {
                         selectionkvp.Value.Selected_End.Remove(noteID);
                     if (selectionkvp.Value.Selected_Tone.Contains(noteID))
                         selectionkvp.Value.Selected_Tone.Remove(noteID);
+
+                    effectedarea = note.Duration.Union(effectedarea);
                 }
             }
 
-            Invalidate();
+            if (effectedarea != null)
+                InvalidateTime(effectedarea);
+
+            Refresh();
         }
 
         private void CommandCenter_WhenUnitPicking(CaretUnitPickerEventArgs args) {
@@ -481,7 +549,7 @@ namespace MusicWriter.WinForms {
         }
 
         void Effect_TimeChanged(Time time, CaretMode mode) {
-            Duration affectedduration = null;
+            var effectedarea = default(Duration);
 
             foreach (var trackkvp in noteselections) {
                 var track = trackkvp.Key;
@@ -501,12 +569,10 @@ namespace MusicWriter.WinForms {
                             Length = oldduration.Length
                         };
 
-                    if (affectedduration == null)
-                        affectedduration = oldduration.Union(newduration);
-                    else {
-                        affectedduration = affectedduration.Union(oldduration);
-                        affectedduration = affectedduration.Union(newduration);
-                    }
+                    effectedarea =
+                        oldduration
+                            .Union(newduration)
+                            .Union(effectedarea);
 
                     if (is_start) {
                         if (mode == CaretMode.Absolute)
@@ -533,16 +599,22 @@ namespace MusicWriter.WinForms {
 
             //TODO: update only the affected duration
 
-            if (time != Time.Zero || mode == CaretMode.Absolute)
-                Invalidate();
+            if (effectedarea != null)
+                InvalidateTime(effectedarea);
+
+            Refresh();
         }
 
         void Effect_ToneChanged(int tone, CaretMode mode) {
+            var effectedarea = default(Duration);
+
             foreach (var trackkvp in noteselections) {
                 var track = trackkvp.Key;
 
                 foreach (var noteID in trackkvp.Value.Selected_Tone) {
                     var note = track.Melody[noteID];
+
+                    effectedarea = note.Duration.Union(effectedarea);
 
                     var newtone =
                         Effect_ToneChanged_affect(note.Tone, note.Duration.Start, tone, mode, track);
@@ -553,8 +625,10 @@ namespace MusicWriter.WinForms {
 
             MusicCursor.Tone = Effect_ToneChanged_affect(MusicCursor.Tone, MusicCursor.Caret.Focus, tone, mode, ActiveTrack);
 
-            if (tone != 0 || mode.HasFlag(CaretMode.Absolute))
-                Invalidate();
+            if (effectedarea != null)
+                InvalidateTime(effectedarea);
+            
+            Refresh();
         }
 
         SemiTone Effect_ToneChanged_affect(SemiTone tone, Time time, int delta, CaretMode mode, MusicTrack track) {
@@ -601,18 +675,25 @@ namespace MusicWriter.WinForms {
                     noteselections.Add(track, new NoteSelection());
                 }
 
-            Invalidate();
+            InvalidateTime(new Duration { Length = tracks.SpecialCollection.Max(track => track.Length.Value) });
         }
 
-        protected override void OnInvalidated(InvalidateEventArgs e) {
+        void InvalidateTime(Duration duration) {
             foreach (var track in tracks.SpecialCollection)
-                file.Brain.Invalidate(track.Memory, new Duration { Length = track.Length.Value });
+                file.Brain.Invalidate(track.Memory, duration);
 
             MeasureAndLayoutTrackItems();
 
             Height = (int)trackheights.Values.Sum();
+        }
 
-            base.OnInvalidated(e);
+        void RefreshTime(Duration duration) {
+            foreach (var track in tracks.SpecialCollection)
+                file.Brain.Invalidate<RenderedSheetMusicItem>(track.Memory, duration);
+
+            MeasureAndLayoutTrackItems();
+
+            Height = (int)trackheights.Values.Sum();
         }
 
         IEnumerable<Tuple<RectangleF, SheetMusicRenderSettings, RenderedSheetMusicItem>> GetItemsWithRects(MusicTrack track) {

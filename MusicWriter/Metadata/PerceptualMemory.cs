@@ -72,5 +72,8 @@ namespace MusicWriter {
             foreach (var module in memorymodules.Values)
                 module.Forget(duration);
         }
+
+        public void Forget<T>(Duration duration) =>
+            MemoryModule<T>().Forget(duration);
     }
 }

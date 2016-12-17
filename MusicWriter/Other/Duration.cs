@@ -25,10 +25,12 @@ namespace MusicWriter {
         }
 
         public Duration Union(Duration other) =>
-            new Duration {
-                Start = Time.Min(Start, other.Start),
-                End = Time.Max(End, other.End)
-            };
+            other == null ?
+                this :
+                new Duration {
+                    Start = Time.Min(Start, other.Start),
+                    End = Time.Max(End, other.End)
+                };
 
         public bool Contains(Time time) =>
             time >= offset && time < offset + length;

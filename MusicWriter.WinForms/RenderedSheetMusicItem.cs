@@ -29,23 +29,8 @@ namespace MusicWriter.WinForms {
 
         public Bitmap Draw(SheetMusicRenderSettings settings, int width) {
             if (lastwidth != width) {
-                bmp =
-                    new Bitmap(
-                            width,
-                            (int)settings.Height
-                        );
-
-                using (var gfx = Graphics.FromImage(bmp)) {
-                    gfx.CompositingQuality = CompositingQuality.HighQuality;
-                    gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    gfx.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    gfx.SmoothingMode = SmoothingMode.HighQuality;
-                    gfx.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-
-                    Render(gfx, settings, width);
-                }
-
                 lastwidth = width;
+                Redraw(settings);
             }
 
             return bmp;
@@ -58,6 +43,24 @@ namespace MusicWriter.WinForms {
         public void Dispose() {
             if (bmp != null)
                 bmp.Dispose();
+        }
+
+        public void Redraw(SheetMusicRenderSettings settings) {
+            bmp =
+                new Bitmap(
+                        lastwidth,
+                        (int)settings.Height
+                    );
+
+            using (var gfx = Graphics.FromImage(bmp)) {
+                gfx.CompositingQuality = CompositingQuality.HighQuality;
+                gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                gfx.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                gfx.SmoothingMode = SmoothingMode.HighQuality;
+                gfx.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+
+                Render(gfx, settings, lastwidth);
+            }
         }
     }
 }
