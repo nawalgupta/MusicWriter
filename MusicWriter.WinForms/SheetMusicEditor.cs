@@ -618,8 +618,7 @@ namespace MusicWriter.WinForms {
         IEnumerable<Tuple<RectangleF, SheetMusicRenderSettings, RenderedSheetMusicItem>> GetItemsWithRects(MusicTrack track) {
             var scrollX = GetLeft(Pin.ActualTime.Value);
             var yoffset = tracks.SpecialCollection.TakeWhile(t => !ReferenceEquals(t, track)).Sum(t => trackheights[t]);
-
-            // draw sheet items
+            
             var starttimes =
                 track
                     .Memory
@@ -639,7 +638,7 @@ namespace MusicWriter.WinForms {
 
                 var focusitems = new List<RenderedSheetMusicItem>();
 
-                float x = GetLeft(focusstarttime) - scrollX;
+                float x = 0 - scrollX;
 
                 while (x < Width) {
                     if (focusitems.Count == 0) {
@@ -657,7 +656,7 @@ namespace MusicWriter.WinForms {
                                         .Select(focusitem => focusitem.Value)
                                 );
 
-                        focusitems.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+                        focusitems.Sort((a, b) => b.Priority.CompareTo(a.Priority));
 
                         focussettings = GetSettings(focusstarttime, track);
                     }
@@ -838,7 +837,6 @@ namespace MusicWriter.WinForms {
         }
 
         float GetLeft(Time time, MusicTrack track) {
-            // draw sheet items
             var starttimes =
                 track
                     .Memory
