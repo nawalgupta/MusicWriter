@@ -12,7 +12,7 @@ namespace MusicWriter.WinForms {
         static readonly Pen pen_tie = new Pen(Color.Black, 2.5f);
         static readonly Pen pen_measuredivision = new Pen(Color.Black, 1.5f);
 
-        public float Margin { get; set; } = 15f;
+        public float Margin { get; set; } = 25f;
 
         public override int Priority {
             get { return 2; }

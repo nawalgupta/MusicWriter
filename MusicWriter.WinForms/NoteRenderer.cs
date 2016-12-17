@@ -30,6 +30,7 @@ namespace MusicWriter.WinForms
                         note,
                         chord.StemDirection,
                         chord.StemSide,
+                        note.Transform,
                         x,
                         notewidth,
                         settings.YVal(chord.StemStartHalfLines),
@@ -80,13 +81,13 @@ namespace MusicWriter.WinForms
 
             // line / vpx -> px[y] / px[x]
             // multiply by (px/line) / (px/vpx)
-            
+
             if (side == NoteStemSide.Left)
                 startX -= settings.NoteHeadRadius;
             else if (side == NoteStemSide.Right)
                 startX += settings.NoteHeadRadius;
 
-            if(past2nd) {
+            if (past2nd) {
                 if (side == NoteStemSide.Left)
                     length += settings.NoteHeadRadius / width;
                 else if (side == NoteStemSide.Right)
@@ -129,6 +130,7 @@ namespace MusicWriter.WinForms
                 NoteLayout note,
                 NoteStemDirection direction,
                 NoteStemSide side,
+                PitchTransform transform,
                 float x,
                 float notewidth,
                 float stem_end,
@@ -137,7 +139,7 @@ namespace MusicWriter.WinForms
             ) {
             var halfline =
                 settings.Staff.GetHalfLine(note.Key);
-
+            
             for (int i = halfline / 2; i < 0; i++)
                 DrawLedger(gfx, x, 2 * i, settings);
 
@@ -164,6 +166,15 @@ namespace MusicWriter.WinForms
                 (selected_end ? 1 : 0) +
                 (selected_start ? 1 : 0) +
                 (selected_tone ? 1 : 0);
+
+            DrawPitchTransform(
+                    gfx,
+                    color,
+                    transform,
+                    x - 2 * settings.NoteHeadRadius,
+                    y,
+                    settings
+                );
 
             if (note.Core.ID.Instance == 0) {
                 if (drawfield) {
@@ -200,14 +211,19 @@ namespace MusicWriter.WinForms
             }
 
             DrawNoteHead(gfx, fieldcolorinterpolation == 3 ? fieldcolor : color, x, y, y_dots, fill, dots, settings);
-            
+
             if (side == NoteStemSide.Left)
                 DrawNoteStem_L(gfx, color, x, y, direction, stem_end, settings);
             else if (side == NoteStemSide.Right)
                 DrawNoteStem_R(gfx, color, x, y, direction, stem_end, settings);
         }
 
-        static void DrawLedger(Graphics gfx, float x, float halfline, SheetMusicRenderSettings settings) =>
+        static void DrawLedger(
+                Graphics gfx,
+                float x,
+                float halfline,
+                SheetMusicRenderSettings settings
+            ) =>
             gfx.DrawLine(
                     settings.StaffLinePen,
                     x - settings.LedgerPixelWidth / 2,
@@ -216,7 +232,16 @@ namespace MusicWriter.WinForms
                     settings.YVal(halfline)
                 );
 
-        static void DrawNoteHead(Graphics gfx, Color color, float x, float y, float y_dots, bool fill, int dots, SheetMusicRenderSettings settings) {
+        static void DrawNoteHead(
+                Graphics gfx,
+                Color color,
+                float x,
+                float y,
+                float y_dots,
+                bool fill,
+                int dots,
+                SheetMusicRenderSettings settings
+            ) {
             gfx.DrawEllipse(new Pen(color, 2.5f), x - settings.NoteHeadRadius, y - settings.NoteHeadRadius, 2 * settings.NoteHeadRadius, 2 * settings.NoteHeadRadius);
 
             if (fill)
@@ -250,6 +275,54 @@ namespace MusicWriter.WinForms
             ) {
             if (direction != NoteStemDirection.None)
                 gfx.DrawLine(new Pen(color, 3.0f), x - settings.NoteHeadRadius, y, x - settings.NoteHeadRadius, y_end);
+        }
+
+        static void DrawPitchTransform(
+                Graphics gfx,
+                Color color,
+                PitchTransform transform,
+                float x,
+                float y,
+                SheetMusicRenderSettings settings
+            ) {
+            const float separation = 20f;
+            const float offset = 0f;
+
+            if (transform.Steps > 0) {
+                for (int i = 0; i < transform.Steps / 2; i++) {
+                    GlyphRenderer.Draw(
+                            "double-sharp",
+                            x - separation * i - offset,
+                            y,
+                            color,
+                            gfx,
+                            settings
+                        );
+                }
+
+                if (transform.Steps % 2 != 0) {
+                    GlyphRenderer.Draw(
+                            "sharp",
+                            x - separation * (transform.Steps / 2) - offset,
+                            y,
+                            color,
+                            gfx,
+                            settings
+                        );
+                }
+            }
+            else if (transform.Steps < 0) {
+                for (int i = 0; i < -transform.Steps; i++) {
+                    GlyphRenderer.Draw(
+                            "flat",
+                            x - separation * i - offset,
+                            y,
+                            color,
+                            gfx,
+                            settings
+                        );
+                }
+            }
         }
     }
 }
