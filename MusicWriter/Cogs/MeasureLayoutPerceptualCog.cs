@@ -43,13 +43,13 @@ namespace MusicWriter {
                 var keysignature =
                     memory
                         .Analyses<KeySignature>(duration)
-                        .Single()
+                        .First()
                         .Value;
 
                 var staff =
                     memory
                         .Analyses<Staff>(duration)
-                        .Single()
+                        .First()
                         .Value;
 
                 var measurelayout =

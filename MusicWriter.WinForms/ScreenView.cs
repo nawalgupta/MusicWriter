@@ -12,6 +12,10 @@ using System.Collections.ObjectModel;
 using System.Collections;
 
 namespace MusicWriter.WinForms {
+    //TODO: if you want to use the visual studio designer with this control,
+    // (1) change base type from TabPage to UserControl,
+    // (2) resolve any build errors by commenting out or deleting code,
+    // (3) make sure to change it back before committing the code.
     public partial class ScreenView : TabPage {
         EditorFile<Control> file;
         Screen<Control> screen;
@@ -180,6 +184,7 @@ namespace MusicWriter.WinForms {
 
                     value.Name.AfterChange += Tracks_NameChanged;
                     value.Length.AfterChange += Tracks_LengthChanged;
+                    Tracks_LengthChanged(Time.Zero, value.Length.Value);
 
                     item.Text = value.Name.Value;
                     item.Tag = value;
@@ -191,7 +196,7 @@ namespace MusicWriter.WinForms {
 
         private void Tracks_LengthChanged(Time old, Time @new) {
             var longestlength =
-                SelectedController.Tracks.Max(track => track.Length.Value);
+                file.Tracks.Max(track => track.Length.Value);
 
             sclOffset.Maximum = longestlength.Ticks;
         }

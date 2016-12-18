@@ -679,6 +679,7 @@ namespace MusicWriter.WinForms {
         }
 
         void InvalidateTime(Duration duration) {
+            timesRedrawn++;
             foreach (var track in tracks.SpecialCollection)
                 file.Brain.Invalidate(track.Memory, duration);
 
@@ -688,6 +689,7 @@ namespace MusicWriter.WinForms {
         }
 
         void RefreshTime(Duration duration) {
+            timesRedrawn++;
             foreach (var track in tracks.SpecialCollection)
                 file.Brain.Invalidate<RenderedSheetMusicItem>(track.Memory, duration);
 
@@ -798,8 +800,8 @@ namespace MusicWriter.WinForms {
             var samepoints =
                 unjoinedsamepoints
                     .Any() ?
-                    unjoinedsamepoints.Aggregate(Enumerable.Intersect) :
-                    new Time[0];
+                    unjoinedsamepoints.Aggregate(Enumerable.Intersect).OrderBy(t => t) :
+                    Enumerable.Empty<Time>();
 
             var samedurations = new List<Duration>();
 
@@ -1006,7 +1008,6 @@ namespace MusicWriter.WinForms {
 
         int timesRedrawn = 0;
         void DrawToGraphics(Graphics gfx) {
-            timesRedrawn++;
             gfx.DrawString(timesRedrawn.ToString(), Font, Brushes.Red, PointF.Empty);
 
             var scrollX = GetLeft(Pin.ActualTime.Value);

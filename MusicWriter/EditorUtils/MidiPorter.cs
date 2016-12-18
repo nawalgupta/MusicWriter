@@ -120,7 +120,7 @@ namespace MusicWriter
 
                                             var start =
                                                 ImportTime(keysigevent.AbsoluteTime, midifile);
-
+                                            
                                             track
                                                 .Adornment
                                                 .KeySignatures
