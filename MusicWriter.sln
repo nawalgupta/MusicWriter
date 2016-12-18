@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "midi", "midi", "{4EEDFE81-04BD-4D7B-A86F-F2D3E81E1AAE}"
 	ProjectSection(SolutionItems) = preProject
 		test\midi\44-up-the-scale-C.mid = test\midi\44-up-the-scale-C.mid
+		test\midi\arpeggios.mid = test\midi\arpeggios.mid
 		test\midi\Beeth7th2.mid = test\midi\Beeth7th2.mid
 		test\midi\change-in-bpm.mid = test\midi\change-in-bpm.mid
 		test\midi\changing-key-sigs.mid = test\midi\changing-key-sigs.mid

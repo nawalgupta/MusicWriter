@@ -314,11 +314,15 @@ namespace MusicWriter.WinForms {
                 var selected =
                     lsvControllers.SelectedIndices.Contains(i) &&
                     screen.Controllers.Contains(lsvControllers.Items[i].Tag as ITrackController<Control>);
-                
-                file.Controllers[i].CommandCenter.Enabled = selected;
+
+                var controller = screen.Controllers[i];
+
+                controller.CommandCenter.Enabled = selected;
 
                 if (selected) {
-                    screen.Controllers[i].View.Focus();
+                    controller.View.Focus();
+
+                    sclOffset.Value = controller.Pin.Time.Offset.Value.Ticks;
                 }
             }
 

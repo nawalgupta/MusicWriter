@@ -1073,7 +1073,7 @@ namespace MusicWriter.WinForms {
                         
                         var width = itemwidths[track][item];
                         if (x + width > 0)
-                            gfx.DrawImageUnscaled(item.Draw(focussettings, (int)width), (int)x, 0);
+                            item.Draw(gfx, focussettings, (int)width, (int)x);
 
                         x += width;
                     }

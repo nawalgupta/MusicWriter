@@ -27,13 +27,37 @@ namespace MusicWriter.WinForms {
             ) {
         }
 
-        public Bitmap Draw(SheetMusicRenderSettings settings, int width) {
-            if (lastwidth != width) {
-                lastwidth = width;
-                Redraw(settings);
-            }
+        public void Draw(
+                Graphics graphics,
+                SheetMusicRenderSettings settings,
+                int width,
+                int x
+            ) {
+            graphics.TranslateTransform(x, 0);
+            Render(graphics, settings, width);
+            graphics.TranslateTransform(-x, 0);
 
-            return bmp;
+            //if (lastwidth != width) {
+            //    lastwidth = width;
+
+            //    bmp =
+            //        new Bitmap(
+            //                width,
+            //                (int)settings.Height
+            //            );
+
+            //    using (var gfx = Graphics.FromImage(bmp)) {
+            //        gfx.CompositingQuality = CompositingQuality.HighQuality;
+            //        gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            //        gfx.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            //        gfx.SmoothingMode = SmoothingMode.HighQuality;
+            //        gfx.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+
+            //        Render(gfx, settings, lastwidth);
+            //    }
+            //}
+
+            //return bmp;
         }
 
         protected abstract void Render(Graphics gfx, SheetMusicRenderSettings settings, int width);
@@ -43,24 +67,6 @@ namespace MusicWriter.WinForms {
         public void Dispose() {
             if (bmp != null)
                 bmp.Dispose();
-        }
-
-        public void Redraw(SheetMusicRenderSettings settings) {
-            bmp =
-                new Bitmap(
-                        lastwidth,
-                        (int)settings.Height
-                    );
-
-            using (var gfx = Graphics.FromImage(bmp)) {
-                gfx.CompositingQuality = CompositingQuality.HighQuality;
-                gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                gfx.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                gfx.SmoothingMode = SmoothingMode.HighQuality;
-                gfx.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-
-                Render(gfx, settings, lastwidth);
-            }
         }
     }
 }
