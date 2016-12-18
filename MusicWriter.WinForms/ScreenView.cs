@@ -260,6 +260,7 @@ namespace MusicWriter.WinForms {
             ctrl.Disposed -= View_Dispose;
             ctrl.ParentChanged -= View_Dispose;
             ctrl.GotFocus -= View_GotFocus;
+            ctrl.LostFocus -= View_LostFocus;
         }
         
         private void View_LostFocus(object sender, EventArgs e) {
