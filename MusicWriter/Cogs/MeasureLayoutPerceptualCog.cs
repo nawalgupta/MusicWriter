@@ -16,29 +16,22 @@ namespace MusicWriter {
             var memorymodule =
                 (EditableMemoryModule<MeasureLayout>)
                 memory.MemoryModule<MeasureLayout>();
-
-            var notes =
-                memory.Analyses<PerceptualNote>(delta);
-
+            
             var measures =
-                notes
-                    .GroupBy(
-                            note =>
-								memory
-									.Analyses<Measure>(note.Duration)
-									.Single()
-									.Duration
-                        );
+                memory.Analyses<Measure>(delta);
 
             foreach (var measure in measures) {
                 var duration =
-                    measure.Key;
+                    measure.Duration;
 
-                if (memorymodule.Knowledge.AnyItemIn(measure.Key))
+                if (memorymodule.Knowledge.AnyItemIn(duration))
                     continue;
 
                 var measure_notes =
-                    measure;
+                    memory
+                        .Analyses<PerceptualNote>(duration)
+                        .Select(note => note.Value)
+                        .ToArray();
 
                 var keysignature =
                     memory
@@ -55,7 +48,7 @@ namespace MusicWriter {
                 var measurelayout =
                     new MeasureLayout(
                             duration,
-                            measure_notes.Select(note => note.Value).ToArray(),
+                            measure_notes,
                             staff,
                             keysignature
                         );

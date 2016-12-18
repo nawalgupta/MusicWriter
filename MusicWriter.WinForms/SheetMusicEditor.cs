@@ -942,7 +942,7 @@ namespace MusicWriter.WinForms {
 
                 x = GetLeft(focusstarttime);
 
-                while (x < Width) {
+                while (focusstarttime <= time) {
                     if (focusitems.Count == 0) {
                         if (starttimes.Count == 0)
                             break;
