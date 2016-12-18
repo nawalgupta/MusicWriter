@@ -107,6 +107,23 @@ namespace MusicWriter {
             var cycles = duration.Start / Length;
             var offset = cycles * Length;
 
+            while (duration.Length > Length) {
+                foreach (var item in field1.AllItems)
+                    if (item.Duration.Start >= duration.Start - Length * cycles)
+                        yield return
+                            new CycledDuratedItem<T>(
+                                    item.Value,
+                                    item.Duration + offset,
+                                    cycles
+                                );
+
+                duration.Start += Length;
+                duration.Length -= Length;
+
+                cycles++;
+                offset += Length;
+            }
+
             duration = new Duration {
                 Start = duration.Start % Length,
                 Length = duration.Length
