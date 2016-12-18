@@ -10,6 +10,9 @@ namespace MusicWriter {
             var array = values.ToArray();
             Array.Sort(array);
 
+            if (array.Length == 0)
+                return 0f;
+
             // calculate the weighted mean of values against 8t(t-0.5)^2
             float sum_value = 0F;
             float sum_weight = 0F;
