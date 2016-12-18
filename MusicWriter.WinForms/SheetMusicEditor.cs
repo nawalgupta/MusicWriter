@@ -1008,6 +1008,11 @@ namespace MusicWriter.WinForms {
 
         int timesRedrawn = 0;
         void DrawToGraphics(Graphics gfx) {
+            gfx.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            //gfx.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+            //gfx.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+            gfx.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            
             gfx.DrawString(timesRedrawn.ToString(), Font, Brushes.Red, PointF.Empty);
 
             var scrollX = GetLeft(Pin.ActualTime.Value);
