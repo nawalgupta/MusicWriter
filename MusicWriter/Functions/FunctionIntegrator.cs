@@ -10,6 +10,6 @@ namespace MusicWriter
     {
         public static IFunction Integrate(this IFunction derivative) =>
             (derivative as IDirectlyIntegratableFunction)?.Integrate() ??
-            new StepwiseIntegratedFunction(Time.Note_128th, derivative);
+            new StepwiseIntegratedFunction(1f / 256, derivative);
     }
 }

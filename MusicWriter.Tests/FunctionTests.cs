@@ -10,24 +10,24 @@ namespace MusicWriter.Tests
         public void TestPolyline_1() {
             var polyline = new PolylineFunction();
 
-            polyline.Add(Time.Zero, 0);
-            polyline.Add(Time.Note, 2);
+            polyline.Add(0, 0);
+            polyline.Add(1, 2);
 
-            Assert.AreEqual(polyline.GetValue(new FunctionCall(Time.Note)), 2f);
-            Assert.AreEqual(polyline.GetValue(new FunctionCall(Time.Note_2nd)), 1f);
-            Assert.AreEqual(polyline.GetValue(new FunctionCall(Time.Zero)), 0f);
+            Assert.AreEqual(polyline.GetValue(new FunctionCall(1)), 2f);
+            Assert.AreEqual(polyline.GetValue(new FunctionCall(0.5f)), 1f);
+            Assert.AreEqual(polyline.GetValue(new FunctionCall(0)), 0f);
 
-            polyline.Add(Time.Note_2nd, 1.5f);
+            polyline.Add(0.5f, 1.5f);
             
-            Assert.AreEqual(polyline.GetValue(new FunctionCall(Time.Note)), 2f);
-            Assert.AreEqual(polyline.GetValue(new FunctionCall(Time.Note_2nd + Time.Note_4th)), 1.75f);
-            Assert.AreEqual(polyline.GetValue(new FunctionCall(Time.Note_2nd)), 1.5f);
-            Assert.AreEqual(polyline.GetValue(new FunctionCall(Time.Note_4th)), 0.75f);
-            Assert.AreEqual(polyline.GetValue(new FunctionCall(Time.Zero)), 0f);
+            Assert.AreEqual(polyline.GetValue(new FunctionCall(1)), 2f);
+            Assert.AreEqual(polyline.GetValue(new FunctionCall(0.75f)), 1.75f);
+            Assert.AreEqual(polyline.GetValue(new FunctionCall(0.5f)), 1.5f);
+            Assert.AreEqual(polyline.GetValue(new FunctionCall(0.25f)), 0.75f);
+            Assert.AreEqual(polyline.GetValue(new FunctionCall(0)), 0f);
 
-            polyline.Add(Time.Note + Time.Note_4th, 1);
+            polyline.Add(1.25f, 1);
 
-            Assert.AreEqual(polyline.GetValue(new FunctionCall(Time.Note + Time.Note_16th)), 1.75f);
+            Assert.AreEqual(polyline.GetValue(new FunctionCall(1.0625f)), 1.75f);
         }
     }
 }

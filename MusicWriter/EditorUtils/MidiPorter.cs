@@ -172,7 +172,7 @@ namespace MusicWriter
                                             editor
                                                 .Tempo
                                                 .AddConstant(
-                                                        ImportTime(tempoevent.AbsoluteTime, midifile),
+                                                        ImportTime(tempoevent.AbsoluteTime, midifile).Notes,
                                                         60 / (float)tempoevent.Tempo
                                                     );
                                         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -198,5 +199,11 @@ namespace MusicWriter {
 
         public static Time FromTicks(int ticks) =>
             new Time(ticks);
+
+        public static void Serialize(BinaryWriter writer, Time time) =>
+            writer.Write(time.ticks);
+
+        public static Time Deserialize(BinaryReader reader) =>
+            new Time(reader.ReadInt32());
     }
 }

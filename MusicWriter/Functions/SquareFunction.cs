@@ -7,14 +7,8 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class GloballyPerspectiveFunction : IFunction, IContextualFunction
+    public sealed class SquareFunction : IFunction
     {
-        readonly IFunction context;
-
-        public IFunction Context {
-            get { return context; }
-        }
-
         public IFunctionFactory Factory {
             get { return FactoryClass.Instance; }
         }
@@ -22,24 +16,23 @@ namespace MusicWriter
         public sealed class FactoryClass : IFunctionFactory
         {
             public string Name {
-                get { return "Global Perspective Function"; }
+                get { return "Square Wave"; }
             }
 
             public string CodeName {
-                get { return "global"; }
-            }
-
-            public bool StoresBinaryData {
-                get { return false; }
+                get { return "square"; }
             }
 
             public bool AcceptsParameters {
                 get { return false; }
             }
 
-            public IFunction Create() {
-                throw new InvalidOperationException();
+            public bool StoresBinaryData {
+                get { return false; }
             }
+
+            public IFunction Create() =>
+                new SquareFunction();
 
             public IFunction Create(params float[] args) {
                 throw new InvalidOperationException();
@@ -49,10 +42,7 @@ namespace MusicWriter
                 throw new InvalidOperationException();
             }
 
-            public IFunction Create(IFunction context) =>
-                new GloballyPerspectiveFunction(context);
-
-            public IFunction Create(IFunction context, float[] args) {
+            public IFunction Create(IFunction context) {
                 throw new InvalidOperationException();
             }
 
@@ -64,16 +54,16 @@ namespace MusicWriter
                 throw new InvalidOperationException();
             }
 
+            public IFunction Create(IFunction context, params float[] args) {
+                throw new InvalidOperationException();
+            }
+
             private FactoryClass() { }
 
             public static readonly IFunctionFactory Instance = new FactoryClass();
         }
 
-        public GloballyPerspectiveFunction(IFunction inner) {
-            this.context = inner;
-        }
-
         public float GetValue(FunctionCall arg) =>
-            context.GetValue(new FunctionCall(arg.LocalTime));
+            (arg.LocalTime < 0 || arg.LocalTime > 1) ? 0 : 1;
     }
 }

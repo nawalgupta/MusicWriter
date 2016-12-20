@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,10 +9,10 @@ namespace MusicWriter
 {
     public sealed class StepwiseIntegratedFunction : IFunction
     {
-        readonly Time precision;
+        readonly float precision;
         readonly IFunction derivative;
 
-        public Time Precision {
+        public float Precision {
             get { return precision; }
         }
 
@@ -19,8 +20,61 @@ namespace MusicWriter
             get { return derivative; }
         }
 
+        public IFunctionFactory Factory {
+            get { return FactoryClass.Instance; }
+        }
+
+        public sealed class FactoryClass : IFunctionFactory
+        {
+            public bool AcceptsParameters {
+                get { return true; }
+            }
+
+            public string CodeName {
+                get { return "step-integral"; }
+            }
+
+            public string Name {
+                get { return "Stepwise Function Integral"; }
+            }
+
+            public bool StoresBinaryData {
+                get { return false; }
+            }
+
+            public IFunction Create() {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Create(float[] args) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Create(IFunction[] args) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Create(IFunction context) =>
+                Create(context, 1f / 256f);
+
+            public IFunction Create(IFunction context, params float[] args) =>
+                new StepwiseIntegratedFunction(args[0], context);
+
+            public IFunction Deserialize(Stream stream) {
+                throw new InvalidOperationException();
+            }
+
+            public void Serialize(Stream stream, IFunction function) {
+                throw new InvalidOperationException();
+            }
+
+            private FactoryClass() { }
+
+            public static readonly IFunctionFactory Instance = new FactoryClass();
+        }
+
         public StepwiseIntegratedFunction(
-                Time precision,
+                float precision,
                 IFunction derivative
             ) {
             this.precision = precision;
@@ -29,14 +83,10 @@ namespace MusicWriter
 
         public float GetValue(FunctionCall arg) {
             float accumulator = 0;
-
-            Time now = Time.Zero;
-
-            var precision_notes =
-                precision.Notes;
-
+            float now = 0;
+            
             while (now < arg.LocalTime) {
-                accumulator += precision_notes * derivative.GetValue(new FunctionCall(now));
+                accumulator += precision * derivative.GetValue(new FunctionCall(now));
                 now += precision;
             }
 

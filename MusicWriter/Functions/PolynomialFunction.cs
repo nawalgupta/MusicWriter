@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class PolynomialFunction : IFunction, IDirectlyIntegratableFunction
-    {
+    public sealed class PolynomialFunction : IFunction, IDirectlyIntegratableFunction, IParamaterizedFunction {
         readonly float[] coefficients;
 
         public float[] Coefficients {
+            get { return coefficients; }
+        }
+
+        public float[] Arguments {
             get { return coefficients; }
         }
 
@@ -18,20 +22,72 @@ namespace MusicWriter
             get { return Coefficients.Length; }
         }
 
-        public PolynomialFunction(float[] coefficients) {
+        public IFunctionFactory Factory {
+            get { return FactoryClass.Instance; }
+        }
+
+        public sealed class FactoryClass : IFunctionFactory
+        {
+            public string Name {
+                get { return "Polynomial Function"; }
+            }
+
+            public string CodeName {
+                get { return "polynomial"; }
+            }
+
+            public bool AcceptsParameters {
+                get { return true; }
+            }
+
+            public bool StoresBinaryData {
+                get { return false; }
+            }
+
+            public IFunction Create() =>
+                new PolynomialFunction();
+
+            public IFunction Create(params float[] args) =>
+                new PolynomialFunction(args);
+
+            public IFunction Create(IFunction[] args) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Create(IFunction context) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Create(IFunction context, params float[] args) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Deserialize(Stream stream) {
+                throw new InvalidOperationException();
+            }
+
+            public void Serialize(Stream stream, IFunction function) {
+                throw new InvalidOperationException();
+            }
+
+            private FactoryClass() { }
+
+            public static readonly IFunctionFactory Instance = new FactoryClass();
+        }
+
+        public PolynomialFunction(params float[] coefficients) {
             this.coefficients = coefficients;
         }
 
         public float GetValue(FunctionCall arg) {
             var local_var = 1f;
-            var local_actual = arg.LocalTime.Notes;
 
             var accumulator = 0f;
 
             for (int i = 0; i < Degree; i++) {
                 accumulator += local_var * Coefficients[i];
 
-                local_var *= local_actual;
+                local_var *= arg.LocalTime;
             }
 
             return accumulator;
