@@ -46,6 +46,7 @@
     <Compile Include="File\ITrackFactory.cs" />
     <Compile Include="File\TrackControllerHints.cs" />
     <Compile Include="Functions\FunctionCall.cs" />
+    <Compile Include="Functions\FunctionCode.cs" />
     <Compile Include="Functions\FunctionIntegrator.cs" />
     <Compile Include="Functions\GloballyPerspectiveFunction.cs" />
     <Compile Include="Functions\IContextualFunction.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="Functions\IFunctionFactory.cs" />
     <Compile Include="Functions\IMixingFunction.cs" />
     <Compile Include="Functions\IParamaterizedFunction.cs" />
+    <Compile Include="Functions\IStoredDataFunction.cs" />
     <Compile Include="Functions\PolylineFunction.cs" />
     <Compile Include="Functions\PolynomialFunction.cs" />
     <Compile Include="Functions\SquareFunction.cs" />
@@ -71,6 +73,9 @@
     <Compile Include="Input\TimeChangedDelegate.cs" />
     <Compile Include="Input\Cursor.cs" />
     <Compile Include="Input\ToneChangedDelegate.cs" />
+    <Compile Include="IO\FileSystemStorageObject.cs" />
+    <Compile Include="IO\IStorageObject.cs" />
+    <Compile Include="IO\ZipStorageObject.cs" />
     <Compile Include="Metadata\IMemoryModule.cs" />
     <Compile Include="Metadata\PerceptualMemory.cs" />
     <Compile Include="Model\CircleOfFifths.cs" />

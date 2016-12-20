@@ -46,6 +46,14 @@ namespace MusicWriter
                 throw new InvalidOperationException();
             }
 
+            public IFunction Create(IFunction[] args, params float[] numbers) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Create(IFunction context, IFunction[] args, params float[] numbers) {
+                throw new InvalidOperationException();
+            }
+
             public IFunction Deserialize(Stream stream) {
                 throw new InvalidOperationException();
             }
@@ -55,6 +63,18 @@ namespace MusicWriter
             }
 
             public IFunction Create(IFunction context, params float[] args) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Deserialize(Stream stream, IFunction context) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Deserialize(Stream stream, IFunction[] arguments) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Deserialize(Stream stream, IFunction context, IFunction[] arguments) {
                 throw new InvalidOperationException();
             }
 

@@ -60,11 +60,31 @@ namespace MusicWriter
             public IFunction Create(IFunction context, params float[] args) =>
                 new StepwiseIntegratedFunction(args[0], context);
 
-            public IFunction Deserialize(Stream stream) {
+            public IFunction Create(IFunction[] args, params float[] numbers) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Create(IFunction context, IFunction[] args, params float[] numbers) {
                 throw new InvalidOperationException();
             }
 
             public void Serialize(Stream stream, IFunction function) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Deserialize(Stream stream) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Deserialize(Stream stream, IFunction context) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Deserialize(Stream stream, IFunction[] arguments) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Deserialize(Stream stream, IFunction context, IFunction[] arguments) {
                 throw new InvalidOperationException();
             }
 

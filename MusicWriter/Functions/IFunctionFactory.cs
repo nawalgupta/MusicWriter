@@ -23,11 +23,31 @@ namespace MusicWriter
 
         IFunction Create(IFunction[] args);
 
+        IFunction Create(IFunction[] args, params float[] numbers);
+
         IFunction Create(params float[] args);
 
         IFunction Create(IFunction context, params float[] args);
 
+        IFunction Create(IFunction context, IFunction[] args, params float[] numbers);
+
         IFunction Deserialize(Stream stream);
+
+        IFunction Deserialize(
+                Stream stream,
+                IFunction context
+            );
+
+        IFunction Deserialize(
+                Stream stream,
+                IFunction[] arguments
+            );
+
+        IFunction Deserialize(
+                Stream stream,
+                IFunction context,
+                IFunction[] arguments
+            );
 
         void Serialize(
                 Stream stream,

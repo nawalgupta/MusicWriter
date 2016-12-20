@@ -18,7 +18,7 @@ namespace MusicWriter
             get { return FactoryClass.Instance; }
         }
 
-        class FactoryClass : IFunctionFactory
+        public sealed class FactoryClass : IFunctionFactory
         {
             public string Name {
                 get { return "Polyline Function"; }
@@ -55,6 +55,14 @@ namespace MusicWriter
                 throw new InvalidOperationException();
             }
 
+            public IFunction Create(IFunction[] args, params float[] numbers) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Create(IFunction context, IFunction[] args, params float[] numbers) {
+                throw new InvalidOperationException();
+            }
+
             public IFunction Deserialize(Stream stream) {
                 using (var br = new BinaryReader(stream)) {
                     var n = br.ReadInt32();
@@ -84,6 +92,18 @@ namespace MusicWriter
                         bw.Write(poly.values[i]);
                     }
                 }
+            }
+
+            public IFunction Deserialize(Stream stream, IFunction context) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Deserialize(Stream stream, IFunction[] arguments) {
+                throw new InvalidOperationException();
+            }
+
+            public IFunction Deserialize(Stream stream, IFunction context, IFunction[] arguments) {
+                throw new InvalidOperationException();
             }
 
             private FactoryClass() { }
