@@ -9,8 +9,33 @@ namespace MusicWriter
 {
     public interface IStorageObject
     {
-        Stream Read(string key);
+        IStorageGraph Graph { get; }
+        StorageObjectID ID { get; }
 
-        Stream Write(string key);
+        IEnumerable<StorageObjectID> Children { get; }
+
+        StorageObjectID this[string key] { get; }
+
+        event StorageObjectChildChangedDelegate ChildAdded;
+        event StorageObjectChildChangedDelegate ChildRemoved;
+        event StorageObjectChildChangedDelegate ChildRenamed;
+        event StorageObjectChildChangedDelegate ChildContentsChanged;
+
+        event StorageObjectChangedDelegate ContentsChanged;
+        event StorageObjectChangedDelegate Deleted;
+
+        string GetRelation(StorageObjectID child);
+        IStorageObject Open(string child);
+
+        Stream OpenRead();
+        Stream OpenWrite();
+
+        void Add(string key, StorageObjectID id);
+        void Rename(string oldkey, string newkey);
+        void Rename(StorageObjectID child, string newkey);
+        void Remove(string key);
+        void Remove(StorageObjectID child);
+
+        void Delete();
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -205,5 +206,34 @@ namespace MusicWriter {
                                 .Max(item2 => item2.Duration.End)
                     }
                 );
+
+        public static string ReadAllString(this IStorageObject obj) {
+            using (var stream = obj.OpenRead()) {
+                using (var tr = new StreamReader(stream)) {
+                    return tr.ReadToEnd();
+                }
+            }
+        }
+
+        public static void WriteAllString(this IStorageObject obj, string value) {
+            using (var stream = obj.OpenRead()) {
+                using (var tw = new StreamWriter(stream)) {
+                    tw.Write(value);
+                }
+            }
+        }
+
+        public static IStorageObject GetOrMake(this IStorageObject parent, string child) {
+            try {
+                return parent.Graph[parent[child]];
+            }
+            catch (KeyNotFoundException) {
+                var childID = parent.Graph.Create();
+
+                parent.Add(child, childID);
+
+                return parent.Graph[childID];
+            }
+        }
     }
 }

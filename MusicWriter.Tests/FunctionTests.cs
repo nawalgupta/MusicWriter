@@ -7,12 +7,12 @@ namespace MusicWriter.Tests
     [TestClass]
     public class FunctionTests
     {
-        FunctionCode code;
+        FunctionCodeTools code;
 
         [TestMethod]
         [TestInitialize]
         public void TestCreateCode() {
-            code = new FunctionCode();
+            code = new FunctionCodeTools();
 
             code.Factories.Add(SquareFunction.FactoryClass.Instance);
             code.Factories.Add(PolylineFunction.FactoryClass.Instance);

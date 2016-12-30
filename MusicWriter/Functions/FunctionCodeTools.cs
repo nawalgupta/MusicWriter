@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class FunctionCode
+    public sealed class FunctionCodeTools
     {
         public List<IFunctionFactory> Factories { get; } =
             new List<IFunctionFactory>();

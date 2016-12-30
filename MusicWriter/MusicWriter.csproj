@@ -46,8 +46,9 @@
     <Compile Include="File\ITrackFactory.cs" />
     <Compile Include="File\TrackControllerHints.cs" />
     <Compile Include="Functions\FunctionCall.cs" />
-    <Compile Include="Functions\FunctionCode.cs" />
+    <Compile Include="Functions\FunctionCodeTools.cs" />
     <Compile Include="Functions\FunctionIntegrator.cs" />
+    <Compile Include="Functions\FunctionTrack.cs" />
     <Compile Include="Functions\GloballyPerspectiveFunction.cs" />
     <Compile Include="Functions\IContextualFunction.cs" />
     <Compile Include="Functions\IDirectlyIntegratableFunction.cs" />
@@ -73,9 +74,13 @@
     <Compile Include="Input\TimeChangedDelegate.cs" />
     <Compile Include="Input\Cursor.cs" />
     <Compile Include="Input\ToneChangedDelegate.cs" />
-    <Compile Include="IO\FileSystemStorageObject.cs" />
+    <Compile Include="IO\Delegates.cs" />
+    <Compile Include="IO\IStorageGraph.cs" />
     <Compile Include="IO\IStorageObject.cs" />
-    <Compile Include="IO\ZipStorageObject.cs" />
+    <Compile Include="IO\MemoryStorageGraph.cs" />
+    <Compile Include="IO\MemoryStorageObject.cs" />
+    <Compile Include="IO\StorageObjectID.cs" />
+    <Compile Include="IO\ZipStorageGraph.cs" />
     <Compile Include="Metadata\IMemoryModule.cs" />
     <Compile Include="Metadata\PerceptualMemory.cs" />
     <Compile Include="Model\CircleOfFifths.cs" />
@@ -93,6 +98,7 @@
     <Compile Include="Input\InputController.cs" />
     <Compile Include="Other\ConverterList.cs" />
     <Compile Include="Other\Extensions.cs" />
+    <Compile Include="Other\ObservableList.cs" />
     <Compile Include="Other\ObservableProperty.cs" />
     <Compile Include="Other\CodeTools.cs" />
     <Compile Include="SheetMusic\FlagDirection.cs" />

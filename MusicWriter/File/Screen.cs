@@ -11,85 +11,77 @@ using System.Xml.Linq;
 
 namespace MusicWriter {
     public sealed class Screen<View> {
+        readonly StorageObjectID storageobjectID;
         readonly EditorFile<View> file;
         readonly CommandCenter commandcenter = new CommandCenter();
 
         public ObservableProperty<string> Name { get; } =
             new ObservableProperty<string>("");
         
+        public StorageObjectID StorageObjectID {
+            get { return storageobjectID; }
+        }
+
         public CommandCenter CommandCenter {
             get { return commandcenter; }
         }
 
-        public ObservableCollection<ITrackController<View>> Controllers { get; } =
-            new ObservableCollection<ITrackController<View>>();
+        public ObservableList<ITrackController<View>> Controllers { get; } =
+            new ObservableList<ITrackController<View>>();
 
-        public Screen(EditorFile<View> file) {
+        public Screen(
+                StorageObjectID storageobjectID,
+                EditorFile<View> file
+            ) {
+            this.storageobjectID = storageobjectID;
             this.file = file;
 
-            Controllers.CollectionChanged += Controllers_CollectionChanged;
+            SetupStorage();
+
+            Controllers.ItemAdded += Controllers_ItemAdded;
+            Controllers.ItemRemoved += Controllers_ItemRemoved;
         }
 
-        private void Controllers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-            if (e.NewItems != null) {
-                foreach (ITrackController<View> newitem in e.NewItems) {
-                    newitem.CommandCenter.SubscribeTo(commandcenter);
-                }
-            }
-
-            if (e.OldItems != null) {
-                foreach (ITrackController<View> olditem in e.OldItems) {
-                    olditem.CommandCenter.DesubscribeFrom(commandcenter);
-                }
-            }
+        private void Controllers_ItemAdded(ITrackController<View> obj) {
+            obj.CommandCenter.SubscribeTo(commandcenter);
         }
 
-        public void Load(Stream stream) {
-            var xdoc =
-                XDocument.Load(stream);
-
-            var xroot =
-                xdoc.Element("screen");
-
-            Name.Value = xroot.Attribute("name").Value;
-
-            var controllers =
-                xroot
-                    .Element("controllers")
-                    .Elements("controller")
-                    .Select(
-                            xcontroller =>
-                                file.GetController(xcontroller.Value)
-                        );
-
-            foreach (var controller in controllers)
-                Controllers.Add(controller);
+        private void Controllers_ItemRemoved(ITrackController<View> obj) {
+            obj.CommandCenter.DesubscribeFrom(commandcenter);
         }
 
-        public void Save(Stream stream) {
-            using (var xwriter = XmlWriter.Create(stream)) {
-                xwriter.WriteStartDocument();
+        void SetupStorage() {
+            var obj =
+                file.Storage[storageobjectID];
 
-                xwriter.WriteStartElement("screen");
+            var controllersobj =
+                obj.GetOrMake("controllers");
 
-                xwriter.WriteAttributeString("name", Name.Value);
+            controllersobj.ChildAdded += (controllersobjID, controllerobjID) => {
+                Controllers.Add(file.GetController(controllerobjID));
+            };
 
-                xwriter.WriteStartElement("controllers");
+            controllersobj.ChildRemoved += (controllersobjID, oldcontrollerobjID) => {
+                var controller = Controllers.FirstOrDefault(_ => _.StorageObjectID == oldcontrollerobjID);
 
-                foreach(var controller in Controllers) {
-                    xwriter.WriteStartElement("controller");
+                if (controller != null)
+                    Controllers.Remove(controller);
+            };
 
-                    xwriter.WriteValue(controller.Name.Value);
+            Controllers.ItemAdded += controller => {
+                controllersobj.Add("", controller.StorageObjectID);
+            };
+            
+            Controllers.ItemRemoved += controller => {
+                controllersobj.Remove(controller.StorageObjectID);
+            };
 
-                    xwriter.WriteEndElement(); // controller
-                }
+            var nameobj =
+                obj.GetOrMake("name");
 
-                xwriter.WriteEndElement(); // controllers
-
-                xwriter.WriteEndElement(); // screen
-
-                xwriter.WriteEndDocument();
-            }
+            Name.Value = nameobj.ReadAllString();
+            nameobj.ContentsChanged += nameobjID => Name.Value = nameobj.ReadAllString();
+            Name.AfterChange += (old, @new) => nameobj.WriteAllString(@new);
         }
     }
 }

@@ -8,6 +8,8 @@ namespace MusicWriter {
     public interface ITrackController<TView> {
         ObservableProperty<string> Name { get; }
 
+        StorageObjectID StorageObjectID { get; }
+
         EditorFile<TView> File { get; }
 
         CommandCenter CommandCenter { get; }

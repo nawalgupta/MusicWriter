@@ -9,10 +9,8 @@ namespace MusicWriter {
     public interface ITrackFactory {
         string Name { get; }
 
-        ITrack Create();
+        void Init(IStorageObject storage);
 
-        ITrack Load(Stream stream);
-
-        void Save(ITrack track, Stream stream);
+        ITrack Load(IStorageObject storage);
     }
 }

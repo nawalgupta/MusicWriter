@@ -9,10 +9,8 @@ namespace MusicWriter {
     public interface ITrackControllerFactory<TView> {
         string Name { get; }
 
-        ITrackController<TView> Create(EditorFile<TView> file);
+        void Init(IStorageObject storage, EditorFile<TView> file);
 
-        ITrackController<TView> Load(Stream stream, EditorFile<TView> file);
-
-        void Save(Stream stream, ITrackController<TView> controller, EditorFile<TView> file);
+        ITrackController<TView> Load(IStorageObject storage, EditorFile<TView> file);
     }
 }

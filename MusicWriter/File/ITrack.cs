@@ -10,6 +10,8 @@ namespace MusicWriter {
 
         ObservableProperty<Time> Length { get; }
 
+        StorageObjectID StorageObjectID { get; }
+
         ITrackFactory Factory { get; }
 
         event Action Dirtied;
