@@ -134,6 +134,14 @@ namespace MusicWriter
 
             foreach (var source in arrows_to_source.Lookup(id))
                 RemoveArrow(source, id);
+
+            if (isolated_nodes.Contains(id))
+                isolated_nodes.Remove(id);
+
+            storage.Remove(id);
+            archivalstates.Remove(id);
+            arrows_to_sink.Remove(id);
+            arrows_to_source.Remove(id);
         }
 
         public IEnumerable<StorageObjectID> Isolated() =>

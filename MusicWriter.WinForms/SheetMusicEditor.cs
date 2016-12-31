@@ -483,11 +483,11 @@ namespace MusicWriter.WinForms {
             var duration =
                 MusicCursor.Caret.Duration;
 
-            var note =
+            var noteID =
                 ActiveTrack.Melody.AddNote(tone, duration);
             
-            noteselections[ActiveTrack].Selected_End.Add(note.ID);
-            noteselections[ActiveTrack].Selected_Tone.Add(note.ID);
+            noteselections[ActiveTrack].Selected_End.Add(noteID);
+            noteselections[ActiveTrack].Selected_Tone.Add(noteID);
             
             Invalidate();
         }

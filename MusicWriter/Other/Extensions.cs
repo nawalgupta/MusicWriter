@@ -235,5 +235,8 @@ namespace MusicWriter {
                 return parent.Graph[childID];
             }
         }
+
+        public static IStorageObject Get(this IStorageObject parent, string child) =>
+            parent.Graph[parent[child]];
     }
 }

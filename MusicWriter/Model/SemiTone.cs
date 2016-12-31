@@ -29,6 +29,12 @@ namespace MusicWriter {
         public static readonly SemiTone NegativeOne = new SemiTone(-1);
         public static readonly SemiTone PositiveOne = new SemiTone(+1);
 
+        public static bool operator ==(SemiTone a, SemiTone b) =>
+            a.Semitones == b.Semitones;
+
+        public static bool operator !=(SemiTone a, SemiTone b) =>
+            a.Semitones != b.Semitones;
+
         public static SemiTone operator +(SemiTone a, SemiTone delta) =>
             new SemiTone(a.Semitones + delta.Semitones);
 

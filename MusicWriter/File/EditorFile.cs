@@ -53,16 +53,57 @@ namespace MusicWriter {
             Screens.ItemRemoved += Screens_ItemRemoved;
         }
 
-        public ITrack CreateTrack(string type) {
+        public async Task<ITrack> CreateTrackAsync(string type) {
+            var factory = Capabilities.TrackFactories.FirstOrDefault(_ => _.Name == type);
+            var storageobjectID = storage.Create();
 
+            factory.Init(storage[storageobjectID]);
+
+            return await Task.Run(async () => {
+                do {
+                    var track = Tracks.FirstOrDefault(_ => _.StorageObjectID == storageobjectID);
+
+                    if (track != null)
+                        return track;
+
+                    await Task.Delay(100);
+                } while (true);
+            });
         }
 
-        public ITrackController<View> CreateTrackController(string type) {
+        public ITrack CreateTrack(string type) =>
+            CreateTrackAsync(type)
+                .GetAwaiter()
+                .GetResult();
 
+        public async Task<ITrackController<View>> CreateTrackControllerAsync(string type) {
+            var factory = Capabilities.ControllerFactories.FirstOrDefault(_ => _.Name == type);
+            var storageobjectID = storage.Create();
+
+            factory.Init(storage[storageobjectID], this);
+
+            return await Task.Run(async () => {
+                do {
+                    var controller = Controllers.FirstOrDefault(_ => _.StorageObjectID == storageobjectID);
+
+                    if (controller != null)
+                        return controller;
+
+                    await Task.Delay(100);
+                } while (true);
+            });
         }
+
+        public ITrackController<View> CreateTrackController(string type) =>
+            CreateTrackControllerAsync(type)
+                .GetAwaiter()
+                .GetResult();
 
         public Screen<View> CreateScreen() {
+            var storageobjectID = storage.Create();
+            var screen = new Screen<View>(storageobjectID, this);
 
+            return screen;
         }
 
         public ITrack GetTrack(StorageObjectID storageobjectID) =>
