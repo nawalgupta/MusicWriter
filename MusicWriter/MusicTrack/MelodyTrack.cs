@@ -23,6 +23,9 @@ namespace MusicWriter {
         
         public event FieldChangedDelegate FieldChanged;
 
+        public ObservableProperty<Time> Length { get; } =
+            new ObservableProperty<Time>(Time.Zero);
+
         public Note this[NoteID noteID] {
             get { return notes_lookup[noteID]; }
             set { UpdateNote(noteID, value.Duration, value.Tone); }
@@ -49,6 +52,25 @@ namespace MusicWriter {
                 var duration = CodeTools.ReadDuration(contents[0]);
                 var tone = new SemiTone(int.Parse(contents[1]));
 
+                var note =
+                    new Note(
+                            noteID,
+                            duration,
+                            tone
+                        );
+
+                notes_field.Add(noteID, duration);
+                notes_lookup.Add(noteID, note);
+                FieldChanged?.Invoke(duration);
+            };
+
+            notes_obj.ChildContentsChanged += (notes_objID, changed_note_objID) => {
+                var noteID = new NoteID(int.Parse(notes_obj.GetRelation(changed_note_objID)));
+                var new_note_obj = notes_obj.Graph[changed_note_objID];
+                var contents = new_note_obj.ReadAllString().Split('\n');
+                var duration = CodeTools.ReadDuration(contents[0]);
+                var tone = new SemiTone(int.Parse(contents[1]));
+
                 Note oldnote;
                 if (notes_lookup.TryGetValue(noteID, out oldnote)) {
                     if (oldnote.Duration != duration ||
@@ -64,10 +86,7 @@ namespace MusicWriter {
                             oldnote.Duration;
 
                         notes_lookup[noteID] = newnote;
-
-                        notes_field.Remove(noteID, oldnoteduration);
-                        notes_field.Add(noteID, duration);
-
+                        notes_field.Move(noteID, oldnoteduration, duration);
                         FieldChanged?.Invoke(oldnoteduration.Union(duration));
                     }
                 }
@@ -77,13 +96,19 @@ namespace MusicWriter {
                 var noteID = new NoteID(int.Parse(notes_obj.GetRelation(old_note_objID)));
 
                 var oldnote = notes_lookup[noteID];
+
                 notes_field.Remove(noteID, oldnote.Duration);
                 notes_lookup.Remove(noteID);
-
                 FieldChanged?.Invoke(oldnote.Duration);
             };
+
+            notes_field.GeneralDuration.AfterChange += GeneralDuration_AfterChange;
         }
-        
+
+        private void GeneralDuration_AfterChange(Duration old, Duration @new) {
+            Length.Value = @new.End;
+        }
+
         public IEnumerable<Note> NotesInTime(Duration duration) =>
             notes_field
                 .Intersecting(duration)
@@ -109,20 +134,9 @@ namespace MusicWriter {
         }
 
         public void UpdateNote(NoteID noteID, Duration newduration, SemiTone newtone) {
-            var newnote =
-                new Note(
-                        noteID,
-                        newduration,
-                        newtone
-                    );
+            var note_obj = notes_obj.Get(noteID.ToString());
 
-            var oldnoteduration =
-                notes_lookup[noteID].Duration;
-
-            notes_lookup[noteID] = newnote;
-
-            notes_field.Remove(noteID, oldnoteduration);
-            notes_field.Add(noteID, newduration);
+            note_obj.WriteAllString($"{newtone}\n{CodeTools.WriteDuration(newduration)}");
         }
 
         public void DeleteNote(NoteID noteID) {

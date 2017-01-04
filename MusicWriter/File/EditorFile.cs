@@ -10,20 +10,25 @@ using System.Threading.Tasks;
 using static MusicWriter.TimeSignature;
 
 namespace MusicWriter {
-    public sealed class EditorFile<View> {
-        readonly MusicBrain brain = new MusicBrain();
+    public sealed class EditorFile<View>
+    {
         readonly Dictionary<string, ITrack> trackmap =
             new Dictionary<string, ITrack>();
         IStorageGraph storage = new MemoryStorageGraph();
+        TrackSettings tracksettings;
 
         public IStorageGraph Storage {
             get { return storage; }
         }
 
+        public TrackSettings TrackSettings {
+            get { return tracksettings; }
+        }
+
         public ObservableList<ITrack> Tracks { get; } =
             new ObservableList<ITrack>();
 
-        public  ObservableList<ITrackController<View>> Controllers { get; } =
+        public ObservableList<ITrackController<View>> Controllers { get; } =
             new ObservableList<ITrackController<View>>();
 
         public ObservableList<Screen<View>> Screens { get; } =
@@ -31,18 +36,12 @@ namespace MusicWriter {
 
         public FileCapabilities<View> Capabilities =
             new FileCapabilities<View>();
-        
+
         public ITrack this[string name] {
             get { return trackmap[name]; }
         }
-
-        public MusicBrain Brain {
-            get { return brain; }
-        }
-
+        
         public EditorFile() {
-            InitializeBrain();
-
             Tracks.ItemAdded += Tracks_ItemAdded;
             Tracks.ItemRemoved += Tracks_ItemRemoved;
 
@@ -57,7 +56,7 @@ namespace MusicWriter {
             var factory = Capabilities.TrackFactories.FirstOrDefault(_ => _.Name == type);
             var storageobjectID = storage.Create();
 
-            factory.Init(storage[storageobjectID]);
+            factory.Init(storage[storageobjectID], tracksettings);
 
             return await Task.Run(async () => {
                 do {
@@ -141,10 +140,10 @@ namespace MusicWriter {
         void Tracks_ItemRemoved(ITrack track) {
             if (!trackmap.ContainsKey(track.Name.Value))
                 throw new InvalidOperationException("Cannot delete track - doesn't exist");
-            
+
             track.Name.BeforeChange -= Track_Rename;
             trackmap.Remove(track.Name.Value);
-            
+
             storage[storage.Root]
                 .GetOrMake("tracks")
                 .Remove(track.StorageObjectID);
@@ -167,7 +166,7 @@ namespace MusicWriter {
                 .GetOrMake("screens")
                 .Remove(screen.StorageObjectID);
         }
-        
+
         public void Clear() {
             trackmap.Clear();
             Tracks.Clear();
@@ -194,14 +193,14 @@ namespace MusicWriter {
 
             Reload();
         }
-        
+
         void Reload() {
             var tracks =
                 storage[storage.Root].GetOrMake("tracks");
 
             tracks.ChildAdded += (tracksnodeID, newtrackID) => {
                 var trackobj = storage[newtrackID];
-                
+
                 var type = storage[trackobj["type"]].ReadAllString();
 
                 var trackfactory =
@@ -209,8 +208,8 @@ namespace MusicWriter {
                         .TrackFactories
                         .FirstOrDefault(_ => _.Name == type);
 
-                var track = trackfactory.Load(trackobj);
-                
+                var track = trackfactory.Load(trackobj, tracksettings);
+
                 Tracks.Add(track);
             };
 
@@ -260,13 +259,8 @@ namespace MusicWriter {
                 if (screen != null)
                     Screens.Remove(screen);
             };
-        }
-        
-        void InitializeBrain() {
-            brain.InsertCog(new NotePerceptualCog());
-            //brain.InsertCog(new NoteLayoutPerceptualCog());
-            //brain.InsertCog(new ChordLayoutPerceptualCog());
-            brain.InsertCog(new MeasureLayoutPerceptualCog());
+
+            tracksettings = new TrackSettings(storage[storage.Root].GetOrMake("track-settings"));
         }
     }
 }

@@ -14,11 +14,13 @@ namespace MusicWriter
 
         IEnumerable<StorageObjectID> Children { get; }
 
+        bool IsEmpty { get; }
+
         StorageObjectID this[string key] { get; }
 
         event StorageObjectChildChangedDelegate ChildAdded;
         event StorageObjectChildChangedDelegate ChildRemoved;
-        event StorageObjectChildChangedDelegate ChildRenamed;
+        event StorageObjectChildRekeyedDelegate ChildRenamed;
         event StorageObjectChildChangedDelegate ChildContentsChanged;
 
         event StorageObjectChangedDelegate ContentsChanged;
@@ -30,6 +32,7 @@ namespace MusicWriter
         Stream OpenRead();
         Stream OpenWrite();
 
+        bool HasChild(string relation);
         void Add(string key, StorageObjectID id);
         void Rename(string oldkey, string newkey);
         void Rename(StorageObjectID child, string newkey);

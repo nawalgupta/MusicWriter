@@ -26,7 +26,7 @@ namespace MusicWriter {
                 Clef clef = default(Clef),
                 int lines = 5
             ) {
-            Clef = clef;
+            Clef = clef ?? new Clef();
             Lines = lines;
         }
 

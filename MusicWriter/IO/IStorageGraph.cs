@@ -16,7 +16,7 @@ namespace MusicWriter
         
         event StorageObjectChildChangedDelegate ArrowAdded;
         event StorageObjectChildChangedDelegate ArrowRemoved;
-        event StorageObjectChildChangedDelegate ArrowRenamed;
+        event StorageObjectChildRekeyedDelegate ArrowRenamed;
 
         event StorageObjectChangedDelegate NodeCreated;
         event StorageObjectChangedDelegate NodeContentsSet;
@@ -25,6 +25,7 @@ namespace MusicWriter
         IEnumerable<KeyValuePair<string, StorageObjectID>> Outgoing(StorageObjectID source);
         IEnumerable<StorageObjectID> Incoming(StorageObjectID sink);
 
+        bool HasChild(StorageObjectID source, string relation);
         string GetRelation(StorageObjectID source, StorageObjectID sink);
 
         StorageObjectID Create();

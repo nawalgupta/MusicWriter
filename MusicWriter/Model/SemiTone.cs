@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public struct SemiTone {
+    public struct SemiTone : IEquatable<SemiTone> {
         public ChromaticPitchClass PitchClass;
         public int Octave;
         
@@ -28,6 +28,15 @@ namespace MusicWriter {
         public static readonly SemiTone Zero = new SemiTone(ChromaticPitchClass.C, 0);
         public static readonly SemiTone NegativeOne = new SemiTone(-1);
         public static readonly SemiTone PositiveOne = new SemiTone(+1);
+
+        public override int GetHashCode() => Semitones;
+
+        public override bool Equals(object obj) =>
+            obj is SemiTone &&
+            Equals((SemiTone)obj);
+
+        public bool Equals(SemiTone that) =>
+            this == that;
 
         public static bool operator ==(SemiTone a, SemiTone b) =>
             a.Semitones == b.Semitones;

@@ -37,8 +37,8 @@ namespace MusicWriter
                 ArrowAdded_list.Remove(value);
             }
         }
+        public event StorageObjectChildRekeyedDelegate ArrowRenamed;
         public event StorageObjectChildChangedDelegate ArrowRemoved;
-        public event StorageObjectChildChangedDelegate ArrowRenamed;
 
         readonly List<StorageObjectChangedDelegate> NodeCreated_list = new List<StorageObjectChangedDelegate>();
         public event StorageObjectChangedDelegate NodeCreated {
@@ -179,15 +179,18 @@ namespace MusicWriter
         }
 
         protected virtual void RenameArrow(StorageObjectID source, StorageObjectID sink, string newkey) {
+            string oldkey = default(string);
+
             var list = arrows_to_sink.Lookup(source);
             for (int i = 0; i < list.Count; i++) {
                 if (list[i].Value == sink) {
+                    oldkey = list[i].Key;
                     list[i] = new KeyValuePair<string, StorageObjectID>(newkey, sink);
                     break;
                 }
             }
 
-            ArrowRenamed?.Invoke(source, sink);
+            ArrowRenamed?.Invoke(source, sink, oldkey, newkey);
         }
 
         protected virtual void SetContents(StorageObjectID id) {
@@ -207,6 +210,14 @@ namespace MusicWriter
             storage[id];
 
         public string GetRelation(StorageObjectID source, StorageObjectID sink) =>
-            arrows_to_sink.Lookup(source).FirstOrDefault(x => x.Value == sink).Key;
+            arrows_to_sink
+                .Lookup(source)
+                .FirstOrDefault(x => x.Value == sink)
+                .Key;
+
+        public bool HasChild(StorageObjectID source, string relation) =>
+            arrows_to_sink
+                .Lookup(source)
+                .Any(kvp => kvp.Key == relation);
     }
 }

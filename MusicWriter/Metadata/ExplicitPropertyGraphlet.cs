@@ -6,21 +6,21 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class ExplicitPropertyGraphlet<K> : IPropertyGraphlet<K> {
-        readonly Dictionary<Type, Dictionary<K, object>> properties =
-            new Dictionary<Type, Dictionary<K, object>>();
+        readonly Dictionary<Property, Dictionary<K, object>> properties =
+            new Dictionary<Property, Dictionary<K, object>>();
 
-        public IEnumerable<KeyValuePair<K, KeyValuePair<Type, object>[]>> Extract(params K[] subset) {
+        public IEnumerable<KeyValuePair<K, KeyValuePair<Property, object>[]>> Extract(params K[] subset) {
             var buckets =
-                new Dictionary<K, List<KeyValuePair<Type, object>>>();
+                new Dictionary<K, List<KeyValuePair<Property, object>>>();
 
             foreach (var property in properties) {
-                List<KeyValuePair<Type, object>> list;
+                List<KeyValuePair<Property, object>> list;
 
                 foreach (var member in property.Value) {
                     if (!buckets.TryGetValue(member.Key, out list))
-                        buckets.Add(member.Key, list = new List<KeyValuePair<Type, object>>());
+                        buckets.Add(member.Key, list = new List<KeyValuePair<Property, object>>());
 
-                    list.Add(new KeyValuePair<Type, object>(property.Key, member.Value));
+                    list.Add(new KeyValuePair<Property, object>(property.Key, member.Value));
                 }
             }
 
@@ -28,14 +28,14 @@ namespace MusicWriter {
                 buckets
                     .Select(
                             kvp =>
-                                new KeyValuePair<K, KeyValuePair<Type, object>[]>(
+                                new KeyValuePair<K, KeyValuePair<Property, object>[]>(
                                         kvp.Key,
                                         kvp.Value.ToArray()
                                     )
                         );
         }
 
-        public void Inject(IEnumerable<KeyValuePair<K, KeyValuePair<Type, object>[]>> data) {
+        public void Inject(IEnumerable<KeyValuePair<K, KeyValuePair<Property, object>[]>> data) {
             Dictionary<K, object> dict;
 
             foreach (var member in data) {
@@ -48,27 +48,24 @@ namespace MusicWriter {
             }
         }
 
-        public T Get<T>(K item) {
-            var type = typeof(T);
+        public object Get(K item, Property property) {
             Dictionary<K, object> lookup;
 
-            if (!properties.TryGetValue(type, out lookup))
-                properties.Add(type, lookup = new Dictionary<K, object>());
+            if (!properties.TryGetValue(property, out lookup))
+                properties.Add(property, lookup = new Dictionary<K, object>());
 
-            T value = default(T);
-            object outval;
-            if (lookup.TryGetValue(item, out outval))
-                value = (T)outval;
+            object value;
+            if (!lookup.TryGetValue(item, out value))
+                value = property.Default;
 
             return value;
         }
 
-        public void Set<T>(K item, T value) {
-            var type = typeof(T);
+        public void Set(K item, Property property, object value) {
             Dictionary<K, object> lookup;
 
-            if (!properties.TryGetValue(type, out lookup))
-                properties.Add(type, lookup = new Dictionary<K, object>());
+            if (!properties.TryGetValue(property, out lookup))
+                properties.Add(property, lookup = new Dictionary<K, object>());
 
             if (lookup.ContainsKey(item))
                 lookup[item] = value;

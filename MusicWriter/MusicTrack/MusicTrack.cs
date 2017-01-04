@@ -7,13 +7,25 @@ using static MusicWriter.TimeSignature;
 
 namespace MusicWriter {
     public sealed class MusicTrack : ITrack {
+        readonly IStorageObject storage;
+        readonly TrackSettings settings;
+
         readonly MelodyTrack melody;
         readonly RhythmTrack rhythm;
         readonly AdornmentTrack adornment;
         readonly PerceptualMemory memory;
         readonly IPropertyGraphlet<NoteID> propertygraphlet;
+        readonly PropertyManager propertymanager;
 
         public event Action Dirtied;
+
+        public StorageObjectID StorageObjectID {
+            get { return storage.ID; }
+        }
+
+        public TrackSettings Settings {
+            get { return settings; }
+        }
 
         public MelodyTrack Melody {
             get { return melody; }
@@ -35,6 +47,10 @@ namespace MusicWriter {
             get { return propertygraphlet; }
         }
 
+        public PropertyManager PropertyManager {
+            get { return propertymanager; }
+        }
+
         public ITrackFactory Factory {
             get { return MusicTrackFactory.Instance; }
         }
@@ -42,80 +58,45 @@ namespace MusicWriter {
         public ObservableProperty<string> Name { get; } =
             new ObservableProperty<string>("");
 
-        public ObservableProperty<Time> Length { get; } =
-            new ObservableProperty<Time>(Time.Zero);
+        public ObservableProperty<Time> Length {
+            get { return melody.Length; }
+        }
 
         public MusicTrack(
-                MelodyTrack melody,
-                RhythmTrack rhythm,
-                AdornmentTrack adornment,
-                PerceptualMemory memory,
-                IPropertyGraphlet<NoteID> propertygraphlet
+                IStorageObject storage,
+                TrackSettings settings
             ) {
-            this.melody = melody;
-            this.rhythm = rhythm;
-            this.adornment = adornment;
-            this.memory = memory;
-            this.propertygraphlet = propertygraphlet;
+            melody = new MelodyTrack(storage.GetOrMake("melody"));
+            rhythm = new RhythmTrack(storage.GetOrMake("rhythm"));
+            adornment = new AdornmentTrack(storage.GetOrMake("adornment"));
+            memory = new PerceptualMemory();
+            propertygraphlet = new StoragePropertyGraphlet<NoteID>(storage, propertymanager);
+            propertymanager = settings.PropertyManager;
 
-            melody.FieldChanged += Update;
-		}
+            this.settings = settings;
 
-		public static MusicTrack Create() {
-			var track =
-				new MusicTrack(
-						new MelodyTrack(),
-						new RhythmTrack(),
-						new AdornmentTrack(),
-						new PerceptualMemory(),
-						new ExplicitPropertyGraphlet<NoteID>()
-					);
-
-			track.Rhythm.TimeSignatures.ScootAndOverwrite(new TimeSignature(new Simple(4, 4)), Duration.Eternity);
-			track.Rhythm.MeterSignatures.ScootAndOverwrite(MeterSignature.Default(track.Rhythm.TimeSignaturesInTime(Duration.Eternity).Single().Value.Simples[0]), Duration.Eternity);
-			track.Adornment.Staffs.ScootAndOverwrite(Staff.Treble, Duration.Eternity);
-			track.Adornment.KeySignatures.ScootAndOverwrite(KeySignature.Create(DiatonicToneClass.C, PitchTransform.Natural, Mode.Major), Duration.Eternity);
-
-			track.Memory.InsertMemoryModule(new EditableMemoryModule<NoteLayout>());
-			track.Memory.InsertMemoryModule(new EditableMemoryModule<ChordLayout>());
-			track.Memory.InsertMemoryModule(new EditableMemoryModule<MeasureLayout>());
-			track.Memory.InsertMemoryModule(new IgnorantMemoryModule<Cell>(track.Rhythm));
-			track.Memory.InsertMemoryModule(new IgnorantMemoryModule<Simple>(track.Rhythm));
-			track.Memory.InsertMemoryModule(new IgnorantMemoryModule<Measure>(track.Rhythm));
-			track.Memory.InsertMemoryModule(new IgnorantMemoryModule<Note>(track.Melody));
-			track.Memory.InsertMemoryModule(new IgnorantMemoryModule<KeySignature>(track.Adornment.KeySignatures));
-			track.Memory.InsertMemoryModule(new IgnorantMemoryModule<Staff>(track.Adornment.Staffs));
-			track.Memory.InsertMemoryModule(new NotePerceptualCog.MemoryModule());
-
-			return track;
-		}
-
-		void Update() {
-            var end =
-                melody
-                    .AllNotes()
-                    .Select(note => note.Duration.End)
-                    .Aggregate(
-                            Time.Zero,
-                            Time.Max
-                        );
-
-            end =
-                rhythm
-                    .TimeSignatures
-                    .Intersecting_children(end)
-                    .First()
-                    .Duration
-                    .End;
-
-            if (end != Length.Value) {
-                //if (Length.Value > end)
-                //    memory.Forget(new Duration { Start = Length.Value, End = end });
-
-                Length.Value = end;
-
-                Dirtied?.Invoke();
+            if (!storage.HasChild("state") || storage.Get("state").ReadAllString() != "inited") {
+                Init();
+                storage.GetOrMake("state").WriteAllString("inited");
             }
+        }
+
+        void Init() {
+            Rhythm.TimeSignatures.ScootAndOverwrite(new TimeSignature(new Simple(4, 4)), Duration.Eternity);
+            Rhythm.MeterSignatures.ScootAndOverwrite(MeterSignature.Default(Rhythm.TimeSignaturesInTime(Duration.Eternity).Single().Value.Simples[0]), Duration.Eternity);
+            Adornment.Staffs.ScootAndOverwrite(Staff.Treble, Duration.Eternity);
+            Adornment.KeySignatures.ScootAndOverwrite(KeySignature.Create(DiatonicToneClass.C, PitchTransform.Natural, Mode.Major), Duration.Eternity);
+
+            Memory.InsertMemoryModule(new EditableMemoryModule<NoteLayout>());
+            Memory.InsertMemoryModule(new EditableMemoryModule<ChordLayout>());
+            Memory.InsertMemoryModule(new EditableMemoryModule<MeasureLayout>());
+            Memory.InsertMemoryModule(new IgnorantMemoryModule<Cell>(Rhythm));
+            Memory.InsertMemoryModule(new IgnorantMemoryModule<Simple>(Rhythm));
+            Memory.InsertMemoryModule(new IgnorantMemoryModule<Measure>(Rhythm));
+            Memory.InsertMemoryModule(new IgnorantMemoryModule<Note>(Melody));
+            Memory.InsertMemoryModule(new IgnorantMemoryModule<KeySignature>(Adornment.KeySignatures));
+            Memory.InsertMemoryModule(new IgnorantMemoryModule<Staff>(Adornment.Staffs));
+            Memory.InsertMemoryModule(new NotePerceptualCog.MemoryModule());
         }
 
         private class ClipboardData {
@@ -125,7 +106,7 @@ namespace MusicWriter {
             public IDuratedItem<KeySignature>[] KeySignatures;
             public IDuratedItem<MeterSignature>[] MeterSignatures;
             public IDuratedItem<Staff>[] Staffs;
-            public KeyValuePair<NoteID, KeyValuePair<Type, object>[]>[] PropertyGraphletData;
+            public KeyValuePair<NoteID, KeyValuePair<Property, object>[]>[] PropertyGraphletData;
         }
 
         public void Erase(Duration window) {
@@ -133,20 +114,30 @@ namespace MusicWriter {
 
             foreach (Note note in melody.Intersecting(window).ToArray()) {
                 var subtractedtime =
-                    note.Duration.Subtract_Time(window);
+                    note
+                        .Duration
+                        .Subtract(window)
+                        .Select(
+                                duration =>
+                                    duration.Start > window.Start ?
+                                        duration - window.Start :
+                                        duration
+                            )
+                        .ToArray();
 
-                if (subtractedtime == null)
+                if (subtractedtime.Length == 0)
                     melody.DeleteNote(note.ID);
                 else {
-                    melody.UpdateNote(note.ID, subtractedtime, note.Tone);
+                    melody.UpdateNote(note.ID, subtractedtime[0], note.Tone);
+
+                    for (int i = 1; i < subtractedtime.Length; i++)
+                        melody.AddNote(note.Tone, subtractedtime[i]);
                 }
             }
         }
 
         public void Delete(Duration window) {
             // Deleting applies to everything
-            Erase(window);
-
             var beyond =
                 new Duration {
                     Start = window.End,
@@ -159,52 +150,22 @@ namespace MusicWriter {
                     End = Time.Eternity
                 };
 
-            foreach (Note note in melody.Intersecting(beyond).ToArray()) {
-                var subtractedtime =
-                    note.Duration - window.Length;
-
-                melody.UpdateNote(note.ID, subtractedtime, note.Tone);
+            foreach (Note note in melody.Intersecting(throughandbeyond).ToArray()) {
+                if (note.Duration.IsInside(window))
+                    melody.DeleteNote(note.ID);
+                else {
+                    var subtractedtime =
+                        note.Duration - window;
+                    
+                    melody.UpdateNote(note.ID, subtractedtime, note.Tone);
+                }
             }
 
-            foreach (var timesig in rhythm.TimeSignatures.Intersecting(throughandbeyond).ToArray()) {
-                var subtractedtime =
-                    timesig.Duration.Subtract_Time(window);
+            rhythm.TimeSignatures.DeleteTime(window);
+            rhythm.MeterSignatures.DeleteTime(window);
 
-                rhythm.TimeSignatures.Remove(timesig);
-
-                if (subtractedtime != null)
-                    rhythm.TimeSignatures.Add(timesig.Value, subtractedtime);
-            }
-
-            foreach (var metersig in rhythm.MeterSignatures.Intersecting(throughandbeyond).ToArray()) {
-                var subtractedtime =
-                    metersig.Duration.Subtract_Time(window);
-
-                rhythm.MeterSignatures.Remove(metersig);
-
-                if (subtractedtime != null)
-                    rhythm.MeterSignatures.Add(metersig.Value, subtractedtime);
-            }
-
-            foreach (var staff in adornment.Staffs.Intersecting(throughandbeyond).ToArray()) {
-                var subtractedtime =
-                    staff.Duration.Subtract_Time(window);
-
-                adornment.Staffs.Remove(staff);
-
-                if (subtractedtime != null)
-                    adornment.Staffs.Add(staff.Value, subtractedtime);
-            }
-
-            foreach (var keysig in adornment.KeySignatures.Intersecting(throughandbeyond).ToArray()) {
-                var subtractedtime =
-                    keysig.Duration.Subtract_Time(window);
-
-                adornment.KeySignatures.Remove(keysig);
-
-                if (subtractedtime != null)
-                    adornment.KeySignatures.Add(keysig.Value, subtractedtime);
-            }
+            adornment.Staffs.DeleteTime(window);
+            adornment.KeySignatures.DeleteTime(window);
         }
 
         public object Copy(Duration window) =>
@@ -300,7 +261,6 @@ namespace MusicWriter {
                                     note.Tone,
                                     note.Duration + insert
                                 )
-                            .ID
                     );
 
             foreach (var signature in clipboard.TimeSignatures)
@@ -320,7 +280,7 @@ namespace MusicWriter {
                     .PropertyGraphletData
                     .Select(
                             kvp =>
-                                new KeyValuePair<NoteID, KeyValuePair<Type, object>[]>(
+                                new KeyValuePair<NoteID, KeyValuePair<Property, object>[]>(
                                         noteID_translations[kvp.Key],
                                         kvp.Value
                                     )

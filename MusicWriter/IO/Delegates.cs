@@ -11,5 +11,12 @@ namespace MusicWriter
             StorageObjectID child
         );
 
+    public delegate void StorageObjectChildRekeyedDelegate(
+            StorageObjectID container,
+            StorageObjectID child,
+            string oldkey,
+            string newkey
+        );
+
     public delegate void StorageObjectChangedDelegate(StorageObjectID affected);
 }

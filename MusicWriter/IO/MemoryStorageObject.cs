@@ -148,7 +148,7 @@ namespace MusicWriter
 
             public event StorageObjectChildChangedDelegate ChildAdded;
             public event StorageObjectChildChangedDelegate ChildRemoved;
-            public event StorageObjectChildChangedDelegate ChildRenamed;
+            public event StorageObjectChildRekeyedDelegate ChildRenamed;
             public event StorageObjectChildChangedDelegate ChildContentsChanged;
 
             public event StorageObjectChangedDelegate ContentsChanged;
@@ -164,6 +164,10 @@ namespace MusicWriter
 
             public IEnumerable<StorageObjectID> Children {
                 get { return graph.Outgoing(id).Select(child => child.Value); }
+            }
+
+            public bool IsEmpty {
+                get { return filedata.data.Length == 0; }
             }
 
             public StorageObjectID this[string key] {
@@ -197,22 +201,35 @@ namespace MusicWriter
                 graph.NodeContentsSet -= Graph_NodeContentsChanged;
             }
 
-            private void Graph_ArrowAdded(StorageObjectID container, StorageObjectID child) {
+            private void Graph_ArrowAdded(
+                    StorageObjectID container,
+                    StorageObjectID child
+                ) {
                 if (container == id)
                     ChildAdded?.Invoke(container, child);
             }
 
-            private void Graph_ArrowRemoved(StorageObjectID container, StorageObjectID child) {
+            private void Graph_ArrowRemoved(
+                    StorageObjectID container,
+                    StorageObjectID child
+                ) {
                 if (container == id)
                     ChildRemoved?.Invoke(container, child);
             }
 
-            private void Graph_ArrowRenamed(StorageObjectID container, StorageObjectID child) {
+            private void Graph_ArrowRenamed(
+                    StorageObjectID container,
+                    StorageObjectID child,
+                    string oldkey,
+                    string newkey
+                ) {
                 if (container == id)
-                    ChildRenamed?.Invoke(container, child);
+                    ChildRenamed?.Invoke(container, child, oldkey, newkey);
             }
 
-            private void Graph_NodeContentsChanged(StorageObjectID affected) {
+            private void Graph_NodeContentsChanged(
+                    StorageObjectID affected
+                ) {
                 if (affected == id)
                     ContentsChanged?.Invoke(affected);
 
@@ -222,6 +239,9 @@ namespace MusicWriter
 
             private void Filedata_Written() =>
                 graph.SetContents(id);
+
+            public bool HasChild(string child) =>
+                graph.HasChild(id, child);
 
             public IStorageObject Open(string child) =>
                 graph[this[child]];

@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public interface IPropertyGraphlet<K> {
-        T Get<T>(K item);
+        object Get(K item, Property property);
 
-        void Set<T>(K item, T value);
+        void Set(K item, Property property, object value);
 
-        void Inject(IEnumerable<KeyValuePair<K, KeyValuePair<Type, object>[]>> data);
+        void Inject(IEnumerable<KeyValuePair<K, KeyValuePair<Property, object>[]>> data);
 
-        IEnumerable<KeyValuePair<K, KeyValuePair<Type, object>[]>> Extract(params K[] subset);
+        IEnumerable<KeyValuePair<K, KeyValuePair<Property, object>[]>> Extract(params K[] subset);
     }
 }

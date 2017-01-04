@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public enum ClefSymbol {
-        Custom,
+    public enum ClefSymbol : int {
+        Custom = 0,
         Treble,
         Bass,
         Cclef
