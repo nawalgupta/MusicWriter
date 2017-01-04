@@ -35,15 +35,12 @@ namespace MusicWriter {
         }
 
         public Time DeltaFocus {
-            get { return Time.Zero; }
             set {
                 if ((Side & FocusSide.Left) == FocusSide.Left)
                     Duration.Start += value;
 
-                if (Side == FocusSide.Right)
+                if ((Side & FocusSide.Right) == FocusSide.Right)
                     Duration.End += value;
-                else if (Side == FocusSide.Both)
-                    Duration.End += Time.Zero;
             }
         }
 

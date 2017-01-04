@@ -12,6 +12,8 @@ namespace MusicWriter {
 
         StorageObjectID StorageObjectID { get; }
 
+        TrackSettings Settings { get; }
+
         ITrackFactory Factory { get; }
 
         event Action Dirtied;

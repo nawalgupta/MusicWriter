@@ -207,6 +207,26 @@ namespace MusicWriter {
                     }
                 );
 
+        public static void DeleteTime<T>(
+                this DurationField<T> field,
+                Duration eraser
+            ) {
+            var throughandbeyond =
+                new Duration {
+                    Start = eraser.Start,
+                    End = field.GeneralDuration.Value.End
+                };
+
+            foreach (var item in field.Intersecting(throughandbeyond).ToArray()) {
+                var subtractedtime =
+                    item.Duration.Subtract_Time(eraser);
+                
+                if (subtractedtime != null)
+                    field.Move(item, subtractedtime);
+                else field.Remove(item);
+            }
+        }
+
         public static string ReadAllString(this IStorageObject obj) {
             using (var stream = obj.OpenRead()) {
                 using (var tr = new StreamReader(stream)) {
@@ -238,5 +258,8 @@ namespace MusicWriter {
 
         public static IStorageObject Get(this IStorageObject parent, string child) =>
             parent.Graph[parent[child]];
+
+        public static IStorageObject CreateObject(this IStorageGraph graph) =>
+            graph[graph.Create()];
     }
 }

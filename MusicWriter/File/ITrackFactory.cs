@@ -9,8 +9,14 @@ namespace MusicWriter {
     public interface ITrackFactory {
         string Name { get; }
 
-        void Init(IStorageObject storage);
+        void Init(
+                IStorageObject storage,
+                TrackSettings settings
+            );
 
-        ITrack Load(IStorageObject storage);
+        ITrack Load(
+                IStorageObject storage,
+                TrackSettings settings
+            );
     }
 }

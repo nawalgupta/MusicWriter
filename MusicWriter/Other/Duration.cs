@@ -11,7 +11,10 @@ namespace MusicWriter {
 
         public Time Start {
             get { return offset; }
-            set { offset = value; }
+            set {
+                length += value - offset;
+                offset = value;
+            }
         }
 
         public Time End {
@@ -22,6 +25,11 @@ namespace MusicWriter {
         public Time Length {
             get { return length; }
             set { length = value; }
+        }
+
+        public Time Offset {
+            get { return offset; }
+            set { offset = value; }
         }
 
         public Duration Union(Duration other) =>
@@ -138,6 +146,14 @@ namespace MusicWriter {
             Length = Time.Eternity
         };
 
+        public static Duration operator |(Duration a, Duration b) =>
+            a != null ?
+                a.Union(b) :
+                b;
+
+        public static Duration operator &(Duration a, Duration b) =>
+            a?.Intersection(b);
+
         public static Duration operator +(Duration duration, Time offset) =>
             new Duration {
                 Start = duration.Start + offset,
@@ -149,6 +165,9 @@ namespace MusicWriter {
                 Start = duration.Start - offset,
                 Length = duration.Length
             };
+
+        public static Duration operator -(Duration duration, Duration cut) =>
+            duration.Subtract_Time(cut);
 
         public bool IsInside(Duration container) =>
             container.Start <= Start &&

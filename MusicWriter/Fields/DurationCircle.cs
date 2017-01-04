@@ -118,7 +118,6 @@ namespace MusicWriter {
                                 );
 
                 duration.Start += Length;
-                duration.Length -= Length;
 
                 cycles++;
                 offset += Length;

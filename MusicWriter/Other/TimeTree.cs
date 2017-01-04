@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class TimeTree<V> {
-        readonly Time pivot;
+        Time pivot;
         readonly List<V> items = new List<V>();
         TimeTree<V> left, right;
 
@@ -72,6 +72,13 @@ namespace MusicWriter {
 
                 right.Add(item, time);
             }
+        }
+
+        public void Translate(Time delta) {
+            pivot += delta;
+
+            right?.Translate(delta);
+            left?.Translate(delta);
         }
 
         public IEnumerable<KeyValuePair<Time, V>> All() {
