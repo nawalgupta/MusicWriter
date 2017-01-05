@@ -44,51 +44,15 @@ namespace MusicWriter
                 get { return false; }
             }
 
-            public IFunction Create() =>
-                new PolynomialFunction();
-
-            public IFunction Create(params float[] args) =>
-                new PolynomialFunction(args);
-
-            public IFunction Create(IFunction[] args) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Create(IFunction context) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Create(IFunction context, params float[] args) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Create(IFunction[] args, params float[] numbers) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Create(IFunction context, IFunction[] args, params float[] numbers) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Deserialize(Stream stream) {
-                throw new InvalidOperationException();
-            }
-
-            public void Serialize(Stream stream, IFunction function) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Deserialize(Stream stream, IFunction context) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Deserialize(Stream stream, IFunction[] arguments) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Deserialize(Stream stream, IFunction context, IFunction[] arguments) {
-                throw new InvalidOperationException();
-            }
+            public IFunction Create(
+                    IFunction context = null,
+                    IFunction[] args = null,
+                    IStorageObject data = null,
+                    params float[] numbers
+                ) =>
+                new PolynomialFunction(
+                        numbers ?? new float[0]
+                    );
 
             private FactoryClass() { }
 

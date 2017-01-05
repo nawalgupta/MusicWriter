@@ -17,41 +17,11 @@ namespace MusicWriter
 
         bool AcceptsParameters { get; }
         
-        IFunction Create();
-
-        IFunction Create(IFunction context);
-
-        IFunction Create(IFunction[] args);
-
-        IFunction Create(IFunction[] args, params float[] numbers);
-
-        IFunction Create(params float[] args);
-
-        IFunction Create(IFunction context, params float[] args);
-
-        IFunction Create(IFunction context, IFunction[] args, params float[] numbers);
-
-        IFunction Deserialize(Stream stream);
-
-        IFunction Deserialize(
-                Stream stream,
-                IFunction context
-            );
-
-        IFunction Deserialize(
-                Stream stream,
-                IFunction[] arguments
-            );
-
-        IFunction Deserialize(
-                Stream stream,
-                IFunction context,
-                IFunction[] arguments
-            );
-
-        void Serialize(
-                Stream stream,
-                IFunction function
+        IFunction Create(
+                IFunction context = null,
+                IFunction[] args = null,
+                IStorageObject data = null,
+                params float[] numbers
             );
     }
 }

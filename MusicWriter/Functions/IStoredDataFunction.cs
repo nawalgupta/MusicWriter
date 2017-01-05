@@ -8,6 +8,6 @@ namespace MusicWriter
 {
     public interface IStoredDataFunction : IFunction
     {
-        string Name { get; }
+        StorageObjectID Storage { get; }
     }
 }

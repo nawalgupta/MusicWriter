@@ -5,9 +5,21 @@ using System.Text;
 namespace MusicWriter.Tests
 {
     [TestClass]
-    public class FunctionTests
+    public sealed class FunctionTests
     {
         FunctionCodeTools code;
+
+        IStorageGraph graph;
+        IStorageObject obj;
+        AssortedFilesManager assortedfiles;
+
+        [TestMethod]
+        [TestInitialize]
+        public void MyTestMethod() {
+            graph = new MemoryStorageGraph();
+            obj = graph.CreateObject();
+            assortedfiles = new AssortedFilesManager(graph.CreateObject());
+        }
 
         [TestMethod]
         [TestInitialize]
@@ -23,7 +35,7 @@ namespace MusicWriter.Tests
 
         [TestMethod]
         public void TestPolyline_1() {
-            var polyline = new PolylineFunction();
+            var polyline = new PolylineFunction(obj);
 
             polyline.Add(0, 0);
             polyline.Add(1, 2);
@@ -53,7 +65,7 @@ namespace MusicWriter.Tests
             var rendered =
                 new StringBuilder();
 
-            code.Render(rendered, func, null);
+            code.Render(rendered, func, assortedfiles, null);
 
             Assert.AreEqual(rendered.ToString(), "square global");
         }

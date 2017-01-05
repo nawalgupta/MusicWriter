@@ -8,12 +8,12 @@ namespace MusicWriter
 {
     public sealed class FunctionCodeTools
     {
-        public List<IFunctionFactory> Factories { get; } =
-            new List<IFunctionFactory>();
+        public ObservableList<IFunctionFactory> Factories { get; } =
+            new ObservableList<IFunctionFactory>();
 
         public IFunction Parse(
                 ref string source,
-                IStorageObject storage,
+                AssortedFilesManager assortedfiles,
                 List<KeyValuePair<Tuple<int, int>, string>> errors
             ) {
             IFunction context = null;
@@ -49,7 +49,13 @@ namespace MusicWriter
                     source = source.Substring(1).TrimStart();
 
                     while (!source.StartsWith("}")) {
-                        var arg = Parse(ref source, storage, errors);
+                        var arg =
+                            Parse(
+                                    ref source,
+                                    assortedfiles,
+                                    errors
+                                );
+
                         func_arguments.Add(arg);
 
                         if (source.StartsWith(";"))
@@ -65,78 +71,18 @@ namespace MusicWriter
                 if (factory == null)
                     errors.Add(new KeyValuePair<Tuple<int, int>, string>(null, $"Codename \"{name}\" not recognized."));
 
-                if (func_arguments.Count == 0 && num_arguments.Count == 0 && binary_key == null) {
-                    if (context != null)
-                        context = factory.Create(context);
-                    else context = factory.Create();
-                }
-                else if (binary_key != null) {
-                    var stream =
-                        storage.Read(binary_key);
+                var file =
+                    binary_key != null ?
+                        assortedfiles[binary_key] :
+                        null;
 
-                    if (context == null) {
-                        if (func_arguments.Count == 0)
-                            context =
-                                factory.Deserialize(stream);
-                        else
-                            context =
-                                factory.Deserialize(
-                                        stream,
-                                        func_arguments.ToArray()
-                                    );
-                    }
-                    else {
-                        if (func_arguments.Count == 0)
-                            context =
-                                factory.Deserialize(
-                                        stream,
-                                        context
-                                    );
-                        else context =
-                                factory.Deserialize(
-                                        stream,
-                                        context,
-                                        func_arguments.ToArray()
-                                    );
-                    }
-                }
-                else if (func_arguments.Count != 0) {
-                    if (context == null) {
-                        if (num_arguments.Count == 0)
-                            context =
-                                factory.Create(
-                                        func_arguments.ToArray()
-                                    );
-                        else context =
-                                factory.Create(
-                                        func_arguments.ToArray(),
-                                        num_arguments.ToArray()
-                                    );
-                    }
-                    else {
-                        if (num_arguments.Count == 0)
-                            context =
-                                factory.Create(
-                                        context,
-                                        func_arguments.ToArray()
-                                    );
-                        else context =
-                                factory.Create(
-                                        context,
-                                        func_arguments.ToArray(),
-                                        num_arguments.ToArray()
-                                    );
-                    }
-                }
-                else {
-#if DEBUG
-                    if (num_arguments.Count == 0)
-                        throw new Exception("This shouldn't happen");
-#endif
-                    if (context == null)
-                        context = factory.Create(num_arguments.ToArray());
-                    else context = factory.Create(context, num_arguments.ToArray());
-                }
+                context =
+                    factory.Create(
+                            context,
+                            func_arguments?.ToArray(),
+                            file,
+                            num_arguments?.ToArray()
+                        );
             }
 
             return context;
@@ -145,6 +91,7 @@ namespace MusicWriter
         public void Render(
                 StringBuilder builder,
                 IFunction function,
+                AssortedFilesManager assortedfiles,
                 IStorageObject storage
             ) {
             var function_contextual =
@@ -160,18 +107,18 @@ namespace MusicWriter
                 function as IStoredDataFunction;
 
             if (function_contextual != null) {
-                Render(builder, function_contextual.Context, storage);
+                Render(builder, function_contextual.Context, assortedfiles, storage);
                 builder.Append(" ");
             }
 
             builder.Append(function.Factory.CodeName);
-            
+
             if (function_storeddata != null) {
                 builder.Append("(@");
-                builder.Append(function_storeddata.Name);
+                builder.Append(assortedfiles.GetName(function_storeddata.Storage));
                 builder.Append(") ");
             }
-            else if(function_parameterized != null) {
+            else if (function_parameterized != null) {
                 builder.Append("(");
 
                 for (int i = 0; i < function_parameterized.Arguments.Length; i++) {
@@ -188,7 +135,7 @@ namespace MusicWriter
                 builder.Append("{");
 
                 for (int i = 0; i < function_mixing.Arguments.Length; i++) {
-                    Render(builder, function_mixing.Arguments[i], storage);
+                    Render(builder, function_mixing.Arguments[i], assortedfiles, storage);
 
                     if (i + 1 != function_mixing.Arguments.Length)
                         builder.AppendLine(";");

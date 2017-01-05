@@ -42,51 +42,18 @@ namespace MusicWriter
                 get { return false; }
             }
 
-            public IFunction Create() {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Create(float[] args) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Create(IFunction[] args) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Create(IFunction context) =>
-                Create(context, 1f / 256f);
-
-            public IFunction Create(IFunction context, params float[] args) =>
-                new StepwiseIntegratedFunction(args[0], context);
-
-            public IFunction Create(IFunction[] args, params float[] numbers) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Create(IFunction context, IFunction[] args, params float[] numbers) {
-                throw new InvalidOperationException();
-            }
-
-            public void Serialize(Stream stream, IFunction function) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Deserialize(Stream stream) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Deserialize(Stream stream, IFunction context) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Deserialize(Stream stream, IFunction[] arguments) {
-                throw new InvalidOperationException();
-            }
-
-            public IFunction Deserialize(Stream stream, IFunction context, IFunction[] arguments) {
-                throw new InvalidOperationException();
-            }
+            public IFunction Create(
+                    IFunction context = null,
+                    IFunction[] args = null,
+                    IStorageObject data = null,
+                    params float[] numbers
+                ) =>
+                new StepwiseIntegratedFunction(
+                        numbers?.Length == 1 ?
+                            numbers[0] : 
+                            1 / 256f,
+                        context
+                    );
 
             private FactoryClass() { }
 
