@@ -32,6 +32,8 @@ namespace MusicWriter {
         }
 
         public MelodyTrack(IStorageObject storage) {
+            this.storage = storage;
+
             Setup();
         }
 

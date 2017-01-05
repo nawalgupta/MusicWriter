@@ -16,8 +16,9 @@ namespace MusicWriter {
         readonly PerceptualMemory memory;
         readonly IPropertyGraphlet<NoteID> propertygraphlet;
         readonly PropertyManager propertymanager;
+        readonly PolylineFunction tempo;
 
-        public event Action Dirtied;
+        public event FieldChangedDelegate Dirtied;
 
         public StorageObjectID StorageObjectID {
             get { return storage.ID; }
@@ -51,6 +52,10 @@ namespace MusicWriter {
             get { return propertymanager; }
         }
 
+        public PolylineFunction Tempo {
+            get { return tempo; }
+        }
+
         public ITrackFactory Factory {
             get { return MusicTrackFactory.Instance; }
         }
@@ -72,14 +77,37 @@ namespace MusicWriter {
             memory = new PerceptualMemory();
             propertygraphlet = new StoragePropertyGraphlet<NoteID>(storage, propertymanager);
             propertymanager = settings.PropertyManager;
+            tempo = new PolylineFunction(storage.GetOrMake("tempo"), 120f);
 
+            this.storage = storage;
             this.settings = settings;
+
+            melody.FieldChanged += Melody_FieldChanged;
+            rhythm.MeterSignatures.FieldChanged += MeterSignatures_FieldChanged;
+            rhythm.TimeSignatures.FieldChanged += TimeSignatures_FieldChanged;
+            adornment.KeySignatures.FieldChanged += KeySignatures_FieldChanged;
+            adornment.Staffs.FieldChanged += Staffs_FieldChanged;
 
             if (!storage.HasChild("state") || storage.Get("state").ReadAllString() != "inited") {
                 Init();
                 storage.GetOrMake("state").WriteAllString("inited");
             }
         }
+
+        private void Melody_FieldChanged(Duration delta) =>
+            Dirtied?.Invoke(delta);
+
+        private void MeterSignatures_FieldChanged(Duration delta) =>
+            Dirtied?.Invoke(delta);
+
+        private void TimeSignatures_FieldChanged(Duration delta) =>
+            Dirtied?.Invoke(delta);
+
+        private void KeySignatures_FieldChanged(Duration delta) =>
+            Dirtied?.Invoke(delta);
+
+        private void Staffs_FieldChanged(Duration delta) =>
+            Dirtied?.Invoke(delta);
 
         void Init() {
             Rhythm.TimeSignatures.ScootAndOverwrite(new TimeSignature(new Simple(4, 4)), Duration.Eternity);

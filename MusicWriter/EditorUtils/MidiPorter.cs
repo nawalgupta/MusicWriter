@@ -33,11 +33,18 @@ namespace MusicWriter
             ) {
 			var midifile = new MidiFile(filename, false);
 
+            var musictrackfactory =
+                editor
+                    .Capabilities
+                    .TrackFactories
+                    .FirstOrDefault(_ => _ is MusicTrackFactory)
+                    .Name;
+
 			for (int track_index = 0; track_index < midifile.Tracks; track_index++) {
 				var events = midifile.Events.GetTrackEvents(track_index);
 
-				var track =
-					MusicTrack.Create();
+                var track =
+                    (MusicTrack)editor.CreateTrack(musictrackfactory);
 
 				foreach (var e in events) {
 					switch (e.CommandCode) {
@@ -169,7 +176,7 @@ namespace MusicWriter
                                         // if so, then this code doesn't handle all midis.
 
                                         if (options.PortTempo) {
-                                            editor
+                                            track
                                                 .Tempo
                                                 .AddConstant(
                                                         ImportTime(tempoevent.AbsoluteTime, midifile).Notes,

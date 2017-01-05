@@ -41,6 +41,7 @@
     <Compile Include="EditorUtils\PorterOptions.cs" />
     <Compile Include="Fields\DurationFieldBinder.cs" />
     <Compile Include="Fields\FieldChangedDelegate.cs" />
+    <Compile Include="File\AssortedFilesManager.cs" />
     <Compile Include="File\FileCapabilities.cs" />
     <Compile Include="File\ITrack.cs" />
     <Compile Include="EditorUtils\ITrackController.cs" />
