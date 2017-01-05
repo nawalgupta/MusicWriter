@@ -20,9 +20,12 @@ namespace MusicWriter
             Unarchived
         }
 
-        readonly Dictionary<StorageObjectID, List<StorageObjectID>> arrows_to_source; // sink -> source
-        readonly Dictionary<StorageObjectID, List<KeyValuePair<string, StorageObjectID>>> arrows_to_sink; // source -> sink
-        readonly HashSet<StorageObjectID> isolated_nodes = new HashSet<StorageObjectID>();
+        readonly Dictionary<StorageObjectID, List<StorageObjectID>> arrows_to_source =
+            new Dictionary<StorageObjectID, List<StorageObjectID>>(); // sink -> source
+        readonly Dictionary<StorageObjectID, List<KeyValuePair<string, StorageObjectID>>> arrows_to_sink =
+            new Dictionary<StorageObjectID, List<KeyValuePair<string, StorageObjectID>>>(); // source -> sink
+        readonly HashSet<StorageObjectID> isolated_nodes =
+            new HashSet<StorageObjectID>();
         
         readonly List<StorageObjectChildChangedDelegate> ArrowAdded_list = new List<StorageObjectChildChangedDelegate>();
         public event StorageObjectChildChangedDelegate ArrowAdded {
@@ -115,7 +118,7 @@ namespace MusicWriter
             
             var id = new StorageObjectID(internalID);
 
-            storage.Add(id, new StorageObject(this));
+            storage.Add(id, new StorageObject(this, id));
 
             foreach (var responder in NodeCreated_list)
                 responder(id);

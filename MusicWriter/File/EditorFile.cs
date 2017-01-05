@@ -34,7 +34,7 @@ namespace MusicWriter {
         public ObservableList<Screen<View>> Screens { get; } =
             new ObservableList<Screen<View>>();
 
-        public FileCapabilities<View> Capabilities =
+        public FileCapabilities<View> Capabilities { get; } =
             new FileCapabilities<View>();
 
         public ITrack this[string name] {

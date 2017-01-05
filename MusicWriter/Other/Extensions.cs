@@ -259,6 +259,16 @@ namespace MusicWriter {
         public static IStorageObject Get(this IStorageObject parent, string child) =>
             parent.Graph[parent[child]];
 
+        public static IStorageObject GetOrDefault(this IStorageObject parent, string child) {
+            var sink =
+                parent[child];
+
+            if (sink == default(StorageObjectID))
+                return null;
+
+            return parent.Graph[sink];
+        }
+
         public static IStorageObject CreateObject(this IStorageGraph graph) =>
             graph[graph.Create()];
     }

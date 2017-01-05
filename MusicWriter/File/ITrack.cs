@@ -16,7 +16,7 @@ namespace MusicWriter {
 
         ITrackFactory Factory { get; }
 
-        event Action Dirtied;
+        event FieldChangedDelegate Dirtied;
 
         void Erase(Duration window);
         void Delete(Duration window);

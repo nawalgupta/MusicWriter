@@ -180,8 +180,12 @@ namespace MusicWriter
                 }
             }
 
-            internal StorageObject(MemoryStorageGraph graph) {
+            internal StorageObject(
+                    MemoryStorageGraph graph,
+                    StorageObjectID id
+                ) {
                 this.graph = graph;
+                this.id = id;
 
                 filedata = new MemoryFile();
                 filedata.Written += Filedata_Written;
@@ -191,6 +195,7 @@ namespace MusicWriter
                 graph.ArrowRenamed += Graph_ArrowRenamed;
 
                 graph.NodeContentsSet += Graph_NodeContentsChanged;
+                graph.NodeDeleted += Graph_NodeDeleted;
             }
 
             ~StorageObject() {
@@ -199,6 +204,7 @@ namespace MusicWriter
                 graph.ArrowRenamed -= Graph_ArrowRenamed;
 
                 graph.NodeContentsSet -= Graph_NodeContentsChanged;
+                graph.NodeDeleted -= Graph_NodeDeleted;
             }
 
             private void Graph_ArrowAdded(
@@ -235,6 +241,13 @@ namespace MusicWriter
 
                 if (Children.Any(child => child == affected))
                     ChildContentsChanged?.Invoke(id, affected);
+            }
+
+            private void Graph_NodeDeleted(
+                    StorageObjectID affected
+                ) {
+                if (affected == id)
+                    Deleted?.Invoke(affected);
             }
 
             private void Filedata_Written() =>

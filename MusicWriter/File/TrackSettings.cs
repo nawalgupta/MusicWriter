@@ -11,6 +11,7 @@ namespace MusicWriter
         readonly IStorageObject storage;
         readonly PropertyManager propertymanager;
         readonly MusicBrain musicbrain;
+        readonly AssortedFilesManager assortedfilesmanager;
 
         public IStorageObject Storage {
             get { return storage; }
@@ -24,6 +25,10 @@ namespace MusicWriter
             get { return musicbrain; }
         }
 
+        public AssortedFilesManager AssortedFilesManager {
+            get { return assortedfilesmanager; }
+        }
+
         public TrackSettings(IStorageObject storage) {
             this.storage = storage;
 
@@ -32,6 +37,8 @@ namespace MusicWriter
             musicbrain = new MusicBrain();
             musicbrain.InsertCog(new NotePerceptualCog());
             musicbrain.InsertCog(new MeasureLayoutPerceptualCog());
+
+            assortedfilesmanager = new AssortedFilesManager(storage.GetOrMake("assorted-files"));
         }
     }
 }
