@@ -78,10 +78,11 @@ namespace MusicWriter {
 
             var nameobj =
                 obj.GetOrMake("name");
-
-            Name.Value = nameobj.ReadAllString();
-            nameobj.ContentsChanged += nameobjID => Name.Value = nameobj.ReadAllString();
-            Name.AfterChange += (old, @new) => nameobj.WriteAllString(@new);
+            
+            nameobj.ContentsSet += nameobjID =>
+                Name.Value = nameobj.ReadAllString();
+            Name.AfterChange += (old, @new) =>
+                nameobj.WriteAllString(@new);
         }
     }
 }

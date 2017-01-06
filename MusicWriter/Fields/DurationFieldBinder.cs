@@ -51,7 +51,7 @@ namespace MusicWriter
 
             storage.ChildAdded += Storage_ChildAdded;
             storage.ChildRenamed += Storage_ChildRenamed;
-            storage.ChildContentsChanged += Storage_ChildContentsChanged;
+            storage.ChildContentsSet += Storage_ChildContentsChanged;
             storage.ChildRemoved += Storage_ChildRemoved;
         }
 

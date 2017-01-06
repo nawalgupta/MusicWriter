@@ -33,16 +33,18 @@ namespace MusicWriter
             ) {
             var property =
                 new ObservableProperty<Time>(value);
-            
+
             if (!@private) {
                 var obj =
                     storage.GetOrMake(name);
+
+                obj.WriteAllString(property.Value.Ticks.ToString());
 
                 property.AfterChange += (old, @new) => {
                     obj.WriteAllString(@new.Ticks.ToString());
                 };
 
-                obj.ContentsChanged += delegate {
+                obj.ContentsSet += delegate {
                     property.Value = Time.FromTicks(int.Parse(obj.ReadAllString()));
                 };
             }

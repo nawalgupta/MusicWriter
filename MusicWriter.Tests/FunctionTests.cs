@@ -14,8 +14,7 @@ namespace MusicWriter.Tests
         AssortedFilesManager assortedfiles;
 
         [TestMethod]
-        [TestInitialize]
-        public void MyTestMethod() {
+        public void TestCreateGraph() {
             graph = new MemoryStorageGraph();
             obj = graph.CreateObject();
             assortedfiles = new AssortedFilesManager(graph.CreateObject());
@@ -31,6 +30,8 @@ namespace MusicWriter.Tests
             code.Factories.Add(PolynomialFunction.FactoryClass.Instance);
             code.Factories.Add(StepwiseIntegratedFunction.FactoryClass.Instance);
             code.Factories.Add(GloballyPerspectiveFunction.FactoryClass.Instance);
+
+            TestCreateGraph();
         }
 
         [TestMethod]

@@ -21,9 +21,9 @@ namespace MusicWriter
         event StorageObjectChildChangedDelegate ChildAdded;
         event StorageObjectChildChangedDelegate ChildRemoved;
         event StorageObjectChildRekeyedDelegate ChildRenamed;
-        event StorageObjectChildChangedDelegate ChildContentsChanged;
+        event StorageObjectChildChangedDelegate ChildContentsSet;
 
-        event StorageObjectChangedDelegate ContentsChanged;
+        event StorageObjectChangedDelegate ContentsSet;
         event StorageObjectChangedDelegate Deleted;
 
         string GetRelation(StorageObjectID child);

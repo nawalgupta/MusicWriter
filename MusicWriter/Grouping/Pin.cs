@@ -27,22 +27,20 @@ namespace MusicWriter
             time = new NamedTime(timemarkerunit);
 
             var marker_obj = storage.GetOrMake("marker");
-            marker_obj.ContentsChanged += delegate {
+            marker_obj.ContentsSet += delegate {
                 time.MarkerName.Value = marker_obj.ReadAllString();
             };
             time.MarkerName.AfterChange += (old, @new) => {
                 marker_obj.WriteAllString(@new);
             };
-            time.MarkerName.Value = marker_obj.ReadAllString();
 
             var offset_obj = storage.GetOrMake("offset");
-            offset_obj.ContentsChanged += delegate {
+            offset_obj.ContentsSet += delegate {
                 time.Offset.Value = MusicWriter.Time.FromTicks(int.Parse(offset_obj.ReadAllString()));
             };
             time.Offset.AfterChange += (old, @new) => {
                 offset_obj.WriteAllString(@new.Ticks.ToString());
             };
-            time.Offset.Value = MusicWriter.Time.FromTicks(int.Parse(offset_obj.ReadAllString()));
         }
     }
 }

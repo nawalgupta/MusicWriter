@@ -39,12 +39,10 @@ namespace MusicWriter {
 
         void Setup() {
             next_noteID_obj = storage.GetOrMake("next_noteID");
-            next_noteID_obj.ContentsChanged += next_noteID_objID => {
+            next_noteID_obj.ContentsSet += next_noteID_objID => {
                 if (!int.TryParse(next_noteID_obj.ReadAllString(), out next_noteID))
                     next_noteID_obj.WriteAllString("0");
             };
-            if (!int.TryParse(next_noteID_obj.ReadAllString(), out next_noteID))
-                next_noteID_obj.WriteAllString("0");
 
             notes_obj = storage.GetOrMake("notes");
             notes_obj.ChildAdded += (notes_objID, new_note_objID) => {
@@ -66,7 +64,7 @@ namespace MusicWriter {
                 FieldChanged?.Invoke(duration);
             };
 
-            notes_obj.ChildContentsChanged += (notes_objID, changed_note_objID) => {
+            notes_obj.ChildContentsSet += (notes_objID, changed_note_objID) => {
                 var noteID = new NoteID(int.Parse(notes_obj.GetRelation(changed_note_objID)));
                 var new_note_obj = notes_obj.Graph[changed_note_objID];
                 var contents = new_note_obj.ReadAllString().Split('\n');

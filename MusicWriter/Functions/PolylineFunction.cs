@@ -87,7 +87,7 @@ namespace MusicWriter
                 MoveX_ram(t0, t1);
             };
 
-            storage.ChildContentsChanged += (storage_objID, pt_objID) => {
+            storage.ChildContentsSet += (storage_objID, pt_objID) => {
                 var t = float.Parse(storage.GetRelation(pt_objID));
                 var v1 = float.Parse(storage.Graph[pt_objID].ReadAllString());
 

@@ -130,9 +130,8 @@ namespace MusicWriter {
                 throw new InvalidOperationException("Cannot add track that already exists");
 
             var nameobj = storage[track.StorageObjectID].GetOrMake("name");
-
-            track.Name.Value = nameobj.ReadAllString();
-            nameobj.ContentsChanged += nameobjID =>
+            
+            nameobj.ContentsSet += nameobjID =>
                 track.Name.Value = nameobj.ReadAllString();
 
             track.Name.BeforeChange += Track_Rename;
