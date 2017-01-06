@@ -226,7 +226,7 @@ namespace MusicWriter {
             controllers.ChildAdded += (controllersnodeID, newcontrollerID) => {
                 var controllerobj = storage[newcontrollerID];
 
-                var type = storage[controllerobj["type"]].ReadAllString();
+                var type = controllerobj.Get("type").ReadAllString();
 
                 var controllerfactory =
                     Capabilities
@@ -234,7 +234,7 @@ namespace MusicWriter {
                         .FirstOrDefault(_ => _.Name == type);
 
                 var controller = controllerfactory.Load(controllerobj, this);
-
+                
                 Controllers.Add(controller);
             };
 
@@ -262,5 +262,8 @@ namespace MusicWriter {
 
             tracksettings = new TrackSettings(storage[storage.Root].GetOrMake("track-settings"));
         }
+
+        public void Flush() =>
+            storage.Flush();
     }
 }

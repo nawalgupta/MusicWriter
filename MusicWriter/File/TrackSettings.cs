@@ -12,6 +12,7 @@ namespace MusicWriter
         readonly PropertyManager propertymanager;
         readonly MusicBrain musicbrain;
         readonly AssortedFilesManager assortedfilesmanager;
+        readonly TimeMarkerUnit timemarkerunit;
 
         public IStorageObject Storage {
             get { return storage; }
@@ -29,6 +30,10 @@ namespace MusicWriter
             get { return assortedfilesmanager; }
         }
 
+        public TimeMarkerUnit TimeMarkerUnit {
+            get { return timemarkerunit; }
+        }
+
         public TrackSettings(IStorageObject storage) {
             this.storage = storage;
 
@@ -39,6 +44,8 @@ namespace MusicWriter
             musicbrain.InsertCog(new MeasureLayoutPerceptualCog());
 
             assortedfilesmanager = new AssortedFilesManager(storage.GetOrMake("assorted-files"));
+
+            timemarkerunit = new TimeMarkerUnit(storage.GetOrMake("time-markers"));
         }
     }
 }

@@ -4,18 +4,45 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MusicWriter {
-    public sealed class Pin {
-        public NamedTime Time { get; } = new NamedTime();
-        public PinMode PinMode { get; set; } = PinMode.Floating;
-        public ObservableProperty<Time> ActualTime { get; } = new ObservableProperty<Time>(MusicWriter.Time.Zero);
+namespace MusicWriter
+{
+    public sealed class Pin
+    {
+        readonly IStorageObject storage;
+        readonly NamedTime time;
 
-        public Pin() {
-            Time.Offset.AfterChange += Offset_AfterChange;
+        public IStorageObject Storage {
+            get { return storage; }
         }
 
-        private void Offset_AfterChange(Time old, Time @new) {
-            ActualTime.Value += @new - old;
+        public NamedTime Time {
+            get { return time; }
+        }
+
+        public Pin(
+                IStorageObject storage,
+                TimeMarkerUnit timemarkerunit
+            ) {
+            this.storage = storage;
+            time = new NamedTime(timemarkerunit);
+
+            var marker_obj = storage.GetOrMake("marker");
+            marker_obj.ContentsChanged += delegate {
+                time.MarkerName.Value = marker_obj.ReadAllString();
+            };
+            time.MarkerName.AfterChange += (old, @new) => {
+                marker_obj.WriteAllString(@new);
+            };
+            time.MarkerName.Value = marker_obj.ReadAllString();
+
+            var offset_obj = storage.GetOrMake("offset");
+            offset_obj.ContentsChanged += delegate {
+                time.Offset.Value = MusicWriter.Time.FromTicks(int.Parse(offset_obj.ReadAllString()));
+            };
+            time.Offset.AfterChange += (old, @new) => {
+                offset_obj.WriteAllString(@new.Ticks.ToString());
+            };
+            time.Offset.Value = MusicWriter.Time.FromTicks(int.Parse(offset_obj.ReadAllString()));
         }
     }
 }
