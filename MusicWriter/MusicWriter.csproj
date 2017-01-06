@@ -68,6 +68,7 @@
     <Compile Include="Grouping\PinMode.cs" />
     <Compile Include="File\Screen.cs" />
     <Compile Include="Grouping\NamedTime.cs" />
+    <Compile Include="Grouping\TimeMarkerUnit.cs" />
     <Compile Include="Input\Caret.cs" />
     <Compile Include="Input\CaretUnitPicker.cs" />
     <Compile Include="Input\CaretMode.cs" />

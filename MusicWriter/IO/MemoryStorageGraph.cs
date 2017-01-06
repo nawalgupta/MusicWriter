@@ -7,15 +7,13 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public partial class MemoryStorageGraph : IStorageGraph
-    {
+    public partial class MemoryStorageGraph : IStorageGraph {
         readonly Dictionary<StorageObjectID, StorageObject> storage =
             new Dictionary<StorageObjectID, StorageObject>();
         readonly Dictionary<StorageObjectID, ArchivalState> archivalstates =
             new Dictionary<StorageObjectID, ArchivalState>();
 
-        enum ArchivalState
-        {
+        enum ArchivalState {
             Archived,
             Unarchived
         }
@@ -26,7 +24,7 @@ namespace MusicWriter
             new Dictionary<StorageObjectID, List<KeyValuePair<string, StorageObjectID>>>(); // source -> sink
         readonly HashSet<StorageObjectID> isolated_nodes =
             new HashSet<StorageObjectID>();
-        
+
         readonly List<StorageObjectChildChangedDelegate> ArrowAdded_list = new List<StorageObjectChildChangedDelegate>();
         public event StorageObjectChildChangedDelegate ArrowAdded {
             add {
@@ -91,7 +89,7 @@ namespace MusicWriter
         }
 
         public IEnumerable<StorageObjectID> Incoming(StorageObjectID sink) =>
-            arrows_to_source.Lookup(sink);
+            arrows_to_source[sink];
 
         public IEnumerable<KeyValuePair<string, StorageObjectID>> Outgoing(StorageObjectID source) =>
             arrows_to_sink[source];
@@ -102,20 +100,23 @@ namespace MusicWriter
             usedIDs.Add(id.ID);
 
             archivalstates.Add(id, isarchived ? ArchivalState.Archived : ArchivalState.Unarchived);
+
+            arrows_to_sink.Add(id, new List<KeyValuePair<string, StorageObjectID>>());
+            arrows_to_source.Add(id, new List<StorageObjectID>());
         }
-        
-        public bool Contains(StorageObjectID id) =>
+
+        public virtual bool Contains(StorageObjectID id) =>
             usedIDs.Contains(id.ID);
 
         HashSet<Guid> usedIDs = new HashSet<Guid>();
-        public StorageObjectID Create() {
+        public virtual StorageObjectID Create() {
             Guid internalID;
 
             do internalID = Guid.NewGuid();
             while (usedIDs.Contains(internalID));
-            
+
             usedIDs.Add(internalID);
-            
+
             var id = new StorageObjectID(internalID);
 
             storage.Add(id, new StorageObject(this, id));
@@ -123,7 +124,10 @@ namespace MusicWriter
             foreach (var responder in NodeCreated_list)
                 responder(id);
 
+            isolated_nodes.Add(id);
             archivalstates.Add(id, ArchivalState.Unarchived);
+            arrows_to_sink.Add(id, new List<KeyValuePair<string, StorageObjectID>>());
+            arrows_to_source.Add(id, new List<StorageObjectID>());
 
             return id;
         }
@@ -132,7 +136,7 @@ namespace MusicWriter
             NodeDeleted?.Invoke(id);
             usedIDs.Remove(id.ID);
 
-            foreach(var kvp in arrows_to_sink.Lookup(id))
+            foreach (var kvp in arrows_to_sink.Lookup(id))
                 RemoveArrow(id, kvp.Value);
 
             foreach (var source in arrows_to_source.Lookup(id))
@@ -212,15 +216,18 @@ namespace MusicWriter
         public StorageObject GetSpecialStorageObject(StorageObjectID id) =>
             storage[id];
 
-        public string GetRelation(StorageObjectID source, StorageObjectID sink) =>
+        public virtual string GetRelation(StorageObjectID source, StorageObjectID sink) =>
             arrows_to_sink
                 .Lookup(source)
                 .FirstOrDefault(x => x.Value == sink)
                 .Key;
 
-        public bool HasChild(StorageObjectID source, string relation) =>
+        public virtual bool HasChild(StorageObjectID source, string relation) =>
             arrows_to_sink
                 .Lookup(source)
                 .Any(kvp => kvp.Key == relation);
+
+        public virtual void Flush() {
+        }
     }
 }

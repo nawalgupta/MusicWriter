@@ -70,6 +70,7 @@ namespace MusicWriter
 
         protected override void Archive(StorageObjectID id) {
             SerializeNode(id);
+            SerializeArrows(id);
 
             base.Archive(id);
         }
@@ -144,6 +145,15 @@ namespace MusicWriter
 
         void DeserializeNode(StorageObjectID file) {
             Load(file, true);
+        }
+
+        public override void Flush() {
+            foreach (var id in Objects) {
+                SerializeNode(id);
+                SerializeArrows(id);
+            }
+
+            base.Flush();
         }
     }
 }

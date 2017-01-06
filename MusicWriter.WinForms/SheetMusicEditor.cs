@@ -18,7 +18,12 @@ namespace MusicWriter.WinForms {
         ITrackController<Control> {
         EditorFile<Control> file;
 
-        public Pin Pin { get; } = new Pin();
+        IStorageObject storage;
+        Pin pin;
+
+        public Pin Pin {
+            get { return pin; }
+        }
 
         public Cursor MusicCursor { get; } = new Cursor();
         Cursor MusicCursor_bak = new Cursor();
@@ -66,12 +71,29 @@ namespace MusicWriter.WinForms {
             get { return file; }
             set {
                 if (file != null) {
-                    file.Brain.RemoveCog<RenderedSheetMusicItemPerceptualCog>();
+                    file.TrackSettings.MusicBrain.RemoveCog<RenderedSheetMusicItemPerceptualCog>();
                 }
 
                 file = value;
-                file.Brain.InsertCog(new RenderedSheetMusicItemPerceptualCog());
+                file.TrackSettings.MusicBrain.InsertCog(new RenderedSheetMusicItemPerceptualCog());
             }
+        }
+
+        public IStorageObject Storage {
+            get { return storage; }
+            set {
+                if (storage != null) {
+                    throw new InvalidOperationException();
+                }
+
+                storage = value;
+                pin = new Pin(storage.GetOrMake("pin"), file.TrackSettings.TimeMarkerUnit);
+                pin.Time.ActualTime.AfterChange += Pin_Moved;
+            }
+        }
+
+        public StorageObjectID StorageObjectID {
+            get { return storage.ID; }
         }
 
         public ITrackControllerFactory<Control> Factory {
@@ -154,9 +176,7 @@ namespace MusicWriter.WinForms {
             CommandCenter.WhenUnitPicking += CommandCenter_WhenUnitPicking;
 
             hints.Editor = this;
-
-            Pin.ActualTime.AfterChange += Pin_Moved;
-
+            
             DoubleBuffered = true;
         }
 
@@ -681,7 +701,7 @@ namespace MusicWriter.WinForms {
         void InvalidateTime(Duration duration) {
             timesRedrawn++;
             foreach (var track in tracks.SpecialCollection)
-                file.Brain.Invalidate(track.Memory, duration);
+                file.TrackSettings.MusicBrain.Invalidate(track.Memory, duration);
 
             MeasureAndLayoutTrackItems();
 
@@ -691,7 +711,7 @@ namespace MusicWriter.WinForms {
         void RefreshTime(Duration duration) {
             timesRedrawn++;
             foreach (var track in tracks.SpecialCollection)
-                file.Brain.Invalidate<RenderedSheetMusicItem>(track.Memory, duration);
+                file.TrackSettings.MusicBrain.Invalidate<RenderedSheetMusicItem>(track.Memory, duration);
 
             MeasureAndLayoutTrackItems();
 
@@ -699,7 +719,7 @@ namespace MusicWriter.WinForms {
         }
 
         IEnumerable<Tuple<RectangleF, SheetMusicRenderSettings, RenderedSheetMusicItem>> GetItemsWithRects(MusicTrack track) {
-            var scrollX = GetLeft(Pin.ActualTime.Value);
+            var scrollX = GetLeft(Pin.Time.ActualTime.Value);
             var yoffset = tracks.SpecialCollection.TakeWhile(t => !ReferenceEquals(t, track)).Sum(t => trackheights[t]);
             
             var starttimes =
@@ -1015,7 +1035,7 @@ namespace MusicWriter.WinForms {
             
             gfx.DrawString(timesRedrawn.ToString(), Font, Brushes.Red, PointF.Empty);
 
-            var scrollX = GetLeft(Pin.ActualTime.Value);
+            var scrollX = GetLeft(Pin.Time.ActualTime.Value);
 
             foreach (var track in tracks.SpecialCollection) {
                 var active =

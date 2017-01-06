@@ -563,7 +563,8 @@
             // 
             // diagOpenFile
             // 
-            this.diagOpenFile.Filter = "Music Writer Files (*.musicwriter)|*.musicwriter";
+            this.diagOpenFile.Filter = "Music Writer Files (*.musicwriter)|*.musicwriter|Directory (*.musicwriter)|*.musi" +
+    "cwriter";
             this.diagOpenFile.FilterIndex = 0;
             this.diagOpenFile.Title = "Open File";
             this.diagOpenFile.FileOk += new System.ComponentModel.CancelEventHandler(this.diagOpenFile_FileOk);

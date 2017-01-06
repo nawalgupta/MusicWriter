@@ -111,6 +111,9 @@ namespace MusicWriter {
         public ITrackController<View> GetController(StorageObjectID storageobjectID) =>
             Controllers.FirstOrDefault(controller => controller.StorageObjectID == storageobjectID);
 
+        public ITrackController<View> GetController(string name) =>
+            Controllers.FirstOrDefault(controller => controller.Name.Value == name);
+
         public Screen<View> GetScreen(StorageObjectID storageobjectID) =>
             Screens.FirstOrDefault(screen => screen.StorageObjectID == storageobjectID);
 

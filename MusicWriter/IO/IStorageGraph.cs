@@ -32,5 +32,7 @@ namespace MusicWriter
         void Delete(StorageObjectID id);
 
         IEnumerable<StorageObjectID> Isolated();
+
+        void Flush();
     }
 }

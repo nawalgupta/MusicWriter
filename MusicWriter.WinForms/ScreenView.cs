@@ -43,7 +43,8 @@ namespace MusicWriter.WinForms {
             set {
                 if (screen != null) {
                     screen.Name.AfterChange -= Name_AfterChange;
-                    screen.Controllers.CollectionChanged -= ScreenControllers_CollectionChanged;
+                    screen.Controllers.ItemAdded -= ScreenControllers_ItemAdded;
+                    screen.Controllers.ItemRemoved -= ScreenControllers_ItemRemoved;
                 }
 
                 var old = screen;
@@ -52,8 +53,8 @@ namespace MusicWriter.WinForms {
                 Name_AfterChange(old?.Name.Value, screen.Name.Value);
                 screen.Name.AfterChange += Name_AfterChange;
 
-                screen.Controllers.CollectionChanged += ScreenControllers_CollectionChanged;
-                ScreenControllers_CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, (IList)screen.Controllers, (IList<ITrackController<Control>>)old?.Controllers ?? new List<ITrackController<Control>>(), 0));
+                screen.Controllers.ItemAdded += ScreenControllers_ItemAdded;
+                screen.Controllers.ItemRemoved += ScreenControllers_ItemRemoved;
             }
         }
 
@@ -61,8 +62,11 @@ namespace MusicWriter.WinForms {
             get { return file; }
             set {
                 if (file != null) {
-                    file.Tracks.CollectionChanged -= Tracks_CollectionChanged;
-                    file.Controllers.CollectionChanged -= FileControllers_CollectionChanged;
+                    file.Tracks.ItemAdded -= Tracks_ItemAdded;
+                    file.Tracks.ItemRemoved -= Tracks_ItemRemoved;
+
+                    file.Controllers.ItemAdded -= FileControllers_ItemAdded;
+                    file.Controllers.ItemRemoved -= FileControllers_ItemRemoved;
 
                     file.Capabilities.ControllerFactories.CollectionChanged -= ControllerFactories_CollectionChanged;
                     file.Capabilities.TrackFactories.CollectionChanged -= TrackFactories_CollectionChanged;
@@ -72,11 +76,11 @@ namespace MusicWriter.WinForms {
 
                 file = value;
 
-                Tracks_CollectionChanged(file, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, file.Tracks, (IList<ITrack>)old?.Tracks ?? new List<ITrack>(), 0));
-                file.Tracks.CollectionChanged += Tracks_CollectionChanged;
+                file.Tracks.ItemAdded += Tracks_ItemAdded;
+                file.Tracks.ItemRemoved += Tracks_ItemRemoved;
 
-                FileControllers_CollectionChanged(file, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, file.Controllers, (IList<ITrackController<Control>>)old?.Controllers ?? new List<ITrackController<Control>>(), 0));
-                file.Controllers.CollectionChanged += FileControllers_CollectionChanged;
+                file.Controllers.ItemAdded += FileControllers_ItemAdded;
+                file.Controllers.ItemRemoved += FileControllers_ItemRemoved;
 
                 file.Capabilities.ControllerFactories.CollectionChanged += ControllerFactories_CollectionChanged;
                 ControllerFactories_CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, file.Capabilities.ControllerFactories, (IList<ITrackControllerFactory<Control>>)old?.Capabilities.ControllerFactories ?? new List<ITrackControllerFactory<Control>>()));
@@ -90,48 +94,46 @@ namespace MusicWriter.WinForms {
             InitializeComponent();
         }
 
-        private void FileControllers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-            var newitems = ExpandWierdArgs<ITrackController<Control>>(e.NewItems).ToArray();
+        private void ControllerName_AfterChange(string old, string @new) {
+            Invoke(new Action(() => {
+                var item = lsvControllers.Items[$"lsvControllersItem_{old}"];
+                item.Name = $"lsvControllersItem_{@new}";
 
-            if (e.OldItems != null) {
-                for (var i = 0; i < e.OldItems.Count; i++) {
-                    if (lsvControllers.Items.Count > i)
-                        lsvControllers.Items.RemoveAt(e.OldStartingIndex + i);
+                var controller = file.GetController(@new);
+                controller.View.Text = controller.Name.Value;
+            }));
+        }
 
-                    if (pnlViews.Controls.Count > i)
-                        pnlViews.Controls.RemoveAt(e.OldStartingIndex + i);
-                }
-            }
+        private void FileControllers_ItemAdded(ITrackController<Control> controller) {
+            var item =
+                new ListViewItem();
 
-            if (e.NewItems != null) {
-                for (var i = 0; i < newitems.Length; i++) {
-                    var value =
-                        newitems[i] as ITrackController<Control>;
+            item.Text = controller.Name.Value;
+            item.Name = $"lsvControllersItem_{controller.Name}";
+            item.Tag = controller;
+            item.Checked = true;
 
-                    if (value != null) {
-                        var item =
-                            new ListViewItem();
-                        
-                        item.Text = value.Name.Value;
-                        item.Tag = value;
-                        item.Checked = true;
+            controller.View.Dock = DockStyle.Top;
+            controller.View.Text = controller.Name.Value;
 
-                        value.View.Dock = DockStyle.Top;
+            lsvControllers.Items.Add(item);
+            
+            pnlViews.Controls.Add(controller.View);
 
-                        lsvControllers.Items.Insert(e.NewStartingIndex + i, item);
+            //pnlViews.Controls.SetChildIndex(controller.View, ?);
 
-                        pnlViews.Controls.Add(value.View);
-                        pnlViews.Controls.SetChildIndex(value.View, e.NewStartingIndex + i);
+            //controller.View.Focus();
 
-                        //value.View.Focus();
+            controller.Name.AfterChange += ControllerName_AfterChange;
 
-                        value.View.GotFocus += View_GotFocus;
-                        value.View.LostFocus += View_LostFocus;
-                        value.View.ParentChanged += View_Dispose;
-                        value.View.Disposed += View_Dispose;
-                    }
-                }
-            }
+            controller.View.GotFocus += View_GotFocus;
+            controller.View.LostFocus += View_LostFocus;
+            controller.View.ParentChanged += View_Dispose;
+            controller.View.Disposed += View_Dispose;
+        }
+
+        private void FileControllers_ItemRemoved(ITrackController<Control> controller) {
+            lsvControllers.Items.RemoveByKey($"lsvControllersItem_{controller.Name}");
         }
 
         private void ControllerFactories_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
@@ -158,40 +160,27 @@ namespace MusicWriter.WinForms {
             Text = @new;
             Name = $"tabScreen_{@new}";
         }
+        
+        private void Tracks_ItemAdded(ITrack track) {
+            var item =
+                new ListViewItem();
 
-        private void Tracks_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-            var newitems = ExpandWierdArgs<ITrack>(e.NewItems).ToArray();
+            track.Name.AfterChange += Tracks_NameChanged;
+            track.Length.AfterChange += Tracks_LengthChanged;
+            Tracks_LengthChanged(Time.Zero, track.Length.Value);
 
-            if (e.OldItems != null) {
-                for (var i = 0; i < e.OldItems.Count; i++) {
-                    if (lsvTracks.Items.Count > i) {
-                        lsvTracks.Items.RemoveAt(e.OldStartingIndex + i);
+            item.Tag = track;
+            item.Text = track.Name.Value;
+            item.Name = $"lsvTracksItem_{track.Name}";
 
-                        var track = (ITrack)e.OldItems[i];
-                        track.Name.AfterChange -= Tracks_NameChanged;
-                        track.Length.AfterChange -= Tracks_LengthChanged;
-                    }
-                }
-            }
+            lsvTracks.Items.Add(item);
+        }
+        
+        private void Tracks_ItemRemoved(ITrack track) {
+            track.Name.AfterChange -= Tracks_NameChanged;
+            track.Length.AfterChange -= Tracks_LengthChanged;
 
-            for (var i = 0; i < newitems.Length; i++) {
-                var value =
-                    newitems[i] as ITrack;
-
-                if (value != null) {
-                    var item =
-                        new ListViewItem();
-
-                    value.Name.AfterChange += Tracks_NameChanged;
-                    value.Length.AfterChange += Tracks_LengthChanged;
-                    Tracks_LengthChanged(Time.Zero, value.Length.Value);
-
-                    item.Text = value.Name.Value;
-                    item.Tag = value;
-
-                    lsvTracks.Items.Insert(e.NewStartingIndex + i, item);
-                }
-            }
+            lsvTracks.Items.RemoveByKey($"lsvTracksItem_{track.Name}");
         }
 
         private void Tracks_LengthChanged(Time old, Time @new) {
@@ -203,55 +192,19 @@ namespace MusicWriter.WinForms {
 
         private void Tracks_NameChanged(string old, string @new) {
             Invoke(new Action(() => {
-                for (int i = 0; i < lsvTracks.Items.Count; i++) {
-                    if (lsvTracks.Items[i].Text == old)
-                        lsvTracks.Items[i].Text = @new;
-                }
+                var item = lsvTracks.Items[$"lsvTracksItem_{old}"];
+                item.Name = $"lsvTracksItem_{@new}";
             }));
         }
-
-        IEnumerable<T> ExpandWierdArgs<T>(IList wierdlist) where T : class {
-            if (wierdlist == null)
-                yield break;
-
-            foreach(var x in wierdlist) {
-                var list =
-                    x as IList<T>;
-
-                var t =
-                    x as T;
-
-                if (t != null)
-                    yield return t;
-
-                if (list != null)
-                    foreach (T t2 in list)
-                        yield return t2;
-            }
+        
+        private void ScreenControllers_ItemAdded(ITrackController<Control> controller) {
+            var item = lsvControllers.Items[$"lsvControllersItem_{controller.Name}"];
+            item.Checked = true;
         }
 
-        private void ScreenControllers_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-            var newitems = ExpandWierdArgs<ITrackController<Control>>(e.NewItems).ToArray();
-
-            if (e.OldItems != null) {
-                for (var i = 0; i < e.OldItems.Count; i++) {
-                    if (lsvControllers.Items.Count > i)
-                        lsvControllers.Items[e.OldStartingIndex + i].Checked = false;
-                }
-            }
-
-            if (e.NewItems != null) {
-                for (var i = 0; i < newitems.Length; i++) {
-                    if (lsvControllers.Items.Count > i)
-                        lsvControllers.Items[e.NewStartingIndex + i].Checked = true;
-                }
-            }
-
-            //if (e.NewItems.Count == lsvControllers.Items.Count &&
-            //    e.NewItems.Count > 0) {// all items are fresh
-            //    lsvControllers.Items[0].Selected = true;
-            //    Invalidate(true);
-            //}
+        private void ScreenControllers_ItemRemoved(ITrackController<Control> controller) {
+            var item = lsvControllers.Items[$"lsvControllersItem_{controller.Name}"];
+            item.Checked = false;
         }
 
         private void View_Dispose(object sender, EventArgs e) {
@@ -264,31 +217,29 @@ namespace MusicWriter.WinForms {
         }
         
         private void View_LostFocus(object sender, EventArgs e) {
-            var itemindex = pnlViews.Controls.GetChildIndex(sender as Control);
-             
-            var controller = screen.Controllers[itemindex];
+            var controllername = (sender as Control).Text;
+            var controller = file.GetController(controllername);
 
             foreach (var track in controller.Tracks) {
                 track.Length.AfterChange -= Tracks_LengthChanged;
             }
 
-            controller.Pin.ActualTime.AfterChange -= ActiveController_PinMoved;
+            controller.Pin.Time.ActualTime.AfterChange -= ActiveController_PinMoved;
         }
 
         private void View_GotFocus(object sender, EventArgs e) {
-            var itemindex = pnlViews.Controls.GetChildIndex(sender as Control);
+            var controllername = (sender as Control).Text;
+            var controller = file.GetController(controllername);
 
-            var item = lsvControllers.Items[itemindex];
+            var item = lsvControllers.Items[$"lsvControllersItem_{controllername}"];
 
             item.Selected = true;
-
-            var controller = screen.Controllers[itemindex];
 
             foreach (var track in controller.Tracks) {
                 track.Length.AfterChange += Tracks_LengthChanged;
             }
 
-            controller.Pin.ActualTime.AfterChange += ActiveController_PinMoved;
+            controller.Pin.Time.ActualTime.AfterChange += ActiveController_PinMoved;
         }
 
         private void ActiveController_PinMoved(Time old, Time @new) {
@@ -375,7 +326,7 @@ namespace MusicWriter.WinForms {
                 e.ClickedItem.Tag;
 
             var newcontroller =
-                controllerfactory.Create(File);
+                file.CreateTrackController(controllerfactory.Name);
 
             file.Controllers.Add(newcontroller);
             screen.Controllers.Add(newcontroller);
@@ -387,7 +338,7 @@ namespace MusicWriter.WinForms {
                 e.ClickedItem.Tag;
 
             var newtrack =
-                trackfactory.Create();
+                file.CreateTrack(trackfactory.Name);
 
             var prefix = newtrack.Name.Value = "Track ";
             var i = 0;

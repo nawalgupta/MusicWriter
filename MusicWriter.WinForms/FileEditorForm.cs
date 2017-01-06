@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,7 +33,9 @@ namespace MusicWriter.WinForms {
             
             shortcutter.Menu = mnuMainMenu;
             inputcontroller = new InputController(commandcenter);
-            file.Screens.CollectionChanged += Screens_CollectionChanged;
+
+            file.Screens.ItemAdded += LoadScreen;
+            file.Screens.ItemRemoved += CloseScreen;
         }
 
         IEnumerable<T> ExpandWierdArgs<T>(IList wierdlist) where T : class {
@@ -54,31 +57,7 @@ namespace MusicWriter.WinForms {
                         yield return t2;
             }
         }
-
-        private void Screens_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-            var newitems = ExpandWierdArgs<Screen<Control>>(e.NewItems).ToArray();
-
-            if (e.Action == NotifyCollectionChangedAction.Reset) 
-                tabScreens.Controls.Clear();
-            else {
-                if (e.OldItems != null) {
-                    for (var i = 0; i < e.OldItems.Count; i++) {
-                        if (tabScreens.Controls.Count > i) {
-                            tabScreens.Controls.RemoveAt(e.OldStartingIndex + i);
-
-                            var screen = (Screen<Control>)e.OldItems[i];
-                        }
-                    }
-                }
-
-                for (var i = 0; i < newitems.Length; i++) {
-                    var screen = newitems[i];
-
-                    LoadScreen(screen);
-                }
-            }
-        }
-
+        
         void InitInputSources() {
             input_keyboard.Controller = inputcontroller;
         }
@@ -191,7 +170,7 @@ namespace MusicWriter.WinForms {
         }
 
         void NewScreen() {
-            file.Screens.Add(new Screen<Control>(file));
+            file.CreateScreen();
 
             tabScreens.SelectTab(tabScreens.Controls.Count - 1);
         }
@@ -219,13 +198,31 @@ namespace MusicWriter.WinForms {
         void OpenFile(string filename) {
             filepath = filename;
 
-            using (var stream = File.OpenRead(filepath)) {
-                file.Load(stream);
+            switch (Path.GetExtension(filename)) {
+                case "*.musicwriter":
+                    using (var stream = File.OpenRead(filepath)) {
+                        file.Clear();
+
+                        var archive =
+                            new ZipArchive(
+                                    stream: File.OpenRead(filepath),
+                                    mode: ZipArchiveMode.Update,
+                                    leaveOpen: false,
+                                    entryNameEncoding: Encoding.Unicode
+                                );
+
+                        file.Transfer(new ZipStorageGraph(archive));
+                    }
+
+                    break;
+
+                case "*.musicwriter-dir":
+                    throw new NotImplementedException();
             }
 
             RecentFiles.AddRecent(filepath);
         }
-
+        
         private void mnuHeader_Opening(object sender, CancelEventArgs e) {
             mnuHeaderRenameBox.Text = ActiveScreen.Name.Value;
             ActiveScreen.Name.AfterChange += ActiveScreen_Name_AfterChange;
@@ -309,11 +306,8 @@ namespace MusicWriter.WinForms {
             if (filepath == null)
                 mnuFileSaveAs_Click(sender, e);
             else {
-                using (var stream = new FileStream(filepath, FileMode.Create)) {
-                    file.Save(stream);
-
-                    RecentFiles.AddRecent(filepath);
-                }
+                file.Flush();
+                RecentFiles.AddRecent(filepath);
             }
         }
 
@@ -428,11 +422,8 @@ namespace MusicWriter.WinForms {
 
         }
 
-        private void diagSaveFile_FileOk(object sender, CancelEventArgs e) {
-            filepath = diagSaveFile.FileName;
-
-            mnuFileSave_Click(sender, e);
-        }
+        private void diagSaveFile_FileOk(object sender, CancelEventArgs e) =>
+            OpenFile(diagSaveFile.FileName);
 
         private void diagOpenFile_FileOk(object sender, CancelEventArgs e) =>
             OpenFile(diagOpenFile.FileName);
