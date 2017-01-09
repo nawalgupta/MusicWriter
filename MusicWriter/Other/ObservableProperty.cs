@@ -25,11 +25,13 @@ namespace MusicWriter {
             set {
                 var old = this.value;
 
-                BeforeChange?.Invoke(old, value);
+                if (!old.Equals(value)) {
+                    BeforeChange?.Invoke(old, value);
 
-                this.value = value;
+                    this.value = value;
 
-                AfterChange?.Invoke(old, value);
+                    AfterChange?.Invoke(old, value);
+                }
             }
         }
 
