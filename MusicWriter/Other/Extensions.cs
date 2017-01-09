@@ -236,7 +236,7 @@ namespace MusicWriter {
         }
 
         public static void WriteAllString(this IStorageObject obj, string value) {
-            using (var stream = obj.OpenRead()) {
+            using (var stream = obj.OpenWrite()) {
                 using (var tw = new StreamWriter(stream)) {
                     tw.Write(value);
                 }

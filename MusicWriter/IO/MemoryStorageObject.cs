@@ -12,7 +12,7 @@ namespace MusicWriter
         {
             class MemoryFile
             {
-                public byte[] data;
+                public byte[] data = new byte[0];
 
                 internal event Action Written;
 
@@ -124,7 +124,7 @@ namespace MusicWriter
                         if (!writable)
                             throw new InvalidOperationException();
 
-                        if (pos + count < file.data.LongLength)
+                        if (pos + count > file.data.LongLength)
                             Array.Resize(ref file.data, (int)(pos + count));
 
                         Array.Copy(buffer, offset, file.data, pos, count);
@@ -222,7 +222,9 @@ namespace MusicWriter
 
                 filedata = new MemoryFile();
                 filedata.Written += Filedata_Written;
+            }
 
+            internal void Init() {
                 graph.ArrowAdded += Graph_ArrowAdded;
                 graph.ArrowRemoved += Graph_ArrowRemoved;
                 graph.ArrowRenamed += Graph_ArrowRenamed;

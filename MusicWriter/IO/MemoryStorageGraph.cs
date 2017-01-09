@@ -118,16 +118,19 @@ namespace MusicWriter
             usedIDs.Add(internalID);
 
             var id = new StorageObjectID(internalID);
+            var obj = new StorageObject(this, id);
 
-            storage.Add(id, new StorageObject(this, id));
-
-            foreach (var responder in NodeCreated_list)
-                responder(id);
+            storage.Add(id, obj);
 
             isolated_nodes.Add(id);
             archivalstates.Add(id, ArchivalState.Unarchived);
             arrows_to_sink.Add(id, new List<KeyValuePair<string, StorageObjectID>>());
             arrows_to_source.Add(id, new List<StorageObjectID>());
+
+            obj.Init();
+
+            foreach (var responder in NodeCreated_list)
+                responder(id);
 
             return id;
         }
