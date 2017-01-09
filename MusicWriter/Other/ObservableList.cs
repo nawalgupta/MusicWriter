@@ -45,19 +45,20 @@ namespace MusicWriter
         public bool IsReadOnly {
             get { return false; }
         }
-        
+
         public void Add(T item) {
+            intern.Add(item);
+
             foreach (var responder in ItemAdded_responders)
                 responder(item);
-
-            intern.Add(item);
         }
 
         public void Clear() {
-            foreach (var item in intern)
-                ItemRemoved?.Invoke(item);
-
+            var items = intern.ToArray();
             intern.Clear();
+
+            foreach (var item in items)
+                ItemRemoved?.Invoke(item);
         }
 
         public bool Contains(T item) =>
@@ -73,10 +74,10 @@ namespace MusicWriter
             intern.IndexOf(item);
 
         public void Insert(int index, T item) {
+            intern.Insert(index, item);
+
             foreach (var responder in ItemAdded_responders)
                 responder(item);
-
-            intern.Insert(index, item);
         }
 
         public bool Remove(T item) {
@@ -90,9 +91,9 @@ namespace MusicWriter
 
         public void RemoveAt(int index) {
             var item = intern[index];
-            ItemRemoved?.Invoke(item);
-
             intern.RemoveAt(index);
+
+            ItemRemoved?.Invoke(item);
         }
 
         IEnumerator IEnumerable.GetEnumerator() =>

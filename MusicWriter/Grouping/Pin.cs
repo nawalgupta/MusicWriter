@@ -35,6 +35,7 @@ namespace MusicWriter
             };
 
             var offset_obj = storage.GetOrMake("offset");
+            offset_obj.WriteAllString("0");
             offset_obj.ContentsSet += delegate {
                 time.Offset.Value = MusicWriter.Time.FromTicks(int.Parse(offset_obj.ReadAllString()));
             };

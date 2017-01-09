@@ -10,8 +10,7 @@ using System.Threading.Tasks;
 using static MusicWriter.TimeSignature;
 
 namespace MusicWriter {
-    public sealed class EditorFile<View>
-    {
+    public sealed class EditorFile<View> {
         readonly Dictionary<string, ITrack> trackmap =
             new Dictionary<string, ITrack>();
         IStorageGraph storage = new MemoryStorageGraph();
@@ -40,7 +39,7 @@ namespace MusicWriter {
         public ITrack this[string name] {
             get { return trackmap[name]; }
         }
-        
+
         public EditorFile() {
             Tracks.ItemAdded += Tracks_ItemAdded;
             Tracks.ItemRemoved += Tracks_ItemRemoved;
@@ -54,60 +53,61 @@ namespace MusicWriter {
             Reload();
         }
 
-        public async Task<ITrack> CreateTrackAsync(string type) {
+        public ITrack CreateTrack(string type) {
             var factory = Capabilities.TrackFactories.FirstOrDefault(_ => _.Name == type);
             var storageobjectID = storage.Create();
 
             factory.Init(storage[storageobjectID], tracksettings);
             storage[storage.Root].GetOrMake("tracks").Add("", storageobjectID);
 
-            return await Task.Run(async () => {
-                do {
-                    var track = Tracks.FirstOrDefault(_ => _.StorageObjectID == storageobjectID);
+            do {
+                var track = Tracks.FirstOrDefault(_ => _.StorageObjectID == storageobjectID);
 
-                    if (track != null)
-                        return track;
+                if (track != null)
+                    return track;
 
-                    await Task.Delay(100);
-                } while (true);
-            });
+                Task.Delay(20).Wait();
+            } while (true);
         }
-
-        public ITrack CreateTrack(string type) =>
-            CreateTrackAsync(type)
-                .GetAwaiter()
-                .GetResult();
-
-        public async Task<ITrackController<View>> CreateTrackControllerAsync(string type) {
+        
+        public ITrackController<View> CreateTrackController(string type) {
             var factory = Capabilities.ControllerFactories.FirstOrDefault(_ => _.Name == type);
             var storageobjectID = storage.Create();
+
+            var type_obj = storage.CreateObject();
+            type_obj.WriteAllString(type);
+
+            storage[storageobjectID].Add("type", type_obj.ID);
 
             factory.Init(storage[storageobjectID], this);
             storage[storage.Root].GetOrMake("controllers").Add("", storageobjectID);
 
-            return await Task.Run(async () => {
-                do {
-                    var controller = Controllers.FirstOrDefault(_ => _.StorageObjectID == storageobjectID);
+            do {
+                var controller = Controllers.FirstOrDefault(_ => _.StorageObjectID == storageobjectID);
 
-                    if (controller != null)
-                        return controller;
+                if (controller != null)
+                    return controller;
 
-                    await Task.Delay(100);
-                } while (true);
-            });
+                Task.Delay(20).Wait();
+            } while (true);
         }
-
-        public ITrackController<View> CreateTrackController(string type) =>
-            CreateTrackControllerAsync(type)
-                .GetAwaiter()
-                .GetResult();
 
         public Screen<View> CreateScreen() {
             var storageobjectID = storage.Create();
-            var screen = new Screen<View>(storageobjectID, this);
+            var name_obj = storage.CreateObject();
+            name_obj.WriteAllString("Screen");
+            storage[storageobjectID].Add("name", name_obj.ID);
+
             storage[storage.Root].GetOrMake("screens").Add("", storageobjectID);
 
-            return screen;
+            do {
+                var screen = Screens.FirstOrDefault(_ => _.StorageObjectID == storageobjectID);
+
+                if (screen != null)
+                    return screen;
+
+                Task.Delay(20).Wait();
+            } while (true);
         }
 
         public ITrack GetTrack(StorageObjectID storageobjectID) =>
@@ -140,7 +140,7 @@ namespace MusicWriter {
                 throw new InvalidOperationException("Cannot add track that already exists");
 
             var nameobj = storage[track.StorageObjectID].GetOrMake("name");
-            
+
             nameobj.ContentsSet += nameobjID =>
                 track.Name.Value = nameobj.ReadAllString();
 
@@ -162,10 +162,24 @@ namespace MusicWriter {
         }
 
         private void Controllers_ItemAdded(ITrackController<View> controller) {
-            controller.Name.BeforeChange += Controllers_Rename;
+            controller.Name.BeforeChange += Controllers_Renaming;
+            controller.Name.AfterChange += Controllers_Renamed;
         }
 
-        private void Controllers_Rename(string old, string @new) {
+        private void Controllers_Renaming(string oldname, string newname) {
+            var same =
+                Controllers.FirstOrDefault(controller => controller.Name.Value == newname);
+
+            if (same != null) {
+                var proposal = same.Name.Value;
+                while (Controllers.Any(controller => controller.Name.Value == proposal))
+                    proposal += "_";
+
+                same.Name.Value = proposal;
+            }
+        }
+
+        private void Controllers_Renamed(string old, string @new) {
             storage
                 [storage.Root]
                 .GetOrMake("controllers")
@@ -179,6 +193,20 @@ namespace MusicWriter {
         }
 
         private void Screens_ItemAdded(Screen<View> screen) {
+            screen.Name.BeforeChange += Screen_Renaming;
+        }
+
+        private void Screen_Renaming(string oldname, string newname) {
+            var same =
+                Screens.FirstOrDefault(screen => screen.Name.Value == newname);
+
+            if (same != null) {
+                var proposal = same.Name.Value;
+                while (Screens.Any(screen => screen.Name.Value == proposal))
+                    proposal += "_";
+
+                same.Name.Value = proposal;
+            }
         }
 
         private void Screens_ItemRemoved(Screen<View> screen) {

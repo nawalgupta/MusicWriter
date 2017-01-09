@@ -25,7 +25,9 @@ namespace MusicWriter {
             set {
                 var old = this.value;
 
-                if (!old.Equals(value)) {
+                if (ReferenceEquals(old, null) ||
+                    ReferenceEquals(value, null) ||
+                    !old.Equals(value)) {
                     BeforeChange?.Invoke(old, value);
 
                     this.value = value;

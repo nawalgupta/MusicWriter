@@ -64,6 +64,7 @@
     <Compile Include="Functions\PolynomialFunction.cs" />
     <Compile Include="Functions\SquareFunction.cs" />
     <Compile Include="Functions\StepwiseIntegratedFunction.cs" />
+    <Compile Include="Grouping\GlobalCaret.cs" />
     <Compile Include="Grouping\Pin.cs" />
     <Compile Include="Grouping\PinMode.cs" />
     <Compile Include="File\Screen.cs" />

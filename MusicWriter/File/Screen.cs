@@ -16,7 +16,7 @@ namespace MusicWriter {
         readonly CommandCenter commandcenter = new CommandCenter();
 
         public ObservableProperty<string> Name { get; } =
-            new ObservableProperty<string>("");
+            new ObservableProperty<string>("Screen");
         
         public StorageObjectID StorageObjectID {
             get { return storageobjectID; }
@@ -40,6 +40,20 @@ namespace MusicWriter {
 
             Controllers.ItemAdded += Controllers_ItemAdded;
             Controllers.ItemRemoved += Controllers_ItemRemoved;
+
+            Name.AfterChange += Name_AfterChange;
+
+            file
+                .TrackSettings
+                .GlobalCaret
+                .InitCaret(Name.Value);
+        }
+
+        private void Name_AfterChange(string old, string @new) {
+            file
+                .TrackSettings
+                .GlobalCaret
+                .RenameCaret(old, @new);
         }
 
         private void Controllers_ItemAdded(ITrackController<View> obj) {
@@ -58,7 +72,10 @@ namespace MusicWriter {
                 obj.GetOrMake("controllers");
 
             controllersobj.ChildAdded += (controllersobjID, controllerobjID, key) => {
-                Controllers.Add(file.GetController(key));
+                var controller = file.GetController(controllerobjID);
+
+                if (!Controllers.Contains(controller))
+                    Controllers.Add(controller);
             };
 
             controllersobj.ChildRemoved += (controllersobjID, oldcontrollerobjID, key) => {

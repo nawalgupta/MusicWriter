@@ -267,7 +267,10 @@ namespace MusicWriter.WinForms {
                     lsvControllers.SelectedIndices.Contains(i) &&
                     screen.Controllers.Contains(lsvControllers.Items[i].Tag as ITrackController<Control>);
 
-                var controller = screen.Controllers[i];
+                var item =
+                    lsvControllers.Items[i];
+
+                var controller = file.GetController(item.Text);
 
                 controller.CommandCenter.Enabled = selected;
 

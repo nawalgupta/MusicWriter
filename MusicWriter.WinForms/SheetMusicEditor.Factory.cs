@@ -34,6 +34,7 @@ namespace MusicWriter.WinForms {
                 var controller =
                     new SheetMusicEditor();
 
+                controller.File = file;
                 controller.Storage = storage;
 
                 return controller;

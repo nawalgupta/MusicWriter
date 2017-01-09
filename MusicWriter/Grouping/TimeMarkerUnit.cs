@@ -56,6 +56,14 @@ namespace MusicWriter
             markers.Remove(name);
         }
 
+        public bool HasMarker(string name) {
+            return markers.ContainsKey(name);
+        }
+
+        public void SetMarker(string name, Time value) {
+            markers[name].Value = value;
+        }
+
         public void RenameMarker(string oldname, string newname) {
             var value = GetTime(oldname);
 

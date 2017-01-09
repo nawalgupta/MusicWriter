@@ -172,8 +172,9 @@ namespace MusicWriter
             arrows_to_sink.Lookup(source).Add(kvp);
             arrows_to_source.Lookup(sink).Add(source);
 
-            foreach (var responder in ArrowAdded_list)
-                responder(source, sink, key);
+            // more responders might be added during this event
+            for (int i = ArrowAdded_list.Count - 1; i >= 0; i--)
+                ArrowAdded_list[i](source, sink, key);
         }
 
         protected virtual void RemoveArrow(StorageObjectID source, StorageObjectID sink) {
