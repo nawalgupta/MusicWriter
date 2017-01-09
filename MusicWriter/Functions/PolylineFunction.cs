@@ -73,8 +73,8 @@ namespace MusicWriter
         }
 
         void Setup() {
-            storage.ChildAdded += (storage_objID, pt_objID) => {
-                var t = float.Parse(storage.GetRelation(pt_objID));
+            storage.ChildAdded += (storage_objID, pt_objID, key) => {
+                var t = float.Parse(key);
                 var v = float.Parse(storage.Graph[pt_objID].ReadAllString());
 
                 Add_ram(t, v);
@@ -87,15 +87,15 @@ namespace MusicWriter
                 MoveX_ram(t0, t1);
             };
 
-            storage.ChildContentsSet += (storage_objID, pt_objID) => {
-                var t = float.Parse(storage.GetRelation(pt_objID));
+            storage.ChildContentsSet += (storage_objID, pt_objID, key) => {
+                var t = float.Parse(key);
                 var v1 = float.Parse(storage.Graph[pt_objID].ReadAllString());
 
                 MoveY_ram(t, v1);
             };
 
-            storage.ChildRemoved += (storage_objID, pt_objID) => {
-                var t = float.Parse(storage.GetRelation(pt_objID));
+            storage.ChildRemoved += (storage_objID, pt_objID, key) => {
+                var t = float.Parse(key);
                 var v = float.Parse(storage.Graph[pt_objID].ReadAllString());
 
                 RemoveExact_ram(t, v);

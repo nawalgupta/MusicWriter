@@ -27,6 +27,7 @@ namespace MusicWriter
 
         bool HasChild(StorageObjectID source, string relation);
         string GetRelation(StorageObjectID source, StorageObjectID sink);
+        IEnumerable<string> GetRelations(StorageObjectID source, StorageObjectID sink);
 
         StorageObjectID Create();
         void Delete(StorageObjectID id);

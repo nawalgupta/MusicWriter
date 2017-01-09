@@ -57,11 +57,11 @@ namespace MusicWriter {
             var controllersobj =
                 obj.GetOrMake("controllers");
 
-            controllersobj.ChildAdded += (controllersobjID, controllerobjID) => {
-                Controllers.Add(file.GetController(controllerobjID));
+            controllersobj.ChildAdded += (controllersobjID, controllerobjID, key) => {
+                Controllers.Add(file.GetController(key));
             };
 
-            controllersobj.ChildRemoved += (controllersobjID, oldcontrollerobjID) => {
+            controllersobj.ChildRemoved += (controllersobjID, oldcontrollerobjID, key) => {
                 var controller = Controllers.FirstOrDefault(_ => _.StorageObjectID == oldcontrollerobjID);
 
                 if (controller != null)

@@ -13,6 +13,7 @@ namespace MusicWriter
         StorageObjectID ID { get; }
 
         IEnumerable<StorageObjectID> Children { get; }
+        IEnumerable<KeyValuePair<string, StorageObjectID>> RelationalChildren { get; }
 
         bool IsEmpty { get; }
 
@@ -27,6 +28,7 @@ namespace MusicWriter
         event StorageObjectChangedDelegate Deleted;
 
         string GetRelation(StorageObjectID child);
+        IEnumerable<string> GetRelations(StorageObjectID child);
         IStorageObject Open(string child);
 
         Stream OpenRead();
@@ -38,6 +40,7 @@ namespace MusicWriter
         void Rename(StorageObjectID child, string newkey);
         void Remove(string key);
         void Remove(StorageObjectID child);
+
 
         void Delete();
     }

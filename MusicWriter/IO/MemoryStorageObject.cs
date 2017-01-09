@@ -32,7 +32,7 @@ namespace MusicWriter
                     }
 
                     public override bool CanRead {
-                        get { return pos != file.data.LongLength; }
+                        get { return true; }
                     }
 
                     public override bool CanSeek {
@@ -151,8 +151,8 @@ namespace MusicWriter
                 add {
                     ChildAdded_responders.Add(value);
 
-                    foreach (var child in Children)
-                        value(id, child);
+                    foreach (var child in RelationalChildren)
+                        value(id, child.Value, child.Key);
                 }
                 remove {
                     ChildAdded_responders.Remove(value);
@@ -166,8 +166,8 @@ namespace MusicWriter
                 add {
                     ChildContentsSet_responders.Add(value);
 
-                    foreach (var child in Children)
-                        value(id, child);
+                    foreach (var child in RelationalChildren)
+                        value(id, child.Value, child.Key);
                 }
                 remove {
                     ChildContentsSet_responders.Remove(value);
@@ -197,6 +197,10 @@ namespace MusicWriter
 
             public IEnumerable<StorageObjectID> Children {
                 get { return graph.Outgoing(id).Select(child => child.Value); }
+            }
+
+            public IEnumerable<KeyValuePair<string, StorageObjectID>> RelationalChildren {
+                get { return graph.Outgoing(id); }
             }
 
             public bool IsEmpty {
@@ -244,19 +248,21 @@ namespace MusicWriter
 
             private void Graph_ArrowAdded(
                     StorageObjectID container,
-                    StorageObjectID child
+                    StorageObjectID child, 
+                    string key
                 ) {
                 if (container == id)
                     foreach (var responder in ChildAdded_responders)
-                        responder(container, child);
+                        responder(container, child, key);
             }
 
             private void Graph_ArrowRemoved(
                     StorageObjectID container,
-                    StorageObjectID child
+                    StorageObjectID child, 
+                    string key
                 ) {
                 if (container == id)
-                    ChildRemoved?.Invoke(container, child);
+                    ChildRemoved?.Invoke(container, child, key);
             }
 
             private void Graph_ArrowRenamed(
@@ -276,9 +282,9 @@ namespace MusicWriter
                     foreach (var responder in ContentsSet_responders)
                         responder(affected);
 
-                if (Children.Any(child => child == affected))
+                foreach(var key in GetRelations(affected))
                     foreach (var responder in ChildContentsSet_responders)
-                        responder(id, affected);
+                        responder(id, affected, key);
             }
 
             private void Graph_NodeDeleted(
@@ -314,6 +320,9 @@ namespace MusicWriter
 
             public string GetRelation(StorageObjectID child) =>
                 graph.GetRelation(id, child);
+
+            public IEnumerable<string> GetRelations(StorageObjectID child) =>
+                graph.GetRelations(id, child);
 
             public void Add(string key, StorageObjectID id) =>
                 graph.AddArrow(this.id, id, key);

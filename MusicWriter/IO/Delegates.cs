@@ -8,7 +8,8 @@ namespace MusicWriter
 {
     public delegate void StorageObjectChildChangedDelegate(
             StorageObjectID container,
-            StorageObjectID child
+            StorageObjectID child,
+            string key
         );
 
     public delegate void StorageObjectChildRekeyedDelegate(

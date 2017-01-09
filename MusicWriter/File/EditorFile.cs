@@ -57,6 +57,7 @@ namespace MusicWriter {
             var storageobjectID = storage.Create();
 
             factory.Init(storage[storageobjectID], tracksettings);
+            storage[storage.Root].GetOrMake("tracks").Add("", storageobjectID);
 
             return await Task.Run(async () => {
                 do {
@@ -80,6 +81,7 @@ namespace MusicWriter {
             var storageobjectID = storage.Create();
 
             factory.Init(storage[storageobjectID], this);
+            storage[storage.Root].GetOrMake("controllers").Add("", storageobjectID);
 
             return await Task.Run(async () => {
                 do {
@@ -101,6 +103,7 @@ namespace MusicWriter {
         public Screen<View> CreateScreen() {
             var storageobjectID = storage.Create();
             var screen = new Screen<View>(storageobjectID, this);
+            storage[storage.Root].GetOrMake("screens").Add("", storageobjectID);
 
             return screen;
         }
@@ -120,6 +123,11 @@ namespace MusicWriter {
         void Track_Rename(string old, string @new) {
             if (trackmap.ContainsKey(@new))
                 throw new InvalidOperationException("Cannot overwrite track");
+
+            storage
+                [storage.Root]
+                .GetOrMake("tracks")
+                .Rename(old, @new);
 
             trackmap.Add(@new, trackmap[old]);
             trackmap.Remove(old);
@@ -152,6 +160,14 @@ namespace MusicWriter {
         }
 
         private void Controllers_ItemAdded(ITrackController<View> controller) {
+            controller.Name.BeforeChange += Controllers_Rename;
+        }
+
+        private void Controllers_Rename(string old, string @new) {
+            storage
+                [storage.Root]
+                .GetOrMake("controllers")
+                .Rename(old, @new);
         }
 
         private void Controllers_ItemRemoved(ITrackController<View> controller) {
@@ -200,7 +216,7 @@ namespace MusicWriter {
             var tracks =
                 storage[storage.Root].GetOrMake("tracks");
 
-            tracks.ChildAdded += (tracksnodeID, newtrackID) => {
+            tracks.ChildAdded += (tracksnodeID, newtrackID, key) => {
                 var trackobj = storage[newtrackID];
 
                 var type = storage[trackobj["type"]].ReadAllString();
@@ -211,11 +227,12 @@ namespace MusicWriter {
                         .FirstOrDefault(_ => _.Name == type);
 
                 var track = trackfactory.Load(trackobj, tracksettings);
+                tracks.Rename(newtrackID, track.Name.Value);
 
                 Tracks.Add(track);
             };
 
-            tracks.ChildRemoved += (tracksnodeID, oldtrackID) => {
+            tracks.ChildRemoved += (tracksnodeID, oldtrackID, key) => {
                 var track = Tracks.FirstOrDefault(_ => _.StorageObjectID == oldtrackID);
 
                 if (track != null)
@@ -225,7 +242,7 @@ namespace MusicWriter {
             var controllers =
                 storage[storage.Root].GetOrMake("controllers");
 
-            controllers.ChildAdded += (controllersnodeID, newcontrollerID) => {
+            controllers.ChildAdded += (controllersnodeID, newcontrollerID, key) => {
                 var controllerobj = storage[newcontrollerID];
 
                 var type = controllerobj.Get("type").ReadAllString();
@@ -236,11 +253,12 @@ namespace MusicWriter {
                         .FirstOrDefault(_ => _.Name == type);
 
                 var controller = controllerfactory.Load(controllerobj, this);
-                
+                controllers.Rename(newcontrollerID, controller.Name.Value);
+
                 Controllers.Add(controller);
             };
 
-            controllers.ChildRemoved += (controllersnodeID, oldcontrollerID) => {
+            controllers.ChildRemoved += (controllersnodeID, oldcontrollerID, key) => {
                 var controller = Controllers.FirstOrDefault(_ => _.StorageObjectID == oldcontrollerID);
 
                 if (controller != null)
@@ -250,12 +268,12 @@ namespace MusicWriter {
             var screens =
                 storage[storage.Root].GetOrMake("screens");
 
-            screens.ChildAdded += (screensnodeID, newscreenID) => {
+            screens.ChildAdded += (screensnodeID, newscreenID, key) => {
                 var screen = new Screen<View>(newscreenID, this);
                 Screens.Add(screen);
             };
 
-            screens.ChildRemoved += (screensnodeID, oldscreenID) => {
+            screens.ChildRemoved += (screensnodeID, oldscreenID, key) => {
                 var screen = Screens.FirstOrDefault(_ => _.StorageObjectID == oldscreenID);
 
                 if (screen != null)

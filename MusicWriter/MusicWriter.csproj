@@ -83,6 +83,7 @@
     <Compile Include="IO\IStorageObject.cs" />
     <Compile Include="IO\MemoryStorageGraph.cs" />
     <Compile Include="IO\MemoryStorageObject.cs" />
+    <Compile Include="IO\RootMemoryStorageObject.cs" />
     <Compile Include="IO\StorageObjectID.cs" />
     <Compile Include="IO\ZipStorageGraph.cs" />
     <Compile Include="Metadata\IMemoryModule.cs" />

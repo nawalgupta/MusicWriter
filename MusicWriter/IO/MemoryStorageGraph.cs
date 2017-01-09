@@ -30,9 +30,9 @@ namespace MusicWriter
             add {
                 ArrowAdded_list.Add(value);
 
-                foreach (var sink in arrows_to_source.Keys)
-                    foreach (var source in arrows_to_source[sink])
-                        value(source, sink);
+                foreach (var source in arrows_to_sink.Keys)
+                    foreach (var sinkkvp in arrows_to_sink[source])
+                        value(source, sinkkvp.Value, sinkkvp.Key);
             }
             remove {
                 ArrowAdded_list.Remove(value);
@@ -68,11 +68,15 @@ namespace MusicWriter
         public event StorageObjectChangedDelegate NodeDeleted;
 
         public StorageObjectID Root {
-            get { return StorageObjectID.Zero; }
+            get { return root.ID; }
         }
+        readonly RootMemoryStorageObject root;
 
         public IStorageObject this[StorageObjectID id] {
             get {
+                if (id == root.ID)
+                    return root;
+
                 if (archivalstates[id] == ArchivalState.Archived)
                     Unarchive(id);
 
@@ -86,6 +90,7 @@ namespace MusicWriter
 
         public MemoryStorageGraph() {
             usedIDs.Add(StorageObjectID.Zero.ID);
+            root = new RootMemoryStorageObject(this);
         }
 
         public IEnumerable<StorageObjectID> Incoming(StorageObjectID sink) =>
@@ -168,7 +173,7 @@ namespace MusicWriter
             arrows_to_source.Lookup(sink).Add(source);
 
             foreach (var responder in ArrowAdded_list)
-                responder(source, sink);
+                responder(source, sink, key);
         }
 
         protected virtual void RemoveArrow(StorageObjectID source, StorageObjectID sink) {
@@ -178,14 +183,15 @@ namespace MusicWriter
             var list = arrows_to_sink.Lookup(source);
             for (int i = 0; i < list.Count; i++) {
                 if (list[i].Value == sink) {
-                    list.RemoveAt(i);
-                    break;
+                    var key = list[i].Key;
+                    ArrowRemoved?.Invoke(source, sink, key);
+
+                    list.RemoveAt(i--);
+                    continue;
                 }
             }
 
             arrows_to_source.Lookup(sink).Remove(source);
-
-            ArrowRemoved?.Invoke(source, sink);
         }
 
         protected virtual void RenameArrow(StorageObjectID source, StorageObjectID sink, string newkey) {
@@ -224,6 +230,14 @@ namespace MusicWriter
                 .Lookup(source)
                 .FirstOrDefault(x => x.Value == sink)
                 .Key;
+
+        public virtual IEnumerable<string> GetRelations(
+                StorageObjectID source,
+                StorageObjectID sink
+            ) =>
+            from kvp in arrows_to_sink.Lookup(source)
+            where kvp.Value == sink
+            select kvp.Key;
 
         public virtual bool HasChild(StorageObjectID source, string relation) =>
             arrows_to_sink

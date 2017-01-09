@@ -55,9 +55,9 @@ namespace MusicWriter
             storage.ChildRemoved += Storage_ChildRemoved;
         }
 
-        private void Storage_ChildAdded(StorageObjectID container, StorageObjectID child) {
+        private void Storage_ChildAdded(StorageObjectID container, StorageObjectID child, string key) {
             var duration =
-                CodeTools.ReadDuration(storage.GetRelation(child));
+                CodeTools.ReadDuration(key);
 
             if (!events.Contains(duration)) {
                 lock (locker) {
@@ -83,9 +83,9 @@ namespace MusicWriter
             field.TryMoveUnique(oldduration, newduration);
         }
 
-        private void Storage_ChildContentsChanged(StorageObjectID container, StorageObjectID child) {
+        private void Storage_ChildContentsChanged(StorageObjectID container, StorageObjectID child, string key) {
             var duration =
-                CodeTools.ReadDuration(storage.GetRelation(child));
+                CodeTools.ReadDuration(key);
 
             var contents =
                 Deserializer(storage.Graph[child]);
@@ -94,9 +94,9 @@ namespace MusicWriter
                 field.UpdateUnique(duration, contents);
         }
 
-        private void Storage_ChildRemoved(StorageObjectID container, StorageObjectID child) {
+        private void Storage_ChildRemoved(StorageObjectID container, StorageObjectID child, string key) {
             var duration =
-                CodeTools.ReadDuration(storage.GetRelation(child));
+                CodeTools.ReadDuration(key);
 
             if (field.HasItem(duration))
                 field.RemoveUnique(duration);

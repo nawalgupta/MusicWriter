@@ -45,8 +45,8 @@ namespace MusicWriter {
             };
 
             notes_obj = storage.GetOrMake("notes");
-            notes_obj.ChildAdded += (notes_objID, new_note_objID) => {
-                var noteID = new NoteID(int.Parse(notes_obj.GetRelation(new_note_objID)));
+            notes_obj.ChildAdded += (notes_objID, new_note_objID, key) => {
+                var noteID = new NoteID(int.Parse(key));
                 var new_note_obj = notes_obj.Graph[new_note_objID];
                 var contents = new_note_obj.ReadAllString().Split('\n');
                 var duration = CodeTools.ReadDuration(contents[0]);
@@ -64,8 +64,8 @@ namespace MusicWriter {
                 FieldChanged?.Invoke(duration);
             };
 
-            notes_obj.ChildContentsSet += (notes_objID, changed_note_objID) => {
-                var noteID = new NoteID(int.Parse(notes_obj.GetRelation(changed_note_objID)));
+            notes_obj.ChildContentsSet += (notes_objID, changed_note_objID, key) => {
+                var noteID = new NoteID(int.Parse(key));
                 var new_note_obj = notes_obj.Graph[changed_note_objID];
                 var contents = new_note_obj.ReadAllString().Split('\n');
                 var duration = CodeTools.ReadDuration(contents[0]);
@@ -92,8 +92,8 @@ namespace MusicWriter {
                 }
             };
 
-            notes_obj.ChildRemoved += (notes_objID, old_note_objID) => {
-                var noteID = new NoteID(int.Parse(notes_obj.GetRelation(old_note_objID)));
+            notes_obj.ChildRemoved += (notes_objID, old_note_objID, key) => {
+                var noteID = new NoteID(int.Parse(key));
 
                 var oldnote = notes_lookup[noteID];
 
