@@ -316,7 +316,7 @@ namespace MusicWriter
                 graph.GetRelation(id, child);
 
             public void Add(string key, StorageObjectID id) =>
-                graph.AddArrow(id, id, key);
+                graph.AddArrow(this.id, id, key);
 
             public void Rename(string oldkey, string newkey) =>
                 graph.RenameArrow(id, this[oldkey], newkey);

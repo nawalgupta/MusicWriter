@@ -119,11 +119,15 @@ namespace MusicWriter
                 storage.Add(t1.Value.ToString(), pt1_obj.ID);
             }
         }
-        
+
         public void Add(float t, float value) {
-            var pt_obj = storage.Graph.CreateObject();
-            pt_obj.WriteAllString(value.ToString());
-            storage.Add(t.ToString(), pt_obj.ID);
+            if (storage.HasChild(t.ToString()))
+                storage.Get(t.ToString()).WriteAllString(value.ToString());
+            else {
+                var pt_obj = storage.Graph.CreateObject();
+                pt_obj.WriteAllString(value.ToString());
+                storage.Add(t.ToString(), pt_obj.ID);
+            }
         }
 
         void Add_ram(float t, float value) {
@@ -237,6 +241,9 @@ namespace MusicWriter
         }
 
         public float GetValue(FunctionCall arg) {
+            if (values.Count == 0)
+                return float.NaN;
+
             var i_left = bsearch_time_left(arg.LocalTime);
 
             if (i_left + 1 == values.Count)
