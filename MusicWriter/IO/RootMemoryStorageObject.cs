@@ -18,7 +18,14 @@ namespace MusicWriter
                 new Dictionary<StorageObjectID, HashSet<string>>();
 
             public StorageObjectID this[string key] {
-                get { return branches[key].SingleOrDefault(); }
+                get {
+                    try {
+                        return branches[key].Single();
+                    }
+                    catch (InvalidOperationException) {
+                        throw new KeyNotFoundException();
+                    }
+                }
             }
 
             public IEnumerable<StorageObjectID> Children {

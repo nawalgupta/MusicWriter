@@ -213,7 +213,7 @@ namespace MusicWriter
                         if (kvp.Key == key)
                             return kvp.Value;
 
-                    return default(StorageObjectID);
+                    throw new KeyNotFoundException();
                 }
             }
 

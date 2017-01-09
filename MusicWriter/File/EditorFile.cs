@@ -50,6 +50,8 @@ namespace MusicWriter {
 
             Screens.ItemAdded += Screens_ItemAdded;
             Screens.ItemRemoved += Screens_ItemRemoved;
+
+            Reload();
         }
 
         public async Task<ITrack> CreateTrackAsync(string type) {
