@@ -25,6 +25,9 @@ namespace MusicWriter {
         public delegate void DurationFieldItemChangedDelegate(Duration duration, T oldvalue, T newvalue);
 
         public void Translate(Time delta) {
+            if (GeneralDuration.Value == null)
+                return;
+
             if (delta == Time.Zero)
                 return;
 

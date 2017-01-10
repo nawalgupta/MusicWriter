@@ -122,7 +122,7 @@ namespace MusicWriter.WinForms {
 
             //pnlViews.Controls.SetChildIndex(controller.View, ?);
 
-            //controller.View.Focus();
+            controller.View.Focus();
 
             controller.Name.AfterChange += ControllerName_AfterChange;
 
@@ -327,29 +327,16 @@ namespace MusicWriter.WinForms {
             var controllerfactory =
                 (ITrackControllerFactory<Control>)
                 e.ClickedItem.Tag;
-
-            var newcontroller =
-                file.CreateTrackController(controllerfactory.Name);
-
-            file.Controllers.Add(newcontroller);
-            screen.Controllers.Add(newcontroller);
+            
+            file.CreateTrackController(controllerfactory.Name);
         }
 
         private void mnuAddTrack_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
             var trackfactory =
                 (ITrackFactory)
                 e.ClickedItem.Tag;
-
-            var newtrack =
-                file.CreateTrack(trackfactory.Name);
-
-            var prefix = newtrack.Name.Value = "Track ";
-            var i = 0;
-
-            while (File.Tracks.Any(t => t.Name.Value == newtrack.Name.Value))
-                newtrack.Name.Value = prefix + (++i).ToString();
-
-            File.Tracks.Add(newtrack);
+            
+            file.CreateTrack(trackfactory.Name);
         }
 
         bool lsvTracks_disabled = false;

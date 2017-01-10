@@ -109,6 +109,8 @@ namespace MusicWriter
             var relation =
                 CodeTools.WriteDuration(duration);
 
+            events.Add(duration);
+
             if (!storage.HasChild(relation)) {
                 var item_objID =
                     storage.Graph.Create();
@@ -126,6 +128,9 @@ namespace MusicWriter
             ) {
             var oldrelation =
                 CodeTools.WriteDuration(oldduration);
+
+            events.Remove(oldduration);
+            events.Add(newduration);
 
             if (storage.HasChild(oldrelation))
                 storage.Rename(oldrelation, CodeTools.WriteDuration(newduration));
@@ -148,6 +153,8 @@ namespace MusicWriter
             ) {
             var relation =
                 CodeTools.WriteDuration(duration);
+
+            events.Remove(duration);
 
             if (storage.HasChild(relation))
                 storage.Get(relation).Delete();

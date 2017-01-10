@@ -57,6 +57,10 @@ namespace MusicWriter {
             var factory = Capabilities.TrackFactories.FirstOrDefault(_ => _.Name == type);
             var storageobjectID = storage.Create();
 
+            var type_obj = storage.CreateObject();
+            type_obj.WriteAllString(type);
+            storage[storageobjectID].Add("type", type_obj.ID);
+
             factory.Init(storage[storageobjectID], tracksettings);
             storage[storage.Root].GetOrMake("tracks").Add("", storageobjectID);
 
