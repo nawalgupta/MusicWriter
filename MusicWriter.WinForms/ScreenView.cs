@@ -42,7 +42,7 @@ namespace MusicWriter.WinForms {
             get { return screen; }
             set {
                 if (screen != null) {
-                    screen.Name.AfterChange -= Name_AfterChange;
+                    screen.Name.AfterChange -= Screen_NameChanged;
                     screen.Controllers.ItemAdded -= ScreenControllers_ItemAdded;
                     screen.Controllers.ItemRemoved -= ScreenControllers_ItemRemoved;
                 }
@@ -50,8 +50,8 @@ namespace MusicWriter.WinForms {
                 var old = screen;
 
                 screen = value;
-                Name_AfterChange(old?.Name.Value, screen.Name.Value);
-                screen.Name.AfterChange += Name_AfterChange;
+                Screen_NameChanged(old?.Name.Value, screen.Name.Value);
+                screen.Name.AfterChange += Screen_NameChanged;
 
                 screen.Controllers.ItemAdded += ScreenControllers_ItemAdded;
                 screen.Controllers.ItemRemoved += ScreenControllers_ItemRemoved;
@@ -118,11 +118,11 @@ namespace MusicWriter.WinForms {
 
             lsvControllers.Items.Add(item);
             
-            pnlViews.Controls.Add(controller.View);
+            //pnlViews.Controls.Add(controller.View);
 
             //pnlViews.Controls.SetChildIndex(controller.View, ?);
 
-            controller.View.Focus();
+            //controller.View.Focus();
 
             controller.Name.AfterChange += ControllerName_AfterChange;
 
@@ -156,7 +156,7 @@ namespace MusicWriter.WinForms {
                 });
         }
 
-        private void Name_AfterChange(string old, string @new) {
+        private void Screen_NameChanged(string old, string @new) {
             Text = @new;
             Name = $"tabScreen_{@new}";
         }
@@ -199,13 +199,17 @@ namespace MusicWriter.WinForms {
         
         private void ScreenControllers_ItemAdded(ITrackController<Control> controller) {
             var item = lsvControllers.Items[$"lsvControllersItem_{controller.Name}"];
-            
+
+            pnlViews.Controls.Add(controller.View);
+
             item.Checked = true;
         }
 
         private void ScreenControllers_ItemRemoved(ITrackController<Control> controller) {
             var item = lsvControllers.Items[$"lsvControllersItem_{controller.Name}"];
             item.Checked = false;
+
+            pnlViews.Controls.Remove(controller.View);
 
             controller.CommandCenter.DesubscribeFrom(screen.CommandCenter);
         }
@@ -285,6 +289,8 @@ namespace MusicWriter.WinForms {
             }
 
             lsvTracks_disabled = false;
+
+            Invalidate(true);
         }
 
         private void txtSearchControllers_TextChanged(object sender, EventArgs e) {
@@ -351,10 +357,21 @@ namespace MusicWriter.WinForms {
                 (ITrack)
                 e.Item.Tag;
 
-            if (e.Item.Checked)
-                SelectedController?.Tracks.Add(track);
+            if (SelectedController != null) {
+                if (e.Item.Checked)
+                    SelectedController.Tracks.Add(track);
+                else {
+                    SelectedController.Tracks.Remove(track);
+                }
+            }
             else {
-                SelectedController?.Tracks.Remove(track);
+                MessageBox.Show(
+                        owner: FindForm(),
+                        text: "Select a controller first to select its tracks.",
+                        caption: "Select controller",
+                        buttons: MessageBoxButtons.OK,
+                        icon: MessageBoxIcon.Hand
+                    );
             }
         }
 

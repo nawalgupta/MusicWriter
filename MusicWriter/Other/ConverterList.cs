@@ -7,9 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public sealed class ConverterList<T, Special> : IList<T> where Special : T {
-        readonly ObservableCollection<Special> collection =
-            new ObservableCollection<Special>();
+    public sealed class ConverterList<T, Special, Container>
+        : IList<T> 
+        where Special : T
+        where Container : IList<Special> {
+        readonly Container collection;
             
         public T this[int index] {
             get {
@@ -33,12 +35,16 @@ namespace MusicWriter {
             }
         }
 
-        public ObservableCollection<Special> SpecialCollection {
+        public Container SpecialCollection {
             get { return collection; }
         }
 
         public IList<T> RegularCollection {
             get { return this; }
+        }
+
+        public ConverterList(Container collection) {
+            this.collection = collection;
         }
 
         public void Add(T item) {

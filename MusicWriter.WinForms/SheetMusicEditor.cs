@@ -106,8 +106,8 @@ namespace MusicWriter.WinForms {
 
         public CommandCenter CommandCenter { get; } = new CommandCenter();
         
-        readonly ConverterList<ITrack, MusicTrack> tracks =
-            new ConverterList<ITrack, MusicTrack>();
+        readonly ConverterList<ITrack, MusicTrack, ObservableList<MusicTrack>> tracks =
+            new ConverterList<ITrack, MusicTrack, ObservableList<MusicTrack>>(new ObservableList<MusicTrack>());
 
         readonly Dictionary<MusicTrack, NoteSelection> noteselections =
             new Dictionary<MusicTrack, NoteSelection>();
@@ -141,7 +141,8 @@ namespace MusicWriter.WinForms {
         public SheetMusicEditor() {
             InitializeComponent();
 
-            tracks.SpecialCollection.CollectionChanged += Tracks_CollectionChanged;
+            tracks.SpecialCollection.ItemAdded += Tracks_ItemAdded;
+            tracks.SpecialCollection.ItemRemoved += Tracks_ItemRemoved;
 
             mouseselector.Selected += Mouseselector_Selected;
             mouseselector.Redraw += () => Invalidate();
@@ -681,21 +682,19 @@ namespace MusicWriter.WinForms {
 
             return tone;
         }
+        
+        void Tracks_ItemAdded(MusicTrack track) {
+            track.Memory.InsertMemoryModule(new RenderedSheetMusicItemPerceptualCog.MemoryModule());
+            noteselections.Add(track, new NoteSelection());
 
-        private void Tracks_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-            if (e.OldItems != null)
-                foreach (MusicTrack track in e.OldItems) {
-                    track.Memory.RemoveMemoryModule<RenderedSheetMusicItem>();
-                    noteselections.Remove(track);
-                }
+            InvalidateTime(new Duration { Length = tracks.SpecialCollection.MaxOrDefault(_ => _.Length.Value) });
+        }
 
-            if (e.NewItems != null)
-                foreach (MusicTrack track in e.NewItems) {
-                    track.Memory.InsertMemoryModule(new RenderedSheetMusicItemPerceptualCog.MemoryModule());
-                    noteselections.Add(track, new NoteSelection());
-                }
+        void Tracks_ItemRemoved(MusicTrack track) {
+            track.Memory.RemoveMemoryModule<RenderedSheetMusicItem>();
+            noteselections.Remove(track);
 
-            InvalidateTime(new Duration { Length = tracks.SpecialCollection.MaxOrDefault(track => track.Length.Value) });
+            InvalidateTime(new Duration { Length = tracks.SpecialCollection.MaxOrDefault(_ => _.Length.Value) });
         }
 
         void InvalidateTime(Duration duration) {
