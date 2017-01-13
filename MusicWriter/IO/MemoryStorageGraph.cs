@@ -157,10 +157,10 @@ namespace MusicWriter
             NodeDeleted?.Invoke(id);
             usedIDs.Remove(id.ID);
 
-            foreach (var kvp in arrows_to_sink.Lookup(id))
+            foreach (var kvp in arrows_to_sink.Lookup(id).ToArray())
                 RemoveArrow(id, kvp.Value);
 
-            foreach (var source in arrows_to_source.Lookup(id))
+            foreach (var source in arrows_to_source.Lookup(id).ToArray())
                 RemoveArrow(source, id);
 
             if (isolated_nodes.Contains(id))

@@ -75,23 +75,28 @@ namespace MusicWriter {
             controllersobj.ChildAdded += (controllersobjID, controllerobjID, key) => {
                 var controller = file.GetController(controllerobjID);
 
-                if (!Controllers.Contains(controller))
+                if (!Controllers.Contains(controller)) {
                     Controllers.Add(controller);
+                    controller.Name.AfterChange += controllersobj.Rename;
+                }
             };
 
             controllersobj.ChildRemoved += (controllersobjID, oldcontrollerobjID, key) => {
                 var controller = Controllers.FirstOrDefault(_ => _.StorageObjectID == oldcontrollerobjID);
 
-                if (controller != null)
+                if (controller != null) {
                     Controllers.Remove(controller);
+                    controller.Name.AfterChange -= controllersobj.Rename;
+                }
             };
 
             Controllers.ItemAdded += controller => {
-                controllersobj.Add("", controller.StorageObjectID);
+                if (!controllersobj.HasChild(controller.Name.Value))
+                    controllersobj.Add(controller.Name.Value, controller.StorageObjectID);
             };
             
             Controllers.ItemRemoved += controller => {
-                controllersobj.Remove(controller.StorageObjectID);
+                controllersobj.Remove(controller.Name.Value);
             };
 
             var nameobj =
@@ -102,7 +107,7 @@ namespace MusicWriter {
             Name.AfterChange += (old, @new) =>
                 nameobj.WriteAllString(@new);
         }
-
+        
         void Init() {
             file
                 .TrackSettings

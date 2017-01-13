@@ -199,9 +199,8 @@ namespace MusicWriter.WinForms {
         
         private void ScreenControllers_ItemAdded(ITrackController<Control> controller) {
             var item = lsvControllers.Items[$"lsvControllersItem_{controller.Name}"];
+            
             item.Checked = true;
-
-            controller.CommandCenter.SubscribeTo(screen.CommandCenter);
         }
 
         private void ScreenControllers_ItemRemoved(ITrackController<Control> controller) {

@@ -67,14 +67,12 @@ namespace MusicWriter {
             storage[storageobjectID].GetOrMake("type").WriteAllString(type);
 
             var unique_name = "Track";
-
             while (Tracks.Any(_ => _.Name.Value == unique_name))
                 unique_name += "_";
-
             storage[storageobjectID].GetOrMake("name").WriteAllString(unique_name);
 
             factory.Init(storage[storageobjectID], tracksettings);
-            storage[storage.Root].GetOrMake("tracks").Add("", storageobjectID);
+            storage[storage.Root].GetOrMake("tracks").Add(unique_name, storageobjectID);
 
             do {
                 var track = Tracks.FirstOrDefault(_ => _.StorageObjectID == storageobjectID);
@@ -95,8 +93,13 @@ namespace MusicWriter {
 
             storage[storageobjectID].Add("type", type_obj.ID);
 
+            var unique_name = "Controller";
+            while (Controllers.Any(_ => _.Name.Value == unique_name))
+                unique_name += "_";
+            storage[storageobjectID].GetOrMake("name").WriteAllString(unique_name);
+
             factory.Init(storage[storageobjectID], this);
-            storage[storage.Root].GetOrMake("controllers").Add("", storageobjectID);
+            storage[storage.Root].GetOrMake("controllers").Add(unique_name, storageobjectID);
 
             do {
                 var controller = Controllers.FirstOrDefault(_ => _.StorageObjectID == storageobjectID);
@@ -256,11 +259,17 @@ namespace MusicWriter {
                 track.Name.Value = trackobj.Get("name").ReadAllString();
                 tracks.Rename(newtrackID, track.Name.Value);
 
+                if (key != track.Name.Value)
+                    throw new InvalidOperationException();
+
                 Tracks.Add(track);
             };
 
             tracks.ChildRemoved += (tracksnodeID, oldtrackID, key) => {
                 var track = Tracks.FirstOrDefault(_ => _.StorageObjectID == oldtrackID);
+
+                if (key != track.Name.Value)
+                    throw new InvalidOperationException();
 
                 if (track != null)
                     Tracks.Remove(track);
@@ -280,13 +289,20 @@ namespace MusicWriter {
                         .FirstOrDefault(_ => _.Name == type);
 
                 var controller = controllerfactory.Load(controllerobj, this);
+                controller.Name.Value = controllerobj.Get("name").ReadAllString();
                 controllers.Rename(newcontrollerID, controller.Name.Value);
+
+                if (controller.Name.Value != key)
+                    throw new InvalidOperationException();
 
                 Controllers.Add(controller);
             };
 
             controllers.ChildRemoved += (controllersnodeID, oldcontrollerID, key) => {
                 var controller = Controllers.FirstOrDefault(_ => _.StorageObjectID == oldcontrollerID);
+
+                if (controller.Name.Value != key)
+                    throw new InvalidOperationException();
 
                 if (controller != null)
                     Controllers.Remove(controller);
