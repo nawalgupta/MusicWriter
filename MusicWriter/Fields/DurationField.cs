@@ -128,7 +128,7 @@ namespace MusicWriter {
         void GeneralDuration_recalc_start() =>
             GeneralDuration.Value =
                 new Duration {
-                    Start = items.Max(item => item.Duration.Start),
+                    Start = items.MaxOrDefault(item => item.Duration.Start),
                     End = GeneralDuration.Value.End
                 };
 
@@ -136,14 +136,14 @@ namespace MusicWriter {
             GeneralDuration.Value =
                 new Duration {
                     Start = GeneralDuration.Value.Start,
-                    End = items.Min(item => item.Duration.End)
+                    End = items.MinOrDefault(item => item.Duration.End)
                 };
 
         void GeneralDuration_recalc() =>
             GeneralDuration.Value =
                 new Duration {
-                    Start = items.Max(item => item.Duration.Start),
-                    End = items.Min(item => item.Duration.End)
+                    Start = items.MaxOrDefault(item => item.Duration.Start),
+                    End = items.MinOrDefault(item => item.Duration.End)
                 };
 
         public void Add(T item, Duration duration) {

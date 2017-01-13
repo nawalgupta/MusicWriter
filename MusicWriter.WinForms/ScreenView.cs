@@ -200,11 +200,15 @@ namespace MusicWriter.WinForms {
         private void ScreenControllers_ItemAdded(ITrackController<Control> controller) {
             var item = lsvControllers.Items[$"lsvControllersItem_{controller.Name}"];
             item.Checked = true;
+
+            controller.CommandCenter.SubscribeTo(screen.CommandCenter);
         }
 
         private void ScreenControllers_ItemRemoved(ITrackController<Control> controller) {
             var item = lsvControllers.Items[$"lsvControllersItem_{controller.Name}"];
             item.Checked = false;
+
+            controller.CommandCenter.DesubscribeFrom(screen.CommandCenter);
         }
 
         private void View_Dispose(object sender, EventArgs e) {
@@ -375,9 +379,11 @@ namespace MusicWriter.WinForms {
             var controller =
                 e.Item.Tag as ITrackController<Control>;
 
-            controller.View.Visible = e.Item.Checked;
-
-            pnlViews.Invalidate(true);
+            if (e.Item.Checked)
+                Screen.Controllers.Add(controller);
+            else {
+                Screen.Controllers.Remove(controller);
+            }
         }
 
         private void spltMasterDetail_SplitterMoved(object sender, SplitterEventArgs e) {

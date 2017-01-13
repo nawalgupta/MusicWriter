@@ -695,7 +695,7 @@ namespace MusicWriter.WinForms {
                     noteselections.Add(track, new NoteSelection());
                 }
 
-            InvalidateTime(new Duration { Length = tracks.SpecialCollection.Max(track => track.Length.Value) });
+            InvalidateTime(new Duration { Length = tracks.SpecialCollection.MaxOrDefault(track => track.Length.Value) });
         }
 
         void InvalidateTime(Duration duration) {

@@ -148,13 +148,59 @@ namespace MusicWriter
             public IStorageObject Open(string child) =>
                 graph[branches[child].SingleOrDefault()];
 
-            public Stream OpenRead() {
-                throw new InvalidOperationException();
+            private sealed class EmptyStream : Stream
+            {
+                public override bool CanRead {
+                    get { return true; }
+                }
+
+                public override bool CanSeek {
+                    get { return true; }
+                }
+
+                public override bool CanWrite {
+                    get { return true; }
+                }
+
+                public override long Length {
+                    get { return 0; }
+                }
+
+                public override long Position {
+                    get { return 0; }
+                    set { throw new IOException(); }
+                }
+
+                public override void Flush() {
+                }
+
+                public override int Read(byte[] buffer, int offset, int count) {
+                    return 0;
+                }
+
+                public override long Seek(long offset, SeekOrigin origin) {
+                    if (offset != 0)
+                        throw new IOException();
+
+                    return 0;
+                }
+
+                public override void SetLength(long value) {
+                    if (value != 0)
+                        throw new IOException();
+                }
+
+                public override void Write(byte[] buffer, int offset, int count) {
+                    if (count > 0)
+                        throw new IOException();
+                }
             }
 
-            public Stream OpenWrite() {
-                throw new InvalidOperationException();
-            }
+            public Stream OpenRead() =>
+                new EmptyStream();
+
+            public Stream OpenWrite() =>
+                new EmptyStream();
 
             public void Remove(StorageObjectID child) =>
                 graph.RemoveArrow(ID, child);

@@ -13,8 +13,9 @@ namespace MusicWriter {
     public sealed class EditorFile<View> {
         readonly Dictionary<string, ITrack> trackmap =
             new Dictionary<string, ITrack>();
-        IStorageGraph storage = new MemoryStorageGraph();
+        IStorageGraph storage;
         TrackSettings tracksettings;
+        FileCapabilities<View> capabilities;
 
         public IStorageGraph Storage {
             get { return storage; }
@@ -22,6 +23,10 @@ namespace MusicWriter {
 
         public TrackSettings TrackSettings {
             get { return tracksettings; }
+        }
+
+        public FileCapabilities<View> Capabilities {
+            get { return capabilities; }
         }
 
         public ObservableList<ITrack> Tracks { get; } =
@@ -33,14 +38,16 @@ namespace MusicWriter {
         public ObservableList<Screen<View>> Screens { get; } =
             new ObservableList<Screen<View>>();
 
-        public FileCapabilities<View> Capabilities { get; } =
-            new FileCapabilities<View>();
-
         public ITrack this[string name] {
             get { return trackmap[name]; }
         }
 
-        public EditorFile() {
+        public EditorFile(
+                IStorageGraph storage,
+                FileCapabilities<View> capabilities) {
+            this.storage = storage;
+            this.capabilities = capabilities;
+
             Tracks.ItemAdded += Tracks_ItemAdded;
             Tracks.ItemRemoved += Tracks_ItemRemoved;
 
@@ -50,16 +57,21 @@ namespace MusicWriter {
             Screens.ItemAdded += Screens_ItemAdded;
             Screens.ItemRemoved += Screens_ItemRemoved;
 
-            Reload();
+            Setup();
         }
 
         public ITrack CreateTrack(string type) {
             var factory = Capabilities.TrackFactories.FirstOrDefault(_ => _.Name == type);
             var storageobjectID = storage.Create();
+            
+            storage[storageobjectID].GetOrMake("type").WriteAllString(type);
 
-            var type_obj = storage.CreateObject();
-            type_obj.WriteAllString(type);
-            storage[storageobjectID].Add("type", type_obj.ID);
+            var unique_name = "Track";
+
+            while (Tracks.Any(_ => _.Name.Value == unique_name))
+                unique_name += "_";
+
+            storage[storageobjectID].GetOrMake("name").WriteAllString(unique_name);
 
             factory.Init(storage[storageobjectID], tracksettings);
             storage[storage.Root].GetOrMake("tracks").Add("", storageobjectID);
@@ -143,7 +155,7 @@ namespace MusicWriter {
             if (trackmap.ContainsKey(track.Name.Value))
                 throw new InvalidOperationException("Cannot add track that already exists");
 
-            var nameobj = storage[track.StorageObjectID].GetOrMake("name");
+            var nameobj = storage[track.StorageObjectID].Get("name");
 
             nameobj.ContentsSet += nameobjID =>
                 track.Name.Value = nameobj.ReadAllString();
@@ -218,42 +230,22 @@ namespace MusicWriter {
                 .GetOrMake("screens")
                 .Remove(screen.StorageObjectID);
         }
+        
+        void Setup() {
+            tracksettings =
+                new TrackSettings(
+                        storage
+                            [storage.Root]
+                            .GetOrMake("track-settings")
+                    );
 
-        public void Clear() {
-            trackmap.Clear();
-            Tracks.Clear();
-            Controllers.Clear();
-            Screens.Clear();
-        }
-
-        public void Transfer(IStorageGraph newgraph) {
-            var translationIDmap =
-                new Dictionary<StorageObjectID, StorageObjectID>();
-
-            foreach (var oldobjID in storage.Objects)
-                translationIDmap.Add(oldobjID, newgraph.Create());
-
-            foreach (var oldobjID in storage.Objects) {
-                var newobjID = translationIDmap[oldobjID];
-                var newobj = newgraph[newobjID];
-
-                foreach (var outgoing in storage.Outgoing(oldobjID))
-                    newobj.Add(outgoing.Key, translationIDmap[outgoing.Value]);
-            }
-
-            //TOOD: how do I reset everything?
-
-            Reload();
-        }
-
-        void Reload() {
             var tracks =
                 storage[storage.Root].GetOrMake("tracks");
 
             tracks.ChildAdded += (tracksnodeID, newtrackID, key) => {
                 var trackobj = storage[newtrackID];
 
-                var type = storage[trackobj["type"]].ReadAllString();
+                var type = trackobj.Get("type").ReadAllString();
 
                 var trackfactory =
                     Capabilities
@@ -261,6 +253,7 @@ namespace MusicWriter {
                         .FirstOrDefault(_ => _.Name == type);
 
                 var track = trackfactory.Load(trackobj, tracksettings);
+                track.Name.Value = trackobj.Get("name").ReadAllString();
                 tracks.Rename(newtrackID, track.Name.Value);
 
                 Tracks.Add(track);
@@ -313,8 +306,6 @@ namespace MusicWriter {
                 if (screen != null)
                     Screens.Remove(screen);
             };
-
-            tracksettings = new TrackSettings(storage[storage.Root].GetOrMake("track-settings"));
         }
 
         public void Flush() =>

@@ -126,7 +126,7 @@ namespace MusicWriter {
 
             var newnote_obj = notes_obj.Graph[notes_obj.Graph.Create()];
 
-            newnote_obj.WriteAllString($"{tone.Semitones}\n{CodeTools.WriteDuration(duration)}");
+            newnote_obj.WriteAllString($"{CodeTools.WriteDuration(duration)}\n{tone.Semitones}");
 
             notes_obj.Add(noteID.ToString(), newnote_obj.ID);
 
@@ -136,7 +136,7 @@ namespace MusicWriter {
         public void UpdateNote(NoteID noteID, Duration newduration, SemiTone newtone) {
             var note_obj = notes_obj.Get(noteID.ToString());
 
-            note_obj.WriteAllString($"{newtone}\n{CodeTools.WriteDuration(newduration)}");
+            note_obj.WriteAllString($"{CodeTools.WriteDuration(newduration)}\n{newtone}");
         }
 
         public void DeleteNote(NoteID noteID) {

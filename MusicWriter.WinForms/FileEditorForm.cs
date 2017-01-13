@@ -13,7 +13,7 @@ using System.Windows.Forms;
 
 namespace MusicWriter.WinForms {
     public partial class FileEditorForm : Form {
-        EditorFile<Control> file = new EditorFile<Control>();
+        EditorFile<Control> file;
         KeyboardInputSource input_keyboard =
             new KeyboardInputSource();
         InputController inputcontroller;
@@ -21,6 +21,8 @@ namespace MusicWriter.WinForms {
             new KeyboardMenuShortcuts();
         CommandCenter commandcenter =
             new CommandCenter();
+        FileCapabilities<Control> capabilities =
+            new FileCapabilities<Control>();
 
         string filepath = null;
 
@@ -32,10 +34,6 @@ namespace MusicWriter.WinForms {
             InitializeComponent();
             
             shortcutter.Menu = mnuMainMenu;
-            inputcontroller = new InputController(commandcenter);
-
-            file.Screens.ItemAdded += LoadScreen;
-            file.Screens.ItemRemoved += CloseScreen;
         }
 
         IEnumerable<T> ExpandWierdArgs<T>(IList wierdlist) where T : class {
@@ -59,28 +57,30 @@ namespace MusicWriter.WinForms {
         }
         
         void InitInputSources() {
+            inputcontroller = new InputController(commandcenter);
+
             input_keyboard.Controller = inputcontroller;
         }
 
         void InitControllerFactories() {
-            file.Capabilities.ControllerFactories.Add(SheetMusicEditor.FactoryClass.Instance);
+            capabilities.ControllerFactories.Add(SheetMusicEditor.FactoryClass.Instance);
         }
 
         void InitTrackFactories() {
-            file.Capabilities.TrackFactories.Add(MusicTrackFactory.Instance);
+            capabilities.TrackFactories.Add(MusicTrackFactory.Instance);
         }
 
 		void InitPorters() {
-			file.Capabilities.Porters.CollectionChanged += Porters_CollectionChanged;
+			capabilities.Porters.CollectionChanged += Porters_CollectionChanged;
 
-			file.Capabilities.Porters.Add(new MidiPorter());
+			capabilities.Porters.Add(new MidiPorter());
 		}
 
 		private void Porters_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
 			var filters_builder = new StringBuilder();
 
 			bool first = true;
-			foreach (var porter in file.Capabilities.Porters) {
+			foreach (var porter in capabilities.Porters) {
 				if (first)
 					first = false;
 				else {
@@ -100,8 +100,8 @@ namespace MusicWriter.WinForms {
 			diagSaveExportFile.Filter = filter;
 
             mnuFileImport.DropDownItems.Clear();
-            for(var i = 0; i < file.Capabilities.Porters.Count; i++) {
-                var porter = file.Capabilities.Porters[i];
+            for(var i = 0; i < capabilities.Porters.Count; i++) {
+                var porter = capabilities.Porters[i];
 
                 var mnuFileImportPorter = new ToolStripMenuItem();
                 mnuFileImportPorter.Text = $"{porter.Name} ({porter.FileExtension})";
@@ -163,10 +163,24 @@ namespace MusicWriter.WinForms {
         }
 
         private void MainForm_Load(object sender, EventArgs e) {
+            SetupStatic();
+            Setup();
+        }
+
+        void Setup() {
+            file.Screens.ItemAdded += LoadScreen;
+            file.Screens.ItemRemoved += CloseScreen;
+        }
+
+        void SetupStatic() {
             InitControllerFactories();
             InitTrackFactories();
             InitInputSources();
 			InitPorters();
+
+            inputcontroller = new InputController(commandcenter);
+
+            file = new EditorFile<Control>(new MemoryStorageGraph(), capabilities);
         }
 
         void NewScreen() {
@@ -198,27 +212,37 @@ namespace MusicWriter.WinForms {
         void OpenFile(string filename) {
             filepath = filename;
 
+            IStorageGraph newgraph;
+
             switch (Path.GetExtension(filename)) {
-                case "*.musicwriter":
-                    using (var stream = File.OpenRead(filepath)) {
-                        file.Clear();
+                case ".musicwriter":
+                    var stream =
+                        File.Open(
+                                path: filepath, 
+                                mode: FileMode.OpenOrCreate, 
+                                access: FileAccess.ReadWrite, 
+                                share: FileShare.Read
+                            );
 
-                        var archive =
-                            new ZipArchive(
-                                    stream: File.OpenRead(filepath),
-                                    mode: ZipArchiveMode.Update,
-                                    leaveOpen: false,
-                                    entryNameEncoding: Encoding.Unicode
-                                );
+                    var archive =
+                        new ZipArchive(
+                                stream: stream,
+                                mode: ZipArchiveMode.Update | ZipArchiveMode.Read
+                            );
 
-                        file.Transfer(new ZipStorageGraph(archive));
-                    }
+                    newgraph = new ZipStorageGraph(archive);
 
                     break;
 
-                case "*.musicwriter-dir":
+                case ".musicwriter-dir":
                     throw new NotImplementedException();
+
+                default:
+                    throw new NotSupportedException();
             }
+            
+            file = new EditorFile<Control>(newgraph, capabilities);
+            Setup();
 
             RecentFiles.AddRecent(filepath);
         }
@@ -422,8 +446,27 @@ namespace MusicWriter.WinForms {
 
         }
 
-        private void diagSaveFile_FileOk(object sender, CancelEventArgs e) =>
+        private void diagSaveFile_FileOk(object sender, CancelEventArgs e) {
+            IStorageGraph newgraph;
+
+            switch (diagSaveFile.FilterIndex) {
+                case 1:
+                    // zip file
+                    var stream = diagSaveFile.OpenFile();
+                    var archive = new ZipArchive(stream, ZipArchiveMode.Update);
+                    newgraph = new ZipStorageGraph(archive);
+
+                    break;
+                    
+                default:
+                    throw new NotSupportedException();
+            }
+
+            file.Storage.Transfer(newgraph);
+            newgraph.Flush();
+
             OpenFile(diagSaveFile.FileName);
+        }
 
         private void diagOpenFile_FileOk(object sender, CancelEventArgs e) =>
             OpenFile(diagOpenFile.FileName);

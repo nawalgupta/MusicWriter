@@ -85,7 +85,12 @@ namespace MusicWriter
         }
 
         public IEnumerable<StorageObjectID> Objects {
-            get { return storage.Keys; }
+            get {
+                yield return root.ID;
+
+                foreach (var id in storage.Keys)
+                    yield return id;
+            }
         }
 
         public MemoryStorageGraph() {
@@ -107,7 +112,15 @@ namespace MusicWriter
             archivalstates.Add(id, isarchived ? ArchivalState.Archived : ArchivalState.Unarchived);
 
             arrows_to_sink.Add(id, new List<KeyValuePair<string, StorageObjectID>>());
-            arrows_to_source.Add(id, new List<StorageObjectID>());
+            arrows_to_source.Lookup(id);
+
+            var obj = new StorageObject(this, id);
+            storage.Add(id, obj);
+
+            obj.Init();
+
+            foreach (var responder in NodeCreated_list)
+                responder(id);
         }
 
         public virtual bool Contains(StorageObjectID id) =>

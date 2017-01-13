@@ -43,10 +43,11 @@ namespace MusicWriter {
 
             Name.AfterChange += Name_AfterChange;
 
-            file
-                .TrackSettings
-                .GlobalCaret
-                .InitCaret(Name.Value);
+            if (!file.Storage[storageobjectID].HasChild("inited")) {
+                Init();
+
+                file.Storage[storageobjectID].GetOrMake("inited");
+            }
         }
 
         private void Name_AfterChange(string old, string @new) {
@@ -100,6 +101,13 @@ namespace MusicWriter {
                 Name.Value = nameobj.ReadAllString();
             Name.AfterChange += (old, @new) =>
                 nameobj.WriteAllString(@new);
+        }
+
+        void Init() {
+            file
+                .TrackSettings
+                .GlobalCaret
+                .InitCaret(Name.Value);
         }
     }
 }

@@ -23,11 +23,20 @@ namespace MusicWriter
         }
         
         void Reload() {
+            bool loadedroot = false;
+
             foreach (var entry in zipfile.Entries) {
                 var id = StorageObjectID.Parse(entry.FullName.Split('/')[0]);
 
                 if (!Contains(id)) {
                     DeserializeNode(id);
+                    DeserializeArrows(id);
+                }
+                else if (
+                    id == Root &&
+                    !loadedroot) {
+                    loadedroot = true;
+
                     DeserializeArrows(id);
                 }
             }
@@ -38,7 +47,7 @@ namespace MusicWriter
                 StorageObjectID sink,
                 string key
             ) {
-            SerializeArrows(source);
+            //SerializeArrows(source);
 
             base.AddArrow(source, sink, key);
         }
@@ -48,7 +57,7 @@ namespace MusicWriter
                 StorageObjectID sink,
                 string newkey
             ) {
-            SerializeArrows(source);
+            //SerializeArrows(source);
 
             base.RenameArrow(source, sink, newkey);
         }
@@ -57,13 +66,13 @@ namespace MusicWriter
                 StorageObjectID source, 
                 StorageObjectID sink
             ) {
-            SerializeArrows(source);
+            //SerializeArrows(source);
 
             base.RemoveArrow(source, sink);
         }
 
         protected override void SetContents(StorageObjectID id) {
-            SerializeNode(id);
+            //SerializeNode(id);
 
             base.SetContents(id);
         }
@@ -130,16 +139,17 @@ namespace MusicWriter
 
         void SerializeNode(StorageObjectID id) {
             var storageobject =
-                GetSpecialStorageObject(id);
-
-            var data = storageobject.GetData();
+                this[id];
+            
             var path = $"{id}/dat";
             var entry =
                 zipfile.GetEntry(path) ??
                 zipfile.CreateEntry(path);
 
-            using (var stream = entry.Open()) {
-                stream.Write(data, 0, data.Length);
+            using (var instream = storageobject.OpenRead()) {
+                using (var outstream = entry.Open()) {
+                    instream.CopyTo(outstream);
+                }
             }
         }
 
@@ -152,6 +162,8 @@ namespace MusicWriter
                 SerializeNode(id);
                 SerializeArrows(id);
             }
+
+            zipfile.Dispose();
 
             base.Flush();
         }

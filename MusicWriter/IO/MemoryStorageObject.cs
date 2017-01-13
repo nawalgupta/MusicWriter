@@ -151,7 +151,7 @@ namespace MusicWriter
                 add {
                     ChildAdded_responders.Add(value);
 
-                    foreach (var child in RelationalChildren)
+                    foreach (var child in RelationalChildren.ToArray())
                         value(id, child.Value, child.Key);
                 }
                 remove {
@@ -166,7 +166,7 @@ namespace MusicWriter
                 add {
                     ChildContentsSet_responders.Add(value);
 
-                    foreach (var child in RelationalChildren)
+                    foreach (var child in RelationalChildren.ToArray())
                         value(id, child.Value, child.Key);
                 }
                 remove {

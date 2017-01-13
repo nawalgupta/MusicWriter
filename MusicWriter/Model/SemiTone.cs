@@ -38,6 +38,9 @@ namespace MusicWriter {
         public bool Equals(SemiTone that) =>
             this == that;
 
+        public override string ToString() =>
+            Semitones.ToString();
+
         public static bool operator ==(SemiTone a, SemiTone b) =>
             a.Semitones == b.Semitones;
 
