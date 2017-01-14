@@ -88,6 +88,7 @@
     <Compile Include="IO\RootMemoryStorageObject.cs" />
     <Compile Include="IO\StorageObjectID.cs" />
     <Compile Include="IO\ZipStorageGraph.cs" />
+    <Compile Include="Lists\IObservableList.cs" />
     <Compile Include="Metadata\IMemoryModule.cs" />
     <Compile Include="Metadata\Property.cs" />
     <Compile Include="Metadata\PerceptualMemory.cs" />
@@ -106,9 +107,10 @@
     <Compile Include="Metadata\ExplicitPropertyGraphlet.cs" />
     <Compile Include="MusicTrack\MusicTrackFactory.cs" />
     <Compile Include="Input\InputController.cs" />
-    <Compile Include="Other\ConverterList.cs" />
+    <Compile Include="Lists\ConverterList.cs" />
     <Compile Include="Other\Extensions.cs" />
-    <Compile Include="Other\ObservableList.cs" />
+    <Compile Include="Lists\ObservableConverterList.cs" />
+    <Compile Include="Lists\ObservableList.cs" />
     <Compile Include="Other\ObservableProperty.cs" />
     <Compile Include="Other\CodeTools.cs" />
     <Compile Include="SheetMusic\FlagDirection.cs" />

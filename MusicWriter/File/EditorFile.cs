@@ -132,6 +132,9 @@ namespace MusicWriter {
         public ITrack GetTrack(StorageObjectID storageobjectID) =>
             Tracks.FirstOrDefault(track => track.StorageObjectID == storageobjectID);
 
+        ITrackController<View> GetControllerByTracksObjID(StorageObjectID storageobjectID) =>
+            Controllers.FirstOrDefault(controller => storage.HasChild(controller.StorageObjectID, storageobjectID));
+
         public ITrackController<View> GetController(StorageObjectID storageobjectID) =>
             Controllers.FirstOrDefault(controller => controller.StorageObjectID == storageobjectID);
 
@@ -183,6 +186,24 @@ namespace MusicWriter {
         private void Controllers_ItemAdded(ITrackController<View> controller) {
             controller.Name.BeforeChange += Controllers_Renaming;
             controller.Name.AfterChange += Controllers_Renamed;
+
+            var controller_obj =
+                storage[controller.StorageObjectID];
+
+            var controller_tracks_obj =
+                controller_obj.GetOrMake("tracks");
+
+            controller_tracks_obj.ChildAdded += Controller_tracks_obj_ChildAdded;
+            controller_tracks_obj.ChildRemoved += Controller_tracks_obj_ChildRemoved;
+
+            Action<ITrack> track_added =
+                track => controller_tracks_obj.Add(track.Name.Value, track.StorageObjectID);
+
+            Action<ITrack> track_removed =
+                track => controller_tracks_obj.Remove(track.StorageObjectID);
+
+            controller.Tracks.ItemAdded += track_added;
+            controller.Tracks.ItemRemoved += track_removed;
         }
 
         private void Controllers_Renaming(string oldname, string newname) {
@@ -206,9 +227,22 @@ namespace MusicWriter {
         }
 
         private void Controllers_ItemRemoved(ITrackController<View> controller) {
+            var controller_obj =
+                storage[controller.StorageObjectID];
+
+            var controller_tracks_obj =
+                controller_obj.Get("tracks");
+
+            controller.Tracks.Clear();
+
+            controller_tracks_obj.ChildAdded -= Controller_tracks_obj_ChildAdded;
+            controller_tracks_obj.ChildRemoved -= Controller_tracks_obj_ChildRemoved;
+
             storage[storage.Root]
-                .GetOrMake("controllers")
+                .Get("controllers")
                 .Remove(controller.StorageObjectID);
+            
+            //TODO: clear the controller.Tracks.ItemAdded and ItemRemoved delegates
         }
 
         private void Screens_ItemAdded(Screen<View> screen) {
@@ -242,10 +276,10 @@ namespace MusicWriter {
                             .GetOrMake("track-settings")
                     );
 
-            var tracks =
+            var tracks_obj =
                 storage[storage.Root].GetOrMake("tracks");
 
-            tracks.ChildAdded += (tracksnodeID, newtrackID, key) => {
+            tracks_obj.ChildAdded += (tracksnodeID, newtrackID, key) => {
                 var trackobj = storage[newtrackID];
 
                 var type = trackobj.Get("type").ReadAllString();
@@ -257,7 +291,7 @@ namespace MusicWriter {
 
                 var track = trackfactory.Load(trackobj, tracksettings);
                 track.Name.Value = trackobj.Get("name").ReadAllString();
-                tracks.Rename(newtrackID, track.Name.Value);
+                tracks_obj.Rename(newtrackID, track.Name.Value);
 
                 if (key != track.Name.Value)
                     throw new InvalidOperationException();
@@ -265,7 +299,7 @@ namespace MusicWriter {
                 Tracks.Add(track);
             };
 
-            tracks.ChildRemoved += (tracksnodeID, oldtrackID, key) => {
+            tracks_obj.ChildRemoved += (tracksnodeID, oldtrackID, key) => {
                 var track = Tracks.FirstOrDefault(_ => _.StorageObjectID == oldtrackID);
 
                 if (key != track.Name.Value)
@@ -275,32 +309,35 @@ namespace MusicWriter {
                     Tracks.Remove(track);
             };
 
-            var controllers =
+            var controllers_obj =
                 storage[storage.Root].GetOrMake("controllers");
 
-            controllers.ChildAdded += (controllersnodeID, newcontrollerID, key) => {
-                var controllerobj = storage[newcontrollerID];
+            controllers_obj.ChildAdded += (controllersnodeID, newcontrollerID, key) => {
+                var controller_obj = storage[newcontrollerID];
 
-                var type = controllerobj.Get("type").ReadAllString();
+                var type = controller_obj.Get("type").ReadAllString();
 
                 var controllerfactory =
                     Capabilities
                         .ControllerFactories
                         .FirstOrDefault(_ => _.Name == type);
 
-                var controller = controllerfactory.Load(controllerobj, this);
-                controller.Name.Value = controllerobj.Get("name").ReadAllString();
-                controllers.Rename(newcontrollerID, controller.Name.Value);
+                var controller = controllerfactory.Load(controller_obj, this);
+                controller.Name.Value = controller_obj.Get("name").ReadAllString();
+                controllers_obj.Rename(newcontrollerID, controller.Name.Value);
 
                 if (controller.Name.Value != key)
                     throw new InvalidOperationException();
 
                 Controllers.Add(controller);
+
+                var controller_tracks_obj =
+                    controller_obj.GetOrMake("tracks");
             };
 
-            controllers.ChildRemoved += (controllersnodeID, oldcontrollerID, key) => {
+            controllers_obj.ChildRemoved += (controllersnodeID, oldcontrollerID, key) => {
                 var controller = Controllers.FirstOrDefault(_ => _.StorageObjectID == oldcontrollerID);
-
+                
                 if (controller.Name.Value != key)
                     throw new InvalidOperationException();
 
@@ -308,20 +345,56 @@ namespace MusicWriter {
                     Controllers.Remove(controller);
             };
 
-            var screens =
+            var screens_obj =
                 storage[storage.Root].GetOrMake("screens");
 
-            screens.ChildAdded += (screensnodeID, newscreenID, key) => {
+            screens_obj.ChildAdded += (screensnodeID, newscreenID, key) => {
                 var screen = new Screen<View>(newscreenID, this);
                 Screens.Add(screen);
             };
 
-            screens.ChildRemoved += (screensnodeID, oldscreenID, key) => {
+            screens_obj.ChildRemoved += (screensnodeID, oldscreenID, key) => {
                 var screen = Screens.FirstOrDefault(_ => _.StorageObjectID == oldscreenID);
 
                 if (screen != null)
                     Screens.Remove(screen);
             };
+        }
+
+        private void Controller_tracks_obj_ChildAdded(
+                StorageObjectID container,
+                StorageObjectID child,
+                string key
+            ) {
+            var controller =
+                GetControllerByTracksObjID(container);
+
+            var track =
+                GetTrack(child);
+
+            if (key != track.Name.Value)
+                throw new InvalidOperationException();
+
+            if (!controller.Tracks.Contains(track))
+                controller.Tracks.Add(track);
+        }
+
+        private void Controller_tracks_obj_ChildRemoved(
+                StorageObjectID container,
+                StorageObjectID child,
+                string key
+            ) {
+            var controller =
+                GetControllerByTracksObjID(container);
+
+            var track =
+                GetTrack(child);
+
+            if (key != track.Name.Value)
+                throw new InvalidOperationException();
+
+            if (controller.Tracks.Contains(track))
+                controller.Tracks.Remove(track);
         }
 
         public void Flush() =>

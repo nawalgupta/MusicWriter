@@ -201,6 +201,8 @@ namespace MusicWriter.WinForms {
             var item = lsvControllers.Items[$"lsvControllersItem_{controller.Name}"];
 
             pnlViews.Controls.Add(controller.View);
+            controller.View.Invalidate(true);
+            controller.View.Focus();
 
             item.Checked = true;
         }

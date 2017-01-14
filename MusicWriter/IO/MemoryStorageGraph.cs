@@ -258,6 +258,16 @@ namespace MusicWriter
                 .Lookup(source)
                 .Any(kvp => kvp.Key == relation);
 
+        public virtual bool HasChild(StorageObjectID source, StorageObjectID sink) =>
+            arrows_to_sink
+                .Lookup(source)
+                .Any(kvp => kvp.Value == sink);
+
+        public virtual bool HasChild(StorageObjectID source, StorageObjectID sink, string relation) =>
+            arrows_to_sink
+                .Lookup(source)
+                .Any(kvp => kvp.Key == relation && kvp.Value == sink);
+
         public virtual void Flush() {
         }
     }
