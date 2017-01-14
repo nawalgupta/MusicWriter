@@ -106,8 +106,8 @@ namespace MusicWriter.WinForms {
 
         public CommandCenter CommandCenter { get; } = new CommandCenter();
         
-        readonly ConverterList<ITrack, MusicTrack, ObservableList<MusicTrack>> tracks =
-            new ConverterList<ITrack, MusicTrack, ObservableList<MusicTrack>>(new ObservableList<MusicTrack>());
+        readonly ObservableConverterList<ITrack, MusicTrack, ObservableList<MusicTrack>> tracks =
+            new ObservableConverterList<ITrack, MusicTrack, ObservableList<MusicTrack>>(new ObservableList<MusicTrack>());
 
         readonly Dictionary<MusicTrack, NoteSelection> noteselections =
             new Dictionary<MusicTrack, NoteSelection>();
@@ -130,7 +130,7 @@ namespace MusicWriter.WinForms {
             get { return tracks.SpecialCollection[activetrack_index]; }
         }
 
-        public IList<ITrack> Tracks {
+        public IObservableList<ITrack> Tracks {
             get { return tracks.RegularCollection; }
         }
 

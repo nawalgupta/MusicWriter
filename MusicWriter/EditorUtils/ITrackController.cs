@@ -18,7 +18,7 @@ namespace MusicWriter {
         
         TView View { get; }
 
-        IList<ITrack> Tracks { get; }
+        IObservableList<ITrack> Tracks { get; }
 
         Pin Pin { get; }
 

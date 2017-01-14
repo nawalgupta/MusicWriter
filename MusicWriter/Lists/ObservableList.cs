@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class ObservableList<T> : IList<T>
+    public sealed class ObservableList<T> : IObservableList<T>
     {
         readonly ObservableCollection<T> intern =
             new ObservableCollection<T>();
