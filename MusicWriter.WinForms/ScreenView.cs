@@ -128,7 +128,7 @@ namespace MusicWriter.WinForms {
 
             controller.View.GotFocus += View_GotFocus;
             controller.View.LostFocus += View_LostFocus;
-            controller.View.ParentChanged += View_Dispose;
+            //controller.View.ParentChanged += View_Dispose;
             controller.View.Disposed += View_Dispose;
         }
 
@@ -220,7 +220,7 @@ namespace MusicWriter.WinForms {
             var ctrl = sender as Control;
 
             ctrl.Disposed -= View_Dispose;
-            ctrl.ParentChanged -= View_Dispose;
+            //ctrl.ParentChanged -= View_Dispose;
             ctrl.GotFocus -= View_GotFocus;
             ctrl.LostFocus -= View_LostFocus;
         }
@@ -228,6 +228,7 @@ namespace MusicWriter.WinForms {
         private void View_LostFocus(object sender, EventArgs e) {
             var controllername = (sender as Control).Text;
             var controller = file.GetController(controllername);
+            controller.CommandCenter.Enabled = false;
 
             foreach (var track in controller.Tracks) {
                 track.Length.AfterChange -= Tracks_LengthChanged;
@@ -239,6 +240,7 @@ namespace MusicWriter.WinForms {
         private void View_GotFocus(object sender, EventArgs e) {
             var controllername = (sender as Control).Text;
             var controller = file.GetController(controllername);
+            controller.CommandCenter.Enabled = true;
 
             var item = lsvControllers.Items[$"lsvControllersItem_{controllername}"];
 
