@@ -240,7 +240,9 @@ namespace MusicWriter.WinForms {
                 default:
                     throw new NotSupportedException();
             }
-            
+
+            tabScreens.Controls.Clear();
+
             file = new EditorFile<Control>(newgraph, capabilities);
             Setup();
 

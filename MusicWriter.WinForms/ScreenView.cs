@@ -367,13 +367,13 @@ namespace MusicWriter.WinForms {
                 }
             }
             else {
-                MessageBox.Show(
-                        owner: FindForm(),
-                        text: "Select a controller first to select its tracks.",
-                        caption: "Select controller",
-                        buttons: MessageBoxButtons.OK,
-                        icon: MessageBoxIcon.Hand
-                    );
+                //MessageBox.Show(
+                //        owner: FindForm(),
+                //        text: "Select a controller first to select its tracks.",
+                //        caption: "Select controller",
+                //        buttons: MessageBoxButtons.OK,
+                //        icon: MessageBoxIcon.Hand
+                //    );
             }
         }
 

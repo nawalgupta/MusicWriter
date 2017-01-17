@@ -92,6 +92,8 @@ namespace MusicWriter {
                 Init();
                 storage.GetOrMake("state").WriteAllString("inited");
             }
+
+            Init_temp();
         }
 
         private void Melody_FieldChanged(Duration delta) =>
@@ -114,7 +116,9 @@ namespace MusicWriter {
             Rhythm.MeterSignatures.ScootAndOverwrite(MeterSignature.Default(Rhythm.TimeSignaturesInTime(Duration.Eternity).Single().Value.Simples[0]), Duration.Eternity);
             Adornment.Staffs.ScootAndOverwrite(Staff.Treble, Duration.Eternity);
             Adornment.KeySignatures.ScootAndOverwrite(KeySignature.Create(DiatonicToneClass.C, PitchTransform.Natural, Mode.Major), Duration.Eternity);
+        }
 
+        void Init_temp() { 
             Memory.InsertMemoryModule(new EditableMemoryModule<NoteLayout>());
             Memory.InsertMemoryModule(new EditableMemoryModule<ChordLayout>());
             Memory.InsertMemoryModule(new EditableMemoryModule<MeasureLayout>());

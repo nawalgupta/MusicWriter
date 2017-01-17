@@ -705,6 +705,7 @@ namespace MusicWriter.WinForms {
             MeasureAndLayoutTrackItems();
 
             Height = (int)trackheights.Values.Sum();
+            Invalidate(true);
         }
 
         void RefreshTime(Duration duration) {
@@ -1118,7 +1119,7 @@ namespace MusicWriter.WinForms {
 
             base.OnPaint(e);
         }
-
+        
         void DrawCaret(
                 Graphics gfx,
                 SheetMusicRenderSettings settings,
