@@ -1,0 +1,3 @@
+﻿Music Track notes
+
+Tempo is the number of notes that fit within one second.

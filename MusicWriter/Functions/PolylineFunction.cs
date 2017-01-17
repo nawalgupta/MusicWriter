@@ -105,13 +105,20 @@ namespace MusicWriter
         public void AddConstant(float t, float value) {
             var i = bsearch_time_left(t);
             float? t1 =
-                i < times.Count ?
-                    times[i + 1] - (1 / 256f) :
+                i + 1 != times.Count ?
+                    times[i] - (1 / 256f) :
                     default(float?);
-            
-            var pt0_obj = storage.Graph.CreateObject();
-            pt0_obj.WriteAllString(value.ToString());
-            storage.Add(t.ToString(), pt0_obj.ID);
+
+            if (!storage.HasChild(t.ToString())) {
+                var pt0_obj = storage.Graph.CreateObject();
+                pt0_obj.WriteAllString(value.ToString());
+                storage.Add(t.ToString(), pt0_obj.ID);
+            }
+            else {
+                storage
+                    .Get(t.ToString())
+                    .WriteAllString(value.ToString());
+            }
 
             if (t1.HasValue) {
                 var pt1_obj = storage.Graph.CreateObject();
@@ -302,7 +309,7 @@ namespace MusicWriter
         }
 
         public IFunction Integrate() {
-            throw new InvalidOperationException();
+            throw new NotImplementedException();
         }
     }
 }
