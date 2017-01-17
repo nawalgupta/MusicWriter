@@ -105,13 +105,20 @@ namespace MusicWriter
         public void AddConstant(float t, float value) {
             var i = bsearch_time_left(t);
             float? t1 =
-                i < times.Count ?
-                    times[i + 1] - (1 / 256f) :
+                i + 1 != times.Count ?
+                    times[i] - (1 / 256f) :
                     default(float?);
-            
-            var pt0_obj = storage.Graph.CreateObject();
-            pt0_obj.WriteAllString(value.ToString());
-            storage.Add(t.ToString(), pt0_obj.ID);
+
+            if (!storage.HasChild(t.ToString())) {
+                var pt0_obj = storage.Graph.CreateObject();
+                pt0_obj.WriteAllString(value.ToString());
+                storage.Add(t.ToString(), pt0_obj.ID);
+            }
+            else {
+                storage
+                    .Get(t.ToString())
+                    .WriteAllString(value.ToString());
+            }
 
             if (t1.HasValue) {
                 var pt1_obj = storage.Graph.CreateObject();
@@ -269,40 +276,17 @@ namespace MusicWriter
         }
 
         int bsearch_time_left(float time) {
-            //NOTE: this is definitely not a super-efficient version of the binary search,
-            // but it will still cut lookup time to O(log2(n))
+            var i = times.BinarySearch(time);
 
-            var n = (int)Math.Pow(2, Math.Ceiling(Math.Log(times.Count, 2)) - 1);
-            var i = n - times.Count > 1 ? times.Count % 2 : 0;
-
-            if (times.Count == 0)
+            if (i == -1)
                 return -1;
-
-            while (n > 1) {
-                if (i == times.Count)
-                    break;
-
-                var t = times[i];
-
-                if (t > time)
-                    i -= n;
-                else i += n;
-
-                n /= 2;
-            }
-
-            if (i == times.Count)
-                return i;
-
-            if (i >= 0)
-                while (times[i] > time)
-                    i--;
-
-            return i;
+            else if (i < -1)
+                return ~i - 1;
+            else return i;
         }
 
         public IFunction Integrate() {
-            throw new InvalidOperationException();
+            throw new NotImplementedException();
         }
     }
 }

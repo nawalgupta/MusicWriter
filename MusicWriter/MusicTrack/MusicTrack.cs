@@ -77,7 +77,7 @@ namespace MusicWriter {
             memory = new PerceptualMemory();
             propertygraphlet = new StoragePropertyGraphlet<NoteID>(storage, propertymanager);
             propertymanager = settings.PropertyManager;
-            tempo = new PolylineFunction(storage.GetOrMake("tempo"), 120f);
+            tempo = new PolylineFunction(storage.GetOrMake("tempo"), 0.5f);
 
             this.storage = storage;
             this.settings = settings;

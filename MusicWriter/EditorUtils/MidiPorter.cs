@@ -244,8 +244,6 @@ namespace MusicWriter
 							throw new InvalidOperationException();
 					}
 				}
-
-				editor.Tracks.Add(track);
 			}
 		}
 
