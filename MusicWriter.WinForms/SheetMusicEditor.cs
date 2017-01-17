@@ -590,11 +590,6 @@ namespace MusicWriter.WinForms {
                             Length = oldduration.Length
                         };
 
-                    effectedarea =
-                        oldduration
-                            .Union(newduration)
-                            .Union(effectedarea);
-
                     if (is_start) {
                         if (mode == CaretMode.Absolute)
                             newduration.Start = time;
@@ -608,6 +603,11 @@ namespace MusicWriter.WinForms {
                         else if (mode == CaretMode.Delta)
                             newduration.End += time;
                     }
+
+                    effectedarea =
+                        oldduration
+                            .Union(newduration)
+                            .Union(effectedarea);
 
                     track.Melody.UpdateNote(note.ID, newduration, note.Tone);
                 }
