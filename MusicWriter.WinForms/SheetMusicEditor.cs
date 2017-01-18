@@ -687,7 +687,7 @@ namespace MusicWriter.WinForms {
             track.Memory.InsertMemoryModule(new RenderedSheetMusicItemPerceptualCog.MemoryModule());
             noteselections.Add(track, new NoteSelection());
 
-            InvalidateTime(new Duration { Length = tracks.SpecialCollection.MaxOrDefault(_ => _.Length.Value) });
+            InvalidateTime(new Duration { End = tracks.SpecialCollection.MaxOrDefault(_ => _.Length.Value) });
         }
 
         void Tracks_ItemRemoved(MusicTrack track) {
@@ -705,7 +705,7 @@ namespace MusicWriter.WinForms {
             MeasureAndLayoutTrackItems();
 
             Height = (int)trackheights.Values.Sum();
-            Invalidate(true);
+            Refresh();
         }
 
         void RefreshTime(Duration duration) {
@@ -716,6 +716,7 @@ namespace MusicWriter.WinForms {
             MeasureAndLayoutTrackItems();
 
             Height = (int)trackheights.Values.Sum();
+            Refresh();
         }
 
         IEnumerable<Tuple<RectangleF, SheetMusicRenderSettings, RenderedSheetMusicItem>> GetItemsWithRects(MusicTrack track) {

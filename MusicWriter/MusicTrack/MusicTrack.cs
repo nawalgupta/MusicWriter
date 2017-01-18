@@ -81,7 +81,7 @@ namespace MusicWriter {
 
             this.storage = storage;
             this.settings = settings;
-
+            
             melody.FieldChanged += Melody_FieldChanged;
             rhythm.MeterSignatures.FieldChanged += MeterSignatures_FieldChanged;
             rhythm.TimeSignatures.FieldChanged += TimeSignatures_FieldChanged;

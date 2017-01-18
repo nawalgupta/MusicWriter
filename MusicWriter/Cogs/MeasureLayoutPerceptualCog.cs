@@ -16,7 +16,7 @@ namespace MusicWriter {
             var memorymodule =
                 (EditableMemoryModule<MeasureLayout>)
                 memory.MemoryModule<MeasureLayout>();
-            
+
             var measures =
                 memory.Analyses<Measure>(delta);
 
