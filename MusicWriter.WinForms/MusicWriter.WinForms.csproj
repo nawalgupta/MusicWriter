@@ -69,11 +69,14 @@
     <Compile Include="RenderedMeasure.cs" />
     <Compile Include="RenderedSheetMusicItemPerceptualCog.cs" />
     <Compile Include="RenderedSheetMusicItem.cs" />
-    <Compile Include="ScreenView.cs">
+    <Compile Include="TabPageInterop.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ScreenView.Designer.cs">
-      <DependentUpon>ScreenView.cs</DependentUpon>
+    <Compile Include="TrackControllerScreenView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TrackControllerScreenView.Designer.cs">
+      <DependentUpon>TrackControllerScreenView.cs</DependentUpon>
     </Compile>
     <Compile Include="SheetMusicEditor.cs">
       <SubType>Component</SubType>
@@ -87,6 +90,9 @@
     <Compile Include="SheetMusicRenderSettings.cs" />
     <Compile Include="RenderedTimeSignatureSimple.cs" />
     <Compile Include="Theme.cs" />
+    <Compile Include="TrackControllerScreenView.Viewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <EmbeddedResource Include="FileEditorForm.resx">
       <DependentUpon>FileEditorForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -99,8 +105,8 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="ScreenView.resx">
-      <DependentUpon>ScreenView.cs</DependentUpon>
+    <EmbeddedResource Include="TrackControllerScreenView.resx">
+      <DependentUpon>TrackControllerScreenView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SheetMusicEditor.resx">
       <DependentUpon>SheetMusicEditor.cs</DependentUpon>

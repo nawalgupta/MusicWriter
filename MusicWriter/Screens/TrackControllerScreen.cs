@@ -10,7 +10,7 @@ using System.Xml;
 using System.Xml.Linq;
 
 namespace MusicWriter {
-    public sealed class Screen<View> {
+    public sealed class TrackControllerScreen<View> : IScreen<View> {
         readonly StorageObjectID storageobjectID;
         readonly EditorFile<View> file;
         readonly CommandCenter commandcenter = new CommandCenter();
@@ -22,14 +22,22 @@ namespace MusicWriter {
             get { return storageobjectID; }
         }
 
+        public EditorFile<View> File {
+            get { return file; }
+        }
+
         public CommandCenter CommandCenter {
             get { return commandcenter; }
+        }
+
+        public IScreenFactory<View> Factory {
+            get { return TrackControllerScreenFactory<View>.Instance; }
         }
 
         public ObservableList<ITrackController<View>> Controllers { get; } =
             new ObservableList<ITrackController<View>>();
 
-        public Screen(
+        public TrackControllerScreen(
                 StorageObjectID storageobjectID,
                 EditorFile<View> file
             ) {

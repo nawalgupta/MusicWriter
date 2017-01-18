@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using static MusicWriter.TimeSignature;
 
 namespace MusicWriter {
     public sealed class EditorFile<View> {
@@ -16,7 +10,7 @@ namespace MusicWriter {
         IStorageGraph storage;
         TrackSettings tracksettings;
         FileCapabilities<View> capabilities;
-
+        
         public IStorageGraph Storage {
             get { return storage; }
         }
@@ -35,8 +29,8 @@ namespace MusicWriter {
         public ObservableList<ITrackController<View>> Controllers { get; } =
             new ObservableList<ITrackController<View>>();
 
-        public ObservableList<Screen<View>> Screens { get; } =
-            new ObservableList<Screen<View>>();
+        public ObservableList<IScreen<View>> Screens { get; } =
+            new ObservableList<IScreen<View>>();
 
         public ITrack this[string name] {
             get { return trackmap[name]; }
@@ -44,7 +38,8 @@ namespace MusicWriter {
 
         public EditorFile(
                 IStorageGraph storage,
-                FileCapabilities<View> capabilities) {
+                FileCapabilities<View> capabilities
+            ) {
             this.storage = storage;
             this.capabilities = capabilities;
 
@@ -111,13 +106,19 @@ namespace MusicWriter {
             } while (true);
         }
 
-        public Screen<View> CreateScreen() {
+        public IScreen<View> CreateScreen(string type) {
+            var factory = Capabilities.ScreenFactories.FirstOrDefault(_ => _.Name == type);
             var storageobjectID = storage.Create();
-            var name_obj = storage.CreateObject();
-            name_obj.WriteAllString("Screen");
-            storage[storageobjectID].Add("name", name_obj.ID);
+            
+            var unique_name = "Screen";
+            while (Screens.Any(_ => _.Name.Value == unique_name))
+                unique_name += "_";
+            storage[storageobjectID].GetOrMake("name").WriteAllString(unique_name);
+            storage[storageobjectID].GetOrMake("type").WriteAllString(type);
 
-            storage[storage.Root].GetOrMake("screens").Add("", storageobjectID);
+            factory.Init(storageobjectID, this);
+
+            storage[storage.Root].GetOrMake("screens").Add(unique_name, storageobjectID);
 
             do {
                 var screen = Screens.FirstOrDefault(_ => _.StorageObjectID == storageobjectID);
@@ -141,7 +142,7 @@ namespace MusicWriter {
         public ITrackController<View> GetController(string name) =>
             Controllers.FirstOrDefault(controller => controller.Name.Value == name);
 
-        public Screen<View> GetScreen(StorageObjectID storageobjectID) =>
+        public IScreen<View> GetScreen(StorageObjectID storageobjectID) =>
             Screens.FirstOrDefault(screen => screen.StorageObjectID == storageobjectID);
 
         void Track_Rename(string old, string @new) {
@@ -222,7 +223,7 @@ namespace MusicWriter {
         private void Controllers_Renamed(string old, string @new) {
             storage
                 [storage.Root]
-                .GetOrMake("controllers")
+                .Get("controllers")
                 .Rename(old, @new);
         }
 
@@ -245,8 +246,9 @@ namespace MusicWriter {
             //TODO: clear the controller.Tracks.ItemAdded and ItemRemoved delegates
         }
 
-        private void Screens_ItemAdded(Screen<View> screen) {
+        private void Screens_ItemAdded(IScreen<View> screen) {
             screen.Name.BeforeChange += Screen_Renaming;
+            screen.Name.AfterChange += Screen_Renamed;
         }
 
         private void Screen_Renaming(string oldname, string newname) {
@@ -262,7 +264,17 @@ namespace MusicWriter {
             }
         }
 
-        private void Screens_ItemRemoved(Screen<View> screen) {
+        private void Screen_Renamed(string oldname, string newname) {
+            storage
+                [storage.Root]
+                .Get("screens")
+                .Rename(oldname, newname);
+        }
+
+        private void Screens_ItemRemoved(IScreen<View> screen) {
+            screen.Name.BeforeChange -= Screen_Renaming;
+            screen.Name.AfterChange -= Screen_Renamed;
+
             storage[storage.Root]
                 .GetOrMake("screens")
                 .Remove(screen.StorageObjectID);
@@ -349,12 +361,18 @@ namespace MusicWriter {
                 storage[storage.Root].GetOrMake("screens");
 
             screens_obj.ChildAdded += (screensnodeID, newscreenID, key) => {
-                var screen = new Screen<View>(newscreenID, this);
+                var type = storage[newscreenID].Get("type").ReadAllString();
+                var factory = capabilities.ScreenFactories.FirstOrDefault(_ => _.Name == type);
+                
+                var screen = factory.Load(newscreenID, this);
                 Screens.Add(screen);
             };
 
             screens_obj.ChildRemoved += (screensnodeID, oldscreenID, key) => {
                 var screen = Screens.FirstOrDefault(_ => _.StorageObjectID == oldscreenID);
+
+                if (screen.Name.Value != key)
+                    throw new InvalidOperationException();
 
                 if (screen != null)
                     Screens.Remove(screen);

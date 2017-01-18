@@ -1,5 +1,5 @@
 ﻿namespace MusicWriter.WinForms {
-    partial class ScreenView {
+    partial class TrackControllerScreenView {
         /// <summary> 
         /// Required designer variable.
         /// </summary>

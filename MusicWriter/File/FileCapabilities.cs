@@ -13,6 +13,12 @@ namespace MusicWriter {
         readonly ObservableCollection<ITrackControllerFactory<TView>> controllerfactories =
             new ObservableCollection<ITrackControllerFactory<TView>>();
 
+        readonly ObservableList<IScreenFactory<TView>> screenfactories =
+            new ObservableList<IScreenFactory<TView>>();
+
+        readonly ObservableList<IScreenViewer<TView>> screenviewers =
+            new ObservableList<IScreenViewer<TView>>();
+
 		readonly ObservableCollection<IPorter> porters =
 			new ObservableCollection<IPorter>();
 
@@ -22,6 +28,14 @@ namespace MusicWriter {
 
         public ObservableCollection<ITrackControllerFactory<TView>> ControllerFactories {
             get { return controllerfactories; }
+        }
+
+        public ObservableList<IScreenFactory<TView>> ScreenFactories {
+            get { return screenfactories; }
+        }
+
+        public ObservableList<IScreenViewer<TView>> ScreenViewers {
+            get { return screenviewers; }
         }
 
 		public ObservableCollection<IPorter> Porters {

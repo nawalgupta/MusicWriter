@@ -41,7 +41,7 @@
     <Compile Include="EditorUtils\PorterOptions.cs" />
     <Compile Include="Fields\DurationFieldBinder.cs" />
     <Compile Include="Fields\FieldChangedDelegate.cs" />
-    <Compile Include="File\AssortedFilesManager.cs" />
+    <Compile Include="EditorUtils\AssortedFilesManager.cs" />
     <Compile Include="File\FileCapabilities.cs" />
     <Compile Include="File\ITrack.cs" />
     <Compile Include="EditorUtils\ITrackController.cs" />
@@ -67,7 +67,10 @@
     <Compile Include="Grouping\GlobalCaret.cs" />
     <Compile Include="Grouping\Pin.cs" />
     <Compile Include="Grouping\PinMode.cs" />
-    <Compile Include="File\Screen.cs" />
+    <Compile Include="Screens\IScreen.cs" />
+    <Compile Include="Screens\IScreenFactory.cs" />
+    <Compile Include="Screens\IScreenViewer.cs" />
+    <Compile Include="Screens\TrackControllerScreen.cs" />
     <Compile Include="Grouping\NamedTime.cs" />
     <Compile Include="Grouping\TimeMarkerUnit.cs" />
     <Compile Include="Input\Caret.cs" />
@@ -113,6 +116,7 @@
     <Compile Include="Lists\ObservableList.cs" />
     <Compile Include="Other\ObservableProperty.cs" />
     <Compile Include="Other\CodeTools.cs" />
+    <Compile Include="Screens\TrackControllerScreenFactory.cs" />
     <Compile Include="SheetMusic\FlagDirection.cs" />
     <Compile Include="Fields\IDuratedItem.cs" />
     <Compile Include="Fields\IDurationField.cs" />

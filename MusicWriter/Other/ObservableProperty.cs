@@ -20,6 +20,7 @@ namespace MusicWriter {
             this.value = value;
         }
 
+        volatile int changedstate = 0;
         public T Value {
             get { return value; }
             set {
@@ -28,11 +29,15 @@ namespace MusicWriter {
                 if (ReferenceEquals(old, null) ||
                     ReferenceEquals(value, null) ||
                     !old.Equals(value)) {
+                    ++changedstate;
                     BeforeChange?.Invoke(old, value);
 
                     this.value = value;
 
-                    AfterChange?.Invoke(old, value);
+                    if (changedstate == 1)
+                        AfterChange?.Invoke(old, value);
+
+                    changedstate--;
                 }
             }
         }

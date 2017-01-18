@@ -16,9 +16,9 @@ namespace MusicWriter.WinForms {
     // (1) change base type from TabPage to UserControl,
     // (2) resolve any build errors by commenting out or deleting code,
     // (3) make sure to change it back before committing the code.
-    public partial class ScreenView : TabPage {
+    public partial class TrackControllerScreenView : UserControl {
         EditorFile<Control> file;
-        Screen<Control> screen;
+        TrackControllerScreen<Control> screen;
 
         public ITrackController<Control> SelectedController {
             get {
@@ -38,7 +38,7 @@ namespace MusicWriter.WinForms {
             }
         }
 
-        public Screen<Control> Screen {
+        public TrackControllerScreen<Control> Screen {
             get { return screen; }
             set {
                 if (screen != null) {
@@ -90,7 +90,7 @@ namespace MusicWriter.WinForms {
             }
         }
 
-        public ScreenView() {
+        public TrackControllerScreenView() {
             InitializeComponent();
         }
 

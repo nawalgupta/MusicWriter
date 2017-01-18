@@ -26,40 +26,28 @@ namespace MusicWriter.WinForms {
 
         string filepath = null;
 
-        public Screen<Control> ActiveScreen {
-            get { return (tabScreens.SelectedTab as ScreenView)?.Screen; }
+        public IScreen<Control> ActiveScreen {
+            get { return (tabScreens.SelectedTab as TabPageInterop).Tag as IScreen<Control>; }
         }
 
         public FileEditorForm() {
             InitializeComponent();
-            
+
             shortcutter.Menu = mnuMainMenu;
         }
 
-        IEnumerable<T> ExpandWierdArgs<T>(IList wierdlist) where T : class {
-            if (wierdlist == null)
-                yield break;
-
-            foreach (var x in wierdlist) {
-                var list =
-                    x as IList<T>;
-
-                var t =
-                    x as T;
-
-                if (t != null)
-                    yield return t;
-
-                if (list != null)
-                    foreach (T t2 in list)
-                        yield return t2;
-            }
-        }
-        
         void InitInputSources() {
             inputcontroller = new InputController(commandcenter);
 
             input_keyboard.Controller = inputcontroller;
+        }
+
+        void InitScreenViewers() {
+            capabilities.ScreenViewers.Add(TrackControllerScreenView.Viewer.Instance);
+        }
+
+        void InitScreenFactories() {
+            capabilities.ScreenFactories.Add(TrackControllerScreenFactory<Control>.Instance);
         }
 
         void InitControllerFactories() {
@@ -70,37 +58,37 @@ namespace MusicWriter.WinForms {
             capabilities.TrackFactories.Add(MusicTrackFactory.Instance);
         }
 
-		void InitPorters() {
-			capabilities.Porters.CollectionChanged += Porters_CollectionChanged;
+        void InitPorters() {
+            capabilities.Porters.CollectionChanged += Porters_CollectionChanged;
 
-			capabilities.Porters.Add(new MidiPorter());
-		}
+            capabilities.Porters.Add(new MidiPorter());
+        }
 
-		private void Porters_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-			var filters_builder = new StringBuilder();
+        private void Porters_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+            var filters_builder = new StringBuilder();
 
-			bool first = true;
-			foreach (var porter in capabilities.Porters) {
-				if (first)
-					first = false;
-				else {
-					filters_builder.Append("|");
-				}
+            bool first = true;
+            foreach (var porter in capabilities.Porters) {
+                if (first)
+                    first = false;
+                else {
+                    filters_builder.Append("|");
+                }
 
-				filters_builder.Append(porter.Name);
-				filters_builder.Append(" (");
-				filters_builder.Append(porter.FileExtension);
-				filters_builder.Append(")|");
-				filters_builder.Append(porter.FileExtension);
-			}
+                filters_builder.Append(porter.Name);
+                filters_builder.Append(" (");
+                filters_builder.Append(porter.FileExtension);
+                filters_builder.Append(")|");
+                filters_builder.Append(porter.FileExtension);
+            }
 
-			var filter = filters_builder.ToString();
+            var filter = filters_builder.ToString();
 
-			diagOpenImportFile.Filter = filter;
-			diagSaveExportFile.Filter = filter;
+            diagOpenImportFile.Filter = filter;
+            diagSaveExportFile.Filter = filter;
 
             mnuFileImport.DropDownItems.Clear();
-            for(var i = 0; i < capabilities.Porters.Count; i++) {
+            for (var i = 0; i < capabilities.Porters.Count; i++) {
                 var porter = capabilities.Porters[i];
 
                 var mnuFileImportPorter = new ToolStripMenuItem();
@@ -116,7 +104,7 @@ namespace MusicWriter.WinForms {
                 mnuFileExportPorter.Click += mnuFileExportPorter_Click;
                 mnuFileExport.DropDownItems.Add(mnuFileExportPorter);
             }
-		}
+        }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
             switch (keyData) {
@@ -130,8 +118,8 @@ namespace MusicWriter.WinForms {
                 case Keys.Shift | Keys.Up:
                 case Keys.Shift | Keys.Down:
                     // for some reason, the arrow keys aren't fired when a controller is open
-                    if (ActiveScreen?.Controllers.Any() ?? false)
-                        OnKeyDown(new KeyEventArgs(keyData));
+                    //if (ActiveScreen?.Controllers.Any() ?? false)
+                    OnKeyDown(new KeyEventArgs(keyData));
 
                     break;
             }
@@ -148,7 +136,7 @@ namespace MusicWriter.WinForms {
 
                 keys_pressed.Add(e.KeyCode);
             }
-            
+
             base.OnKeyDown(e);
         }
 
@@ -173,10 +161,12 @@ namespace MusicWriter.WinForms {
         }
 
         void SetupStatic() {
+            InitScreenViewers();
+            InitScreenFactories();
             InitControllerFactories();
             InitTrackFactories();
             InitInputSources();
-			InitPorters();
+            InitPorters();
 
             inputcontroller = new InputController(commandcenter);
 
@@ -184,29 +174,41 @@ namespace MusicWriter.WinForms {
         }
 
         void NewScreen() {
-            file.CreateScreen();
+            file.CreateScreen(capabilities.ScreenFactories.First().Name);
 
             tabScreens.SelectTab(tabScreens.Controls.Count - 1);
         }
 
-        void LoadScreen(Screen<Control> screen) {
-            ScreenView view = new ScreenView();
-            view.File = file;
-            view.Screen = screen;
+        void LoadScreen(IScreen<Control> screen) {
+            var viewer =
+                file
+                    .Capabilities
+                    .ScreenViewers
+                    .FirstOrDefault(_ => _.IsCompatibleWithProduceOf(screen.Factory));
+
+            var view = viewer.CreateView(screen);
+            var tab = new TabPageInterop(view);
+            tab.Name = $"tabScreen_{screen.Name}";
+
+            screen.Name.AfterChange += Screen_Renamed;
 
             screen.CommandCenter.SubscribeTo(commandcenter);
             screen.CommandCenter.Enabled = false;
 
-            tabScreens.Controls.Add(view);
+            tabScreens.Controls.Add(tab);
             if (tabScreens.Controls.Count == 1)
                 tabScreens_SelectedIndexChanged(this, new EventArgs());
         }
 
-        void CloseScreen(Screen<Control> screen) {
-            ScreenView tab = (ScreenView)tabScreens.Controls[$"tabScreen_{screen.Name}"];
-            tab.Screen.CommandCenter.DesubscribeFrom(commandcenter);
+        private void Screen_Renamed(string old, string @new) {
+            var tab = tabScreens.Controls[$"tabScreen_{old}"];
+            tab.Name = $"tabScreen_{@new}";
+        }
 
-            tabScreens.Controls.Remove(tab);
+        void CloseScreen(IScreen<Control> screen) {
+            screen.CommandCenter.DesubscribeFrom(commandcenter);
+
+            tabScreens.Controls.RemoveByKey($"tabScreen_{screen.Name}");
         }
 
         void OpenFile(string filename) {
@@ -218,9 +220,9 @@ namespace MusicWriter.WinForms {
                 case ".musicwriter":
                     var stream =
                         File.Open(
-                                path: filepath, 
-                                mode: FileMode.OpenOrCreate, 
-                                access: FileAccess.ReadWrite, 
+                                path: filepath,
+                                mode: FileMode.OpenOrCreate,
+                                access: FileAccess.ReadWrite,
                                 share: FileShare.Read
                             );
 
@@ -248,12 +250,12 @@ namespace MusicWriter.WinForms {
 
             RecentFiles.AddRecent(filepath);
         }
-        
+
         private void mnuHeader_Opening(object sender, CancelEventArgs e) {
             mnuHeaderRenameBox.Text = ActiveScreen.Name.Value;
             ActiveScreen.Name.AfterChange += ActiveScreen_Name_AfterChange;
         }
-            
+
         private void mnuHeader_Closing(object sender, ToolStripDropDownClosingEventArgs e) {
             ActiveScreen.Name.AfterChange -= ActiveScreen_Name_AfterChange;
         }
@@ -271,12 +273,15 @@ namespace MusicWriter.WinForms {
             CloseScreen(ActiveScreen);
         }
 
+        IScreen<Control> oldselected;
         private void tabScreens_SelectedIndexChanged(object sender, EventArgs e) {
-            foreach (ScreenView view in tabScreens.Controls) {
-                var selected = ReferenceEquals(view, tabScreens.SelectedTab);
+            if (oldselected != null)
+                oldselected.CommandCenter.Enabled = false;
 
-                view.Screen.CommandCenter.Enabled = selected;
-            }
+            oldselected = ActiveScreen;
+
+            if (oldselected != null)
+                oldselected.CommandCenter.Enabled = true;
         }
 
         private void mnuFileNew_Click(object sender, EventArgs e) {
