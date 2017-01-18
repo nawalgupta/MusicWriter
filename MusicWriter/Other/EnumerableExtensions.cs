@@ -47,7 +47,7 @@ namespace MusicWriter {
             T best = default(T);
 
             while (iter.MoveNext())
-                if (iter.Current.CompareTo(best) < 0)
+                if (iter.Current.CompareTo(best) > 0)
                     best = iter.Current;
 
             return best;
@@ -65,7 +65,7 @@ namespace MusicWriter {
             T best = default(T);
 
             while (iter.MoveNext())
-                if (iter.Current.CompareTo(best) > 0)
+                if (iter.Current.CompareTo(best) < 0)
                     best = iter.Current;
 
             return best;
