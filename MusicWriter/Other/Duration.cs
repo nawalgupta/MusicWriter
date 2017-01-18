@@ -12,7 +12,7 @@ namespace MusicWriter {
         public Time Start {
             get { return offset; }
             set {
-                length += value - offset;
+                length += offset - value;
                 offset = value;
             }
         }
