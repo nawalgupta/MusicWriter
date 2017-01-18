@@ -27,7 +27,7 @@ namespace MusicWriter.WinForms {
         string filepath = null;
 
         public IScreen<Control> ActiveScreen {
-            get { return (tabScreens.SelectedTab as TabPageInterop).Tag as IScreen<Control>; }
+            get { return (tabScreens.SelectedTab as TabPageInterop)?.Tag as IScreen<Control>; }
         }
 
         public FileEditorForm() {
@@ -216,31 +216,35 @@ namespace MusicWriter.WinForms {
 
             IStorageGraph newgraph;
 
-            switch (Path.GetExtension(filename)) {
-                case ".musicwriter":
-                    var stream =
-                        File.Open(
-                                path: filepath,
-                                mode: FileMode.OpenOrCreate,
-                                access: FileAccess.ReadWrite,
-                                share: FileShare.Read
-                            );
+            if (string.IsNullOrEmpty(filename))
+                newgraph = new MemoryStorageGraph();
+            else {
+                switch (Path.GetExtension(filename)) {
+                    case ".musicwriter":
+                        var stream =
+                            File.Open(
+                                    path: filepath,
+                                    mode: FileMode.OpenOrCreate,
+                                    access: FileAccess.ReadWrite,
+                                    share: FileShare.Read
+                                );
 
-                    var archive =
-                        new ZipArchive(
-                                stream: stream,
-                                mode: ZipArchiveMode.Update | ZipArchiveMode.Read
-                            );
+                        var archive =
+                            new ZipArchive(
+                                    stream: stream,
+                                    mode: ZipArchiveMode.Update | ZipArchiveMode.Read
+                                );
 
-                    newgraph = new ZipStorageGraph(archive);
+                        newgraph = new ZipStorageGraph(archive);
 
-                    break;
+                        break;
 
-                case ".musicwriter-dir":
-                    throw new NotImplementedException();
+                    case ".musicwriter-dir":
+                        throw new NotImplementedException();
 
-                default:
-                    throw new NotSupportedException();
+                    default:
+                        throw new NotSupportedException();
+                }
             }
 
             tabScreens.Controls.Clear();
@@ -285,7 +289,7 @@ namespace MusicWriter.WinForms {
         }
 
         private void mnuFileNew_Click(object sender, EventArgs e) {
-
+            OpenFile("");
         }
 
 		private void mnuFileOpen_Click(object sender, EventArgs e) =>
