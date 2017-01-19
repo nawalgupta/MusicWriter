@@ -47,6 +47,9 @@ namespace MusicWriter.WinForms {
         }
 
         void InitScreenFactories() {
+            capabilities.ScreenFactories.ItemAdded += ScreenFactories_ItemAdded;
+            capabilities.ScreenFactories.ItemRemoved += ScreenFactories_ItemRemoved;
+
             capabilities.ScreenFactories.Add(TrackControllerScreenFactory<Control>.Instance);
         }
 
@@ -104,6 +107,27 @@ namespace MusicWriter.WinForms {
                 mnuFileExportPorter.Click += mnuFileExportPorter_Click;
                 mnuFileExport.DropDownItems.Add(mnuFileExportPorter);
             }
+        }
+
+        private void ScreenFactories_ItemAdded(IScreenFactory<Control> factory) {
+            var item = new ToolStripMenuItem();
+            item.Text = factory.Name;
+            item.Tag = factory;
+            item.Click += ScreenFactoryMenuItem_Click;
+            item.Name = $"mnuScreenNew_{factory.Name}";
+
+            mnuScreenNew.DropDownItems.Add(item);
+        }
+
+        private void ScreenFactoryMenuItem_Click(object sender, EventArgs e) {
+            var item = sender as ToolStripMenuItem;
+            var factory = item.Tag as IScreenFactory<Control>;
+
+            NewScreen(factory.Name);
+        }
+
+        private void ScreenFactories_ItemRemoved(IScreenFactory<Control> factory) {
+            mnuScreenNew.DropDownItems.RemoveByKey($"mnuScreenNew_{factory.Name}");
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
@@ -173,8 +197,8 @@ namespace MusicWriter.WinForms {
             file = new EditorFile<Control>(new MemoryStorageGraph(), capabilities);
         }
 
-        void NewScreen() {
-            file.CreateScreen(capabilities.ScreenFactories.First().Name);
+        void NewScreen(string type) {
+            file.CreateScreen(type);
 
             tabScreens.SelectTab(tabScreens.Controls.Count - 1);
         }
@@ -428,7 +452,7 @@ namespace MusicWriter.WinForms {
             commandcenter.ResetCursorToOne();
 
         private void mnuScreenNew_Click(object sender, EventArgs e) =>
-            NewScreen();
+            NewScreen(capabilities.ScreenFactories.First().Name);
 
         private void mnuScreenArchive_Click(object sender, EventArgs e) {
             //TODO
