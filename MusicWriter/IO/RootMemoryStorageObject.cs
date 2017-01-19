@@ -145,6 +145,9 @@ namespace MusicWriter
             public bool HasChild(string relation) =>
                 branches.ContainsKey(relation);
 
+            public bool HasChild(StorageObjectID storageobjectID) =>
+                branches_inverse.ContainsKey(storageobjectID);
+
             public IStorageObject Open(string child) =>
                 graph[branches[child].SingleOrDefault()];
 

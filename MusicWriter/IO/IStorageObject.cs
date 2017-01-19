@@ -35,6 +35,7 @@ namespace MusicWriter
         Stream OpenWrite();
 
         bool HasChild(string relation);
+        bool HasChild(StorageObjectID storageobjectID);
         void Add(string key, StorageObjectID id);
         void Rename(string oldkey, string newkey);
         void Rename(StorageObjectID child, string newkey);

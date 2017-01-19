@@ -300,6 +300,9 @@ namespace MusicWriter
             public bool HasChild(string child) =>
                 graph.HasChild(id, child);
 
+            public bool HasChild(StorageObjectID storageobjectID) =>
+                graph.HasChild(id, storageobjectID);
+
             public IStorageObject Open(string child) =>
                 graph[this[child]];
 
