@@ -1,48 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class PolylineFunction : IFunction, IStoredDataFunction, IDirectlyIntegratableFunction
+    public sealed class GlobalPerspectiveFunction : IFunction, IContextualFunction
     {
-        readonly PolylineData data;
+        readonly IFunction context;
 
-        public PolylineData Data {
-            get { return data; }
-        }
-
-        public StorageObjectID StorageObjectID {
-            get { return data.StorageObjectID; }
+        public IFunction Context {
+            get { return context; }
         }
 
         public IFunctionFactory Factory {
             get { return FactoryClass.Instance; }
         }
 
-        public PolylineFunction(PolylineData data) {
-            this.data = data;
-        }
-
         public sealed class FactoryClass : IFunctionFactory
         {
             public string Name {
-                get { return "Polyline Function"; }
+                get { return "Global Perspective Function"; }
             }
 
             public string CodeName {
-                get { return "polyline"; }
+                get { return "time.global"; }
+            }
+
+            public bool StoresBinaryData {
+                get { return false; }
             }
 
             public bool AcceptsParameters {
                 get { return false; }
             }
 
-            public bool StoresBinaryData {
-                get { return true; }
-            }
+            private FactoryClass() { }
 
             public IFunction Create(
                     IFunction context = null,
@@ -53,16 +48,14 @@ namespace MusicWriter
                 throw new InvalidOperationException();
             }
 
-            private FactoryClass() { }
-
             public static readonly IFunctionFactory Instance = new FactoryClass();
         }
 
-        public float GetValue(FunctionCall arg) =>
-            data.GetValue(arg.Time);
-
-        public IFunction Integrate() {
-            throw new NotImplementedException();
+        public GlobalPerspectiveFunction(IFunction context) {
+            this.context = context;
         }
+
+        public float GetValue(FunctionCall arg) =>
+            context.GetValue(new FunctionCall(arg.RealTime, arg.LocalTime, arg.RealTime));
     }
 }

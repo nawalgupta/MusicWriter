@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class GloballyPerspectiveFunction : IFunction, IContextualFunction
+    public sealed class LocalPerspectiveFunction : IFunction, IContextualFunction
     {
         readonly IFunction context;
 
@@ -22,11 +22,11 @@ namespace MusicWriter
         public sealed class FactoryClass : IFunctionFactory
         {
             public string Name {
-                get { return "Global Perspective Function"; }
+                get { return "Local Perspective Function"; }
             }
 
             public string CodeName {
-                get { return "global"; }
+                get { return "time.local"; }
             }
 
             public bool StoresBinaryData {
@@ -51,11 +51,11 @@ namespace MusicWriter
             public static readonly IFunctionFactory Instance = new FactoryClass();
         }
 
-        public GloballyPerspectiveFunction(IFunction inner) {
-            this.context = inner;
+        public LocalPerspectiveFunction(IFunction context) {
+            this.context = context;
         }
 
         public float GetValue(FunctionCall arg) =>
-            context.GetValue(new FunctionCall(arg.LocalTime));
+            context.GetValue(new FunctionCall(arg.LocalTime, arg.LocalTime, arg.RealTime));
     }
 }

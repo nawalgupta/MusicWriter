@@ -115,7 +115,7 @@ namespace MusicWriter
 
             if (function_storeddata != null) {
                 builder.Append("(@");
-                builder.Append(assortedfiles.GetName(function_storeddata.Storage));
+                builder.Append(assortedfiles.GetName(function_storeddata.StorageObjectID));
                 builder.Append(") ");
             }
             else if (function_parameterized != null) {

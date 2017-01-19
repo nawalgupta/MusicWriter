@@ -16,7 +16,7 @@ namespace MusicWriter {
         readonly PerceptualMemory memory;
         readonly IPropertyGraphlet<NoteID> propertygraphlet;
         readonly PropertyManager propertymanager;
-        readonly PolylineFunction tempo;
+        readonly PolylineData tempo;
 
         public event FieldChangedDelegate Dirtied;
 
@@ -52,7 +52,7 @@ namespace MusicWriter {
             get { return propertymanager; }
         }
 
-        public PolylineFunction Tempo {
+        public PolylineData Tempo {
             get { return tempo; }
         }
 
@@ -77,7 +77,7 @@ namespace MusicWriter {
             memory = new PerceptualMemory();
             propertygraphlet = new StoragePropertyGraphlet<NoteID>(storage, propertymanager);
             propertymanager = settings.PropertyManager;
-            tempo = new PolylineFunction(storage.GetOrMake("tempo"), 0.5f);
+            tempo = new PolylineData(storage.GetOrMake("tempo"), 0.5f);
 
             this.storage = storage;
             this.settings = settings;
