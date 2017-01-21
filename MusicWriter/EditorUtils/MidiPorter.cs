@@ -178,9 +178,9 @@ namespace MusicWriter
                                         if (options.PortTempo) {
                                             track
                                                 .Tempo
-                                                .AddConstant(
-                                                        ImportTime(tempoevent.AbsoluteTime, midifile).Notes,
-                                                        60 / (float)tempoevent.Tempo
+                                                .SetTempo(
+                                                        ImportTime(tempoevent.AbsoluteTime, midifile),
+                                                        (float)tempoevent.Tempo / 4
                                                     );
                                         }
 

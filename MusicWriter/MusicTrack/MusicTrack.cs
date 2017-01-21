@@ -13,10 +13,10 @@ namespace MusicWriter {
         readonly MelodyTrack melody;
         readonly RhythmTrack rhythm;
         readonly AdornmentTrack adornment;
+        readonly TempoTrack tempo;
         readonly PerceptualMemory memory;
         readonly IPropertyGraphlet<NoteID> propertygraphlet;
         readonly PropertyManager propertymanager;
-        readonly PolylineData tempo;
 
         public event FieldChangedDelegate Dirtied;
 
@@ -40,6 +40,10 @@ namespace MusicWriter {
             get { return adornment; }
         }
 
+        public TempoTrack Tempo {
+            get { return tempo; }
+        }
+
         public PerceptualMemory Memory {
             get { return memory; }
         }
@@ -50,10 +54,6 @@ namespace MusicWriter {
 
         public PropertyManager PropertyManager {
             get { return propertymanager; }
-        }
-
-        public PolylineData Tempo {
-            get { return tempo; }
         }
 
         public ITrackFactory Factory {
@@ -74,10 +74,10 @@ namespace MusicWriter {
             melody = new MelodyTrack(storage.GetOrMake("melody"));
             rhythm = new RhythmTrack(storage.GetOrMake("rhythm"));
             adornment = new AdornmentTrack(storage.GetOrMake("adornment"));
+            tempo = new TempoTrack(storage.GetOrMake("tempo"));
             memory = new PerceptualMemory();
             propertygraphlet = new StoragePropertyGraphlet<NoteID>(storage, propertymanager);
             propertymanager = settings.PropertyManager;
-            tempo = new PolylineData(storage.GetOrMake("tempo"), 0.5f);
 
             this.storage = storage;
             this.settings = settings;
@@ -93,7 +93,7 @@ namespace MusicWriter {
                 storage.GetOrMake("state").WriteAllString("inited");
             }
 
-            Init_temp();
+            Init_memory();
         }
 
         private void Melody_FieldChanged(Duration delta) =>
@@ -118,7 +118,7 @@ namespace MusicWriter {
             Adornment.KeySignatures.ScootAndOverwrite(KeySignature.Create(DiatonicToneClass.C, PitchTransform.Natural, Mode.Major), Duration.Eternity);
         }
 
-        void Init_temp() { 
+        void Init_memory() { 
             Memory.InsertMemoryModule(new EditableMemoryModule<NoteLayout>());
             Memory.InsertMemoryModule(new EditableMemoryModule<ChordLayout>());
             Memory.InsertMemoryModule(new EditableMemoryModule<MeasureLayout>());

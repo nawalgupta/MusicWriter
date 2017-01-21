@@ -210,7 +210,7 @@ namespace MusicWriter
 
             values[i_left] = v1;
         }
-
+        
         public float GetValue(float t) {
             if (values.Count == 0)
                 return float.NaN;
@@ -239,6 +239,57 @@ namespace MusicWriter
             }
         }
 
+        public float GetIntegratedValue(float t) {
+            if (values.Count == 0)
+                return float.NaN;
+
+            if (t == 0)
+                return 0;
+
+            var i_left = bsearch_time_left(t);
+
+            var area = 0f;
+            var t_left = times[0];
+            var v_left = values[0];
+            for (int i = 0; i <= i_left; i++) {
+                var t_right = times[i + 1];
+                var v_right = values[i + 1];
+
+                var t_diff = t_right - t_left;
+                var v_diff = v_right - v_left;
+
+                // The graph is broken into a bunch of right triangles
+                // sitting on rectangles - find the area of each, but
+                // the very last one, the one that time [t] intersects,
+                // split into a fractional piece.
+
+                if (i != i_left) {
+                    // rectangle
+                    area += v_left * t_diff;
+
+                    // triangle
+                    area += 0.5f * v_diff * t_diff;
+
+                    if (t_right == t)
+                        break; // area of next segment would be 0
+                }
+                else {
+                    var t_local = t - t_left;
+
+                    // rectangle
+                    area += v_left * t_local;
+
+                    // triangle
+                    area += 0.5f * v_diff * t_local * t_local / t_diff;
+                }
+
+                t_left = t_right;
+                v_left = v_right;
+            }
+
+            return area;
+        }
+
         int bsearch_time_left(float time) {
             var i = times.BinarySearch(time);
 
@@ -248,9 +299,5 @@ namespace MusicWriter
                 return ~i - 1;
             else return i;
         }
-
-        //public IFunction Integrate() {
-        //    throw new NotImplementedException();
-        //}
     }
 }

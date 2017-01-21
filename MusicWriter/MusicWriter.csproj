@@ -68,6 +68,7 @@
     <Compile Include="Grouping\GlobalCaret.cs" />
     <Compile Include="Grouping\Pin.cs" />
     <Compile Include="Grouping\PinMode.cs" />
+    <Compile Include="MusicTrack\TempoTrack.cs" />
     <Compile Include="Screens\IScreen.cs" />
     <Compile Include="Screens\IScreenFactory.cs" />
     <Compile Include="Screens\IScreenViewer.cs" />

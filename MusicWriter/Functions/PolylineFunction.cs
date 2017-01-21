@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class PolylineFunction : IFunction, IStoredDataFunction, IDirectlyIntegratableFunction
+    public sealed class PolylineFunction :
+        IFunction,
+        IStoredDataFunction,
+        IDirectlyIntegratableFunction
     {
         readonly PolylineData data;
 
@@ -61,8 +64,28 @@ namespace MusicWriter
         public float GetValue(FunctionCall arg) =>
             data.GetValue(arg.Time);
 
-        public IFunction Integrate() {
-            throw new NotImplementedException();
+        class SingleIntegratedPolylineFunction : IFunction
+        {
+            readonly PolylineFunction function;
+
+            public PolylineFunction Function {
+                get { return function; }
+            }
+
+            public IFunctionFactory Factory {
+                get { throw new InvalidOperationException(); }
+            }
+
+            public SingleIntegratedPolylineFunction(PolylineFunction function) {
+                this.function = function;
+            }
+
+            public float GetValue(FunctionCall arg) =>
+                function.data.GetIntegratedValue(arg.Time);
         }
+
+        SingleIntegratedPolylineFunction integrated = null;
+        public IFunction Integrate() =>
+            integrated ?? new SingleIntegratedPolylineFunction(this);
     }
 }
