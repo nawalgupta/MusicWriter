@@ -403,9 +403,8 @@ namespace MusicWriter.WinForms {
 
         }
 
-        private void mnuFileExit_Click(object sender, EventArgs e) {
-
-        }
+        private void mnuFileExit_Click(object sender, EventArgs e) =>
+            Close();
 
         private void mnuEditUndo_Click(object sender, EventArgs e) {
 
