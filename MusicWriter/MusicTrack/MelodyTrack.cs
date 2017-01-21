@@ -38,6 +38,8 @@ namespace MusicWriter {
         }
 
         void Setup() {
+            notes_field.GeneralDuration.AfterChange += GeneralDuration_AfterChange;
+
             next_noteID_obj = storage.GetOrMake("next_noteID");
             next_noteID_obj.ContentsSet += next_noteID_objID => {
                 if (!int.TryParse(next_noteID_obj.ReadAllString(), out next_noteID))
@@ -101,8 +103,6 @@ namespace MusicWriter {
                 notes_lookup.Remove(noteID);
                 FieldChanged?.Invoke(oldnote.Duration);
             };
-
-            notes_field.GeneralDuration.AfterChange += GeneralDuration_AfterChange;
         }
 
         private void GeneralDuration_AfterChange(Duration old, Duration @new) {
