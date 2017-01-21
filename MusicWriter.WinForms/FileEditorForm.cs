@@ -326,7 +326,8 @@ namespace MusicWriter.WinForms {
                     .Default
                     .RecentFiles;
 
-            mnuFileOpenRecent.DropDownItems.Clear();
+            while (mnuFileOpenRecent.DropDownItems[0] is ToolStripMenuItem)
+                mnuFileOpenRecent.DropDownItems.RemoveAt(0);
 
             if (files != null) {
                 foreach (var file in files) {
@@ -338,10 +339,18 @@ namespace MusicWriter.WinForms {
                     menuitem.Click += mnuFileOpenRecent_FileClicked;
                     menuitem.Tag = file;
 
-                    mnuFileOpenRecent.DropDownItems.Add(menuitem);
+                    mnuFileOpenRecent
+                        .DropDownItems
+                        .Insert(
+                                mnuFileOpenRecent.DropDownItems.Count - 2,
+                                menuitem
+                            );
                 }
             }
         }
+
+        private void mnuFileOpenRecentClearRecent_Click(object sender, EventArgs e) =>
+            RecentFiles.ClearRecents();
 
         private void mnuFileOpenRecent_FileClicked(object sender, EventArgs e) {
             var menuitem = (ToolStripMenuItem)sender;

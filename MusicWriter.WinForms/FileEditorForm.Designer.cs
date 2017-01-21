@@ -25,12 +25,12 @@
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FileEditorForm));
+            System.Windows.Forms.ToolStripSeparator mnuFileOpenRecentSeparator;
             this.mnuMainMenu = new System.Windows.Forms.MenuStrip();
             this.mnuFile = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuFileNew = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuFileOpen = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuFileOpenRecent = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuFileOpenRecentPlaceholder = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuFileImport = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuFileSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuFileSave = new System.Windows.Forms.ToolStripMenuItem();
@@ -84,6 +84,8 @@
             this.diagOpenFile = new System.Windows.Forms.OpenFileDialog();
             this.diagOpenImportFile = new System.Windows.Forms.OpenFileDialog();
             this.diagSaveExportFile = new System.Windows.Forms.SaveFileDialog();
+            this.mnuFileOpenRecentClearRecent = new System.Windows.Forms.ToolStripMenuItem();
+            mnuFileOpenRecentSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.mnuMainMenu.SuspendLayout();
             this.mnuHeader.SuspendLayout();
             this.SuspendLayout();
@@ -146,17 +148,12 @@
             // mnuFileOpenRecent
             // 
             this.mnuFileOpenRecent.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuFileOpenRecentPlaceholder});
+            mnuFileOpenRecentSeparator,
+            this.mnuFileOpenRecentClearRecent});
             this.mnuFileOpenRecent.Name = "mnuFileOpenRecent";
             this.mnuFileOpenRecent.Size = new System.Drawing.Size(185, 22);
             this.mnuFileOpenRecent.Text = "Open &Recent";
             this.mnuFileOpenRecent.DropDownOpening += new System.EventHandler(this.mnuFileOpenRecent_DropDownOpening);
-            // 
-            // mnuFileOpenRecentPlaceholder
-            // 
-            this.mnuFileOpenRecentPlaceholder.Name = "mnuFileOpenRecentPlaceholder";
-            this.mnuFileOpenRecentPlaceholder.Size = new System.Drawing.Size(136, 22);
-            this.mnuFileOpenRecentPlaceholder.Text = "placeholder";
             // 
             // mnuFileImport
             // 
@@ -579,6 +576,18 @@
             this.diagSaveExportFile.FilterIndex = 0;
             this.diagSaveExportFile.FileOk += new System.ComponentModel.CancelEventHandler(this.diagSaveExportFile_FileOk);
             // 
+            // mnuFileOpenRecentSeparator
+            // 
+            mnuFileOpenRecentSeparator.Name = "mnuFileOpenRecentSeparator";
+            mnuFileOpenRecentSeparator.Size = new System.Drawing.Size(149, 6);
+            // 
+            // mnuFileOpenRecentClearRecent
+            // 
+            this.mnuFileOpenRecentClearRecent.Name = "mnuFileOpenRecentClearRecent";
+            this.mnuFileOpenRecentClearRecent.Size = new System.Drawing.Size(152, 22);
+            this.mnuFileOpenRecentClearRecent.Text = "&Clear Recents";
+            this.mnuFileOpenRecentClearRecent.Click += new System.EventHandler(this.mnuFileOpenRecentClearRecent_Click);
+            // 
             // FileEditorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -614,7 +623,6 @@
         private System.Windows.Forms.ToolStripMenuItem mnuFileNew;
         private System.Windows.Forms.ToolStripMenuItem mnuFileOpen;
         private System.Windows.Forms.ToolStripMenuItem mnuFileOpenRecent;
-        private System.Windows.Forms.ToolStripMenuItem mnuFileOpenRecentPlaceholder;
         private System.Windows.Forms.ToolStripMenuItem mnuFileImport;
         private System.Windows.Forms.ToolStripSeparator mnuFileSeparator1;
         private System.Windows.Forms.ToolStripMenuItem mnuFileSave;
@@ -663,6 +671,7 @@
         private System.Windows.Forms.ToolStripMenuItem mnuScreenArchive;
 		private System.Windows.Forms.OpenFileDialog diagOpenImportFile;
 		private System.Windows.Forms.SaveFileDialog diagSaveExportFile;
+        private System.Windows.Forms.ToolStripMenuItem mnuFileOpenRecentClearRecent;
     }
 }
 

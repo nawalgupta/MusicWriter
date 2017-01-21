@@ -27,5 +27,14 @@ namespace MusicWriter.WinForms
 
             Settings.Default.Save();
         }
+
+        public static void ClearRecents() {
+            if (Settings.Default.RecentFiles == null)
+                Settings.Default.RecentFiles = new StringCollection();
+
+            Settings.Default.RecentFiles.Clear();
+
+            Settings.Default.Save();
+        }
     }
 }
