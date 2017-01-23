@@ -63,6 +63,7 @@
     <Compile Include="Functions\IStoredDataFunction.cs" />
     <Compile Include="Functions\PolylineFunction.cs" />
     <Compile Include="Functions\PolynomialFunction.cs" />
+    <Compile Include="Functions\PulseWidthModulatedFunction.cs" />
     <Compile Include="Functions\SquareFunction.cs" />
     <Compile Include="Functions\StepwiseIntegratedFunction.cs" />
     <Compile Include="Grouping\GlobalCaret.cs" />
