@@ -238,7 +238,7 @@ namespace MusicWriter
                 return t_local * m + v_left;
             }
         }
-
+        
         public float GetIntegratedValue(float t) {
             if (values.Count == 0)
                 return float.NaN;
@@ -288,6 +288,65 @@ namespace MusicWriter
             }
 
             return area;
+        }
+
+        public bool GetInvertedIntegratedValue(float area, out float t) {
+            if (values.Count == 0) {
+                t = float.NaN;
+
+                return false;
+            }
+
+            float t_left, t_right, t_diff;
+            float v_left, v_right, v_diff;
+            float localarea;
+
+            t_left = times[0];
+            v_left = values[0];
+
+            int i;
+            for (i = 1; i < times.Count; i++) {
+                t_right = times[i];
+                v_right = values[i];
+
+                t_diff = t_right - t_left;
+                v_diff = v_right - v_left;
+
+                // rectangle
+                localarea = t_diff * v_left;
+
+                // triangle
+                localarea += 0.5f * t_diff * v_diff;
+
+                if (area >= localarea)
+                    area -= localarea;
+                else {
+                    // use quadratic formula to find missing area - WRONG
+                    var m = v_diff / t_diff;
+                    var t_local = (-v_left + (float)Math.Sqrt(v_left * v_left + 2 * m * area)) / m;
+                    t = t_left + t_local;
+
+                    return true;
+                }
+
+                t_left = t_right;
+                v_left = v_right;
+            }
+
+            if (area != 0) {
+                if (i == times.Count) {
+                    if (v_left > 0) {
+                        t = t_left + area / v_left;
+                        return true;
+                    }
+                }
+
+                t = float.NaN;
+                return false;
+            }
+
+            t = t_left;
+            return true;
         }
 
         int bsearch_time_left(float time) {

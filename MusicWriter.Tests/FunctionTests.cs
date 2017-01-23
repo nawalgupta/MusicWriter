@@ -10,13 +10,15 @@ namespace MusicWriter.Tests
         FunctionCodeTools code;
 
         IStorageGraph graph;
-        IStorageObject obj;
+        IStorageObject obj1;
+        IStorageObject obj2;
         AssortedFilesManager assortedfiles;
 
         [TestMethod]
         public void TestCreateGraph() {
             graph = new MemoryStorageGraph();
-            obj = graph.CreateObject();
+            obj1 = graph.CreateObject();
+            obj2 = graph.CreateObject();
             assortedfiles = new AssortedFilesManager(graph.CreateObject());
         }
 
@@ -37,7 +39,7 @@ namespace MusicWriter.Tests
 
         [TestMethod]
         public void TestPolyline_1() {
-            var polyline = new PolylineData(obj);
+            var polyline = new PolylineData(obj1);
 
             polyline.Add(0, 0);
             polyline.Add(1, 2);
@@ -60,6 +62,30 @@ namespace MusicWriter.Tests
         }
 
         [TestMethod]
+        public void TestPolyline_2() {
+            var polyline = new PolylineData(obj2);
+
+            //         XXXX
+            //       XXXXXXXXXXX
+            // XXXXXXXXXXXXXXXXX
+            // 0   1   2   3   4
+
+            polyline.Add(0, 1);
+            polyline.Add(1, 1);
+            polyline.Add(2, 3);
+            polyline.Add(4, 2);
+
+            Assert.AreEqual(polyline.GetIntegratedValue(0), 0);
+            Assert.AreEqual(polyline.GetIntegratedValue(1), 1);
+            Assert.AreEqual(polyline.GetIntegratedValue(2) - polyline.GetIntegratedValue(1), 2);
+            Assert.AreEqual(polyline.GetIntegratedValue(4), 8);
+
+            float y;
+            Assert.IsTrue(polyline.GetInvertedIntegratedValue(1.75f, out y));
+            Assert.AreEqual(y, 1.5f);
+        }
+
+        [TestMethod]
         public void TestCodeRendering() {
             var func =
                 new GlobalPerspectiveFunction(new SquareFunction());
@@ -69,7 +95,7 @@ namespace MusicWriter.Tests
 
             code.Render(rendered, func, assortedfiles, null);
 
-            Assert.AreEqual(rendered.ToString(), "square global");
+            Assert.AreEqual(rendered.ToString(), "square time.global");
         }
     }
 }
