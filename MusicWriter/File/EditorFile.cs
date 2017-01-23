@@ -8,15 +8,15 @@ namespace MusicWriter {
         readonly Dictionary<string, ITrack> trackmap =
             new Dictionary<string, ITrack>();
         IStorageGraph storage;
-        TrackSettings tracksettings;
+        GlobalSettings globalsettings;
         FileCapabilities<View> capabilities;
         
         public IStorageGraph Storage {
             get { return storage; }
         }
 
-        public TrackSettings TrackSettings {
-            get { return tracksettings; }
+        public GlobalSettings GlobalSettings {
+            get { return globalsettings; }
         }
 
         public FileCapabilities<View> Capabilities {
@@ -66,7 +66,7 @@ namespace MusicWriter {
                 unique_name += "_";
             storage[storageobjectID].GetOrMake("name").WriteAllString(unique_name);
 
-            factory.Init(storage[storageobjectID], tracksettings);
+            factory.Init(storage[storageobjectID], globalsettings);
             storage[storage.Root].GetOrMake("tracks").Add(unique_name, storageobjectID);
 
             do {
@@ -281,11 +281,11 @@ namespace MusicWriter {
         }
         
         void Setup() {
-            tracksettings =
-                new TrackSettings(
+            globalsettings =
+                new GlobalSettings(
                         storage
                             [storage.Root]
-                            .GetOrMake("track-settings")
+                            .GetOrMake("global-settings")
                     );
 
             var tracks_obj =
@@ -301,7 +301,7 @@ namespace MusicWriter {
                         .TrackFactories
                         .FirstOrDefault(_ => _.Name == type);
 
-                var track = trackfactory.Load(trackobj, tracksettings);
+                var track = trackfactory.Load(trackobj, globalsettings);
                 track.Name.Value = trackobj.Get("name").ReadAllString();
                 tracks_obj.Rename(newtrackID, track.Name.Value);
 

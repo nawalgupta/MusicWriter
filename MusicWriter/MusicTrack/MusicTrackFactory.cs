@@ -23,14 +23,14 @@ namespace MusicWriter {
 
         public void Init(
                 IStorageObject storage,
-                TrackSettings settings
+                GlobalSettings settings
             ) {
             storage.WriteAllString("This is a music track.");
         }
 
         public ITrack Load(
                 IStorageObject storage,
-                TrackSettings settings
+                GlobalSettings settings
             ) =>
             new MusicTrack(
                     storage,

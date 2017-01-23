@@ -11,12 +11,12 @@ namespace MusicWriter {
 
         void Init(
                 IStorageObject storage,
-                TrackSettings settings
+                GlobalSettings settings
             );
 
         ITrack Load(
                 IStorageObject storage,
-                TrackSettings settings
+                GlobalSettings settings
             );
     }
 }

@@ -60,7 +60,7 @@ namespace MusicWriter {
 
         private void Name_AfterChange(string old, string @new) {
             file
-                .TrackSettings
+                .GlobalSettings
                 .GlobalCaret
                 .RenameCaret(old, @new);
         }
@@ -118,7 +118,7 @@ namespace MusicWriter {
         
         void Init() {
             file
-                .TrackSettings
+                .GlobalSettings
                 .GlobalCaret
                 .InitCaret(Name.Value);
         }

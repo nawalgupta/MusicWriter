@@ -9,7 +9,7 @@ namespace MusicWriter
     public sealed class TrackControllerScreenFactory<View> : IScreenFactory<View>
     {
         public string Name {
-            get { return "Track Controller Screen Factory"; }
+            get { return "Track Controller Screen"; }
         }
 
         private TrackControllerScreenFactory() {

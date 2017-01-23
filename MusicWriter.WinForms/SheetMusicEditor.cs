@@ -71,11 +71,11 @@ namespace MusicWriter.WinForms {
             get { return file; }
             set {
                 if (file != null) {
-                    file.TrackSettings.MusicBrain.RemoveCog<RenderedSheetMusicItemPerceptualCog>();
+                    file.GlobalSettings.MusicBrain.RemoveCog<RenderedSheetMusicItemPerceptualCog>();
                 }
 
                 file = value;
-                file.TrackSettings.MusicBrain.InsertCog(new RenderedSheetMusicItemPerceptualCog());
+                file.GlobalSettings.MusicBrain.InsertCog(new RenderedSheetMusicItemPerceptualCog());
             }
         }
 
@@ -87,7 +87,7 @@ namespace MusicWriter.WinForms {
                 }
 
                 storage = value;
-                pin = new Pin(storage.GetOrMake("pin"), file.TrackSettings.TimeMarkerUnit);
+                pin = new Pin(storage.GetOrMake("pin"), file.GlobalSettings.TimeMarkerUnit);
                 pin.Time.ActualTime.AfterChange += Pin_Moved;
             }
         }
@@ -700,7 +700,7 @@ namespace MusicWriter.WinForms {
         void InvalidateTime(Duration duration) {
             timesRedrawn++;
             foreach (var track in tracks.SpecialCollection)
-                file.TrackSettings.MusicBrain.Invalidate(track.Memory, duration);
+                file.GlobalSettings.MusicBrain.Invalidate(track.Memory, duration);
 
             MeasureAndLayoutTrackItems();
 
@@ -711,7 +711,7 @@ namespace MusicWriter.WinForms {
         void RefreshTime(Duration duration) {
             timesRedrawn++;
             foreach (var track in tracks.SpecialCollection)
-                file.TrackSettings.MusicBrain.Invalidate<RenderedSheetMusicItem>(track.Memory, duration);
+                file.GlobalSettings.MusicBrain.Invalidate<RenderedSheetMusicItem>(track.Memory, duration);
 
             MeasureAndLayoutTrackItems();
 
