@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class IOMessageStore {
+    public sealed class BruteIOMessageReactor : IIOMessageReactor {
         readonly IObservableList<IOMessage> messages;
         readonly IObservableList<IOListener> listeners;
         readonly List<int> readylisteners = new List<int>();
@@ -20,7 +20,7 @@ namespace MusicWriter
             get { return listeners; }
         }
 
-        public IOMessageStore(
+        public BruteIOMessageReactor(
                 IObservableList<IOMessage> messages,
                 IObservableList<IOListener> listeners
             ) {

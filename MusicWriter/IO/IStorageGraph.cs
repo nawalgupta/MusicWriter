@@ -10,7 +10,7 @@ namespace MusicWriter
     {
         StorageObjectID Root { get; }
 
-        IEnumerable<StorageObjectID> Objects { get; }
+        IEnumerable<StorageObjectID> ObjectIDs { get; }
 
         IStorageObject this[StorageObjectID id] { get; }
 

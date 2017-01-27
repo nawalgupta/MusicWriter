@@ -158,7 +158,7 @@ namespace MusicWriter
         }
 
         public override void Flush() {
-            foreach (var id in Objects) {
+            foreach (var id in ObjectIDs) {
                 SerializeNode(id);
                 SerializeArrows(id);
             }

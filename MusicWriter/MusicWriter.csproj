@@ -55,10 +55,11 @@
     <Compile Include="FunctionEditor\FunctionContainer.cs" />
     <Compile Include="FunctionEditor\FunctionSource.cs" />
     <Compile Include="Binding\BoundList.cs" />
+    <Compile Include="IO\IIOMessageReactor.cs" />
     <Compile Include="IO\IOEvent.cs" />
     <Compile Include="IO\IOListener.cs" />
     <Compile Include="IO\IOMessage.cs" />
-    <Compile Include="IO\IOMessageStore.cs" />
+    <Compile Include="IO\BruteIOMessageReactor.cs" />
     <Compile Include="TrackController\ITrack.cs" />
     <Compile Include="EditorUtils\ITrackController.cs" />
     <Compile Include="EditorUtils\ITrackControllerFactory.cs" />

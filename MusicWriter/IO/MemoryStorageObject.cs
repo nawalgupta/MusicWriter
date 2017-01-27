@@ -145,48 +145,7 @@ namespace MusicWriter
             readonly MemoryFile filedata;
             readonly MemoryStorageGraph graph;
             readonly StorageObjectID id;
-
-            readonly List<StorageObjectChildChangedDelegate> ChildAdded_responders = new List<StorageObjectChildChangedDelegate>();
-            public event StorageObjectChildChangedDelegate ChildAdded {
-                add {
-                    ChildAdded_responders.Add(value);
-
-                    foreach (var child in RelationalChildren.ToArray())
-                        value(id, child.Value, child.Key);
-                }
-                remove {
-                    ChildAdded_responders.Remove(value);
-                }
-            }
-            public event StorageObjectChildChangedDelegate ChildRemoved;
-            public event StorageObjectChildRekeyedDelegate ChildRenamed;
-
-            readonly List<StorageObjectChildChangedDelegate> ChildContentsSet_responders = new List<StorageObjectChildChangedDelegate>();
-            public event StorageObjectChildChangedDelegate ChildContentsSet {
-                add {
-                    ChildContentsSet_responders.Add(value);
-
-                    foreach (var child in RelationalChildren.ToArray())
-                        value(id, child.Value, child.Key);
-                }
-                remove {
-                    ChildContentsSet_responders.Remove(value);
-                }
-            }
-
-            readonly List<StorageObjectChangedDelegate> ContentsSet_responders = new List<StorageObjectChangedDelegate>(); 
-            public event StorageObjectChangedDelegate ContentsSet {
-                add {
-                    ContentsSet_responders.Add(value);
-
-                    value(id);
-                }
-                remove {
-                    ContentsSet_responders.Remove(value);
-                }
-            }
-            public event StorageObjectChangedDelegate Deleted;
-
+            
             public IStorageGraph Graph {
                 get { return graph; }
             }
@@ -226,72 +185,6 @@ namespace MusicWriter
 
                 filedata = new MemoryFile();
                 filedata.Written += Filedata_Written;
-            }
-
-            internal void Init() {
-                graph.ArrowAdded += Graph_ArrowAdded;
-                graph.ArrowRemoved += Graph_ArrowRemoved;
-                graph.ArrowRenamed += Graph_ArrowRenamed;
-
-                graph.NodeContentsSet += Graph_NodeContentsSet;
-                graph.NodeDeleted += Graph_NodeDeleted;
-            }
-
-            ~StorageObject() {
-                graph.ArrowAdded -= Graph_ArrowAdded;
-                graph.ArrowRemoved -= Graph_ArrowRemoved;
-                graph.ArrowRenamed -= Graph_ArrowRenamed;
-
-                graph.NodeContentsSet -= Graph_NodeContentsSet;
-                graph.NodeDeleted -= Graph_NodeDeleted;
-            }
-
-            private void Graph_ArrowAdded(
-                    StorageObjectID container,
-                    StorageObjectID child, 
-                    string key
-                ) {
-                if (container == id)
-                    foreach (var responder in ChildAdded_responders)
-                        responder(container, child, key);
-            }
-
-            private void Graph_ArrowRemoved(
-                    StorageObjectID container,
-                    StorageObjectID child, 
-                    string key
-                ) {
-                if (container == id)
-                    ChildRemoved?.Invoke(container, child, key);
-            }
-
-            private void Graph_ArrowRenamed(
-                    StorageObjectID container,
-                    StorageObjectID child,
-                    string oldkey,
-                    string newkey
-                ) {
-                if (container == id)
-                    ChildRenamed?.Invoke(container, child, oldkey, newkey);
-            }
-
-            private void Graph_NodeContentsSet(
-                    StorageObjectID affected
-                ) {
-                if (affected == id)
-                    foreach (var responder in ContentsSet_responders)
-                        responder(affected);
-
-                foreach(var key in GetRelations(affected))
-                    foreach (var responder in ChildContentsSet_responders)
-                        responder(id, affected, key);
-            }
-
-            private void Graph_NodeDeleted(
-                    StorageObjectID affected
-                ) {
-                if (affected == id)
-                    Deleted?.Invoke(affected);
             }
 
             private void Filedata_Written() =>

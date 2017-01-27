@@ -15,7 +15,7 @@ namespace MusicWriter
             var translationIDmap =
                 new Dictionary<StorageObjectID, StorageObjectID>();
 
-            foreach (var oldobjID in source.Objects) {
+            foreach (var oldobjID in source.ObjectIDs) {
                 IStorageObject obj_source, obj_destination;
 
                 if (oldobjID != source.Root) {
@@ -37,7 +37,7 @@ namespace MusicWriter
                 }
             }
 
-            foreach (var oldobjID in source.Objects) {
+            foreach (var oldobjID in source.ObjectIDs) {
                 var newobjID = translationIDmap[oldobjID];
                 var newobj = destination[newobjID];
 

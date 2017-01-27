@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public static class InternalExtensions {
+    public static class EnumerableExtensions {
         public static V Lookup<K, V>(
                 this Dictionary<K, V> dictionary,
                 K key
@@ -17,6 +17,35 @@ namespace MusicWriter {
                 dictionary.Add(key, value = new V());
 
             return value;
+        }
+
+        public static void Rename<K, V>(
+                this Dictionary<K, V> dictionary,
+                K oldkey,
+                K newkey
+            ) {
+            V value = dictionary[oldkey];
+            dictionary.Remove(oldkey);
+            dictionary.Add(newkey, value);
+        }
+
+        public static void RenameMerge<K, V, V2>(
+                this Dictionary<K, V> dictionary,
+                K oldkey,
+                K newkey
+            ) where V : ICollection<V2> {
+            V value = dictionary[oldkey];
+            dictionary.Remove(oldkey);
+
+            V collection;
+
+            if (dictionary.TryGetValue(newkey, out collection)) {
+                foreach (V2 item in value)
+                    collection.Add(item);
+            }
+            else {
+                dictionary.Add(newkey, value);
+            }
         }
 
         public static T OneOrNothing<T>(this IEnumerable<T> sequence) {
