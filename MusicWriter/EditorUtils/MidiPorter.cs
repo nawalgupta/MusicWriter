@@ -18,23 +18,23 @@ namespace MusicWriter
 			get { return "*.mid"; }
 		}
 
-		public void Export<View>(
-                EditorFile<View> editor,
+		public void Export(
+                EditorFile file,
                 string filename,
                 PorterOptions options
             ) {
 			throw new NotImplementedException();
 		}
 
-		public void Import<View>(
-                EditorFile<View> editor,
+		public void Import(
+                EditorFile file,
                 string filename,
                 PorterOptions options
             ) {
 			var midifile = new MidiFile(filename, false);
 
             var musictrackfactory =
-                editor
+                file
                     .Capabilities
                     .TrackFactories
                     .FirstOrDefault(_ => _ is MusicTrackFactory)
@@ -44,7 +44,7 @@ namespace MusicWriter
 				var events = midifile.Events.GetTrackEvents(track_index);
 
                 var track =
-                    (MusicTrack)editor.CreateTrack(musictrackfactory);
+                    (MusicTrack)file.CreateTrack(musictrackfactory);
 
 				foreach (var e in events) {
 					switch (e.CommandCode) {

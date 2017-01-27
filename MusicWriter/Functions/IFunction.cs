@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public interface IFunction : IEquatable<IFunction>
+    public interface IFunction
     {
         IFunctionFactory Factory { get; }
 

@@ -33,7 +33,29 @@ namespace MusicWriter
 
                 ItemAdded_responders_map.Remove(value);
 
-                collection.ItemRemoved -= special;
+                collection.ItemAdded -= special;
+            }
+        }
+
+        readonly Dictionary<Action<T, int>, Action<Special, int>> ItemInserted_responders_map =
+            new Dictionary<Action<T, int>, Action<Special, int>>();
+        public event Action<T, int> ItemInserted {
+            add {
+                Action<Special, int> converter =
+                    (Special special, int index) =>
+                        value(special, index);
+
+                ItemInserted_responders_map.Add(value, converter);
+
+                collection.ItemInserted += converter;
+            }
+            remove {
+                var special =
+                    ItemInserted_responders_map[value];
+
+                ItemInserted_responders_map.Remove(value);
+
+                collection.ItemInserted -= special;
             }
         }
 
@@ -56,6 +78,28 @@ namespace MusicWriter
                 ItemRemoved_responders_map.Remove(value);
 
                 collection.ItemRemoved -= special;
+            }
+        }
+
+        readonly Dictionary<Action<T, int>, Action<Special, int>> ItemWithdrawn_responders_map =
+            new Dictionary<Action<T, int>, Action<Special, int>>();
+        public event Action<T, int> ItemWithdrawn {
+            add {
+                Action<Special, int> converter =
+                    (Special special, int index) =>
+                        value(special, index);
+
+                ItemWithdrawn_responders_map.Add(value, converter);
+
+                collection.ItemWithdrawn += converter;
+            }
+            remove {
+                var special =
+                    ItemWithdrawn_responders_map[value];
+
+                ItemWithdrawn_responders_map.Remove(value);
+
+                collection.ItemWithdrawn -= special;
             }
         }
 
