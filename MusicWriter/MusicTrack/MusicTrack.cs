@@ -8,7 +8,7 @@ using static MusicWriter.TimeSignature;
 namespace MusicWriter {
     public sealed class MusicTrack : ITrack {
         readonly IStorageObject storage;
-        readonly GlobalSettings settings;
+        readonly TrackControllerSettings settings;
 
         readonly MelodyTrack melody;
         readonly RhythmTrack rhythm;
@@ -24,7 +24,7 @@ namespace MusicWriter {
             get { return storage.ID; }
         }
 
-        public GlobalSettings Settings {
+        public TrackControllerSettings Settings {
             get { return settings; }
         }
 
@@ -69,7 +69,7 @@ namespace MusicWriter {
 
         public MusicTrack(
                 IStorageObject storage,
-                GlobalSettings settings
+                TrackControllerSettings settings
             ) {
             melody = new MelodyTrack(storage.GetOrMake("melody"));
             rhythm = new RhythmTrack(storage.GetOrMake("rhythm"));

@@ -10,28 +10,13 @@ using System.Xml;
 using System.Xml.Linq;
 
 namespace MusicWriter {
-    public sealed class TrackControllerScreen<View> : IScreen {
-        readonly StorageObjectID storageobjectID;
-        readonly EditorFile file;
-        readonly CommandCenter commandcenter = new CommandCenter();
+    public sealed class TrackControllerScreen : Screen {
+        public const string ItemName = "musicwriter.screens.track-controller";
 
-        public ObservableProperty<string> Name { get; } =
-            new ObservableProperty<string>("Screen");
-        
-        public StorageObjectID StorageObjectID {
-            get { return storageobjectID; }
-        }
+        readonly TrackControllerContainer container;
 
-        public EditorFile File {
-            get { return file; }
-        }
-
-        public CommandCenter CommandCenter {
-            get { return commandcenter; }
-        }
-
-        public IScreenFactory Factory {
-            get { return TrackControllerScreenFactory<View>.Instance; }
+        public override IFactory<IScreen> Factory {
+            get { return TrackControllerScreenFactory.Instance; }
         }
 
         public ObservableList<ITrackController> Controllers { get; } =
@@ -40,11 +25,13 @@ namespace MusicWriter {
         public TrackControllerScreen(
                 StorageObjectID storageobjectID,
                 EditorFile file
-            ) {
-            this.storageobjectID = storageobjectID;
-            this.file = file;
-
+            ) : base(
+                    storageobjectID,
+                    file
+                ) {
             SetupStorage();
+
+            container = file[TrackControllerContainer.ItemName] as TrackControllerContainer;
 
             Controllers.ItemAdded += Controllers_ItemAdded;
             Controllers.ItemRemoved += Controllers_ItemRemoved;
@@ -59,23 +46,23 @@ namespace MusicWriter {
         }
 
         private void Name_AfterChange(string old, string @new) {
-            file
-                .GlobalSettings
+            container
+                .Settings
                 .GlobalCaret
                 .RenameCaret(old, @new);
         }
 
         private void Controllers_ItemAdded(ITrackController obj) {
-            obj.CommandCenter.SubscribeTo(commandcenter);
+            obj.CommandCenter.SubscribeTo(CommandCenter);
         }
 
         private void Controllers_ItemRemoved(ITrackController obj) {
-            obj.CommandCenter.DesubscribeFrom(commandcenter);
+            obj.CommandCenter.DesubscribeFrom(CommandCenter);
         }
 
         void SetupStorage() {
             var obj =
-                file.Storage[storageobjectID];
+                File.Storage[StorageObjectID];
 
             var controllersobj =
                 obj.GetOrMake("controllers");
@@ -117,8 +104,8 @@ namespace MusicWriter {
         }
         
         void Init() {
-            file
-                .GlobalSettings
+            container
+                .Settings
                 .GlobalCaret
                 .InitCaret(Name.Value);
         }

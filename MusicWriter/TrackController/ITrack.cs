@@ -12,7 +12,7 @@ namespace MusicWriter {
 
         StorageObjectID StorageObjectID { get; }
 
-        GlobalSettings Settings { get; }
+        TrackControllerSettings Settings { get; }
 
         ITrackFactory Factory { get; }
 

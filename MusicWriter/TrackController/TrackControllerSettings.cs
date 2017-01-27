@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class GlobalSettings
+    public sealed class TrackControllerSettings
     {
         readonly IStorageObject storage;
         readonly PropertyManager propertymanager;
@@ -39,7 +39,7 @@ namespace MusicWriter
             get { return globalcaret; }
         }
 
-        public GlobalSettings(IStorageObject storage) {
+        public TrackControllerSettings(IStorageObject storage) {
             this.storage = storage;
 
             propertymanager = new PropertyManager(storage.GetOrMake("property-manager"));

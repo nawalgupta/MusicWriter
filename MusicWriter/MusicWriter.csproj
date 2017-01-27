@@ -32,6 +32,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Binding\BoundObject.cs" />
+    <Compile Include="Binding\CtorFactory.cs" />
     <Compile Include="Binding\FuncFactory.cs" />
     <Compile Include="Binding\IBoundObject.cs" />
     <Compile Include="Binding\PropertyBinder.cs" />
@@ -51,6 +53,7 @@
     <Compile Include="File\IContainer.cs" />
     <Compile Include="Binding\IFactory.cs" />
     <Compile Include="File\IViewer.cs" />
+    <Compile Include="Screens\Screen.cs" />
     <Compile Include="File\ViewerSet.cs" />
     <Compile Include="FunctionEditor\FunctionContainer.cs" />
     <Compile Include="FunctionEditor\FunctionSource.cs" />
@@ -63,9 +66,9 @@
     <Compile Include="TrackController\ITrack.cs" />
     <Compile Include="EditorUtils\ITrackController.cs" />
     <Compile Include="EditorUtils\ITrackControllerFactory.cs" />
-    <Compile Include="TrackController\ITrackFactory.cs" />
+    <Compile Include="TrackController\TrackControllerContainer.cs" />
     <Compile Include="TrackController\TrackControllerHints.cs" />
-    <Compile Include="File\GlobalSettings.cs" />
+    <Compile Include="TrackController\TrackControllerSettings.cs" />
     <Compile Include="Functions\FunctionCall.cs" />
     <Compile Include="FunctionEditor\FunctionCodeTools.cs" />
     <Compile Include="Functions\FunctionIntegrator.cs" />
@@ -88,7 +91,7 @@
     <Compile Include="Grouping\PinMode.cs" />
     <Compile Include="MusicTrack\TempoTrack.cs" />
     <Compile Include="FunctionEditor\FunctionEditorScreen.cs" />
-    <Compile Include="File\IScreen.cs" />
+    <Compile Include="Screens\IScreen.cs" />
     <Compile Include="TrackController\TrackControllerScreen.cs" />
     <Compile Include="Grouping\NamedTime.cs" />
     <Compile Include="Grouping\TimeMarkerUnit.cs" />

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class TrackControllerScreenFactory<View> : IScreenFactory<View>
+    public sealed class TrackControllerScreenFactory : IFactory<IScreen>
     {
         public string Name {
-            get { return "Track Controller Screen"; }
+            get { return TrackControllerScreen.ItemName; }
         }
 
         private TrackControllerScreenFactory() {
@@ -17,20 +17,20 @@ namespace MusicWriter
 
         public void Init(
                 StorageObjectID storageobjectID,
-                EditorFile<View> file
+                EditorFile file
             ) {
         }
 
-        public IScreen<View> Load(
+        public IScreen Load(
                 StorageObjectID storageobjectID,
-                EditorFile<View> file
+                EditorFile file
             ) =>
-            new TrackControllerScreen<View>(
+            new TrackControllerScreen(
                     storageobjectID,
                     file
                 );
 
-        public static readonly IScreenFactory<View> Instance =
-            new TrackControllerScreenFactory<View>();
+        public static readonly IFactory<IScreen> Instance =
+            new TrackControllerScreenFactory();
     }
 }
