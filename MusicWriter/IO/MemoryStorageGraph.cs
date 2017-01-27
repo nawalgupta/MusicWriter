@@ -18,55 +18,14 @@ namespace MusicWriter
             Unarchived
         }
 
-        readonly Dictionary<StorageObjectID, List<StorageObjectID>> arrows_to_source =
-            new Dictionary<StorageObjectID, List<StorageObjectID>>(); // sink -> source
+        readonly Dictionary<StorageObjectID, List<KeyValuePair<string, StorageObjectID>>> arrows_to_source =
+            new Dictionary<StorageObjectID, List<KeyValuePair<string, StorageObjectID>>>(); // sink -> source
         readonly Dictionary<StorageObjectID, List<KeyValuePair<string, StorageObjectID>>> arrows_to_sink =
             new Dictionary<StorageObjectID, List<KeyValuePair<string, StorageObjectID>>>(); // source -> sink
         readonly HashSet<StorageObjectID> isolated_nodes =
             new HashSet<StorageObjectID>();
-
-        readonly List<StorageObjectChildChangedDelegate> ArrowAdded_list = new List<StorageObjectChildChangedDelegate>();
-        public event StorageObjectChildChangedDelegate ArrowAdded {
-            add {
-                ArrowAdded_list.Add(value);
-
-                foreach (var source in arrows_to_sink.Keys)
-                    foreach (var sinkkvp in arrows_to_sink[source])
-                        value(source, sinkkvp.Value, sinkkvp.Key);
-            }
-            remove {
-                ArrowAdded_list.Remove(value);
-            }
-        }
-        public event StorageObjectChildRekeyedDelegate ArrowRenamed;
-        public event StorageObjectChildChangedDelegate ArrowRemoved;
-
-        readonly List<StorageObjectChangedDelegate> NodeCreated_list = new List<StorageObjectChangedDelegate>();
-        public event StorageObjectChangedDelegate NodeCreated {
-            add {
-                NodeCreated_list.Add(value);
-
-                foreach (var id in storage.Keys)
-                    value(id);
-            }
-            remove {
-                NodeCreated_list.Remove(value);
-            }
-        }
-        readonly List<StorageObjectChangedDelegate> NodeContentsSet_list = new List<StorageObjectChangedDelegate>();
-        public event StorageObjectChangedDelegate NodeContentsSet {
-            add {
-                NodeContentsSet_list.Add(value);
-
-                foreach (var id in storage.Keys)
-                    value(id);
-            }
-            remove {
-                NodeContentsSet_list.Remove(value);
-            }
-        }
-        public event StorageObjectChangedDelegate NodeDeleted;
-
+        readonly IOMessageStore messagestore;
+        
         public StorageObjectID Root {
             get { return root.ID; }
         }
@@ -93,12 +52,26 @@ namespace MusicWriter
             }
         }
 
+        public IObservableList<IOMessage> Messages { get; } =
+            new ObservableList<IOMessage>();
+
+        public IObservableList<IOListener> Listeners { get; } =
+            new ObservableList<IOListener>();
+
         public MemoryStorageGraph() {
             usedIDs.Add(StorageObjectID.Zero.ID);
+            usedIDs.Add(StorageObjectID.Any.ID);
+
             root = new RootMemoryStorageObject(this);
+
+            messagestore =
+                new IOMessageStore(
+                        Messages,
+                        Listeners    
+                    );
         }
 
-        public IEnumerable<StorageObjectID> Incoming(StorageObjectID sink) =>
+        public IEnumerable<KeyValuePair<string, StorageObjectID>> Incoming(StorageObjectID sink) =>
             arrows_to_source[sink];
 
         public IEnumerable<KeyValuePair<string, StorageObjectID>> Outgoing(StorageObjectID source) =>
@@ -119,8 +92,7 @@ namespace MusicWriter
 
             obj.Init();
 
-            foreach (var responder in NodeCreated_list)
-                responder(id);
+            Messages.Add(new IOMessage(id, IOEvent.ObjectCreated));
         }
 
         public virtual bool Contains(StorageObjectID id) =>
@@ -143,25 +115,24 @@ namespace MusicWriter
             isolated_nodes.Add(id);
             archivalstates.Add(id, ArchivalState.Unarchived);
             arrows_to_sink.Add(id, new List<KeyValuePair<string, StorageObjectID>>());
-            arrows_to_source.Add(id, new List<StorageObjectID>());
+            arrows_to_source.Add(id, new List<KeyValuePair<string, StorageObjectID>>());
 
             obj.Init();
 
-            foreach (var responder in NodeCreated_list)
-                responder(id);
+            Messages.Add(new IOMessage(id, IOEvent.ObjectCreated));
 
             return id;
         }
 
         public void Delete(StorageObjectID id) {
-            NodeDeleted?.Invoke(id);
+            Messages.Add(new IOMessage(id, IOEvent.ObjectDeleted));
             usedIDs.Remove(id.ID);
-
+            
             foreach (var kvp in arrows_to_sink.Lookup(id).ToArray())
                 RemoveArrow(id, kvp.Value);
 
             foreach (var source in arrows_to_source.Lookup(id).ToArray())
-                RemoveArrow(source, id);
+                RemoveArrow(source.Value, source.Key, id);
 
             if (isolated_nodes.Contains(id))
                 isolated_nodes.Remove(id);
@@ -178,16 +149,11 @@ namespace MusicWriter
         protected virtual void AddArrow(StorageObjectID source, StorageObjectID sink, string key) {
             if (isolated_nodes.Contains(source))
                 isolated_nodes.Remove(source);
+            
+            arrows_to_sink.Lookup(source).Add(new KeyValuePair<string, StorageObjectID>(key, sink));
+            arrows_to_source.Lookup(sink).Add(new KeyValuePair<string, StorageObjectID>(key, source));
 
-            var kvp =
-                new KeyValuePair<string, StorageObjectID>(key, sink);
-
-            arrows_to_sink.Lookup(source).Add(kvp);
-            arrows_to_source.Lookup(sink).Add(source);
-
-            // more responders might be added during this event
-            for (int i = ArrowAdded_list.Count - 1; i >= 0; i--)
-                ArrowAdded_list[i](source, sink, key);
+            Messages.Add(new IOMessage(source, IOEvent.ChildAdded, key, sink));
         }
 
         protected virtual void RemoveArrow(StorageObjectID source, StorageObjectID sink) {
@@ -198,34 +164,34 @@ namespace MusicWriter
             for (int i = 0; i < list.Count; i++) {
                 if (list[i].Value == sink) {
                     var key = list[i].Key;
-                    ArrowRemoved?.Invoke(source, sink, key);
-
                     list.RemoveAt(i--);
-                    continue;
+                    Messages.Add(new IOMessage(source, IOEvent.ChildRemoved, key, sink));
                 }
             }
 
-            arrows_to_source.Lookup(sink).Remove(source);
+            var list2 = arrows_to_source[sink];
+            for (int i = 0; i < list2.Count; i++)
+                if (list2[i].Value == source)
+                    list2.RemoveAt(i);
         }
 
         protected virtual void RenameArrow(StorageObjectID source, StorageObjectID sink, string newkey) {
-            string oldkey = default(string);
-
             var list = arrows_to_sink.Lookup(source);
             for (int i = 0; i < list.Count; i++) {
                 if (list[i].Value == sink) {
-                    oldkey = list[i].Key;
+                    var oldkey = list[i].Key;
                     list[i] = new KeyValuePair<string, StorageObjectID>(newkey, sink);
-                    break;
+                    Messages.Add(new IOMessage(source, IOEvent.ChildRekeyed, oldkey, newkey, sink));
                 }
             }
 
-            ArrowRenamed?.Invoke(source, sink, oldkey, newkey);
+
         }
 
         protected virtual void SetContents(StorageObjectID id) {
-            foreach (var responder in NodeContentsSet_list)
-                responder(id);
+            Messages.Add(new IOMessage(id, IOEvent.ObjectContentsSet));
+
+            foreach(var source in arrows_to_source[id])
         }
 
         protected virtual void Unarchive(StorageObjectID id) {

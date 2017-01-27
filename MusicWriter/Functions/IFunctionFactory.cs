@@ -9,7 +9,7 @@ namespace MusicWriter
 {
     public interface IFunctionFactory
     {
-        string Name { get; }
+        string FriendlyName { get; }
 
         string CodeName { get; }
 

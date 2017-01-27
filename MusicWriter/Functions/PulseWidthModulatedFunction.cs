@@ -40,7 +40,7 @@ namespace MusicWriter
                 get { return "pwm"; }
             }
 
-            public string Name {
+            public string FriendlyName {
                 get { return "Pulse Width Modulated Function"; }
             }
 

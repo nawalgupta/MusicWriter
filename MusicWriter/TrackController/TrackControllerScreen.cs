@@ -10,9 +10,9 @@ using System.Xml;
 using System.Xml.Linq;
 
 namespace MusicWriter {
-    public sealed class TrackControllerScreen<View> : IScreen<View> {
+    public sealed class TrackControllerScreen<View> : IScreen {
         readonly StorageObjectID storageobjectID;
-        readonly EditorFile<View> file;
+        readonly EditorFile file;
         readonly CommandCenter commandcenter = new CommandCenter();
 
         public ObservableProperty<string> Name { get; } =
@@ -22,7 +22,7 @@ namespace MusicWriter {
             get { return storageobjectID; }
         }
 
-        public EditorFile<View> File {
+        public EditorFile File {
             get { return file; }
         }
 
@@ -30,16 +30,16 @@ namespace MusicWriter {
             get { return commandcenter; }
         }
 
-        public IScreenFactory<View> Factory {
+        public IScreenFactory Factory {
             get { return TrackControllerScreenFactory<View>.Instance; }
         }
 
-        public ObservableList<ITrackController<View>> Controllers { get; } =
-            new ObservableList<ITrackController<View>>();
+        public ObservableList<ITrackController> Controllers { get; } =
+            new ObservableList<ITrackController>();
 
         public TrackControllerScreen(
                 StorageObjectID storageobjectID,
-                EditorFile<View> file
+                EditorFile file
             ) {
             this.storageobjectID = storageobjectID;
             this.file = file;
@@ -65,11 +65,11 @@ namespace MusicWriter {
                 .RenameCaret(old, @new);
         }
 
-        private void Controllers_ItemAdded(ITrackController<View> obj) {
+        private void Controllers_ItemAdded(ITrackController obj) {
             obj.CommandCenter.SubscribeTo(commandcenter);
         }
 
-        private void Controllers_ItemRemoved(ITrackController<View> obj) {
+        private void Controllers_ItemRemoved(ITrackController obj) {
             obj.CommandCenter.DesubscribeFrom(commandcenter);
         }
 

@@ -34,7 +34,7 @@ namespace MusicWriter
                 get { return "step-integral"; }
             }
 
-            public string Name {
+            public string FriendlyName {
                 get { return "Stepwise Function Integral"; }
             }
 

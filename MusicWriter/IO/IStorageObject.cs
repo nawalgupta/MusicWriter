@@ -19,14 +19,6 @@ namespace MusicWriter
 
         StorageObjectID this[string key] { get; }
 
-        event StorageObjectChildChangedDelegate ChildAdded;
-        event StorageObjectChildChangedDelegate ChildRemoved;
-        event StorageObjectChildRekeyedDelegate ChildRenamed;
-        event StorageObjectChildChangedDelegate ChildContentsSet;
-
-        event StorageObjectChangedDelegate ContentsSet;
-        event StorageObjectChangedDelegate Deleted;
-
         string GetRelation(StorageObjectID child);
         IEnumerable<string> GetRelations(StorageObjectID child);
         IStorageObject Open(string child);
@@ -41,8 +33,7 @@ namespace MusicWriter
         void Rename(StorageObjectID child, string newkey);
         void Remove(string key);
         void Remove(StorageObjectID child);
-
-
+        
         void Delete();
     }
 }

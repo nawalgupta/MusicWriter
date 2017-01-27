@@ -32,6 +32,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Binding\FuncFactory.cs" />
+    <Compile Include="Binding\IBoundObject.cs" />
+    <Compile Include="Binding\PropertyBinder.cs" />
+    <Compile Include="Binding\Extensions.cs" />
     <Compile Include="Cogs\EditableMemoryModule.cs" />
     <Compile Include="Cogs\IgnorantMemoryModule.cs" />
     <Compile Include="EditorUtils\CommandCenter.cs" />
@@ -42,9 +46,19 @@
     <Compile Include="Fields\DurationFieldBinder.cs" />
     <Compile Include="Fields\FieldChangedDelegate.cs" />
     <Compile Include="EditorUtils\AssortedFilesManager.cs" />
-    <Compile Include="File\FileCapabilities.cs" />
+    <Compile Include="File\Container.cs" />
+    <Compile Include="Binding\FactorySet.cs" />
+    <Compile Include="File\IContainer.cs" />
+    <Compile Include="Binding\IFactory.cs" />
+    <Compile Include="File\IViewer.cs" />
+    <Compile Include="File\ViewerSet.cs" />
     <Compile Include="FunctionEditor\FunctionContainer.cs" />
     <Compile Include="FunctionEditor\FunctionSource.cs" />
+    <Compile Include="Binding\BoundList.cs" />
+    <Compile Include="IO\IOEvent.cs" />
+    <Compile Include="IO\IOListener.cs" />
+    <Compile Include="IO\IOMessage.cs" />
+    <Compile Include="IO\IOMessageStore.cs" />
     <Compile Include="TrackController\ITrack.cs" />
     <Compile Include="EditorUtils\ITrackController.cs" />
     <Compile Include="EditorUtils\ITrackControllerFactory.cs" />
@@ -73,10 +87,7 @@
     <Compile Include="Grouping\PinMode.cs" />
     <Compile Include="MusicTrack\TempoTrack.cs" />
     <Compile Include="FunctionEditor\FunctionEditorScreen.cs" />
-    <Compile Include="FunctionEditor\FunctionEditorScreen.Factory.cs" />
-    <Compile Include="Screens\IScreen.cs" />
-    <Compile Include="Screens\IScreenFactory.cs" />
-    <Compile Include="Screens\IScreenViewer.cs" />
+    <Compile Include="File\IScreen.cs" />
     <Compile Include="TrackController\TrackControllerScreen.cs" />
     <Compile Include="Grouping\NamedTime.cs" />
     <Compile Include="Grouping\TimeMarkerUnit.cs" />

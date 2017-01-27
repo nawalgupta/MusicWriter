@@ -35,6 +35,7 @@ namespace MusicWriter
         public static bool operator !=(StorageObjectID a, StorageObjectID b) =>
             a.ID != b.ID;
 
+        public static readonly StorageObjectID Any = new StorageObjectID(new Guid(uint.MaxValue, ushort.MaxValue, ushort.MaxValue, 255, 255, 255, 255, 255, 255, 255, 255));
         public static readonly StorageObjectID Zero = new StorageObjectID(new Guid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
     }
 }

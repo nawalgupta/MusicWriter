@@ -13,17 +13,12 @@ namespace MusicWriter
         IEnumerable<StorageObjectID> Objects { get; }
 
         IStorageObject this[StorageObjectID id] { get; }
-        
-        event StorageObjectChildChangedDelegate ArrowAdded;
-        event StorageObjectChildChangedDelegate ArrowRemoved;
-        event StorageObjectChildRekeyedDelegate ArrowRenamed;
 
-        event StorageObjectChangedDelegate NodeCreated;
-        event StorageObjectChangedDelegate NodeContentsSet;
-        event StorageObjectChangedDelegate NodeDeleted;
+        IObservableList<IOMessage> Messages { get; }
+        IObservableList<IOListener> Listeners { get; }
 
         IEnumerable<KeyValuePair<string, StorageObjectID>> Outgoing(StorageObjectID source);
-        IEnumerable<StorageObjectID> Incoming(StorageObjectID sink);
+        IEnumerable<KeyValuePair<string, StorageObjectID>> Incoming(StorageObjectID sink);
 
         bool HasChild(StorageObjectID source, string relation);
         bool HasChild(StorageObjectID source, StorageObjectID sink);

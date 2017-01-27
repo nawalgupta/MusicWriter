@@ -227,22 +227,6 @@ namespace MusicWriter {
             }
         }
 
-        public static string ReadAllString(this IStorageObject obj) {
-            using (var stream = obj.OpenRead()) {
-                using (var tr = new StreamReader(stream)) {
-                    return tr.ReadToEnd();
-                }
-            }
-        }
-
-        public static void WriteAllString(this IStorageObject obj, string value) {
-            using (var stream = obj.OpenWrite()) {
-                using (var tw = new StreamWriter(stream)) {
-                    tw.Write(value);
-                }
-            }
-        }
-
         public static IStorageObject GetOrMake(this IStorageObject parent, string child) {
             try {
                 return parent.Graph[parent[child]];
@@ -271,5 +255,11 @@ namespace MusicWriter {
 
         public static IStorageObject CreateObject(this IStorageGraph graph) =>
             graph[graph.Create()];
+
+        public static void CreateAllObjects<T>(this BoundList<T> boundlist)
+            where T : IBoundObject<T> {
+            foreach (var factory in boundlist.FactorySet.Factories)
+                boundlist.Create(factory.Name);
+        }
     }
 }

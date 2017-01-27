@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public interface IScreenViewer<View>
+    public interface IViewer<T>
     {
-        bool IsCompatibleWithProduceOf(IScreenFactory<View> factory);
+        bool SupportsView(string view);
 
-        View CreateView(IScreen<View> screen);
+        object CreateView(T obj);
     }
 }

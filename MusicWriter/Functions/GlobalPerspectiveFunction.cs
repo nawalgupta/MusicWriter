@@ -21,7 +21,7 @@ namespace MusicWriter
 
         public sealed class FactoryClass : IFunctionFactory
         {
-            public string Name {
+            public string FriendlyName {
                 get { return "Global Perspective Function"; }
             }
 

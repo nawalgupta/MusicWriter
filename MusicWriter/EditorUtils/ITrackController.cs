@@ -5,19 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public interface ITrackController<TView> {
+    public interface ITrackController {
         ObservableProperty<string> Name { get; }
 
         StorageObjectID StorageObjectID { get; }
 
-        EditorFile<TView> File { get; }
+        EditorFile File { get; }
 
         CommandCenter CommandCenter { get; }
 
-        ITrackControllerFactory<TView> Factory { get; }
+        ITrackControllerFactory Factory { get; }
         
-        TView View { get; }
-
         IObservableList<ITrack> Tracks { get; }
 
         Pin Pin { get; }

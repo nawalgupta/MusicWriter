@@ -6,11 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public interface ITrackControllerFactory<TView> {
-        string Name { get; }
-
-        void Init(IStorageObject storage, EditorFile<TView> file);
-
-        ITrackController<TView> Load(IStorageObject storage, EditorFile<TView> file);
+    public interface ITrackControllerFactory : IFactory<ITrackController>
+    {
     }
 }

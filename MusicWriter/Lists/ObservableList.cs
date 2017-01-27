@@ -21,17 +21,38 @@ namespace MusicWriter
         readonly List<Action<T>> ItemAdded_responders = new List<Action<T>>();
         public event Action<T> ItemAdded {
             add {
-                foreach (var item in intern)
-                    value(item);
-
-                ItemAdded_responders.Add(value);
+                int i;
+                lock (intern) {
+                    i = intern.Count - 1;
+                    ItemAdded_responders.Add(value);
+                }
+                for (; i >= 0; i--)
+                    value(intern[i]);
             }
             remove {
                 ItemAdded_responders.Remove(value);
             }
         }
 
+        readonly List<Action<T, int>> ItemInserted_responders = new List<Action<T, int>>();
+        public event Action<T, int> ItemInserted {
+            add {
+                int i;
+                lock (intern) {
+                    i = intern.Count - 1;
+                    ItemInserted_responders.Add(value);
+                }
+                for (; i >= 0; i--)
+                    value(intern[i], i);
+            }
+            remove {
+                ItemInserted_responders.Remove(value);
+            }
+        }
+
         public event Action<T> ItemRemoved;
+
+        public event Action<T, int> ItemWithdrawn;
 
         public T this[int index] {
             get {return intern[index];}
@@ -47,18 +68,28 @@ namespace MusicWriter
         }
 
         public void Add(T item) {
-            intern.Add(item);
+            lock (intern) {
+                var i = intern.Count;
+                intern.Add(item);
+            }
 
             foreach (var responder in ItemAdded_responders)
                 responder(item);
+
+            foreach (var responder in ItemInserted_responders)
+                responder(item, i);
         }
 
         public void Clear() {
             var items = intern.ToArray();
             intern.Clear();
 
-            foreach (var item in items)
+            for (int i = intern.Count - 1; i >= 0; i--) {
+                var item = intern[i];
+
                 ItemRemoved?.Invoke(item);
+                ItemWithdrawn?.Invoke(item, i);
+            }
         }
 
         public bool Contains(T item) =>
@@ -74,15 +105,25 @@ namespace MusicWriter
             intern.IndexOf(item);
 
         public void Insert(int index, T item) {
-            intern.Insert(index, item);
+            lock (intern) {
+                intern.Insert(index, item);
+            }
 
             foreach (var responder in ItemAdded_responders)
                 responder(item);
+
+            foreach (var responder in ItemInserted_responders)
+                responder(item, index);
         }
 
         public bool Remove(T item) {
-            if (intern.Remove(item)) {
+            var i = intern.IndexOf(item);
+            if (i != -1) {
+                intern.RemoveAt(i);
+
                 ItemRemoved?.Invoke(item);
+                ItemWithdrawn?.Invoke(item, i);
+
                 return true;
             }
 
@@ -94,6 +135,7 @@ namespace MusicWriter
             intern.RemoveAt(index);
 
             ItemRemoved?.Invoke(item);
+            ItemWithdrawn?.Invoke(item, index);
         }
 
         IEnumerator IEnumerable.GetEnumerator() =>

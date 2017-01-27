@@ -6,10 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public interface IFunction : IEquatable<IFunction>
+    public interface IContainer : IBoundObject<IContainer>
     {
-        IFunctionFactory Factory { get; }
-
-        float GetValue(FunctionCall arg);
     }
 }

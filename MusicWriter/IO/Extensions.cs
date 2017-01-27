@@ -45,5 +45,21 @@ namespace MusicWriter
                     newobj.Add(outgoing.Key, translationIDmap[outgoing.Value]);
             }
         }
+
+        public static string ReadAllString(this IStorageObject obj) {
+            using (var stream = obj.OpenRead()) {
+                using (var tr = new StreamReader(stream)) {
+                    return tr.ReadToEnd();
+                }
+            }
+        }
+
+        public static void WriteAllString(this IStorageObject obj, string value) {
+            using (var stream = obj.OpenWrite()) {
+                using (var tw = new StreamWriter(stream)) {
+                    tw.Write(value);
+                }
+            }
+        }
     }
 }

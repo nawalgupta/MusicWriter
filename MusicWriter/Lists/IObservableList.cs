@@ -9,6 +9,9 @@ namespace MusicWriter
     public interface IObservableList<T> : IList<T>
     {
         event Action<T> ItemAdded;
+        event Action<T, int> ItemInserted;
+
         event Action<T> ItemRemoved;
+        event Action<T, int> ItemWithdrawn;
     }
 }

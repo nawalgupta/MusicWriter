@@ -6,20 +6,33 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed partial class FunctionEditorScreen<View> : IScreen<View>
+    public sealed partial class FunctionEditorScreen : IScreen
     {
-        readonly EditorFile<View> file;
+        readonly EditorFile file;
         readonly FunctionContainer container;
         readonly StorageObjectID storageobjectID;
+
+        public const string ItemName = "musicwriter.function.screen";
+
+        public static IFactory<IScreen> FactoryInstance { get; } =
+            new FuncFactory<IScreen>(
+                    ItemName,
+                    (storageobjectID, file) => { },
+                    (storageobjectID, file) => 
+                        new FunctionEditorScreen(
+                                storageobjectID,
+                                file
+                            )
+                );
 
         public CommandCenter CommandCenter { get; } =
             new CommandCenter();
 
-        public IScreenFactory<View> Factory {
-            get { return FactoryClass.Instance; }
+        public IFactory<IScreen> Factory {
+            get { return FactoryInstance; }
         }
 
-        public EditorFile<View> File {
+        public EditorFile File {
             get { return file; }
         }
 
@@ -38,11 +51,11 @@ namespace MusicWriter
             new ObservableProperty<FunctionSource>();
 
         public FunctionEditorScreen(
-                EditorFile<View> file,
-                StorageObjectID storageobjectID
+                StorageObjectID storageobjectID,
+                EditorFile file
             ) {
             this.file = file;
-            this.container = null;//TODO: implement abstract containers in the file (e.g., track-controller, function-editor, etc.)
+            container = file[FunctionContainer.ItemName] as FunctionContainer;
             this.storageobjectID = storageobjectID;
 
             Setup();
@@ -60,10 +73,7 @@ namespace MusicWriter
                     throw new InvalidOperationException();
 
                 ActiveFunctionSourceFile.Value =
-                    new FunctionSource(
-                            activefunctionsource_objID,
-                            container
-                        );
+                    container.FunctionSources[activefunctionsource_objID];
             };
 
             activefunctionsource_vec_obj.ChildRemoved += (activefunctionsource_vec_objID, activefunctionsource_objID, key) => {
