@@ -8,5 +8,6 @@ namespace MusicWriter
 {
     public interface IContainer : IBoundObject<IContainer>
     {
+        string Codename { get; }
     }
 }

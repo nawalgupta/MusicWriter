@@ -6,45 +6,24 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed partial class FunctionEditorScreen : IScreen
+    public sealed partial class FunctionEditorScreen : Screen
     {
-        readonly EditorFile file;
         readonly FunctionContainer container;
-        readonly StorageObjectID storageobjectID;
+        readonly IOListener
+            listener_activefunctionsourcefile_add,
+            listener_activefunctionsourcefile_remove;
 
         public const string ItemName = "musicwriter.function.screen";
 
         public static IFactory<IScreen> FactoryInstance { get; } =
-            new FuncFactory<IScreen>(
-                    ItemName,
-                    (storageobjectID, file) => { },
-                    (storageobjectID, file) => 
-                        new FunctionEditorScreen(
-                                storageobjectID,
-                                file
-                            )
-                );
+            new CtorFactory<IScreen, FunctionEditorScreen>(ItemName);
 
-        public CommandCenter CommandCenter { get; } =
-            new CommandCenter();
-
-        public IFactory<IScreen> Factory {
+        public override IFactory<IScreen> Factory {
             get { return FactoryInstance; }
-        }
-
-        public EditorFile File {
-            get { return file; }
         }
 
         public FunctionContainer Container {
             get { return container; }
-        }
-
-        public ObservableProperty<string> Name { get; } =
-            new ObservableProperty<string>();
-        
-        public StorageObjectID StorageObjectID {
-            get { return storageobjectID; }
         }
 
         public ObservableProperty<FunctionSource> ActiveFunctionSourceFile { get; } =
@@ -53,35 +32,41 @@ namespace MusicWriter
         public FunctionEditorScreen(
                 StorageObjectID storageobjectID,
                 EditorFile file
-            ) {
-            this.file = file;
+            ) : base(
+                    storageobjectID,
+                    file
+                ) {
             container = file[FunctionContainer.ItemName] as FunctionContainer;
-            this.storageobjectID = storageobjectID;
 
-            Setup();
-        }
-
-        void Setup() {
             var obj =
                 file.Storage[storageobjectID];
-            
+
             var activefunctionsource_vec_obj =
                 obj.GetOrMake("active-function-source-vec");
-            
-            activefunctionsource_vec_obj.ChildAdded += (activefunctionsource_vec_objID, activefunctionsource_objID, key) => {
-                if (ActiveFunctionSourceFile.Value != null)
-                    throw new InvalidOperationException();
 
-                ActiveFunctionSourceFile.Value =
-                    container.FunctionSources[activefunctionsource_objID];
-            };
+            listener_activefunctionsourcefile_add =
+                activefunctionsource_vec_obj.Listen(IOEvent.ChildAdded, (key, activefunctionsource_objID) => {
+                    if (ActiveFunctionSourceFile.Value != null)
+                        throw new InvalidOperationException();
 
-            activefunctionsource_vec_obj.ChildRemoved += (activefunctionsource_vec_objID, activefunctionsource_objID, key) => {
-                if (ActiveFunctionSourceFile.Value == null)
-                    throw new InvalidOperationException();
+                    ActiveFunctionSourceFile.Value =
+                        container.FunctionSources[activefunctionsource_objID];
+                });
 
-                ActiveFunctionSourceFile.Value = null;
-            };
+            listener_activefunctionsourcefile_remove =
+                activefunctionsource_vec_obj.Listen(IOEvent.ChildRemoved, (key, activefunctionsource_objID) => {
+                    if (ActiveFunctionSourceFile.Value == null)
+                        throw new InvalidOperationException();
+
+                    ActiveFunctionSourceFile.Value = null;
+                });
+        }
+
+        public override void Unbind() {
+            File.Storage.Listeners.Remove(listener_activefunctionsourcefile_add);
+            File.Storage.Listeners.Remove(listener_activefunctionsourcefile_remove);
+
+            base.Unbind();
         }
     }
 }

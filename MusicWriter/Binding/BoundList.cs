@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 namespace MusicWriter
 {
     public sealed class BoundList<T>
+        : IObservableList<T>
         where T : IBoundObject<T>
     {
         readonly StorageObjectID storageobjectID;
@@ -17,6 +19,29 @@ namespace MusicWriter
         readonly Dictionary<T, string> map_name_inverse = new Dictionary<T, string>();
         readonly Dictionary<StorageObjectID, T> map_storageobjectID = new Dictionary<StorageObjectID, T>();
         readonly Dictionary<T, StorageObjectID> map_storageobjectID_inverse = new Dictionary<T, StorageObjectID>();
+        readonly IOListener
+            listener_add,
+            listener_remove;
+
+        public event Action<T> ItemAdded {
+            add { Objects.ItemAdded += value; }
+            remove { Objects.ItemAdded -= value; }
+        }
+
+        public event Action<T, int> ItemInserted {
+            add { Objects.ItemInserted += value; }
+            remove { Objects.ItemInserted -= value; }
+        }
+
+        public event Action<T> ItemRemoved {
+            add { Objects.ItemRemoved += value; }
+            remove { Objects.ItemRemoved -= value; }
+        }
+
+        public event Action<T, int> ItemWithdrawn {
+            add { Objects.ItemWithdrawn += value; }
+            remove { Objects.ItemWithdrawn -= value; }
+        }
 
         public FactorySet<T> FactorySet { get; } =
             new FactorySet<T>();
@@ -34,6 +59,28 @@ namespace MusicWriter
 
         public bool AutomaticallyAvoidNameCollisionsWithUnderlines { get; set; } = true;
 
+        public int Count {
+            get {
+                return Objects.Count;
+            }
+        }
+
+        public bool IsReadOnly {
+            get {
+                return Objects.IsReadOnly;
+            }
+        }
+
+        public T this[int index] {
+            get {
+                return Objects[index];
+            }
+
+            set {
+                Objects[index] = value;
+            }
+        }
+
         public T this[string name] {
             get { return map_name[name]; }
         }
@@ -48,37 +95,75 @@ namespace MusicWriter
             ) {
             this.storageobjectID = storageobjectID;
             this.file = file;
-
-            Setup();
-        }
-
-        void Setup() {
+            
             var hub_obj = file.Storage[storageobjectID];
 
-            hub_obj.ChildAdded += (hub_objID, objID, key) => {
-                if (key != "")
-                    throw new InvalidOperationException();
+            var propertybinders =
+                new Dictionary<string, PropertyBinder<string>>();
 
-                var obj =
-                    FactorySet.Load(objID, file);
+            var namelisteners =
+                new Dictionary<string, IOListener>();
 
-                Objects.Add(obj);
-            };
+            listener_add =
+                hub_obj.Listen(
+                        IOEvent.ChildAdded,
+                        (key, objID) => {
+                            if (key != "")
+                                throw new InvalidOperationException();
 
-            hub_obj.ChildRemoved += (hub_objID, objID, key) => {
-                if (key != "")
-                    throw new InvalidOperationException();
+                            var obj =
+                                FactorySet.Load(objID, file);
 
-                var obj =
-                    Objects.FirstOrDefault(_ => _.StorageObjectID == objID);
+                            var name_obj =
+                                file
+                                    .Storage
+                                    [objID]
+                                    .GetOrMake("name");
 
-                if (obj != null)
-                    Objects.Remove(obj);
-            };
+                            var binder =
+                                obj.Name.Bind(name_obj);
+
+                            obj.Name.AfterChange += propertybinders.Rename;
+                            propertybinders.Add(binder.Property.Value, binder);
+
+                            if (!Objects.Contains(obj))
+                                Objects.Add(obj);
+                        }
+                    );
+
+            listener_remove =
+                hub_obj.Listen(
+                        IOEvent.ChildRemoved,
+                        (key, objID) => {
+                            if (key != "")
+                                throw new InvalidOperationException();
+
+                            var obj =
+                                Objects.FirstOrDefault(_ => _.StorageObjectID == objID);
+
+                            if (obj != null) {
+                                obj.Name.BeforeChange -= Object_Renaming;
+                                obj.Name.AfterChange -= Object_Renamed;
+
+                                obj.Name.AfterChange -= propertybinders.Rename;
+
+                                propertybinders[obj.Name.Value].Dispose();
+                                propertybinders.Remove(obj.Name.Value);
+
+                                Objects.Remove(obj);
+                            }
+                        }
+                    );
 
             Objects.ItemAdded += obj => {
-                if (!hub_obj.HasChild(obj.StorageObjectID))
-                    throw new InvalidOperationException();
+                if (!hub_obj.HasChild(obj.StorageObjectID)) {
+                    //TODO: not sure if this will work
+                    // What's supposed to happen is that if a bound object already in one
+                    // bound list is added to another bound list, the second bound list 
+                    // should exhibit non-exclusive ownership of the object.
+
+                    hub_obj.Add("", obj.StorageObjectID);
+                }
 
                 obj.Name.BeforeChange += Object_Renaming;
                 obj.Name.AfterChange += Object_Renamed;
@@ -90,6 +175,11 @@ namespace MusicWriter
 
                     obj.Name.BeforeChange -= Object_Renaming;
                     obj.Name.AfterChange -= Object_Renamed;
+
+                    obj.Name.AfterChange -= propertybinders.Rename;
+
+                    propertybinders[obj.Name.Value].Dispose();
+                    propertybinders.Remove(obj.Name.Value);
                 }
             };
         }
@@ -121,6 +211,46 @@ namespace MusicWriter
                 Thread.Sleep(20);
 
             return this[storageobjectID];
+        }
+
+        public int IndexOf(T item) {
+            return Objects.IndexOf(item);
+        }
+
+        public void Insert(int index, T item) {
+            Objects.Insert(index, item);
+        }
+
+        public void RemoveAt(int index) {
+            Objects.RemoveAt(index);
+        }
+
+        public void Add(T item) {
+            Objects.Add(item);
+        }
+
+        public void Clear() {
+            Objects.Clear();
+        }
+
+        public bool Contains(T item) {
+            return Objects.Contains(item);
+        }
+
+        public void CopyTo(T[] array, int arrayIndex) {
+            Objects.CopyTo(array, arrayIndex);
+        }
+
+        public bool Remove(T item) {
+            return Objects.Remove(item);
+        }
+
+        public IEnumerator<T> GetEnumerator() {
+            return Objects.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return Objects.GetEnumerator();
         }
     }
 }

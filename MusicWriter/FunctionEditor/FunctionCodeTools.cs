@@ -13,7 +13,7 @@ namespace MusicWriter
 
         public IFunction Parse(
                 ref string source,
-                AssortedFilesManager assortedfiles,
+                EditorFile file,
                 List<KeyValuePair<Tuple<int, int>, string>> errors
             ) {
             IFunction context = null;
@@ -52,7 +52,7 @@ namespace MusicWriter
                         var arg =
                             Parse(
                                     ref source,
-                                    assortedfiles,
+                                    file,
                                     errors
                                 );
 
@@ -71,16 +71,15 @@ namespace MusicWriter
                 if (factory == null)
                     errors.Add(new KeyValuePair<Tuple<int, int>, string>(null, $"Codename \"{name}\" not recognized."));
 
-                var file =
-                    binary_key != null ?
-                        assortedfiles[binary_key] :
-                        null;
-
+                if (binary_key != null && binary_key.Count(c => c == '.') > 1)
+                    errors.Add(new KeyValuePair<Tuple<int, int>, string>(null, $"Key \"{binary_key}\" has multiple dots."));
+                
                 context =
                     factory.Create(
                             context,
                             func_arguments?.ToArray(),
                             file,
+                            binary_key,
                             num_arguments?.ToArray()
                         );
             }
@@ -91,8 +90,7 @@ namespace MusicWriter
         public void Render(
                 StringBuilder builder,
                 IFunction function,
-                AssortedFilesManager assortedfiles,
-                IStorageObject storage
+                EditorFile file
             ) {
             var function_contextual =
                 function as IContextualFunction;
@@ -107,7 +105,7 @@ namespace MusicWriter
                 function as IStoredDataFunction;
 
             if (function_contextual != null) {
-                Render(builder, function_contextual.Context, assortedfiles, storage);
+                Render(builder, function_contextual.Context, file);
                 builder.Append(" ");
             }
 
@@ -115,7 +113,7 @@ namespace MusicWriter
 
             if (function_storeddata != null) {
                 builder.Append("(@");
-                builder.Append(assortedfiles.GetName(function_storeddata.StorageObjectID));
+                builder.Append(function_storeddata.BinaryKey(file));
                 builder.Append(") ");
             }
             else if (function_parameterized != null) {
@@ -135,7 +133,7 @@ namespace MusicWriter
                 builder.Append("{");
 
                 for (int i = 0; i < function_mixing.Arguments.Length; i++) {
-                    Render(builder, function_mixing.Arguments[i], assortedfiles, storage);
+                    Render(builder, function_mixing.Arguments[i], file);
 
                     if (i + 1 != function_mixing.Arguments.Length)
                         builder.AppendLine(";");

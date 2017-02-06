@@ -5,16 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public interface ITrackController {
-        ObservableProperty<string> Name { get; }
-
-        StorageObjectID StorageObjectID { get; }
-
-        EditorFile File { get; }
-
+    public interface ITrackController : IBoundObject<ITrackController> {
         CommandCenter CommandCenter { get; }
-
-        ITrackControllerFactory Factory { get; }
         
         IObservableList<ITrack> Tracks { get; }
 

@@ -5,17 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public interface ITrack {
-        ObservableProperty<string> Name { get; }
-
+    public interface ITrack : IBoundObject<ITrack> {
         ObservableProperty<Time> Length { get; }
-
-        StorageObjectID StorageObjectID { get; }
-
+        
         TrackControllerSettings Settings { get; }
-
-        ITrackFactory Factory { get; }
-
+        
         event FieldChangedDelegate Dirtied;
 
         void Erase(Duration window);

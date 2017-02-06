@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class PropertyBinder<T>
+    public sealed class PropertyBinder<T> : IDisposable
     {
         readonly IStorageObject storageobject;
         readonly ObservableProperty<T> property;
         readonly Func<IStorageObject, T> deserializer;
         readonly Action<IStorageObject, T> serializer;
+        readonly IOListener listener;
 
         public IStorageObject StorageObject {
             get { return storageobject; }
@@ -40,7 +41,7 @@ namespace MusicWriter
             this.deserializer = deserializer;
             this.serializer = serializer;
 
-            storageobject.ContentsSet += StorageObject_ContentsSet;
+            listener = storageobject.Listen(IOEvent.ObjectContentsSet, StorageObject_ContentsSet);
             property.AfterChange += Property_AfterChange;
         }
 
@@ -49,5 +50,15 @@ namespace MusicWriter
 
         private void Property_AfterChange(T old, T @new) =>
             serializer(storageobject, @new);
+
+        bool disposed = false;
+        public void Dispose() {
+            if (!disposed) {
+                disposed = true;
+
+                storageobject.Graph.Listeners.Remove(listener);
+                property.AfterChange -= Property_AfterChange;
+            }
+        }
     }
 }

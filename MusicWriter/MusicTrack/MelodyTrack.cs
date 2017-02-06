@@ -9,7 +9,13 @@ namespace MusicWriter {
     public sealed class MelodyTrack :
         IDurationField<Note> {
         readonly IStorageObject storage;
-        IStorageObject notes_obj;
+
+        readonly IStorageObject notes_obj;
+        readonly IOListener
+            listener_nextnodeID_contentsset,
+            listener_notes_added,
+            listener_notes_changed,
+            listener_notes_removed;
 
         readonly DurationField<NoteID> notes_field = new DurationField<NoteID>();
         readonly Dictionary<NoteID, Note> notes_lookup = new Dictionary<NoteID, Note>();
@@ -33,76 +39,83 @@ namespace MusicWriter {
 
         public MelodyTrack(IStorageObject storage) {
             this.storage = storage;
-
-            Setup();
-        }
-
-        void Setup() {
+            
             notes_field.GeneralDuration.AfterChange += GeneralDuration_AfterChange;
 
             next_noteID_obj = storage.GetOrMake("next_noteID");
-            next_noteID_obj.ContentsSet += next_noteID_objID => {
-                if (!int.TryParse(next_noteID_obj.ReadAllString(), out next_noteID))
-                    next_noteID_obj.WriteAllString("0");
-            };
+            listener_nextnodeID_contentsset =
+                next_noteID_obj.Listen(IOEvent.ObjectContentsSet, () => {
+                    if (!int.TryParse(next_noteID_obj.ReadAllString(), out next_noteID))
+                        next_noteID_obj.WriteAllString("0");
+                });
 
             notes_obj = storage.GetOrMake("notes");
-            notes_obj.ChildAdded += (notes_objID, new_note_objID, key) => {
-                var noteID = new NoteID(int.Parse(key));
-                var new_note_obj = notes_obj.Graph[new_note_objID];
-                var contents = new_note_obj.ReadAllString().Split('\n');
-                var duration = CodeTools.ReadDuration(contents[0]);
-                var tone = new SemiTone(int.Parse(contents[1]));
+            listener_notes_added =
+                notes_obj.Listen(IOEvent.ChildAdded, (key, new_note_objID) => {
+                    var noteID = new NoteID(int.Parse(key));
+                    var new_note_obj = notes_obj.Graph[new_note_objID];
+                    var contents = new_note_obj.ReadAllString().Split('\n');
+                    var duration = CodeTools.ReadDuration(contents[0]);
+                    var tone = new SemiTone(int.Parse(contents[1]));
 
-                var note =
-                    new Note(
-                            noteID,
-                            duration,
-                            tone
-                        );
+                    var note =
+                        new Note(
+                                noteID,
+                                duration,
+                                tone
+                            );
 
-                notes_field.Add(noteID, duration);
-                notes_lookup.Add(noteID, note);
-                FieldChanged?.Invoke(duration);
-            };
+                    notes_field.Add(noteID, duration);
+                    notes_lookup.Add(noteID, note);
+                    FieldChanged?.Invoke(duration);
+                });
 
-            notes_obj.ChildContentsSet += (notes_objID, changed_note_objID, key) => {
-                var noteID = new NoteID(int.Parse(key));
-                var new_note_obj = notes_obj.Graph[changed_note_objID];
-                var contents = new_note_obj.ReadAllString().Split('\n');
-                var duration = CodeTools.ReadDuration(contents[0]);
-                var tone = new SemiTone(int.Parse(contents[1]));
+            listener_notes_changed =
+                notes_obj.Listen(IOEvent.ObjectContentsSet, (key, changed_note_objID) => {
+                    var noteID = new NoteID(int.Parse(key));
+                    var new_note_obj = notes_obj.Graph[changed_note_objID];
+                    var contents = new_note_obj.ReadAllString().Split('\n');
+                    var duration = CodeTools.ReadDuration(contents[0]);
+                    var tone = new SemiTone(int.Parse(contents[1]));
 
-                Note oldnote;
-                if (notes_lookup.TryGetValue(noteID, out oldnote)) {
-                    if (oldnote.Duration != duration ||
-                        oldnote.Tone != tone) {
-                        var newnote =
-                            new Note(
-                                    noteID,
-                                    duration,
-                                    tone
-                                );
+                    Note oldnote;
+                    if (notes_lookup.TryGetValue(noteID, out oldnote)) {
+                        if (oldnote.Duration != duration ||
+                            oldnote.Tone != tone) {
+                            var newnote =
+                                new Note(
+                                        noteID,
+                                        duration,
+                                        tone
+                                    );
 
-                        var oldnoteduration =
-                            oldnote.Duration;
+                            var oldnoteduration =
+                                oldnote.Duration;
 
-                        notes_lookup[noteID] = newnote;
-                        notes_field.Move(noteID, oldnoteduration, duration);
-                        FieldChanged?.Invoke(oldnoteduration.Union(duration));
+                            notes_lookup[noteID] = newnote;
+                            notes_field.Move(noteID, oldnoteduration, duration);
+                            FieldChanged?.Invoke(oldnoteduration.Union(duration));
+                        }
                     }
-                }
-            };
+                });
 
-            notes_obj.ChildRemoved += (notes_objID, old_note_objID, key) => {
-                var noteID = new NoteID(int.Parse(key));
+            listener_notes_removed =
+                notes_obj.Listen(IOEvent.ChildRemoved, (key, old_note_objID) => {
+                    var noteID = new NoteID(int.Parse(key));
 
-                var oldnote = notes_lookup[noteID];
+                    var oldnote = notes_lookup[noteID];
 
-                notes_field.Remove(noteID, oldnote.Duration);
-                notes_lookup.Remove(noteID);
-                FieldChanged?.Invoke(oldnote.Duration);
-            };
+                    notes_field.Remove(noteID, oldnote.Duration);
+                    notes_lookup.Remove(noteID);
+                    FieldChanged?.Invoke(oldnote.Duration);
+                });
+        }
+
+        internal void Unbind() {
+            storage.Graph.Listeners.Remove(listener_nextnodeID_contentsset);
+            storage.Graph.Listeners.Remove(listener_notes_added);
+            storage.Graph.Listeners.Remove(listener_notes_changed);
+            storage.Graph.Listeners.Remove(listener_notes_removed);
         }
 
         private void GeneralDuration_AfterChange(Duration old, Duration @new) {

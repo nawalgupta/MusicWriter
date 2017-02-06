@@ -41,13 +41,13 @@
     <Compile Include="Cogs\EditableMemoryModule.cs" />
     <Compile Include="Cogs\IgnorantMemoryModule.cs" />
     <Compile Include="EditorUtils\CommandCenter.cs" />
-    <Compile Include="EditorUtils\IPorter.cs" />
-    <Compile Include="EditorUtils\MidiPorter.cs" />
+    <Compile Include="Polyline\PolylineContainer.cs" />
+    <Compile Include="Porters\IPorter.cs" />
+    <Compile Include="Porters\MidiPorter.cs" />
     <Compile Include="EditorUtils\NoteSelection.cs" />
-    <Compile Include="EditorUtils\PorterOptions.cs" />
+    <Compile Include="Porters\PorterOptions.cs" />
     <Compile Include="Fields\DurationFieldBinder.cs" />
     <Compile Include="Fields\FieldChangedDelegate.cs" />
-    <Compile Include="EditorUtils\AssortedFilesManager.cs" />
     <Compile Include="File\Container.cs" />
     <Compile Include="Binding\FactorySet.cs" />
     <Compile Include="File\IContainer.cs" />
@@ -185,7 +185,7 @@
     <Compile Include="Fields\CycledDuratedItem.cs" />
     <Compile Include="SheetMusic\TupletClass.cs" />
     <Compile Include="Spaces\NumberField.cs" />
-    <Compile Include="Spaces\PolylineData.cs" />
+    <Compile Include="Polyline\PolylineData.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="NAudio, Version=1.8.0.0, Culture=neutral, processorArchitecture=MSIL">

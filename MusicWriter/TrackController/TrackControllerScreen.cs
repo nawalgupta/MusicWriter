@@ -14,29 +14,39 @@ namespace MusicWriter {
         public const string ItemName = "musicwriter.screens.track-controller";
 
         readonly TrackControllerContainer container;
+        readonly BoundList<ITrackController> controllers;
 
         public override IFactory<IScreen> Factory {
             get { return TrackControllerScreenFactory.Instance; }
         }
 
-        public ObservableList<ITrackController> Controllers { get; } =
-            new ObservableList<ITrackController>();
+        public BoundList<ITrackController> Controllers {
+            get { return controllers; }
+        }
 
         public TrackControllerScreen(
                 StorageObjectID storageobjectID,
                 EditorFile file
-            ) : base(
+            ) :
+            base(
                     storageobjectID,
                     file
                 ) {
-            SetupStorage();
-
             container = file[TrackControllerContainer.ItemName] as TrackControllerContainer;
+
+            var obj =
+                file.Storage[storageobjectID];
+
+            controllers =
+                new BoundList<ITrackController>(
+                        obj.GetOrMake("controllers").ID,
+                        file
+                    );
 
             Controllers.ItemAdded += Controllers_ItemAdded;
             Controllers.ItemRemoved += Controllers_ItemRemoved;
 
-            Name.AfterChange += Name_AfterChange;
+            Name.AfterChange += container.Settings.GlobalCaret.RenameCaret;
 
             if (!file.Storage[storageobjectID].HasChild("inited")) {
                 Init();
@@ -45,62 +55,12 @@ namespace MusicWriter {
             }
         }
 
-        private void Name_AfterChange(string old, string @new) {
-            container
-                .Settings
-                .GlobalCaret
-                .RenameCaret(old, @new);
-        }
-
         private void Controllers_ItemAdded(ITrackController obj) {
             obj.CommandCenter.SubscribeTo(CommandCenter);
         }
 
         private void Controllers_ItemRemoved(ITrackController obj) {
             obj.CommandCenter.DesubscribeFrom(CommandCenter);
-        }
-
-        void SetupStorage() {
-            var obj =
-                File.Storage[StorageObjectID];
-
-            var controllersobj =
-                obj.GetOrMake("controllers");
-
-            controllersobj.ChildAdded += (controllersobjID, controllerobjID, key) => {
-                var controller = file.GetController(controllerobjID);
-
-                if (!Controllers.Contains(controller)) {
-                    Controllers.Add(controller);
-                    controller.Name.AfterChange += controllersobj.Rename;
-                }
-            };
-
-            controllersobj.ChildRemoved += (controllersobjID, oldcontrollerobjID, key) => {
-                var controller = Controllers.FirstOrDefault(_ => _.StorageObjectID == oldcontrollerobjID);
-
-                if (controller != null) {
-                    Controllers.Remove(controller);
-                    controller.Name.AfterChange -= controllersobj.Rename;
-                }
-            };
-
-            Controllers.ItemAdded += controller => {
-                if (!controllersobj.HasChild(controller.Name.Value))
-                    controllersobj.Add(controller.Name.Value, controller.StorageObjectID);
-            };
-            
-            Controllers.ItemRemoved += controller => {
-                controllersobj.Remove(controller.Name.Value);
-            };
-
-            var nameobj =
-                obj.GetOrMake("name");
-            
-            nameobj.ContentsSet += nameobjID =>
-                Name.Value = nameobj.ReadAllString();
-            Name.AfterChange += (old, @new) =>
-                nameobj.WriteAllString(@new);
         }
         
         void Init() {

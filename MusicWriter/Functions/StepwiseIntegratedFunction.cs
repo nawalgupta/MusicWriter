@@ -45,7 +45,8 @@ namespace MusicWriter
             public IFunction Create(
                     IFunction context = null,
                     IFunction[] args = null,
-                    IStorageObject data = null,
+                    EditorFile file = null,
+                    string key = null,
                     params float[] numbers
                 ) =>
                 new StepwiseIntegratedFunction(

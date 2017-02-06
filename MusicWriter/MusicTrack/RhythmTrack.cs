@@ -19,6 +19,9 @@ namespace MusicWriter {
 
         readonly IStorageObject storage;
 
+        readonly DurationFieldBinder<TimeSignature> binder_timesignatures;
+        readonly DurationFieldBinder<MeterSignature> binder_metersignatures;
+
         public IStorageObject Storage {
             get { return storage; }
         }
@@ -37,12 +40,8 @@ namespace MusicWriter {
         
         public RhythmTrack(IStorageObject storage) {
             this.storage = storage;
-
-            Setup();
-        }
-
-        void Setup() {
-            var binder_timesignatures =
+            
+            binder_timesignatures =
                 new DurationFieldBinder<TimeSignature>(
                         TimeSignatures,
                         storage.GetOrMake("time-signatures")
@@ -82,7 +81,7 @@ namespace MusicWriter {
 
             binder_timesignatures.Start();
 
-            var binder_metersignatures =
+            binder_metersignatures =
                 new DurationFieldBinder<MeterSignature>(
                         MeterSignatures,
                         storage.GetOrMake("meter-signatures")
@@ -130,6 +129,11 @@ namespace MusicWriter {
             };
 
             binder_metersignatures.Start();
+        }
+
+        internal void Unbind() {
+            binder_timesignatures.Unbind();
+            binder_metersignatures.Unbind();
         }
 
         public IEnumerable<IDuratedItem<Cell>> Intersecting(Time point) =>

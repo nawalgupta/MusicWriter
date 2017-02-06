@@ -50,11 +50,15 @@ namespace MusicWriter
             public IFunction Create(
                     IFunction context = null,
                     IFunction[] args = null,
-                    IStorageObject data = null,
+                    EditorFile file = null,
+                    string key = null,
                     params float[] numbers
-                ) {
-                throw new InvalidOperationException();
-            }
+                ) =>
+                new PolylineFunction(
+                        (file[PolylineContainer.ItemName] as PolylineContainer)
+                            .Polylines
+                            [key]
+                    );
 
             private FactoryClass() { }
 
@@ -63,6 +67,9 @@ namespace MusicWriter
 
         public float GetValue(FunctionCall arg) =>
             data.GetValue(arg.Time);
+
+        public string BinaryKey(EditorFile file) =>
+            data.Name.Value;
 
         class SingleIntegratedPolylineFunction : IFunction
         {

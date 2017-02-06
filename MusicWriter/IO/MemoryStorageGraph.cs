@@ -101,9 +101,7 @@ namespace MusicWriter
             storage.Add(id, obj);
 
             node_refcount.Add(id, 0);
-
-            obj.Init();
-
+            
             Messages.Add(new IOMessage(id, IOEvent.ObjectCreated));
         }
 
@@ -130,8 +128,6 @@ namespace MusicWriter
             arrows_to_source.Add(id, new Dictionary<string, List<StorageObjectID>>());
             arrows_to_sink_inverse.Add(id, new Dictionary<StorageObjectID, List<string>>());
             arrows_to_source_inverse.Add(id, new Dictionary<StorageObjectID, List<string>>());
-
-            obj.Init();
 
             Messages.Add(new IOMessage(id, IOEvent.ObjectCreated));
 

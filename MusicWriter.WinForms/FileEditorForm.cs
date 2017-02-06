@@ -13,7 +13,7 @@ using System.Windows.Forms;
 
 namespace MusicWriter.WinForms {
     public partial class FileEditorForm : Form {
-        EditorFile<Control> file;
+        EditorFile file;
         KeyboardInputSource input_keyboard =
             new KeyboardInputSource();
         InputController inputcontroller;
@@ -21,13 +21,11 @@ namespace MusicWriter.WinForms {
             new KeyboardMenuShortcuts();
         CommandCenter commandcenter =
             new CommandCenter();
-        FileCapabilities<Control> capabilities =
-            new FileCapabilities<Control>();
-
+        
         string filepath = null;
 
-        public IScreen<Control> ActiveScreen {
-            get { return (tabScreens.SelectedTab as TabPageInterop)?.Tag as IScreen<Control>; }
+        public IScreen ActiveScreen {
+            get { return (tabScreens.SelectedTab as TabPageInterop)?.Tag as IScreen; }
         }
 
         public FileEditorForm() {

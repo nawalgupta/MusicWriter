@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 using static MusicWriter.TimeSignature;
 
 namespace MusicWriter {
-    public sealed class MusicTrack : ITrack {
-        readonly IStorageObject storage;
+    public sealed class MusicTrack : BoundObject<ITrack>, ITrack {
         readonly TrackControllerSettings settings;
-
         readonly MelodyTrack melody;
         readonly RhythmTrack rhythm;
         readonly AdornmentTrack adornment;
@@ -19,11 +17,7 @@ namespace MusicWriter {
         readonly PropertyManager propertymanager;
 
         public event FieldChangedDelegate Dirtied;
-
-        public StorageObjectID StorageObjectID {
-            get { return storage.ID; }
-        }
-
+        
         public TrackControllerSettings Settings {
             get { return settings; }
         }
@@ -56,32 +50,32 @@ namespace MusicWriter {
             get { return propertymanager; }
         }
 
-        public ITrackFactory Factory {
+        public override IFactory<ITrack> Factory {
             get { return MusicTrackFactory.Instance; }
         }
-
-        public ObservableProperty<string> Name { get; } =
-            new ObservableProperty<string>("");
 
         public ObservableProperty<Time> Length {
             get { return melody.Length; }
         }
 
         public MusicTrack(
+                EditorFile file,
                 IStorageObject storage,
                 TrackControllerSettings settings
-            ) {
+            ) : base(
+                    storage.ID,
+                    file
+                ) {
             melody = new MelodyTrack(storage.GetOrMake("melody"));
             rhythm = new RhythmTrack(storage.GetOrMake("rhythm"));
             adornment = new AdornmentTrack(storage.GetOrMake("adornment"));
-            tempo = new TempoTrack(storage.GetOrMake("tempo"));
+            tempo = new TempoTrack(storage.GetOrMake("tempo"), file);
             memory = new PerceptualMemory();
             propertygraphlet = new StoragePropertyGraphlet<NoteID>(storage, propertymanager);
             propertymanager = settings.PropertyManager;
 
-            this.storage = storage;
             this.settings = settings;
-            
+
             melody.FieldChanged += Melody_FieldChanged;
             rhythm.MeterSignatures.FieldChanged += MeterSignatures_FieldChanged;
             rhythm.TimeSignatures.FieldChanged += TimeSignatures_FieldChanged;
@@ -116,6 +110,15 @@ namespace MusicWriter {
             Rhythm.MeterSignatures.ScootAndOverwrite(MeterSignature.Default(Rhythm.TimeSignaturesInTime(Duration.Eternity).Single().Value.Simples[0]), Duration.Eternity);
             Adornment.Staffs.ScootAndOverwrite(Staff.Treble, Duration.Eternity);
             Adornment.KeySignatures.ScootAndOverwrite(KeySignature.Create(DiatonicToneClass.C, PitchTransform.Natural, Mode.Major), Duration.Eternity);
+        }
+
+        public override void Unbind() {
+            melody.Unbind();
+            rhythm.Unbind();
+            adornment.Unbind();
+            tempo.Unbind();
+
+            base.Unbind();
         }
 
         void Init_memory() { 

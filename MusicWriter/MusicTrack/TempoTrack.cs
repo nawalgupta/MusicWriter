@@ -9,20 +9,33 @@ namespace MusicWriter
     public sealed class TempoTrack
     {
         readonly IStorageObject storage;
+        readonly EditorFile file;
         readonly PolylineData notelengthdata;
 
         public IStorageObject Storage {
             get { return storage; }
         }
 
+        public EditorFile File {
+            get { return file; }
+        }
+
         public PolylineData NoteLengthData {
             get { return notelengthdata; }
         }
         
-        public TempoTrack(IStorageObject storage) {
+        public TempoTrack(
+                IStorageObject storage,
+                EditorFile file
+            ) {
             this.storage = storage;
+            this.file = file;
 
-            notelengthdata = new PolylineData(storage.GetOrMake("note-length"), 2);
+            notelengthdata = new PolylineData(storage.GetOrMake("note-length"), file, 2);
+        }
+
+        internal void Unbind() {
+            notelengthdata.Unbind();
         }
 
         public Time GetTime(float seconds, Time tracklength) {

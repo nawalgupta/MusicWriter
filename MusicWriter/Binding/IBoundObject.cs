@@ -16,5 +16,7 @@ namespace MusicWriter
         EditorFile File { get; }
 
         IFactory<T> Factory { get; }
+
+        void Unbind();
     }
 }

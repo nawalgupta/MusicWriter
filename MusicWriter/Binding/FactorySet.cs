@@ -46,11 +46,7 @@ namespace MusicWriter
             var factory =
                 Factories.FirstOrDefault(_ => _.Name == type);
 
-            var value = factory.Load(storageobjectID, file);
-
-            value.Name.Bind(obj.GetOrMake("name"));
-
-            return value;
+            return factory.Load(storageobjectID, file);
         }
     }
 }

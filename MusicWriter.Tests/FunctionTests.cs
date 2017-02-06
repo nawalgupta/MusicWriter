@@ -8,18 +8,21 @@ namespace MusicWriter.Tests
     public sealed class FunctionTests
     {
         FunctionCodeTools code;
+        EditorFile file;
 
         IStorageGraph graph;
         IStorageObject obj1;
         IStorageObject obj2;
-        AssortedFilesManager assortedfiles;
 
         [TestMethod]
         public void TestCreateGraph() {
             graph = new MemoryStorageGraph();
+            var factoryset = new FactorySet<IContainer>();
+            factoryset.Factories.Add(PolylineContainer.FactoryInstance);
+            file = new EditorFile(graph, factoryset);
+
             obj1 = graph.CreateObject();
             obj2 = graph.CreateObject();
-            assortedfiles = new AssortedFilesManager(graph.CreateObject());
         }
 
         [TestMethod]
@@ -39,7 +42,7 @@ namespace MusicWriter.Tests
 
         [TestMethod]
         public void TestPolyline_1() {
-            var polyline = new PolylineData(obj1);
+            var polyline = new PolylineData(obj1.ID, file);
 
             polyline.Add(0, 0);
             polyline.Add(1, 2);
@@ -63,7 +66,7 @@ namespace MusicWriter.Tests
 
         [TestMethod]
         public void TestPolyline_2() {
-            var polyline = new PolylineData(obj2);
+            var polyline = new PolylineData(obj2.ID, file);
 
             //         XXXX
             //       XXXXXXXXXXX
@@ -93,7 +96,7 @@ namespace MusicWriter.Tests
             var rendered =
                 new StringBuilder();
 
-            code.Render(rendered, func, assortedfiles, null);
+            code.Render(rendered, func, null);
 
             Assert.AreEqual(rendered.ToString(), "square time.global");
         }

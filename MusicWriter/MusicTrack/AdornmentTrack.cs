@@ -9,6 +9,9 @@ namespace MusicWriter {
     public sealed class AdornmentTrack {
         readonly IStorageObject storage;
 
+        readonly DurationFieldBinder<Staff> binder_staffs;
+        readonly DurationFieldBinder<KeySignature> binder_keysigs;
+
         public DurationField<KeySignature> KeySignatures { get; } =
             new DurationField<KeySignature>();
 
@@ -22,16 +25,12 @@ namespace MusicWriter {
         public AdornmentTrack(IStorageObject storage) {
             this.storage = storage;
 
-            Setup();
-        }
-
-        void Setup() {
-            var binder_staffs =
+            binder_staffs =
                 new DurationFieldBinder<Staff>(
                         Staffs,
                         storage.GetOrMake("staffs")
                     );
-
+            
             binder_staffs.Deserializer = staff_obj => {
                 using (var stream = staff_obj.OpenRead()) {
                     using (var br = new BinaryReader(stream)) {
@@ -62,7 +61,7 @@ namespace MusicWriter {
 
             binder_staffs.Start();
 
-            var binder_keysigs =
+            binder_keysigs =
                 new DurationFieldBinder<KeySignature>(
                         KeySignatures,
                         storage.GetOrMake("key-signatures")
@@ -110,6 +109,11 @@ namespace MusicWriter {
             };
 
             binder_keysigs.Start();
+        }
+
+        internal void Unbind() {
+            binder_staffs.Unbind();
+            binder_keysigs.Unbind();
         }
     }
 }

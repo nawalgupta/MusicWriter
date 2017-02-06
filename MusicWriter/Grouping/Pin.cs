@@ -10,6 +10,9 @@ namespace MusicWriter
     {
         readonly IStorageObject storage;
         readonly NamedTime time;
+        readonly IOListener
+            listener_marker_contentsset,
+            listener_offset_contentsset;
 
         public IStorageObject Storage {
             get { return storage; }
@@ -26,19 +29,24 @@ namespace MusicWriter
             this.storage = storage;
             time = new NamedTime(timemarkerunit);
 
+            //TODO: see if this code can be replaced with a PropertyBinder object
+            //TODO: see if changing time.MarkerName is the right action to do to rename the marker
+
             var marker_obj = storage.GetOrMake("marker");
-            marker_obj.ContentsSet += delegate {
-                time.MarkerName.Value = marker_obj.ReadAllString();
-            };
+            listener_marker_contentsset =
+                marker_obj.Listen(IOEvent.ObjectContentsSet, () => {
+                    time.MarkerName.Value = marker_obj.ReadAllString();
+                });
             time.MarkerName.AfterChange += (old, @new) => {
                 marker_obj.WriteAllString(@new);
             };
 
             var offset_obj = storage.GetOrMake("offset");
             offset_obj.WriteAllString("0");
-            offset_obj.ContentsSet += delegate {
-                time.Offset.Value = MusicWriter.Time.FromTicks(int.Parse(offset_obj.ReadAllString()));
-            };
+            listener_offset_contentsset =
+                offset_obj.Listen(IOEvent.ObjectContentsSet, () => {
+                    time.Offset.Value = MusicWriter.Time.FromTicks(int.Parse(offset_obj.ReadAllString()));
+                });
             time.Offset.AfterChange += (old, @new) => {
                 offset_obj.WriteAllString(@new.Ticks.ToString());
             };

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MusicWriter;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,11 @@ namespace MusicWriter
             new Dictionary<string, ObservableProperty<Time>>();
         readonly HashSet<string> privatemarkers =
             new HashSet<string>();
+        readonly IOListener
+            listener_added,
+            listener_rekeyed,
+            listener_contentsset,
+            listener_removed;
 
         public IStorageObject Storage {
             get { return storage; }
@@ -21,38 +27,42 @@ namespace MusicWriter
         public TimeMarkerUnit(IStorageObject storage) {
             this.storage = storage;
 
-            Setup();
-        }
+            listener_added =
+                storage.Listen(IOEvent.ChildAdded, (key, newmarker_objID) => {
+                    var name = key;
+                    var time = Time.FromTicks(int.Parse(storage.Graph[newmarker_objID].ReadAllString()));
 
-        void Setup() {
-            storage.ChildAdded += (storage_objID, newmarker_objID, key) => {
-                var name = key;
-                var time = Time.FromTicks(int.Parse(storage.Graph[newmarker_objID].ReadAllString()));
+                    markers.Add(name, new ObservableProperty<Time>(time));
+                });
 
-                markers.Add(name, new ObservableProperty<Time>(time));
-            };
+            listener_rekeyed =
+                storage
+                    .Graph
+                    .Listen(
+                        msg => {
+                            var oldname = msg.Relation;
+                            var newname = msg.NewRelation;
 
-            storage.ChildRenamed += (storage_objID, marker_objID, oldkey, newkey) => {
-                var oldname = oldkey;
-                var newname = newkey;
+                            var prop = markers[oldname];
+                            markers.Remove(oldname);
+                            markers.Add(newname, prop);
+                        },
+                        storage.ID,
+                        IOEvent.ChildRekeyed
+                    );
 
-                var prop = markers[oldname];
-                markers.Remove(oldname);
-                markers.Add(newname, prop);
-            };
+            listener_contentsset =
+                storage.Listen(IOEvent.ChildContentsSet, (key, marker_objID) => {
+                    var name = key;
+                    var newtime = Time.FromTicks(int.Parse(storage.Graph[marker_objID].ReadAllString()));
 
-            storage.ChildContentsSet += (storage_objID, marker_objID, key) => {
-                var name = key;
-                var newtime = Time.FromTicks(int.Parse(storage.Graph[marker_objID].ReadAllString()));
+                    markers[name].Value = newtime;
+                });
 
-                markers[name].Value = newtime;
-            };
-
-            storage.ChildRemoved += (storage_objID, oldmarker_objID, key) => {
-                var name = key;
-
-                markers.Remove(name);
-            };
+            listener_removed =
+                storage.Listen(IOEvent.ChildRemoved, (name, oldmarker_objID) => {
+                    markers.Remove(name);
+                });
         }
 
         public ObservableProperty<Time> GetMarker(string name) =>
@@ -107,6 +117,13 @@ namespace MusicWriter
                 markers.Add(newname, prop);
                 markers.Remove(oldname);
             }
+        }
+
+        public void Unbind() {
+            storage.Graph.Listeners.Remove(listener_added);
+            storage.Graph.Listeners.Remove(listener_rekeyed);
+            storage.Graph.Listeners.Remove(listener_contentsset);
+            storage.Graph.Listeners.Remove(listener_removed);
         }
     }
 }

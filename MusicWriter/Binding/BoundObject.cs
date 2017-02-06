@@ -31,5 +31,8 @@ namespace MusicWriter
             this.storageobjectID = storageobjectID;
             this.file = file;
         }
+
+        public virtual void Unbind() {
+        }
     }
 }

@@ -33,10 +33,14 @@ namespace MusicWriter
             ) {
 			var midifile = new MidiFile(filename, false);
 
+            var trackcontainer =
+                file[TrackControllerContainer.ItemName] as TrackControllerContainer;
+
             var musictrackfactory =
-                file
-                    .Capabilities
-                    .TrackFactories
+                trackcontainer
+                    .Tracks
+                    .FactorySet
+                    .Factories
                     .FirstOrDefault(_ => _ is MusicTrackFactory)
                     .Name;
 
@@ -44,7 +48,7 @@ namespace MusicWriter
 				var events = midifile.Events.GetTrackEvents(track_index);
 
                 var track =
-                    (MusicTrack)file.CreateTrack(musictrackfactory);
+                    (MusicTrack)trackcontainer.Tracks.Create(musictrackfactory);
 
 				foreach (var e in events) {
 					switch (e.CommandCode) {

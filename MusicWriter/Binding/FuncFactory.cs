@@ -38,7 +38,7 @@ namespace MusicWriter
             this(
                     name,
                     (storageobjectID, file, fac) => initer(storageobjectID, file),
-                    (storageobjectID, file, fac) => initer(storageobjectID, file)
+                    (storageobjectID, file, fac) => loader(storageobjectID, file)
                 ) {
         }
 

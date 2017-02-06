@@ -11,6 +11,12 @@ namespace MusicWriter
         readonly DurationField<T> field;
         readonly IStorageObject storage;
 
+        IOListener
+            listener_added,
+            listener_rekeyed,
+            listener_contentsset,
+            listener_removed;
+
         readonly object locker = new object();
         readonly HashSet<Duration> events = new HashSet<Duration>();
         //TOOD: support multiple events occuring at the same time in the field
@@ -43,19 +49,28 @@ namespace MusicWriter
             Setup();
         }
 
+        public void Unbind() {
+            if (started) {
+                storage.Graph.Listeners.Remove(listener_added);
+                storage.Graph.Listeners.Remove(listener_rekeyed);
+                storage.Graph.Listeners.Remove(listener_contentsset);
+                storage.Graph.Listeners.Remove(listener_removed);
+            }
+        }
+
         void Setup() {
             field.ItemAdded += Field_ItemAdded;
             field.ItemMoved += Field_ItemMoved;
             field.ItemChanged += Field_ItemChanged;
             field.ItemRemoved += Field_ItemRemoved;
 
-            storage.ChildAdded += Storage_ChildAdded;
-            storage.ChildRenamed += Storage_ChildRenamed;
-            storage.ChildContentsSet += Storage_ChildContentsChanged;
-            storage.ChildRemoved += Storage_ChildRemoved;
+            listener_added = storage.Listen(IOEvent.ChildAdded, Storage_ChildAdded);
+            listener_rekeyed = storage.Graph.Listen(Storage_ChildRekeyed, storage.ID, IOEvent.ChildRekeyed);
+            listener_contentsset = storage.Listen(IOEvent.ChildContentsSet, Storage_ChildContentsSet);
+            listener_removed = storage.Listen(IOEvent.ChildRemoved, Storage_ChildRemoved);
         }
 
-        private void Storage_ChildAdded(StorageObjectID container, StorageObjectID child, string key) {
+        private void Storage_ChildAdded(string key, StorageObjectID child) {
             var duration =
                 CodeTools.ReadDuration(key);
 
@@ -71,19 +86,14 @@ namespace MusicWriter
             }
         }
 
-        private void Storage_ChildRenamed(
-                StorageObjectID container,
-                StorageObjectID child,
-                string oldkey,
-                string newkey
-            ) {
-            var oldduration = CodeTools.ReadDuration(oldkey);
-            var newduration = CodeTools.ReadDuration(newkey);
+        private void Storage_ChildRekeyed(IOMessage message) {
+            var oldduration = CodeTools.ReadDuration(message.Relation);
+            var newduration = CodeTools.ReadDuration(message.NewRelation);
 
             field.TryMoveUnique(oldduration, newduration);
         }
 
-        private void Storage_ChildContentsChanged(StorageObjectID container, StorageObjectID child, string key) {
+        private void Storage_ChildContentsSet(string key, StorageObjectID child) {
             var duration =
                 CodeTools.ReadDuration(key);
 
@@ -94,7 +104,7 @@ namespace MusicWriter
                 field.UpdateUnique(duration, contents);
         }
 
-        private void Storage_ChildRemoved(StorageObjectID container, StorageObjectID child, string key) {
+        private void Storage_ChildRemoved(string key, StorageObjectID child) {
             var duration =
                 CodeTools.ReadDuration(key);
 

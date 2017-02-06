@@ -11,7 +11,6 @@ namespace MusicWriter
         readonly IStorageObject storage;
         readonly PropertyManager propertymanager;
         readonly MusicBrain musicbrain;
-        readonly AssortedFilesManager assortedfilesmanager;
         readonly TimeMarkerUnit timemarkerunit;
         readonly GlobalCaret globalcaret;
 
@@ -25,10 +24,6 @@ namespace MusicWriter
 
         public MusicBrain MusicBrain {
             get { return musicbrain; }
-        }
-
-        public AssortedFilesManager AssortedFilesManager {
-            get { return assortedfilesmanager; }
         }
 
         public TimeMarkerUnit TimeMarkerUnit {
@@ -47,9 +42,7 @@ namespace MusicWriter
             musicbrain = new MusicBrain();
             musicbrain.InsertCog(new NotePerceptualCog());
             musicbrain.InsertCog(new MeasureLayoutPerceptualCog());
-
-            assortedfilesmanager = new AssortedFilesManager(storage.GetOrMake("assorted-files"));
-
+            
             timemarkerunit = new TimeMarkerUnit(storage.GetOrMake("time-markers"));
 
             globalcaret = new GlobalCaret(timemarkerunit);

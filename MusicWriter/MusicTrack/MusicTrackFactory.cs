@@ -9,9 +9,9 @@ using System.Xml.Linq;
 using static MusicWriter.TimeSignature;
 
 namespace MusicWriter {
-    public sealed class MusicTrackFactory : ITrackFactory
+    public sealed class MusicTrackFactory : IFactory<ITrack>
     {
-        public static ITrackFactory Instance { get; } =
+        public static IFactory<ITrack> Instance { get; } =
             new MusicTrackFactory();
 
         public string Name {
@@ -22,19 +22,19 @@ namespace MusicWriter {
         }
 
         public void Init(
-                IStorageObject storage,
-                TrackControllerSettings settings
+                StorageObjectID storageobjectID,
+                EditorFile file
             ) {
-            storage.WriteAllString("This is a music track.");
         }
 
         public ITrack Load(
-                IStorageObject storage,
-                TrackControllerSettings settings
+                StorageObjectID storageobjectID,
+                EditorFile file
             ) =>
             new MusicTrack(
-                    storage,
-                    settings
+                    file,
+                    file.Storage[storageobjectID],
+                    (file[TrackControllerContainer.ItemName] as TrackControllerContainer).Settings
                 );
     }
 }

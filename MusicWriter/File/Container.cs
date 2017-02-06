@@ -8,10 +8,17 @@ namespace MusicWriter
 {
     public abstract class Container : BoundObject<IContainer>, IContainer
     {
+        readonly string codename;
+
+        public string Codename {
+            get { return codename; }
+        }
+        
         public Container(
                 StorageObjectID storageobjectID,
                 EditorFile file,
-                string name
+                string name,
+                string codename
             ) :
             base(
                     storageobjectID,
@@ -20,6 +27,8 @@ namespace MusicWriter
             Name.Value = name;
 
             Name.BeforeChange += Name_BeforeChange;
+
+            this.codename = codename;
         }
 
         private void Name_BeforeChange(ObservableProperty<string>.PropertyChangingEventArgs args) {

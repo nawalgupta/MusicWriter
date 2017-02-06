@@ -6,44 +6,38 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed partial class FunctionSource : IBoundObject<FunctionSource>
+    public sealed partial class FunctionSource : BoundObject<FunctionSource>
     {
         readonly StorageObjectID storageobjectID;
         readonly FunctionContainer container;
 
         public const string ItemName = "musicwriter.function.source";
-
-        public ObservableProperty<string> Name { get; } =
-            new ObservableProperty<string>(ItemName);
-
+        
         public ObservableProperty<string> Code { get; } =
             new ObservableProperty<string>();
 
         public ObservableProperty<IFunction> Function { get; } =
             new ObservableProperty<IFunction>();
 
-        public StorageObjectID StorageObjectID {
-            get { return storageobjectID; }
-        }
-
         public FunctionContainer Container {
             get { return container; }
         }
 
-        public EditorFile File {
-            get { return container.File; }
-        }
-
-        public IFactory<FunctionSource> Factory {
+        public override IFactory<FunctionSource> Factory {
             get { return FactoryInstance; }
         }
 
         public FunctionSource(
                 StorageObjectID storageobjectID,
-                FunctionContainer container
-            ) {
+                EditorFile file
+            ) :
+            base(
+                    storageobjectID,
+                    file
+                )
+            {
             this.storageobjectID = storageobjectID;
-            this.container = container;
+            container = file[FunctionContainer.ItemName] as FunctionContainer;
 
             Setup();
         }
@@ -52,35 +46,40 @@ namespace MusicWriter
             var obj = File.Storage[storageobjectID];
 
             Code.AfterChange += Code_AfterChange;
+            Function.AfterChange += Function_AfterChange;
 
             Code.Bind(obj.GetOrMake("code"));
         }
 
-        private void Code_AfterChange(string old, string @new) {
-            throw new NotImplementedException();
+        private void Function_AfterChange(IFunction old, IFunction @new) {
+            var code = new StringBuilder();
+            container
+                .FunctionCodeTools
+                .Render(
+                        code,
+                        @new,
+                        File
+                    );
 
-            //var errors =
-            //    new List<KeyValuePair<Tuple<int, int>, string>>();
-
-            //Function.Value =
-            //        container
-            //            .FunctionCodeTools
-            //            .Parse(
-            //                    ref @new,
-            //                    container.File.AssortedFilesManager,
-            //                    errors
-            //                );
+            if (code != null)
+                Code.Value = code.ToString();
         }
 
-        public static readonly IFactory<FunctionSource> FactoryInstance =
-            new FuncFactory<FunctionSource>(
-                    ItemName,
-                    (storageobjectID, file) => { },
-                    (storageobjectID, file) => 
-                        new FunctionSource(
-                                storageobjectID,
-                                file[FunctionContainer.ItemName] as FunctionContainer
-                            )
-                );
+        private void Code_AfterChange(string old, string @new) {
+            var errors =
+                new List<KeyValuePair<Tuple<int, int>, string>>();
+
+            Function.Value =
+                    container
+                        .FunctionCodeTools
+                        .Parse(
+                                ref @new,
+                                File,
+                                errors
+                            );
+        }
+
+        public static IFactory<FunctionSource> FactoryInstance { get; } =
+            new CtorFactory<FunctionSource, FunctionSource>(ItemName);
     }
 }

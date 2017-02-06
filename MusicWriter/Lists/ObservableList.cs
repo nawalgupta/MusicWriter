@@ -68,14 +68,16 @@ namespace MusicWriter
         }
 
         public void Add(T item) {
+            int i;
+
             lock (intern) {
-                var i = intern.Count;
+                i = intern.Count;
                 intern.Add(item);
             }
 
             foreach (var responder in ItemAdded_responders)
                 responder(item);
-
+            
             foreach (var responder in ItemInserted_responders)
                 responder(item, i);
         }

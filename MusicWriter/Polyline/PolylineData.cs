@@ -7,12 +7,20 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class PolylineData
+    public sealed partial class PolylineData : IBoundObject<PolylineData>
     {
+        public const string ItemName = "musicwriter.data.polyline";
+
+        readonly EditorFile file;
         readonly List<float> times =
             new List<float>();
         readonly List<float> values =
             new List<float>();
+        readonly IOListener
+            listener_add,
+            listener_rekey,
+            listener_contentsset,
+            listener_remove;
 
         readonly IStorageObject storage;
         
@@ -23,49 +31,83 @@ namespace MusicWriter
         public StorageObjectID StorageObjectID {
             get { return storage.ID; }
         }
+
+        public ObservableProperty<string> Name { get; } =
+            new ObservableProperty<string>("");
+
+        public EditorFile File {
+            get { return file; }
+        }
+
+        public IFactory<PolylineData> Factory {
+            get { return FactoryInstance; }
+        }
+
+        public PolylineData(
+                StorageObjectID storageobjectID,
+                EditorFile file
+            )
+            : this(
+                    file.Storage[storageobjectID],
+                    file
+                 ) {
+        }
+
+        public void Unbind() {
+            file.Storage.Listeners.Remove(listener_add);
+            file.Storage.Listeners.Remove(listener_rekey);
+            file.Storage.Listeners.Remove(listener_contentsset);
+            file.Storage.Listeners.Remove(listener_remove);
+        }
         
         public PolylineData(
                 IStorageObject storage,
+                EditorFile file,
                 float constant = 0
             ) {
             this.storage = storage;
-
-            Setup();
-
+            this.file = file;
+            
             if (storage.IsEmpty)
                 Add(0f, constant);
+
+            listener_add =
+                storage.Listen(IOEvent.ChildAdded, (key, pt_objID) => {
+                    var t = float.Parse(key);
+                    var v = float.Parse(storage.Graph[pt_objID].ReadAllString());
+
+                    Add_ram(t, v);
+                });
+
+            listener_rekey =
+                storage.Graph.Listen(
+                    msg => {
+                        var t0 = float.Parse(msg.Relation);
+                        var t1 = float.Parse(msg.NewRelation);
+
+                        MoveX_ram(t0, t1);
+                    },
+                    storage.ID,
+                    IOEvent.ChildRekeyed
+                );
+
+            listener_contentsset =
+                storage.Listen(IOEvent.ChildContentsSet, (key, pt_objID) => {
+                    var t = float.Parse(key);
+                    var v1 = float.Parse(storage.Graph[pt_objID].ReadAllString());
+
+                    MoveY_ram(t, v1);
+                });
+
+            listener_remove =
+                storage.Listen(IOEvent.ChildRemoved, (key, pt_objID) => {
+                    var t = float.Parse(key);
+                    var v = float.Parse(storage.Graph[pt_objID].ReadAllString());
+
+                    RemoveExact_ram(t, v);
+                });
         }
-
-        void Setup() {
-            storage.ChildAdded += (storage_objID, pt_objID, key) => {
-                var t = float.Parse(key);
-                var v = float.Parse(storage.Graph[pt_objID].ReadAllString());
-
-                Add_ram(t, v);
-            };
-
-            storage.ChildRenamed += (storage_objID, pt_objID, pt_old_t, pt_new_t) => {
-                var t0 = float.Parse(pt_old_t);
-                var t1 = float.Parse(pt_new_t);
-
-                MoveX_ram(t0, t1);
-            };
-
-            storage.ChildContentsSet += (storage_objID, pt_objID, key) => {
-                var t = float.Parse(key);
-                var v1 = float.Parse(storage.Graph[pt_objID].ReadAllString());
-
-                MoveY_ram(t, v1);
-            };
-
-            storage.ChildRemoved += (storage_objID, pt_objID, key) => {
-                var t = float.Parse(key);
-                var v = float.Parse(storage.Graph[pt_objID].ReadAllString());
-
-                RemoveExact_ram(t, v);
-            };
-        }
-
+        
         public void AddConstant(float t, float value) {
             var i = bsearch_time_left(t);
             float? t1 =
@@ -358,5 +400,8 @@ namespace MusicWriter
                 return ~i - 1;
             else return i;
         }
+
+        public static IFactory<PolylineData> FactoryInstance { get; }=
+            new CtorFactory<PolylineData, PolylineData>(ItemName);
     }
 }

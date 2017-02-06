@@ -36,7 +36,7 @@ namespace MusicWriter {
                         this
                     );
 
-            containerfactoryset.CreateAllObjects();
+            containers.CreateAllObjects();
         }
 
         public void Flush() =>

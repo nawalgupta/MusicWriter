@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace MusicWriter
 {
     public sealed class FunctionContainer : Container {
-        public const string ItemName = "musicwriter.function";
+        public const string ItemName = "musicwriter.function.container";
+        public const string ItemCodeName = "func";
 
         readonly IFactory<IContainer> factory;
         readonly FunctionCodeTools functioncodetools;
@@ -37,7 +38,7 @@ namespace MusicWriter
         public BoundList<FunctionSource> FunctionSources {
             get { return functionsources; }
         }
-
+        
         public FunctionContainer(
                 StorageObjectID storageobjectID,
                 EditorFile file,
@@ -47,7 +48,8 @@ namespace MusicWriter
             base(
                     storageobjectID, 
                     file,
-                    ItemName
+                    ItemName,
+                    ItemCodeName
                 ) {
             this.factory = factory;
             this.functioncodetools = functioncodetools;
