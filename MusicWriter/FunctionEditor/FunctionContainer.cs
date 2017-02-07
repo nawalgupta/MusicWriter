@@ -6,31 +6,26 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class FunctionContainer : Container {
+    public sealed class FunctionContainer : Container
+    {
         public const string ItemName = "musicwriter.function.container";
         public const string ItemCodeName = "func";
 
-        readonly IFactory<IContainer> factory;
         readonly FunctionCodeTools functioncodetools;
         readonly BoundList<FunctionSource> functionsources;
-        
-        public static IFactory<IContainer> MakeFactory(FunctionCodeTools functioncodetools) =>
-            new FuncFactory<IContainer>(
+
+        public static IFactory<IContainer> CreateFactory(
+                FunctionCodeTools functioncodetools,
+                FactorySet<FunctionSource> functionsources_factoryset,
+                ViewerSet<FunctionSource> functionsources_viewerset
+            ) =>
+            new CtorFactory<IContainer, FunctionContainer>(
                     ItemName,
-                    (storageobjectID, file, factory) => { },
-                    (storageobjectID, file, factory) =>
-                        new FunctionContainer(
-                                storageobjectID,
-                                file,
-                                factory,
-                                functioncodetools
-                            )
+                    functioncodetools,
+                    functionsources_factoryset,
+                    functionsources_viewerset
                 );
 
-        public override IFactory<IContainer> Factory {
-            get { return factory; }
-        }
-        
         public FunctionCodeTools FunctionCodeTools {
             get { return functioncodetools; }
         }
@@ -38,23 +33,33 @@ namespace MusicWriter
         public BoundList<FunctionSource> FunctionSources {
             get { return functionsources; }
         }
-        
+
         public FunctionContainer(
                 StorageObjectID storageobjectID,
                 EditorFile file,
                 IFactory<IContainer> factory,
-                FunctionCodeTools functioncodetools
-            ) : 
+
+                FunctionCodeTools functioncodetools,
+
+                FactorySet<FunctionSource> functionsources_factoryset,
+                ViewerSet<FunctionSource> functionsources_viewerset
+            ) :
             base(
-                    storageobjectID, 
+                    storageobjectID,
                     file,
+                    factory,
                     ItemName,
                     ItemCodeName
                 ) {
-            this.factory = factory;
             this.functioncodetools = functioncodetools;
 
-            functionsources = new BoundList<FunctionSource>(storageobjectID, file);
+            functionsources =
+                new BoundList<FunctionSource>(
+                        storageobjectID,
+                        file,
+                        functionsources_factoryset,
+                        functionsources_viewerset
+                    );
         }
     }
 }

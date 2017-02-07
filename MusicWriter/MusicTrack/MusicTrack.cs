@@ -16,6 +16,8 @@ namespace MusicWriter {
         readonly IPropertyGraphlet<NoteID> propertygraphlet;
         readonly PropertyManager propertymanager;
 
+        public const string ItemName = "musicwriter.track-controller.tracks.music";
+
         public event FieldChangedDelegate Dirtied;
         
         public TrackControllerSettings Settings {

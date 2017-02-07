@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FactoryMenuStrip.cs" />
     <Compile Include="FileEditorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -69,6 +70,15 @@
     <Compile Include="RenderedMeasure.cs" />
     <Compile Include="RenderedSheetMusicItemPerceptualCog.cs" />
     <Compile Include="RenderedSheetMusicItem.cs" />
+    <Compile Include="SheetMusicEditorViewer.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="SheetMusicEditorViewer.Designer.cs">
+      <DependentUpon>SheetMusicEditorViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SheetMusicEditorViewer.Factory.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="TabPageInterop.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -78,21 +88,13 @@
     <Compile Include="TrackControllerScreenView.Designer.cs">
       <DependentUpon>TrackControllerScreenView.cs</DependentUpon>
     </Compile>
-    <Compile Include="SheetMusicEditor.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="SheetMusicEditor.Designer.cs">
-      <DependentUpon>SheetMusicEditor.cs</DependentUpon>
-    </Compile>
-    <Compile Include="SheetMusicEditor.Factory.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="SheetMusicRenderSettings.cs" />
     <Compile Include="RenderedTimeSignatureSimple.cs" />
     <Compile Include="Theme.cs" />
     <Compile Include="TrackControllerScreenView.Viewer.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="WinFormsViewer.cs" />
     <EmbeddedResource Include="FileEditorForm.resx">
       <DependentUpon>FileEditorForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -105,11 +107,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="SheetMusicEditorViewer.resx">
+      <DependentUpon>SheetMusicEditorViewer.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="TrackControllerScreenView.resx">
       <DependentUpon>TrackControllerScreenView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="SheetMusicEditor.resx">
-      <DependentUpon>SheetMusicEditor.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="glyphs\glyphs.blend" />
     <None Include="Properties\Settings.settings">

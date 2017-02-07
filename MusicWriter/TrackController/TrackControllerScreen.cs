@@ -26,11 +26,16 @@ namespace MusicWriter {
 
         public TrackControllerScreen(
                 StorageObjectID storageobjectID,
-                EditorFile file
+                EditorFile file,
+                IFactory<IScreen> factory,
+                
+                FactorySet<ITrackController> controllers_factoryset,
+                ViewerSet<ITrackController> controllers_viewerset
             ) :
             base(
                     storageobjectID,
-                    file
+                    file,
+                    factory
                 ) {
             container = file[TrackControllerContainer.ItemName] as TrackControllerContainer;
 
@@ -40,7 +45,9 @@ namespace MusicWriter {
             controllers =
                 new BoundList<ITrackController>(
                         obj.GetOrMake("controllers").ID,
-                        file
+                        file,
+                        controllers_factoryset,
+                        controllers_viewerset
                     );
 
             Controllers.ItemAdded += Controllers_ItemAdded;
@@ -69,5 +76,15 @@ namespace MusicWriter {
                 .GlobalCaret
                 .InitCaret(Name.Value);
         }
+
+        public static IFactory<IScreen> CreateFactory(
+                FactorySet<ITrackController> controllers_factoryset,
+                ViewerSet<ITrackController> controllers_viewerset
+            ) =>
+            new CtorFactory<IScreen, TrackControllerScreen>(
+                    ItemName,
+                    controllers_factoryset,
+                    controllers_viewerset
+                );
     }
 }

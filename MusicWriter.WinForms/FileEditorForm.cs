@@ -21,6 +21,10 @@ namespace MusicWriter.WinForms {
             new KeyboardMenuShortcuts();
         CommandCenter commandcenter =
             new CommandCenter();
+        readonly ObservableList<IPorter> porters =
+            new ObservableList<IPorter>();
+        readonly FactorySet<IContainer> containerfactoryset =
+            new FactorySet<IContainer>();
         
         string filepath = null;
 
@@ -40,36 +44,80 @@ namespace MusicWriter.WinForms {
             input_keyboard.Controller = inputcontroller;
         }
 
-        void InitScreenViewers() {
-            capabilities.ScreenViewers.Add(TrackControllerScreenView.Viewer.Instance);
+        void InitContainers() {
+            var controllers_factoryset =
+                new FactorySet<ITrackController>(
+                        SheetMusicEditor.CreateFactory()
+                    );
+
+            var controllers_viewerset =
+                new ViewerSet<ITrackController>(
+                        SheetMusicEditorViewer.FactoryClass.Instance
+                    );
+
+            var tracks_factoryset =
+                new FactorySet<ITrack>(
+                        MusicTrackFactory.Instance
+                    );
+
+            var tracks_viewerset =
+                new ViewerSet<ITrack>();
+
+            containerfactoryset.Factories.Add(
+                    ScreenContainer.CreateFactory(
+                            new FactorySet<IScreen>(
+                                    TrackControllerScreen.CreateFactory(
+                                            controllers_factoryset,
+                                            controllers_viewerset
+                                        )
+                                ),
+                            new ViewerSet<IScreen>(
+                                    TrackControllerScreenView.Viewer.Instance
+                                )
+                        )
+                );
+
+            containerfactoryset.Factories.Add(
+                    TrackControllerContainer.CreateFactory(
+                            tracks_factoryset,
+                            tracks_viewerset,
+                            controllers_factoryset,
+                            controllers_viewerset
+                        )
+                );
+
+            containerfactoryset.Factories.Add(
+                    FunctionContainer.CreateFactory(
+                            new FunctionCodeTools(
+                                    SquareFunction.FactoryClass.Instance,
+                                    PolylineFunction.FactoryClass.Instance,
+                                    PolynomialFunction.FactoryClass.Instance,
+                                    PulseWidthModulatedFunction.FactoryClass.Instance,
+
+                                    LocalPerspectiveFunction.FactoryClass.Instance,
+                                    GlobalPerspectiveFunction.FactoryClass.Instance
+                                ),
+                            new FactorySet<FunctionSource>(
+                                    FunctionSource.FactoryInstance
+                                ),
+                            new ViewerSet<FunctionSource>(
+                                )
+                        )
+                );
         }
-
-        void InitScreenFactories() {
-            capabilities.ScreenFactories.ItemAdded += ScreenFactories_ItemAdded;
-            capabilities.ScreenFactories.ItemRemoved += ScreenFactories_ItemRemoved;
-
-            capabilities.ScreenFactories.Add(TrackControllerScreenFactory<Control>.Instance);
-        }
-
-        void InitControllerFactories() {
-            capabilities.ControllerFactories.Add(SheetMusicEditor.FactoryClass.Instance);
-        }
-
-        void InitTrackFactories() {
-            capabilities.TrackFactories.Add(MusicTrackFactory.Instance);
-        }
-
+        
         void InitPorters() {
-            capabilities.Porters.CollectionChanged += Porters_CollectionChanged;
+            porters.ItemAdded += Porters_CollectionChanged;
+            porters.ItemRemoved += Porters_CollectionChanged;
 
-            capabilities.Porters.Add(new MidiPorter());
+            porters.Add(new MidiPorter());
         }
 
-        private void Porters_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+        private void Porters_CollectionChanged(IPorter changed) {
             var filters_builder = new StringBuilder();
 
             bool first = true;
-            foreach (var porter in capabilities.Porters) {
+            foreach (var porter in porters) {
                 if (first)
                     first = false;
                 else {
@@ -89,8 +137,8 @@ namespace MusicWriter.WinForms {
             diagSaveExportFile.Filter = filter;
 
             mnuFileImport.DropDownItems.Clear();
-            for (var i = 0; i < capabilities.Porters.Count; i++) {
-                var porter = capabilities.Porters[i];
+            for (var i = 0; i < porters.Count; i++) {
+                var porter = porters[i];
 
                 var mnuFileImportPorter = new ToolStripMenuItem();
                 mnuFileImportPorter.Text = $"{porter.Name} ({porter.FileExtension})";
@@ -106,28 +154,7 @@ namespace MusicWriter.WinForms {
                 mnuFileExport.DropDownItems.Add(mnuFileExportPorter);
             }
         }
-
-        private void ScreenFactories_ItemAdded(IScreenFactory<Control> factory) {
-            var item = new ToolStripMenuItem();
-            item.Text = factory.Name;
-            item.Tag = factory;
-            item.Click += ScreenFactoryMenuItem_Click;
-            item.Name = $"mnuScreenNew_{factory.Name}";
-
-            mnuScreenNew.DropDownItems.Add(item);
-        }
-
-        private void ScreenFactoryMenuItem_Click(object sender, EventArgs e) {
-            var item = sender as ToolStripMenuItem;
-            var factory = item.Tag as IScreenFactory<Control>;
-
-            NewScreen(factory.Name);
-        }
-
-        private void ScreenFactories_ItemRemoved(IScreenFactory<Control> factory) {
-            mnuScreenNew.DropDownItems.RemoveByKey($"mnuScreenNew_{factory.Name}");
-        }
-
+        
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData) {
             switch (keyData) {
                 case Keys.Left:
@@ -178,37 +205,30 @@ namespace MusicWriter.WinForms {
         }
 
         void Setup() {
-            file.Screens.ItemAdded += LoadScreen;
-            file.Screens.ItemRemoved += CloseScreen;
+            var screencontainer =
+                file[ScreenContainer.ItemName] as ScreenContainer;
+
+            screencontainer.Screens.ItemAdded += LoadScreen;
+            screencontainer.Screens.ItemRemoved += CloseScreen;
         }
 
         void SetupStatic() {
-            InitScreenViewers();
-            InitScreenFactories();
-            InitControllerFactories();
-            InitTrackFactories();
             InitInputSources();
+            InitContainers();
             InitPorters();
 
             inputcontroller = new InputController(commandcenter);
 
-            file = new EditorFile<Control>(new MemoryStorageGraph(), capabilities);
+            file = new EditorFile(new MemoryStorageGraph(), containerfactoryset);
         }
+        
+        void LoadScreen(IScreen screen) {
+            var container =
+                file[ScreenContainer.ItemName] as ScreenContainer;
 
-        void NewScreen(string type) {
-            file.CreateScreen(type);
-
-            tabScreens.SelectTab(tabScreens.Controls.Count - 1);
-        }
-
-        void LoadScreen(IScreen<Control> screen) {
-            var viewer =
-                file
-                    .Capabilities
-                    .ScreenViewers
-                    .FirstOrDefault(_ => _.IsCompatibleWithProduceOf(screen.Factory));
-
-            var view = viewer.CreateView(screen);
+            var view =
+                container.Screens.ViewerSet.CreateView(screen, WinFormsViewer.Type) as Control;
+            
             var tab = new TabPageInterop(view);
             tab.Name = $"tabScreen_{screen.Name}";
             tab.Tag = screen;
@@ -228,7 +248,7 @@ namespace MusicWriter.WinForms {
             tab.Name = $"tabScreen_{@new}";
         }
 
-        void CloseScreen(IScreen<Control> screen) {
+        void CloseScreen(IScreen screen) {
             screen.CommandCenter.DesubscribeFrom(commandcenter);
 
             tabScreens.Controls.RemoveByKey($"tabScreen_{screen.Name}");
@@ -272,7 +292,7 @@ namespace MusicWriter.WinForms {
 
             tabScreens.Controls.Clear();
 
-            file = new EditorFile<Control>(newgraph, capabilities);
+            file = new EditorFile(newgraph, containerfactoryset);
             Setup();
 
             RecentFiles.AddRecent(filepath);
@@ -300,7 +320,7 @@ namespace MusicWriter.WinForms {
             CloseScreen(ActiveScreen);
         }
 
-        IScreen<Control> oldselected;
+        IScreen oldselected;
         private void tabScreens_SelectedIndexChanged(object sender, EventArgs e) {
             if (oldselected != null)
                 oldselected.CommandCenter.Enabled = false;
@@ -457,9 +477,13 @@ namespace MusicWriter.WinForms {
         private void mnuViewCursorResetToOneNote_Click(object sender, EventArgs e) =>
             commandcenter.ResetCursorToOne();
 
-        private void mnuScreenNew_Click(object sender, EventArgs e) =>
-            NewScreen(capabilities.ScreenFactories.First().Name);
+        private void mnuScreenNew_Click(object sender, EventArgs e) {
+            var screencontainer =
+                file[ScreenContainer.ItemName] as ScreenContainer;
 
+            screencontainer.Screens.Create(screencontainer.Screens.FactorySet.Factories[0].Name);
+        }
+        
         private void mnuScreenArchive_Click(object sender, EventArgs e) {
             //TODO
         }
@@ -514,7 +538,7 @@ namespace MusicWriter.WinForms {
             OpenFile(diagOpenFile.FileName);
 
 		private void diagSaveExportFile_FileOk(object sender, CancelEventArgs e) {
-			var porter = file.Capabilities.Porters[diagSaveExportFile.FilterIndex];
+			var porter = porters[diagSaveExportFile.FilterIndex];
 
             var options =
                 new PorterOptions {
@@ -525,7 +549,7 @@ namespace MusicWriter.WinForms {
 		}
 
 		private void diagOpenImportFile_FileOk(object sender, CancelEventArgs e) {
-			var porter = file.Capabilities.Porters[diagSaveExportFile.FilterIndex];
+			var porter = porters[diagSaveExportFile.FilterIndex];
 
             var options =
                 new PorterOptions {

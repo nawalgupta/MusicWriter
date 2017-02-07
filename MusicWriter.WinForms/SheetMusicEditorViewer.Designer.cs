@@ -1,5 +1,5 @@
 ﻿namespace MusicWriter.WinForms {
-    partial class SheetMusicEditor {
+    partial class SheetMusicEditorViewer {
         /// <summary>
         /// Required designer variable.
         /// </summary>

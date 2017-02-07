@@ -11,6 +11,11 @@ namespace MusicWriter
         public ObservableList<IViewer<T>> Viewers { get; } =
             new ObservableList<IViewer<T>>();
 
+        public ViewerSet(params IViewer<T>[] viewers) {
+            foreach (var viewer in viewers)
+                Viewers.Add(viewer);
+        }
+
         public object CreateView(T obj, string view) =>
             Viewers
                 .First(viewer => viewer.SupportsView(view))

@@ -17,12 +17,14 @@ namespace MusicWriter
         public Container(
                 StorageObjectID storageobjectID,
                 EditorFile file,
+                IFactory<IContainer> factory,
                 string name,
                 string codename
             ) :
             base(
                     storageobjectID,
-                    file
+                    file,
+                    factory
                 ) {
             Name.Value = name;
 

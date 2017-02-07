@@ -14,21 +14,31 @@ namespace MusicWriter
     {
         readonly string name;
         readonly ConstructorInfo ctorinfo;
+        readonly object[] extraarguments;
 
         public string Name {
             get { return name; }
         }
 
-        public CtorFactory(string name) {
+        public object[] ExtraArguments {
+            get { return extraarguments; }
+        }
+
+        public CtorFactory(
+                string name,
+                params object[] extraarguments
+            ) {
             this.name = name;
+            this.extraarguments = extraarguments;
 
             ctorinfo =
                 typeof(T2)
                     .GetConstructor(
                             new Type[] {
                                     typeof(StorageObjectID),
-                                    typeof(EditorFile)
-                                }
+                                    typeof(EditorFile),
+                                    typeof(IFactory<T>),
+                                }.Concat(extraarguments.Select(arg => arg.GetType())).ToArray()
                         );
         }
 
@@ -42,6 +52,6 @@ namespace MusicWriter
                 StorageObjectID storageobjectID,
                 EditorFile file
             ) =>
-            (T)ctorinfo.Invoke(new object[] { storageobjectID, file });
+            (T)ctorinfo.Invoke(new object[] { storageobjectID, file, this }.Concat(extraarguments).ToArray());
     }
 }

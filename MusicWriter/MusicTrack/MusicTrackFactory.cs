@@ -15,7 +15,7 @@ namespace MusicWriter {
             new MusicTrackFactory();
 
         public string Name {
-            get { return "Music Track"; }
+            get { return MusicTrack.ItemName; }
         }
 
         private MusicTrackFactory() {

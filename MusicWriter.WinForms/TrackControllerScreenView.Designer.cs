@@ -265,9 +265,10 @@
             this.mnuAddTrack.Size = new System.Drawing.Size(61, 4);
             this.mnuAddTrack.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.mnuAddTrack_ItemClicked);
             // 
-            // ScreenView
+            // TrackControllerScreenView
             // 
             this.Controls.Add(this.spltMasterDetail);
+            this.Name = "TrackControllerScreenView";
             this.Size = new System.Drawing.Size(637, 381);
             pnlViewTools.ResumeLayout(false);
             pnlViewTools.PerformLayout();

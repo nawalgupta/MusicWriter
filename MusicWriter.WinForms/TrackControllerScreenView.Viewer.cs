@@ -9,17 +9,20 @@ namespace MusicWriter.WinForms
 {
     partial class TrackControllerScreenView
     {
-        public sealed class Viewer : IScreenViewer<Control>
+        public sealed class Viewer : IViewer<IScreen>
         {
-            public bool IsCompatibleWithProduceOf(IScreenFactory<Control> factory) =>
-                factory.Name == TrackControllerScreenFactory<Control>.Instance.Name;
-            
-            public Control CreateView(IScreen<Control> screen) {
+            public bool IsCompatibleWithProduceOf(IFactory<IScreen> factory) =>
+                factory.Name == TrackControllerScreen.ItemName;
+
+            public bool SupportsView(string type) =>
+                type == WinFormsViewer.Type;
+
+            public object CreateView(IScreen screen, string type) {
                 var view =
                     new TrackControllerScreenView();
 
                 view.File = screen.File;
-                view.Screen = screen as TrackControllerScreen<Control>;
+                view.Screen = screen as TrackControllerScreen;
 
                 return view;
             }

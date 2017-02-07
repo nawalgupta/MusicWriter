@@ -14,6 +14,8 @@ namespace MusicWriter
     {
         readonly StorageObjectID storageobjectID;
         readonly EditorFile file;
+        readonly FactorySet<T> factoryset;
+        readonly ViewerSet<T> viewerset;
 
         readonly Dictionary<string, T> map_name = new Dictionary<string, T>();
         readonly Dictionary<T, string> map_name_inverse = new Dictionary<T, string>();
@@ -22,7 +24,7 @@ namespace MusicWriter
         readonly IOListener
             listener_add,
             listener_remove;
-
+        
         public event Action<T> ItemAdded {
             add { Objects.ItemAdded += value; }
             remove { Objects.ItemAdded -= value; }
@@ -43,8 +45,13 @@ namespace MusicWriter
             remove { Objects.ItemWithdrawn -= value; }
         }
 
-        public FactorySet<T> FactorySet { get; } =
-            new FactorySet<T>();
+        public FactorySet<T> FactorySet {
+            get { return factoryset; }
+        }
+
+        public ViewerSet<T> ViewerSet {
+            get { return viewerset; }
+        }
 
         public ObservableList<T> Objects { get; } =
             new ObservableList<T>();
@@ -91,10 +98,14 @@ namespace MusicWriter
 
         public BoundList(
                 StorageObjectID storageobjectID,
-                EditorFile file
+                EditorFile file,
+                FactorySet<T> factoryset,
+                ViewerSet<T> viewerset
             ) {
             this.storageobjectID = storageobjectID;
             this.file = file;
+            this.factoryset = factoryset;
+            this.viewerset = viewerset;
             
             var hub_obj = file.Storage[storageobjectID];
 

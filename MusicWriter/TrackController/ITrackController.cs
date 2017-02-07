@@ -8,7 +8,7 @@ namespace MusicWriter {
     public interface ITrackController : IBoundObject<ITrackController> {
         CommandCenter CommandCenter { get; }
         
-        IObservableList<ITrack> Tracks { get; }
+        BoundList<ITrack> Tracks { get; }
 
         Pin Pin { get; }
 

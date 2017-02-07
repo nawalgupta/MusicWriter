@@ -13,11 +13,13 @@ namespace MusicWriter
 
         public Screen(
                 StorageObjectID storageobjectID,
-                EditorFile file
+                EditorFile file,
+                IFactory<IScreen> factory = null
             ) :
             base(
                     storageobjectID,
-                    file
+                    file,
+                    factory
                 ) {
         }
     }

@@ -8,8 +8,8 @@ namespace MusicWriter
 {
     public interface IViewer<T>
     {
-        bool SupportsView(string view);
+        bool SupportsView(string type);
 
-        object CreateView(T obj);
+        object CreateView(T obj, string type);
     }
 }

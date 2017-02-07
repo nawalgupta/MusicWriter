@@ -11,6 +11,11 @@ namespace MusicWriter
         public ObservableList<IFunctionFactory> Factories { get; } =
             new ObservableList<IFunctionFactory>();
 
+        public FunctionCodeTools(params IFunctionFactory[] factories) {
+            foreach (var factory in factories)
+                Factories.Add(factory);
+        }
+
         public IFunction Parse(
                 ref string source,
                 EditorFile file,

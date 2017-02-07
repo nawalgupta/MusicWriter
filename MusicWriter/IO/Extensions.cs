@@ -182,5 +182,8 @@ namespace MusicWriter
                         verb,
                         responder
                     );
+
+        public static void Delete<T>(this T item) where T : IBoundObject<T> =>
+            item.File.Storage.Delete(item.StorageObjectID);
     }
 }

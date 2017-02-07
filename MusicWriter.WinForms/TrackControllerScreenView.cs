@@ -12,18 +12,17 @@ using System.Collections.ObjectModel;
 using System.Collections;
 
 namespace MusicWriter.WinForms {
-    //TODO: if you want to use the visual studio designer with this control,
-    // (1) change base type from TabPage to UserControl,
-    // (2) resolve any build errors by commenting out or deleting code,
-    // (3) make sure to change it back before committing the code.
     public partial class TrackControllerScreenView : UserControl {
-        EditorFile<Control> file;
-        TrackControllerScreen<Control> screen;
+        EditorFile file;
+        TrackControllerScreen screen;
+        TrackControllerContainer container;
+        FactoryMenuStrip<ITrack> factorymenustrip_tracks = new FactoryMenuStrip<ITrack>();
+        FactoryMenuStrip<ITrackController> factorymenustrip_controllers = new FactoryMenuStrip<ITrackController>();
 
-        public ITrackController<Control> SelectedController {
+        public ITrackController SelectedController {
             get {
                 if (lsvControllers.SelectedItems.Count == 1)
-                    return lsvControllers.SelectedItems[0]?.Tag as ITrackController<Control>;
+                    return lsvControllers.SelectedItems[0]?.Tag as ITrackController;
 
                 return null;
             }
@@ -38,7 +37,7 @@ namespace MusicWriter.WinForms {
             }
         }
 
-        public TrackControllerScreen<Control> Screen {
+        public TrackControllerScreen Screen {
             get { return screen; }
             set {
                 if (screen != null) {
@@ -58,35 +57,32 @@ namespace MusicWriter.WinForms {
             }
         }
 
-        public EditorFile<Control> File {
+        public EditorFile File {
             get { return file; }
             set {
                 if (file != null) {
-                    file.Tracks.ItemAdded -= Tracks_ItemAdded;
-                    file.Tracks.ItemRemoved -= Tracks_ItemRemoved;
+                    var container = file[TrackControllerContainer.ItemName] as TrackControllerContainer;
 
-                    file.Controllers.ItemAdded -= FileControllers_ItemAdded;
-                    file.Controllers.ItemRemoved -= FileControllers_ItemRemoved;
+                    container.Tracks.ItemAdded -= Tracks_ItemAdded;
+                    container.Tracks.ItemRemoved -= Tracks_ItemRemoved;
 
-                    file.Capabilities.ControllerFactories.CollectionChanged -= ControllerFactories_CollectionChanged;
-                    file.Capabilities.TrackFactories.CollectionChanged -= TrackFactories_CollectionChanged;
+                    container.Controllers.ItemAdded -= FileControllers_ItemAdded;
+                    container.Controllers.ItemRemoved -= FileControllers_ItemRemoved;
                 }
 
                 var old = file;
 
                 file = value;
+                container = file[TrackControllerContainer.ItemName] as TrackControllerContainer;
 
-                file.Tracks.ItemAdded += Tracks_ItemAdded;
-                file.Tracks.ItemRemoved += Tracks_ItemRemoved;
+                container.Tracks.ItemAdded += Tracks_ItemAdded;
+                container.Tracks.ItemRemoved += Tracks_ItemRemoved;
 
-                file.Controllers.ItemAdded += FileControllers_ItemAdded;
-                file.Controllers.ItemRemoved += FileControllers_ItemRemoved;
+                container.Controllers.ItemAdded += FileControllers_ItemAdded;
+                container.Controllers.ItemRemoved += FileControllers_ItemRemoved;
 
-                file.Capabilities.ControllerFactories.CollectionChanged += ControllerFactories_CollectionChanged;
-                ControllerFactories_CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, file.Capabilities.ControllerFactories, (IList<ITrackControllerFactory<Control>>)old?.Capabilities.ControllerFactories ?? new List<ITrackControllerFactory<Control>>()));
-
-                file.Capabilities.TrackFactories.CollectionChanged += TrackFactories_CollectionChanged;
-                TrackFactories_CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, file.Capabilities.TrackFactories, (IList<ITrackFactory>)old?.Capabilities.TrackFactories ?? new List<ITrackFactory>()));
+                factorymenustrip_tracks.BoundList = container.Tracks;
+                factorymenustrip_controllers.BoundList = container.Controllers;
             }
         }
 
@@ -99,12 +95,12 @@ namespace MusicWriter.WinForms {
                 var item = lsvControllers.Items[$"lsvControllersItem_{old}"];
                 item.Name = $"lsvControllersItem_{@new}";
 
-                var controller = file.GetController(@new);
+                var controller = container.Controllers[@new];
                 controller.View.Text = controller.Name.Value;
             }));
         }
 
-        private void FileControllers_ItemAdded(ITrackController<Control> controller) {
+        private void FileControllers_ItemAdded(ITrackController controller) {
             var item =
                 new ListViewItem();
 
@@ -132,30 +128,10 @@ namespace MusicWriter.WinForms {
             controller.View.Disposed += View_Dispose;
         }
 
-        private void FileControllers_ItemRemoved(ITrackController<Control> controller) {
+        private void FileControllers_ItemRemoved(ITrackController controller) {
             lsvControllers.Items.RemoveByKey($"lsvControllersItem_{controller.Name}");
         }
-
-        private void ControllerFactories_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-            mnuAddController.Items.Clear();
-
-            foreach (var controllerfactory in file.Capabilities.ControllerFactories)
-                mnuAddController.Items.Add(new ToolStripMenuItem {
-                    Text = controllerfactory.Name,
-                    Tag = controllerfactory
-                });
-        }
-
-        private void TrackFactories_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-            mnuAddTrack.Items.Clear();
-
-            foreach (var trackfactory in file.Capabilities.TrackFactories)
-                mnuAddTrack.Items.Add(new ToolStripMenuItem {
-                    Text = trackfactory.Name,
-                    Tag = trackfactory
-                });
-        }
-
+        
         private void Screen_NameChanged(string old, string @new) {
             Text = @new;
             Name = $"tabScreen_{@new}";
@@ -185,7 +161,7 @@ namespace MusicWriter.WinForms {
 
         private void Tracks_LengthChanged(Time old, Time @new) {
             var longestlength =
-                file.Tracks.Max(track => track.Length.Value);
+                container.Tracks.Max(track => track.Length.Value);
 
             sclOffset.Maximum = longestlength.Ticks;
         }
@@ -197,7 +173,7 @@ namespace MusicWriter.WinForms {
             }));
         }
         
-        private void ScreenControllers_ItemAdded(ITrackController<Control> controller) {
+        private void ScreenControllers_ItemAdded(ITrackController controller) {
             var item = lsvControllers.Items[$"lsvControllersItem_{controller.Name}"];
 
             pnlViews.Controls.Add(controller.View);
@@ -207,7 +183,7 @@ namespace MusicWriter.WinForms {
             item.Checked = true;
         }
 
-        private void ScreenControllers_ItemRemoved(ITrackController<Control> controller) {
+        private void ScreenControllers_ItemRemoved(ITrackController controller) {
             var item = lsvControllers.Items[$"lsvControllersItem_{controller.Name}"];
             item.Checked = false;
 
@@ -227,7 +203,7 @@ namespace MusicWriter.WinForms {
         
         private void View_LostFocus(object sender, EventArgs e) {
             var controllername = (sender as Control).Text;
-            var controller = file.GetController(controllername);
+            var controller = container.Controllers[controllername];
             controller.CommandCenter.Enabled = false;
 
             foreach (var track in controller.Tracks) {
@@ -239,7 +215,7 @@ namespace MusicWriter.WinForms {
 
         private void View_GotFocus(object sender, EventArgs e) {
             var controllername = (sender as Control).Text;
-            var controller = file.GetController(controllername);
+            var controller = container.Controllers[controllername];
             controller.CommandCenter.Enabled = true;
 
             var item = lsvControllers.Items[$"lsvControllersItem_{controllername}"];
@@ -276,12 +252,12 @@ namespace MusicWriter.WinForms {
             for (int i = 0; i < lsvControllers.Items.Count; i++) {
                 var selected =
                     lsvControllers.SelectedIndices.Contains(i) &&
-                    screen.Controllers.Contains(lsvControllers.Items[i].Tag as ITrackController<Control>);
+                    screen.Controllers.Contains(lsvControllers.Items[i].Tag as ITrackController);
 
                 var item =
                     lsvControllers.Items[i];
 
-                var controller = file.GetController(item.Text);
+                var controller = item.Tag as ITrackController;
 
                 controller.CommandCenter.Enabled = selected;
 
@@ -328,30 +304,15 @@ namespace MusicWriter.WinForms {
                 foreach (var controller in screen.Controllers)
                     controller.Tracks.Remove(track);
 
-                file.Tracks.Remove(track);
+                //container.Tracks.Remove(track);
+                track.Delete();
             }
         }
 
         private void btnAddTrack_Click(object sender, EventArgs e) {
             mnuAddTrack.Show(btnAddTrack, new Point(btnAddTrack.Width, btnAddTrack.Height), ToolStripDropDownDirection.BelowLeft);
         }
-
-        private void mnuAddController_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            var controllerfactory =
-                (ITrackControllerFactory<Control>)
-                e.ClickedItem.Tag;
-            
-            file.CreateTrackController(controllerfactory.Name);
-        }
-
-        private void mnuAddTrack_ItemClicked(object sender, ToolStripItemClickedEventArgs e) {
-            var trackfactory =
-                (ITrackFactory)
-                e.ClickedItem.Tag;
-            
-            file.CreateTrack(trackfactory.Name);
-        }
-
+        
         bool lsvTracks_disabled = false;
         private void lsvTracks_ItemChecked(object sender, ItemCheckedEventArgs e) {
             if (lsvTracks_disabled)
@@ -389,7 +350,7 @@ namespace MusicWriter.WinForms {
 
         private void lsvControllers_AfterLabelEdit(object sender, LabelEditEventArgs e) {
             var controller =
-                lsvControllers.Items[e.Item].Tag as ITrackController<Control>;
+                lsvControllers.Items[e.Item].Tag as ITrackController;
 
             if (e.Label != null)
                 controller.Name.Value = e.Label;
@@ -397,7 +358,7 @@ namespace MusicWriter.WinForms {
 
         private void lsvControllers_ItemChecked(object sender, ItemCheckedEventArgs e) {
             var controller =
-                e.Item.Tag as ITrackController<Control>;
+                e.Item.Tag as ITrackController;
 
             if (e.Item.Checked)
                 Screen.Controllers.Add(controller);

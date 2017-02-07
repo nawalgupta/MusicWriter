@@ -63,9 +63,11 @@
     <Compile Include="IO\IOListener.cs" />
     <Compile Include="IO\IOMessage.cs" />
     <Compile Include="IO\BruteIOMessageReactor.cs" />
+    <Compile Include="Screens\ScreenContainer.cs" />
+    <Compile Include="SheetMusic\SheetMusicEditor.cs" />
     <Compile Include="TrackController\ITrack.cs" />
-    <Compile Include="EditorUtils\ITrackController.cs" />
-    <Compile Include="EditorUtils\ITrackControllerFactory.cs" />
+    <Compile Include="TrackController\ITrackController.cs" />
+    <Compile Include="TrackController\TrackController.cs" />
     <Compile Include="TrackController\TrackControllerContainer.cs" />
     <Compile Include="TrackController\TrackControllerHints.cs" />
     <Compile Include="TrackController\TrackControllerSettings.cs" />

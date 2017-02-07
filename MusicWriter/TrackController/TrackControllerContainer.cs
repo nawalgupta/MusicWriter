@@ -8,7 +8,7 @@ namespace MusicWriter
 {
     public sealed class TrackControllerContainer : Container
     {
-        public const string ItemName = "musicwriter.containers.track-controller";
+        public const string ItemName = "musicwriter.track-controller.container";
         public const string ItemCodeName = "track-controller";
 
         readonly TrackControllerSettings settings;
@@ -27,20 +27,21 @@ namespace MusicWriter
             get { return controllers; }
         }
 
-        public static readonly IFactory<IContainer> FactoryInstance =
-            new CtorFactory<IContainer, TrackControllerContainer>(ItemName);
-
-        public override IFactory<IContainer> Factory {
-            get { return FactoryInstance; }
-        }
-
         public TrackControllerContainer(
                 StorageObjectID storageobjectID, 
-                EditorFile file
+                EditorFile file,
+                IFactory<IContainer> factory,
+
+                FactorySet<ITrack> tracks_factoryset,
+                ViewerSet<ITrack> tracks_viewerset,
+
+                FactorySet<ITrackController> controllers_factoryset,
+                ViewerSet<ITrackController> controllers_viewerset
             ) :
             base(
                     storageobjectID, 
-                    file, 
+                    file,
+                    factory,
                     ItemName,
                     ItemCodeName
                 ) {
@@ -54,14 +55,33 @@ namespace MusicWriter
             tracks =
                 new BoundList<ITrack>(
                         obj.GetOrMake("tracks").ID,
-                        file
+                        file,
+                        tracks_factoryset,
+                        tracks_viewerset
                     );
 
             controllers =
                 new BoundList<ITrackController>(
                         obj.GetOrMake("controllers").ID,
-                        file
+                        file,
+                        controllers_factoryset,
+                        controllers_viewerset
                     );
         }
+
+        public static IFactory<IContainer> CreateFactory(
+                FactorySet<ITrack> tracks_factoryset,
+                ViewerSet<ITrack> tracks_viewerset,
+
+                FactorySet<ITrackController> controllers_factoryset,
+                ViewerSet<ITrackController> controllers_viewerset
+            ) =>
+            new CtorFactory<IContainer, TrackControllerContainer>(
+                    ItemName,
+                    tracks_factoryset,
+                    tracks_viewerset,
+                    controllers_factoryset,
+                    controllers_viewerset
+                );
     }
 }

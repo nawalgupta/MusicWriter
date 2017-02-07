@@ -12,52 +12,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace MusicWriter.WinForms {
-    public partial class SheetMusicEditor :
+namespace MusicWriter.WinForms
+{
+    public partial class SheetMusicEditorViewer :
         Control,
-        ITrackController<Control> {
-        EditorFile<Control> file;
+        IViewer<ITrackController>
+    {
+        SheetMusicEditor editor;
 
-        IStorageObject storage;
-        Pin pin;
-
-        public Pin Pin {
-            get { return pin; }
-        }
-
-        public Cursor MusicCursor { get; } = new Cursor();
-        Cursor MusicCursor_bak = new Cursor();
-
-        private class OverrideTrackControllerHints : TrackControllerHints
-        {
-            public SheetMusicEditor Editor { get; set; }
-
-            public override Time UnitSize(Time here) =>
-                Editor
-                    .ActiveTrack
-                    .Rhythm
-                    .Intersecting(here)
-                    .First()
-                    .Duration
-                    .Length;
-
-            public override Time WordSize(Time here) =>
-                Editor
-                    .ActiveTrack
-                    .Rhythm
-                    .TimeSignatures
-                    .Intersecting_children(here)
-                    .First()
-                    .Duration
-                    .Length;
-                //Editor
-                //    .ActiveTrack
-                //    .Rhythm
-                //    .TimeSignatures
-                //    .Intersecting_children(here)
-                //    .First()
-                //    .Duration
-                //    .End - here;
+        public SheetMusicEditor Editor {
+            get { return editor; }
         }
 
         readonly OverrideTrackControllerHints hints =
@@ -138,7 +102,7 @@ namespace MusicWriter.WinForms {
             get { return this; }
         }
 
-        public SheetMusicEditor() {
+        public SheetMusicEditorViewer() {
             InitializeComponent();
 
             tracks.SpecialCollection.ItemAdded += Tracks_ItemAdded;

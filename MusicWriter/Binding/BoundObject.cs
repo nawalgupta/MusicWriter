@@ -10,8 +10,11 @@ namespace MusicWriter
     {
         readonly EditorFile file;
         readonly StorageObjectID storageobjectID;
+        readonly IFactory<T> factory;
 
-        public abstract IFactory<T> Factory { get; }
+        public virtual IFactory<T> Factory {
+            get { return factory; }
+        }
 
         public EditorFile File {
             get { return file; }
@@ -26,10 +29,12 @@ namespace MusicWriter
 
         public BoundObject(
                 StorageObjectID storageobjectID,
-                EditorFile file
+                EditorFile file,
+                IFactory<T> factory = null
             ) {
             this.storageobjectID = storageobjectID;
             this.file = file;
+            this.factory = factory;
         }
 
         public virtual void Unbind() {

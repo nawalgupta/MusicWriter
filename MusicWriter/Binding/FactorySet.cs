@@ -12,6 +12,11 @@ namespace MusicWriter
         public ObservableList<IFactory<T>> Factories { get; } =
             new ObservableList<IFactory<T>>();
 
+        public FactorySet(params IFactory<T>[] factories) {
+            foreach (var factory in factories)
+                Factories.Add(factory);
+        }
+
         public StorageObjectID Init(
                 string type,
                 StorageObjectID hub_objID,

@@ -9,7 +9,7 @@ using System.Xml;
 using System.Xml.Linq;
 
 namespace MusicWriter.WinForms {
-    partial class SheetMusicEditor {
+    partial class SheetMusicEditorViewer {
         public sealed class FactoryClass : ITrackControllerFactory<Control> {
             public static ITrackControllerFactory<Control> Instance { get; } =
                 new FactoryClass();
@@ -32,7 +32,7 @@ namespace MusicWriter.WinForms {
                     EditorFile<Control> file
                 ) {
                 var controller =
-                    new SheetMusicEditor();
+                    new SheetMusicEditorViewer();
 
                 controller.File = file;
                 controller.Storage = storage;
