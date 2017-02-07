@@ -15,11 +15,7 @@ namespace MusicWriter {
 
         readonly TrackControllerContainer container;
         readonly BoundList<ITrackController> controllers;
-
-        public override IFactory<IScreen> Factory {
-            get { return TrackControllerScreenFactory.Instance; }
-        }
-
+        
         public BoundList<ITrackController> Controllers {
             get { return controllers; }
         }

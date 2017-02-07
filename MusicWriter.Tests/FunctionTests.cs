@@ -18,7 +18,18 @@ namespace MusicWriter.Tests
         public void TestCreateGraph() {
             graph = new MemoryStorageGraph();
             var factoryset = new FactorySet<IContainer>();
-            factoryset.Factories.Add(PolylineContainer.FactoryInstance);
+
+            factoryset
+                .Factories
+                .Add(
+                        PolylineContainer.CreateFactory(
+                                new FactorySet<PolylineData>(
+                                        PolylineData.FactoryInstance
+                                    ),
+                                new ViewerSet<PolylineData>()
+                            )
+                    );
+
             file = new EditorFile(graph, factoryset);
 
             obj1 = graph.CreateObject();

@@ -12,29 +12,43 @@ namespace MusicWriter
 
         public const string ItemName = "musicwriter.data.polyline.container";
         public const string ItemCodename = "polyline";
-
-        public override IFactory<IContainer> Factory {
-            get { return FactoryInstance; }
-        }
-
+        
         public BoundList<PolylineData> Polylines {
             get { return polylines; }
         }
 
         public PolylineContainer(
                 StorageObjectID storageobjectID, 
-                EditorFile file
+                EditorFile file,
+                IFactory<IContainer> factory,
+
+                FactorySet<PolylineData> polylines_factoryset,
+                ViewerSet<PolylineData> polylines_viewerset
             ) : 
             base(
                     storageobjectID, 
-                    file, 
+                    file,
+                    factory,
                     ItemName, 
                     ItemCodename
                 ) {
-            polylines = new BoundList<PolylineData>(storageobjectID, file);
+            polylines = 
+                new BoundList<PolylineData>(
+                        storageobjectID,
+                        file,
+                        polylines_factoryset,
+                        polylines_viewerset
+                    );
         }
 
-        public static IFactory<IContainer> FactoryInstance { get; } =
-            new CtorFactory<IContainer, PolylineContainer>(ItemName);
+        public static IFactory<IContainer> CreateFactory(
+                FactorySet<PolylineData> polylines_factoryset,
+                ViewerSet<PolylineData> polylines_viewerset
+            ) =>
+            new CtorFactory<IContainer, PolylineContainer>(
+                    ItemName,
+                    polylines_factoryset,
+                    polylines_viewerset
+                );
     }
 }

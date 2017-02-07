@@ -27,6 +27,7 @@ namespace MusicWriter
             base(
                     storageobjectID,
                     file,
+                    factory,
                     ItemName,
                     ItemCodeName
                 ) {

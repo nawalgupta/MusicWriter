@@ -140,7 +140,6 @@
     <Compile Include="Lists\ObservableList.cs" />
     <Compile Include="Other\ObservableProperty.cs" />
     <Compile Include="Other\CodeTools.cs" />
-    <Compile Include="TrackController\TrackControllerScreenFactory.cs" />
     <Compile Include="SheetMusic\FlagDirection.cs" />
     <Compile Include="Fields\IDuratedItem.cs" />
     <Compile Include="Fields\IDurationField.cs" />

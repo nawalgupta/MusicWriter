@@ -33,7 +33,9 @@ namespace MusicWriter {
             containers =
                 new BoundList<IContainer>(
                         storage.Root,
-                        this
+                        this,
+                        containerfactoryset,
+                        new ViewerSet<IContainer>()
                     );
 
             containers.CreateAllObjects();

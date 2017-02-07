@@ -104,6 +104,16 @@ namespace MusicWriter.WinForms {
                                 )
                         )
                 );
+
+            containerfactoryset.Factories.Add(
+                    PolylineContainer.CreateFactory(
+                            new FactorySet<PolylineData>(
+                                    PolylineData.FactoryInstance
+                                ),
+                            new ViewerSet<PolylineData>(
+                                )
+                        )
+                );
         }
         
         void InitPorters() {

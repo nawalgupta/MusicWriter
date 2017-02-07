@@ -19,6 +19,6 @@ namespace MusicWriter
         public object CreateView(T obj, string view) =>
             Viewers
                 .First(viewer => viewer.SupportsView(view))
-                .CreateView(obj);
+                .CreateView(obj, view);
     }
 }
