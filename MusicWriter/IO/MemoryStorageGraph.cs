@@ -68,6 +68,12 @@ namespace MusicWriter
 
             root = new RootMemoryStorageObject(this);
 
+            arrows_to_sink.Lookup(StorageObjectID.Zero);
+            arrows_to_sink_inverse.Lookup(StorageObjectID.Zero);
+            arrows_to_source.Lookup(StorageObjectID.Zero);
+            arrows_to_source_inverse.Lookup(StorageObjectID.Zero);
+            node_refcount.Add(StorageObjectID.Zero, 0);
+
             messagestore =
                 new BruteIOMessageReactor(
                         Messages,

@@ -52,9 +52,10 @@ namespace MusicWriter
         }
 
         private void Listeners_ItemInserted(IOListener listener, int i) {
-            var j = messages.Count;
+            var j = messages.Count - 1;
 
             readylisteners.Insert(i, j);
+            
             for (; j >= 0; j--)
                 listener.Process(messages[j]);
         }

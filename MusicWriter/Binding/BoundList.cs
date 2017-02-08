@@ -178,6 +178,11 @@ namespace MusicWriter
 
                 obj.Name.BeforeChange += Object_Renaming;
                 obj.Name.AfterChange += Object_Renamed;
+
+                map_name.Add(obj.Name.Value, obj);
+                map_name_inverse.Add(obj, obj.Name.Value);
+                map_storageobjectID.Add(obj.StorageObjectID, obj);
+                map_storageobjectID_inverse.Add(obj, obj.StorageObjectID);
             };
 
             Objects.ItemRemoved += obj => {
@@ -191,6 +196,11 @@ namespace MusicWriter
 
                     propertybinders[obj.Name.Value].Dispose();
                     propertybinders.Remove(obj.Name.Value);
+
+                    map_name.Remove(obj.Name.Value);
+                    map_name_inverse.Remove(obj);
+                    map_storageobjectID.Remove(obj.StorageObjectID);
+                    map_storageobjectID_inverse.Remove(obj);
                 }
             };
         }
@@ -208,8 +218,7 @@ namespace MusicWriter
         private void Object_Renamed(string old, string @new) {
             var item = map_name[old];
 
-            map_name.Remove(old);
-            map_name.Add(@new, item);
+            map_name.Rename(old, @new);
 
             map_name_inverse[item] = @new;
         }
