@@ -52,7 +52,7 @@ namespace MusicWriter.WinForms {
 
             var controllers_viewerset =
                 new ViewerSet<ITrackController>(
-                        SheetMusicEditorViewer.FactoryClass.Instance
+                        SheetMusicEditorView.Viewer.Instance
                     );
 
             var tracks_factoryset =

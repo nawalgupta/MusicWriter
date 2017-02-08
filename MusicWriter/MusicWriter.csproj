@@ -52,9 +52,10 @@
     <Compile Include="Binding\FactorySet.cs" />
     <Compile Include="File\IContainer.cs" />
     <Compile Include="Binding\IFactory.cs" />
-    <Compile Include="File\IViewer.cs" />
+    <Compile Include="Viewing\IViewer.cs" />
     <Compile Include="Screens\Screen.cs" />
-    <Compile Include="File\ViewerSet.cs" />
+    <Compile Include="Viewing\UniqueViewerObjectMap.cs" />
+    <Compile Include="Viewing\ViewerSet.cs" />
     <Compile Include="FunctionEditor\FunctionContainer.cs" />
     <Compile Include="FunctionEditor\FunctionSource.cs" />
     <Compile Include="Binding\BoundList.cs" />

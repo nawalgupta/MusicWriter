@@ -18,6 +18,7 @@ namespace MusicWriter.WinForms {
         TrackControllerContainer container;
         FactoryMenuStrip<ITrack> factorymenustrip_tracks = new FactoryMenuStrip<ITrack>();
         FactoryMenuStrip<ITrackController> factorymenustrip_controllers = new FactoryMenuStrip<ITrackController>();
+        UniqueViewerObjectMap<ITrackController> trackcontrollers_views;
 
         public ITrackController SelectedController {
             get {
@@ -54,6 +55,8 @@ namespace MusicWriter.WinForms {
 
                 screen.Controllers.ItemAdded += ScreenControllers_ItemAdded;
                 screen.Controllers.ItemRemoved += ScreenControllers_ItemRemoved;
+
+                trackcontrollers_views = new UniqueViewerObjectMap<ITrackController>(screen.Controllers);
             }
         }
 
@@ -96,7 +99,8 @@ namespace MusicWriter.WinForms {
                 item.Name = $"lsvControllersItem_{@new}";
 
                 var controller = container.Controllers[@new];
-                controller.View.Text = controller.Name.Value;
+                var view = trackcontrollers_views[controller, WinFormsViewer.Type] as Control;
+                view.Text = controller.Name.Value;
             }));
         }
 
@@ -109,8 +113,10 @@ namespace MusicWriter.WinForms {
             item.Tag = controller;
             item.Checked = true;
 
-            controller.View.Dock = DockStyle.Top;
-            controller.View.Text = controller.Name.Value;
+            var view = trackcontrollers_views[controller, WinFormsViewer.Type] as Control;
+
+            view.Dock = DockStyle.Top;
+            view.Text = controller.Name.Value;
 
             lsvControllers.Items.Add(item);
             
@@ -122,10 +128,10 @@ namespace MusicWriter.WinForms {
 
             controller.Name.AfterChange += ControllerName_AfterChange;
 
-            controller.View.GotFocus += View_GotFocus;
-            controller.View.LostFocus += View_LostFocus;
-            //controller.View.ParentChanged += View_Dispose;
-            controller.View.Disposed += View_Dispose;
+            view.GotFocus += View_GotFocus;
+            view.LostFocus += View_LostFocus;
+            //view.ParentChanged += View_Dispose;
+            view.Disposed += View_Dispose;
         }
 
         private void FileControllers_ItemRemoved(ITrackController controller) {
@@ -175,10 +181,11 @@ namespace MusicWriter.WinForms {
         
         private void ScreenControllers_ItemAdded(ITrackController controller) {
             var item = lsvControllers.Items[$"lsvControllersItem_{controller.Name}"];
+            var view = trackcontrollers_views[controller, WinFormsViewer.Type] as Control;
 
-            pnlViews.Controls.Add(controller.View);
-            controller.View.Invalidate(true);
-            controller.View.Focus();
+            pnlViews.Controls.Add(view);
+            view.Invalidate(true);
+            view.Focus();
 
             item.Checked = true;
         }
@@ -187,7 +194,9 @@ namespace MusicWriter.WinForms {
             var item = lsvControllers.Items[$"lsvControllersItem_{controller.Name}"];
             item.Checked = false;
 
-            pnlViews.Controls.Remove(controller.View);
+            var view = trackcontrollers_views[controller, WinFormsViewer.Type] as Control;
+
+            pnlViews.Controls.Remove(view);
 
             controller.CommandCenter.DesubscribeFrom(screen.CommandCenter);
         }
@@ -258,11 +267,12 @@ namespace MusicWriter.WinForms {
                     lsvControllers.Items[i];
 
                 var controller = item.Tag as ITrackController;
+                var view = trackcontrollers_views[controller, WinFormsViewer.Type] as Control;
 
                 controller.CommandCenter.Enabled = selected;
 
                 if (selected) {
-                    controller.View.Focus();
+                    view.Focus();
 
                     sclOffset.Value = controller.Pin.Time.Offset.Value.Ticks;
                 }

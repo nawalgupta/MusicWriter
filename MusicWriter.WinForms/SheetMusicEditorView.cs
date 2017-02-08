@@ -14,64 +14,64 @@ using System.Windows.Forms;
 
 namespace MusicWriter.WinForms
 {
-    public partial class SheetMusicEditorViewer :
-        Control,
-        IViewer<ITrackController>
+    public partial class SheetMusicEditorView : Control
     {
         SheetMusicEditor editor;
+        Cursor Cursor_bak = new Cursor();
+        TrackControllerContainer container;
 
         public SheetMusicEditor Editor {
             get { return editor; }
-        }
-
-        readonly OverrideTrackControllerHints hints =
-            new OverrideTrackControllerHints();
-
-        public TrackControllerHints Hints {
-            get { return hints; }
-        }
-
-        public EditorFile<Control> File {
-            get { return file; }
             set {
-                if (file != null) {
-                    file.GlobalSettings.MusicBrain.RemoveCog<RenderedSheetMusicItemPerceptualCog>();
-                }
-
-                file = value;
-                file.GlobalSettings.MusicBrain.InsertCog(new RenderedSheetMusicItemPerceptualCog());
-            }
-        }
-
-        public IStorageObject Storage {
-            get { return storage; }
-            set {
-                if (storage != null) {
+                if (editor != null)
                     throw new InvalidOperationException();
-                }
 
-                storage = value;
-                pin = new Pin(storage.GetOrMake("pin"), file.GlobalSettings.TimeMarkerUnit);
-                pin.Time.ActualTime.AfterChange += Pin_Moved;
+                editor = value;
+
+                container = editor.File[TrackControllerContainer.ItemName] as TrackControllerContainer;
+
+                editor.Tracks.ItemAdded += Tracks_ItemAdded;
+                editor.Tracks.ItemRemoved += Tracks_ItemRemoved;
+
+                mouseselector.Selected += Mouseselector_Selected;
+                mouseselector.Redraw += () => Invalidate();
+
+                CommandCenter.WhenSelectAll += CommandCenter_WhenSelectAll;
+                CommandCenter.WhenDeselectAll += CommandCenter_WhenDeselectAll;
+                CommandCenter.WhenToggleSelectAll += CommandCenter_WhenToggleSelectAll;
+
+                CommandCenter.WhenCursor_ResetOne += CommandCenter_WhenCursor_ResetOne;
+                CommandCenter.WhenCursor_Multiply += CommandCenter_WhenCursor_Multiply;
+                CommandCenter.WhenCursor_Divide += CommandCenter_WhenCursor_Divide;
+
+                CommandCenter.WhenPreviewTimeChanged += CommandCenter_PreviewTimeChanged;
+                CommandCenter.WhenPreviewToneChanged += CommandCenter_PreviewToneChanged;
+                CommandCenter.WhenTimeChanged += CommandCenter_TimeChanged;
+                CommandCenter.WhenToneChanged += CommandCenter_ToneChanged;
+
+                CommandCenter.WhenTimeStart += CommandCenter_TimeStart;
+                CommandCenter.WhenToneStart += CommandCenter_ToneStart;
+                CommandCenter.WhenTimeReset += CommandCenter_TimeReset;
+                CommandCenter.WhenToneReset += CommandCenter_ToneReset;
+
+                CommandCenter.WhenNotePlacementStart += CommandCenter_NotePlacementStart;
+                CommandCenter.WhenNotePlacementFinish += CommandCenter_NotePlacementFinish;
+
+                CommandCenter.WhenSelectionStart += CommandCenter_SelectionStart;
+                CommandCenter.WhenSelectionFinish += CommandCenter_SelectionFinish;
+
+                CommandCenter.WhenDeleteSelection += CommandCenter_WhenDeleteSelection;
+                CommandCenter.WhenEraseSelection += CommandCenter_WhenEraseSelection;
+
+                CommandCenter.WhenUnitPicking += CommandCenter_WhenUnitPicking;
             }
         }
-
-        public StorageObjectID StorageObjectID {
-            get { return storage.ID; }
-        }
-
-        public ITrackControllerFactory<Control> Factory {
-            get { return FactoryClass.Instance; }
-        }
-
+                
         public SheetMusicRenderSettings TemplateSettings { get; set; } = new SheetMusicRenderSettings();
-        ObservableProperty<string> ITrackController<Control>.Name { get; } =
-            new ObservableProperty<string>("abc");
 
-        public CommandCenter CommandCenter { get; } = new CommandCenter();
-        
-        readonly ObservableConverterList<ITrack, MusicTrack, ObservableList<MusicTrack>> tracks =
-            new ObservableConverterList<ITrack, MusicTrack, ObservableList<MusicTrack>>(new ObservableList<MusicTrack>());
+        public CommandCenter CommandCenter {
+            get { return editor.CommandCenter; }
+        }
 
         readonly Dictionary<MusicTrack, NoteSelection> noteselections =
             new Dictionary<MusicTrack, NoteSelection>();
@@ -87,60 +87,13 @@ namespace MusicWriter.WinForms
 
         readonly RectangleMouseSelector mouseselector =
             new RectangleMouseSelector();
-
-        int activetrack_index = 0;
-
-        public MusicTrack ActiveTrack {
-            get { return tracks.SpecialCollection[activetrack_index]; }
-        }
-
-        public IObservableList<ITrack> Tracks {
-            get { return tracks.RegularCollection; }
-        }
-
+        
         public Control View {
             get { return this; }
         }
 
-        public SheetMusicEditorViewer() {
+        public SheetMusicEditorView() {
             InitializeComponent();
-
-            tracks.SpecialCollection.ItemAdded += Tracks_ItemAdded;
-            tracks.SpecialCollection.ItemRemoved += Tracks_ItemRemoved;
-
-            mouseselector.Selected += Mouseselector_Selected;
-            mouseselector.Redraw += () => Invalidate();
-            
-            CommandCenter.WhenSelectAll += CommandCenter_WhenSelectAll;
-            CommandCenter.WhenDeselectAll += CommandCenter_WhenDeselectAll;
-            CommandCenter.WhenToggleSelectAll += CommandCenter_WhenToggleSelectAll;
-
-            CommandCenter.WhenCursor_ResetOne += CommandCenter_WhenCursor_ResetOne;
-            CommandCenter.WhenCursor_Multiply += CommandCenter_WhenCursor_Multiply;
-            CommandCenter.WhenCursor_Divide += CommandCenter_WhenCursor_Divide;
-
-            CommandCenter.WhenPreviewTimeChanged += CommandCenter_PreviewTimeChanged;
-            CommandCenter.WhenPreviewToneChanged += CommandCenter_PreviewToneChanged;
-            CommandCenter.WhenTimeChanged += CommandCenter_TimeChanged;
-            CommandCenter.WhenToneChanged += CommandCenter_ToneChanged;
-
-            CommandCenter.WhenTimeStart += CommandCenter_TimeStart;
-            CommandCenter.WhenToneStart += CommandCenter_ToneStart;
-            CommandCenter.WhenTimeReset += CommandCenter_TimeReset;
-            CommandCenter.WhenToneReset += CommandCenter_ToneReset;
-
-            CommandCenter.WhenNotePlacementStart += CommandCenter_NotePlacementStart;
-            CommandCenter.WhenNotePlacementFinish += CommandCenter_NotePlacementFinish;
-
-            CommandCenter.WhenSelectionStart += CommandCenter_SelectionStart;
-            CommandCenter.WhenSelectionFinish += CommandCenter_SelectionFinish;
-
-            CommandCenter.WhenDeleteSelection += CommandCenter_WhenDeleteSelection;
-            CommandCenter.WhenEraseSelection += CommandCenter_WhenEraseSelection;
-
-            CommandCenter.WhenUnitPicking += CommandCenter_WhenUnitPicking;
-
-            hints.Editor = this;
             
             DoubleBuffered = true;
         }
@@ -204,9 +157,9 @@ namespace MusicWriter.WinForms
                 }
             }
 
-            for (int i = 0; i < tracks.SpecialCollection.Count; i++) {
+            for (int i = 0; i < editor.Tracks.Count; i++) {
                 var track =
-                    tracks.SpecialCollection[i];
+                    editor.Tracks[i] as MusicTrack;
 
                 var selection = noteselections[track];
 
@@ -329,22 +282,22 @@ namespace MusicWriter.WinForms
         }
 
         private void CommandCenter_WhenCursor_Divide(int divisor) {
-            if (!MusicCursor.Caret.Unit.CanDivideInto(divisor))
+            if (!editor.Cursor.Caret.Unit.CanDivideInto(divisor))
                 return;
 
-            MusicCursor.Caret.Unit /= divisor;
+            editor.Cursor.Caret.Unit /= divisor;
 
             Refresh();
         }
 
         private void CommandCenter_WhenCursor_Multiply(int factor) {
-            MusicCursor.Caret.Unit *= factor;
+            editor.Cursor.Caret.Unit *= factor;
 
             Refresh();
         }
 
         private void CommandCenter_WhenCursor_ResetOne() {
-            MusicCursor.Caret.Unit = Time.Note;
+            editor.Cursor.Caret.Unit = Time.Note;
 
             Refresh();
         }
@@ -418,25 +371,25 @@ namespace MusicWriter.WinForms
             foreach (var selection in noteselections)
                 selection.Value.Save_Time(selection.Key);
 
-            MusicCursor_bak.Caret.Duration.Start = MusicCursor.Caret.Duration.Start;
-            MusicCursor_bak.Caret.Duration.Length = MusicCursor.Caret.Duration.Length;
-            MusicCursor_bak.Caret.Side = MusicCursor.Caret.Side;
+            Cursor_bak.Caret.Duration.Start = editor.Cursor.Caret.Duration.Start;
+            Cursor_bak.Caret.Duration.Length = editor.Cursor.Caret.Duration.Length;
+            Cursor_bak.Caret.Side = editor.Cursor.Caret.Side;
         }
 
         private void CommandCenter_ToneStart() {
             foreach (var selection in noteselections)
                 selection.Value.Save_Tone(selection.Key);
 
-            MusicCursor_bak.Tone = MusicCursor.Tone;
+            Cursor_bak.Tone = editor.Cursor.Tone;
         }
 
         private void CommandCenter_TimeReset() {
             foreach (var selection in noteselections)
                 selection.Value.Restore_Time(selection.Key);
 
-            MusicCursor.Caret.Duration.Start = MusicCursor_bak.Caret.Duration.Start;
-            MusicCursor.Caret.Duration.Length = MusicCursor_bak.Caret.Duration.Length;
-            MusicCursor.Caret.Side = MusicCursor_bak.Caret.Side;
+            editor.Cursor.Caret.Duration.Start = Cursor_bak.Caret.Duration.Start;
+            editor.Cursor.Caret.Duration.Length = Cursor_bak.Caret.Duration.Length;
+            editor.Cursor.Caret.Side = Cursor_bak.Caret.Side;
 
             Invalidate();
         }
@@ -445,17 +398,17 @@ namespace MusicWriter.WinForms
             foreach (var selection in noteselections)
                 selection.Value.Restore_Tone(selection.Key);
 
-            MusicCursor.Tone = MusicCursor_bak.Tone;
+            editor.Cursor.Tone = Cursor_bak.Tone;
 
             Invalidate();
         }
 
         private void CommandCenter_SelectionFinish() {
-            MusicCursor.Caret.Side = Caret.FocusSide.Both;
+            editor.Cursor.Caret.Side = Caret.FocusSide.Both;
         }
 
         private void CommandCenter_SelectionStart() {
-            MusicCursor.Caret.Side = Caret.FocusSide.Right;
+            editor.Cursor.Caret.Side = Caret.FocusSide.Right;
         }
 
         private void CommandCenter_NotePlacementFinish() {
@@ -463,16 +416,16 @@ namespace MusicWriter.WinForms
 
         private void CommandCenter_NotePlacementStart() {
             var tone =
-                MusicCursor.Tone;
+                editor.Cursor.Tone;
 
             var duration =
-                MusicCursor.Caret.Duration;
+                editor.Cursor.Caret.Duration;
 
             var noteID =
-                ActiveTrack.Melody.AddNote(tone, duration);
+                editor.ActiveTrack.Melody.AddNote(tone, duration);
             
-            noteselections[ActiveTrack].Selected_End.Add(noteID);
-            noteselections[ActiveTrack].Selected_Tone.Add(noteID);
+            noteselections[editor.ActiveTrack].Selected_End.Add(noteID);
+            noteselections[editor.ActiveTrack].Selected_Tone.Add(noteID);
             
             Invalidate();
         }
@@ -480,15 +433,15 @@ namespace MusicWriter.WinForms
         private void CommandCenter_WhenDeleteSelection() {
             CommandCenter_WhenDeleteSelectedNotes();
 
-            foreach (var track in tracks.SpecialCollection)
-                track.Delete(MusicCursor.Caret.Duration);
+            foreach (MusicTrack track in editor.Tracks)
+                track.Delete(editor.Cursor.Caret.Duration);
         }
 
         private void CommandCenter_WhenEraseSelection() {
             CommandCenter_WhenDeleteSelectedNotes();
 
-            foreach (var track in tracks.SpecialCollection)
-                track.Erase(MusicCursor.Caret.Duration);
+            foreach (MusicTrack track in editor.Tracks)
+                track.Erase(editor.Cursor.Caret.Duration);
         }
 
         public void CommandCenter_WhenDeleteSelectedNotes() {
@@ -529,7 +482,7 @@ namespace MusicWriter.WinForms
         }
 
         private void CommandCenter_WhenUnitPicking(CaretUnitPickerEventArgs args) {
-            args.Length = MusicCursor.Caret.Unit;
+            args.Length = editor.Cursor.Caret.Unit;
             args.Handled = true;
         }
 
@@ -578,9 +531,9 @@ namespace MusicWriter.WinForms
             }
 
             if (mode == CaretMode.Absolute)
-                MusicCursor.Caret.Focus = time;
+                editor.Cursor.Caret.Focus = time;
             else if (mode == CaretMode.Delta)
-                MusicCursor.Caret.Focus += time;
+                editor.Cursor.Caret.Focus += time;
 
             //TODO: update only the affected duration
 
@@ -608,7 +561,14 @@ namespace MusicWriter.WinForms
                 }
             }
 
-            MusicCursor.Tone = Effect_ToneChanged_affect(MusicCursor.Tone, MusicCursor.Caret.Focus, tone, mode, ActiveTrack);
+            editor.Cursor.Tone =
+                Effect_ToneChanged_affect(
+                        editor.Cursor.Tone, 
+                        editor.Cursor.Caret.Focus, 
+                        tone, 
+                        mode, 
+                        editor.ActiveTrack
+                    );
 
             if (effectedarea != null)
                 InvalidateTime(effectedarea);
@@ -647,24 +607,30 @@ namespace MusicWriter.WinForms
             return tone;
         }
         
-        void Tracks_ItemAdded(MusicTrack track) {
-            track.Memory.InsertMemoryModule(new RenderedSheetMusicItemPerceptualCog.MemoryModule());
-            noteselections.Add(track, new NoteSelection());
+        void Tracks_ItemAdded(ITrack track) {
+            var musictrack =
+                track as MusicTrack;
 
-            InvalidateTime(new Duration { End = tracks.SpecialCollection.MaxOrDefault(_ => _.Length.Value) });
+            musictrack.Memory.InsertMemoryModule(new RenderedSheetMusicItemPerceptualCog.MemoryModule());
+            noteselections.Add(musictrack, new NoteSelection());
+
+            InvalidateTime(new Duration { End = editor.Tracks.MaxOrDefault(_ => _.Length.Value) });
         }
 
-        void Tracks_ItemRemoved(MusicTrack track) {
-            track.Memory.RemoveMemoryModule<RenderedSheetMusicItem>();
-            noteselections.Remove(track);
+        void Tracks_ItemRemoved(ITrack track) {
+            var musictrack =
+                track as MusicTrack;
 
-            InvalidateTime(new Duration { Length = tracks.SpecialCollection.MaxOrDefault(_ => _.Length.Value) });
+            musictrack.Memory.RemoveMemoryModule<RenderedSheetMusicItem>();
+            noteselections.Remove(musictrack);
+
+            InvalidateTime(new Duration { Length = editor.Tracks.MaxOrDefault(_ => _.Length.Value) });
         }
 
         void InvalidateTime(Duration duration) {
             timesRedrawn++;
-            foreach (var track in tracks.SpecialCollection)
-                file.GlobalSettings.MusicBrain.Invalidate(track.Memory, duration);
+            foreach (MusicTrack track in editor.Tracks)
+                container.Settings.MusicBrain.Invalidate(track.Memory, duration);
 
             MeasureAndLayoutTrackItems();
 
@@ -674,8 +640,8 @@ namespace MusicWriter.WinForms
 
         void RefreshTime(Duration duration) {
             timesRedrawn++;
-            foreach (var track in tracks.SpecialCollection)
-                file.GlobalSettings.MusicBrain.Invalidate<RenderedSheetMusicItem>(track.Memory, duration);
+            foreach (MusicTrack track in editor.Tracks)
+                container.Settings.MusicBrain.Invalidate<RenderedSheetMusicItem>(track.Memory, duration);
 
             MeasureAndLayoutTrackItems();
 
@@ -684,8 +650,8 @@ namespace MusicWriter.WinForms
         }
 
         IEnumerable<Tuple<RectangleF, SheetMusicRenderSettings, RenderedSheetMusicItem>> GetItemsWithRects(MusicTrack track) {
-            var scrollX = GetLeft(Pin.Time.ActualTime.Value);
-            var yoffset = tracks.SpecialCollection.TakeWhile(t => !ReferenceEquals(t, track)).Sum(t => trackheights[t]);
+            var scrollX = GetLeft(editor.Pin.Time.ActualTime.Value);
+            var yoffset = editor.Tracks.TakeWhile(t => !ReferenceEquals(t, track)).Sum(t => trackheights[t as MusicTrack]);
             
             var starttimes =
                 track
@@ -756,16 +722,17 @@ namespace MusicWriter.WinForms
             // each track item when its rendered.
 
             //TODO: handle 0 samepoints
-            if (tracks.Count == 0)
+            if (editor.Tracks.Count == 0)
                 return;
 
             trackheights.Clear();
-            foreach (var track in tracks.SpecialCollection)
+            foreach (MusicTrack track in editor.Tracks)
                 trackheights.Add(track, 0);
 
             var unjoinedsamepoints =
-                tracks
-                    .SpecialCollection
+                editor
+                    .Tracks
+                    .Cast<MusicTrack>()
                     .Select(track => track.Memory.Analyses<RenderedSheetMusicItem>(Duration.Eternity))
                     .Where(items => items.Any())
                     .Select(
@@ -808,7 +775,7 @@ namespace MusicWriter.WinForms
             var desireditemchunkwidths =
                 new Dictionary<MusicTrack, Dictionary<Duration, float>>();
 
-            foreach (var track in tracks.SpecialCollection) {
+            foreach (var track in editor.Tracks.Cast<MusicTrack>()) {
                 desireditemchunkwidths.Add(track, new Dictionary<Duration, float>());
                 desireditemchunkwidths_stretchy.Add(track, new Dictionary<Duration, float>());
                 desireditemchunkwidths_fixed.Add(track, new Dictionary<Duration, float>());
@@ -818,7 +785,7 @@ namespace MusicWriter.WinForms
             // Measure
             foreach (var duration in samedurations) {
                 var minwidth = 0f;
-                foreach (var track in tracks.SpecialCollection) {
+                foreach (var track in editor.Tracks.Cast<MusicTrack>()) {
                     var items =
                         track
                             .Memory
@@ -862,7 +829,7 @@ namespace MusicWriter.WinForms
 
             // Layout
             foreach (var minwidthkvp in minwidths) {
-                foreach (var track in tracks.SpecialCollection) {
+                foreach (var track in editor.Tracks.Cast<MusicTrack>()) {
                     var items =
                         track
                             .Memory
@@ -1000,11 +967,11 @@ namespace MusicWriter.WinForms
             
             gfx.DrawString(timesRedrawn.ToString(), Font, Brushes.Red, PointF.Empty);
 
-            var scrollX = GetLeft(Pin.Time.ActualTime.Value);
+            var scrollX = GetLeft(editor.Pin.Time.ActualTime.Value);
 
-            foreach (var track in tracks.SpecialCollection) {
+            foreach (var track in editor.Tracks.Cast<MusicTrack>()) {
                 var active =
-                    ReferenceEquals(track, ActiveTrack);
+                    ReferenceEquals(track, editor.ActiveTrack);
                 
                 // draw sheet items
                 var starttimes =
@@ -1069,7 +1036,7 @@ namespace MusicWriter.WinForms
                     }
                 }
 
-                DrawCaret(gfx, GetSettings(MusicCursor.Caret.Focus, track), active, track, scrollX);
+                DrawCaret(gfx, GetSettings(editor.Cursor.Caret.Focus, track), active, track, scrollX);
 
                 if (trackheights.ContainsKey(track))
                     gfx.TranslateTransform(0, trackheights[track]);
@@ -1093,16 +1060,16 @@ namespace MusicWriter.WinForms
                 float scrollX
             ) {
             var caretx =
-                GetLeft(MusicCursor.Caret.Focus, track) - scrollX;
+                GetLeft(editor.Cursor.Caret.Focus, track) - scrollX;
 
             var caretunitx =
-                GetLeft(MusicCursor.Caret.Focus + MusicCursor.Caret.Unit, track) - scrollX;
+                GetLeft(editor.Cursor.Caret.Focus + editor.Cursor.Caret.Unit, track) - scrollX;
 
             var caretstaff =
                 track
                     .Adornment
                     .Staffs
-                    .Intersecting(MusicCursor.Caret.Focus)
+                    .Intersecting(editor.Cursor.Caret.Focus)
                     .First()
                     .Value;
 
@@ -1112,10 +1079,10 @@ namespace MusicWriter.WinForms
                 track
                     .Adornment
                     .KeySignatures
-                    .Intersecting(MusicCursor.Caret.Focus)
+                    .Intersecting(editor.Cursor.Caret.Focus)
                     .First()
                     .Value
-                    .Key(MusicCursor.Tone, out transform);
+                    .Key(editor.Cursor.Tone, out transform);
 
             var carety =
                 settings.YVal(caretstaff.GetHalfLine(caretkey));
@@ -1151,8 +1118,8 @@ namespace MusicWriter.WinForms
 
             var cursor_focusduration =
                 new Duration {
-                    Start = MusicCursor.Caret.Focus,
-                    Length = MusicCursor.Caret.Unit
+                    Start = editor.Cursor.Caret.Focus,
+                    Length = editor.Cursor.Caret.Unit
                 };
 
             var cursor_notelayout =
@@ -1160,12 +1127,12 @@ namespace MusicWriter.WinForms
                         new PerceptualNote(
                                 default(PerceptualNoteID),
                                 cursor_focusduration,
-                                PerceptualTime.Decompose(MusicCursor.Caret.Unit).First().Key,
+                                PerceptualTime.Decompose(editor.Cursor.Caret.Unit).First().Key,
                                 track.Rhythm.Intersecting(cursor_focusduration).First(),
                                 new Note(
                                         default(NoteID),
                                         cursor_focusduration,
-                                        MusicCursor.Tone
+                                        editor.Cursor.Tone
                                     )
                             ),
                         settings

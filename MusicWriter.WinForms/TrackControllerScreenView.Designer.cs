@@ -257,13 +257,11 @@
             // 
             this.mnuAddController.Name = "mnuAddView";
             this.mnuAddController.Size = new System.Drawing.Size(61, 4);
-            this.mnuAddController.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.mnuAddController_ItemClicked);
             // 
             // mnuAddTrack
             // 
             this.mnuAddTrack.Name = "mnuAddTrack";
             this.mnuAddTrack.Size = new System.Drawing.Size(61, 4);
-            this.mnuAddTrack.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.mnuAddTrack_ItemClicked);
             // 
             // TrackControllerScreenView
             // 

@@ -70,13 +70,13 @@
     <Compile Include="RenderedMeasure.cs" />
     <Compile Include="RenderedSheetMusicItemPerceptualCog.cs" />
     <Compile Include="RenderedSheetMusicItem.cs" />
-    <Compile Include="SheetMusicEditorViewer.cs">
+    <Compile Include="SheetMusicEditorView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="SheetMusicEditorViewer.Designer.cs">
-      <DependentUpon>SheetMusicEditorViewer.cs</DependentUpon>
+    <Compile Include="SheetMusicEditorView.Designer.cs">
+      <DependentUpon>SheetMusicEditorView.cs</DependentUpon>
     </Compile>
-    <Compile Include="SheetMusicEditorViewer.Factory.cs">
+    <Compile Include="SheetMusicEditorView.Viewer.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="TabPageInterop.cs">
@@ -107,8 +107,8 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="SheetMusicEditorViewer.resx">
-      <DependentUpon>SheetMusicEditorViewer.cs</DependentUpon>
+    <EmbeddedResource Include="SheetMusicEditorView.resx">
+      <DependentUpon>SheetMusicEditorView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TrackControllerScreenView.resx">
       <DependentUpon>TrackControllerScreenView.cs</DependentUpon>

@@ -19,6 +19,32 @@ namespace MusicWriter {
             return value;
         }
 
+        public static V Lookup<K, V>(
+                this Dictionary<K, V> dictionary,
+                K key,
+                Func<V> factory
+            ) {
+            V value;
+
+            if (!dictionary.TryGetValue(key, out value))
+                dictionary.Add(key, value = factory());
+
+            return value;
+        }
+
+        public static V Lookup<K, V>(
+                this Dictionary<K, V> dictionary,
+                K key,
+                Func<K, V> factory
+            ) {
+            V value;
+
+            if (!dictionary.TryGetValue(key, out value))
+                dictionary.Add(key, value = factory(key));
+
+            return value;
+        }
+
         public static void Rename<K, V>(
                 this Dictionary<K, V> dictionary,
                 K oldkey,
