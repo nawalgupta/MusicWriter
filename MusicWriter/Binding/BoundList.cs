@@ -161,6 +161,7 @@ namespace MusicWriter
                                 propertybinders[obj.Name.Value].Dispose();
                                 propertybinders.Remove(obj.Name.Value);
 
+                                obj.Unbind();
                                 Objects.Remove(obj);
                             }
                         }
@@ -187,6 +188,7 @@ namespace MusicWriter
 
             Objects.ItemRemoved += obj => {
                 if (hub_obj.HasChild(obj.StorageObjectID)) {
+                    obj.Unbind();
                     hub_obj.Remove(obj.StorageObjectID);
 
                     obj.Name.BeforeChange -= Object_Renaming;
