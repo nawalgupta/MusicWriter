@@ -21,7 +21,7 @@ namespace MusicWriter
         }
 
         public ObservableProperty<string> Name { get; } =
-            new ObservableProperty<string>();
+            new ObservableProperty<string>("");
 
         public StorageObjectID StorageObjectID {
             get { return storageobjectID; }
