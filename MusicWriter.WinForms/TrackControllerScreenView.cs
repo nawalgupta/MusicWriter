@@ -83,7 +83,7 @@ namespace MusicWriter.WinForms {
 
                 container.Controllers.ItemAdded += FileControllers_ItemAdded;
                 container.Controllers.ItemRemoved += FileControllers_ItemRemoved;
-
+                
                 factorymenustrip_tracks.BoundList = container.Tracks;
                 factorymenustrip_controllers.BoundList = container.Controllers;
             }
@@ -91,6 +91,9 @@ namespace MusicWriter.WinForms {
 
         public TrackControllerScreenView() {
             InitializeComponent();
+
+            factorymenustrip_controllers.ToolStripDropDown = mnuAddController;
+            factorymenustrip_tracks.ToolStripDropDown = mnuAddTrack;
         }
 
         private void ControllerName_AfterChange(string old, string @new) {
