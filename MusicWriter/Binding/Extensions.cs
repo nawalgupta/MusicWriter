@@ -19,6 +19,28 @@ namespace MusicWriter
                     StorageExtensions.WriteAllString
                 );
 
+        public static PropertyBinder<Time> Bind(
+                this ObservableProperty<Time> property,
+                IStorageObject storageobject
+            ) =>
+            Bind(
+                    property,
+                    storageobject,
+                    CodeTools.ReadTime,
+                    CodeTools.WriteTime
+                );
+
+        public static PropertyBinder<Duration> Bind(
+                this ObservableProperty<Duration> property,
+                IStorageObject storageobject
+            ) =>
+            Bind(
+                    property,
+                    storageobject,
+                    CodeTools.ReadDuration,
+                    CodeTools.WriteDuration
+                );
+
         public static PropertyBinder<T> Bind<T>(
                 this ObservableProperty<T> property,
                 IStorageObject storageobject,
@@ -31,6 +53,29 @@ namespace MusicWriter
                     deserializer,
                     serializer
                 );
-        
+
+        public static PropertyBinder<T> Bind<T>(
+                this ObservableProperty<T> property,
+                IStorageObject storageobject,
+                Func<string, T> deserializer,
+                Func<T, string> serializer
+            ) =>
+            Bind(
+                    property,
+                    storageobject,
+                    (IStorageObject obj) => deserializer(obj.ReadAllString()),
+                    (obj, @string) => obj.WriteAllString(serializer(@string))
+                );
+
+        public static DurationFieldBinder<T> Bind<T>(
+                this DurationField<T> field,
+                StorageObjectID storageobjectID,
+                EditorFile file
+            ) =>
+            new DurationFieldBinder<T>(
+                    storageobjectID,
+                    file,
+                    field
+                );
     }
 }

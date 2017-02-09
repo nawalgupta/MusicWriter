@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public interface IScreen : 
-        IBoundObject<IScreen>,
-        INamedObject
+    public interface INamedObject
     {
-        CommandCenter CommandCenter { get; }
+        ObservableProperty<string> Name { get; }
     }
 }

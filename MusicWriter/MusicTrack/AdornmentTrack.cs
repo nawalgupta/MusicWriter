@@ -6,31 +6,33 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public sealed class AdornmentTrack {
-        readonly IStorageObject storage;
-
+    public sealed class AdornmentTrack : BoundObject<AdornmentTrack> {
         readonly DurationFieldBinder<Staff> binder_staffs;
         readonly DurationFieldBinder<KeySignature> binder_keysigs;
+        readonly IStorageObject obj;
 
         public DurationField<KeySignature> KeySignatures { get; } =
             new DurationField<KeySignature>();
 
         public DurationField<Staff> Staffs { get; } =
             new DurationField<Staff>();
-
-        public IStorageObject Storage {
-            get { return storage; }
-        }
-
-        public AdornmentTrack(IStorageObject storage) {
-            this.storage = storage;
+        
+        public AdornmentTrack(
+                StorageObjectID storageobjectID,
+                EditorFile file
+            ) :
+            base(
+                    storageobjectID,
+                    file
+                ) {
+            obj = this.Object();
 
             binder_staffs =
-                new DurationFieldBinder<Staff>(
-                        Staffs,
-                        storage.GetOrMake("staffs")
+                Staffs.Bind(
+                        obj.GetOrMake("staffs").ID,
+                        File
                     );
-            
+
             binder_staffs.Deserializer = staff_obj => {
                 using (var stream = staff_obj.OpenRead()) {
                     using (var br = new BinaryReader(stream)) {
@@ -59,12 +61,10 @@ namespace MusicWriter {
                 }
             };
 
-            binder_staffs.Start();
-
             binder_keysigs =
-                new DurationFieldBinder<KeySignature>(
-                        KeySignatures,
-                        storage.GetOrMake("key-signatures")
+                KeySignatures.Bind(
+                        obj.GetOrMake("key-signatures").ID,
+                        File
                     );
 
             binder_keysigs.Deserializer = keysig_obj => {
@@ -107,13 +107,20 @@ namespace MusicWriter {
                     }
                 }
             };
-
-            binder_keysigs.Start();
         }
 
-        internal void Unbind() {
+        public override void Bind() {
+            binder_staffs.Bind();
+            binder_keysigs.Bind();
+
+            base.Bind();
+        }
+
+        public override void Unbind() {
             binder_staffs.Unbind();
             binder_keysigs.Unbind();
+
+            base.Unbind();
         }
     }
 }

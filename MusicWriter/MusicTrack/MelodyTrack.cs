@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class MelodyTrack :
+        BoundObject<MelodyTrack>,
         IDurationField<Note> {
-        readonly IStorageObject storage;
+        readonly IStorageObject obj;
 
         readonly IStorageObject notes_obj;
         readonly IOListener
@@ -24,7 +25,7 @@ namespace MusicWriter {
         int next_noteID;
 
         public IStorageObject Storage {
-            get { return storage; }
+            get { return obj; }
         }
         
         public event FieldChangedDelegate FieldChanged;
@@ -37,21 +38,29 @@ namespace MusicWriter {
             set { UpdateNote(noteID, value.Duration, value.Tone); }
         }
 
-        public MelodyTrack(IStorageObject storage) {
-            this.storage = storage;
+        public MelodyTrack(
+                StorageObjectID storageobjectID,
+                EditorFile file
+            ) :
+            base(
+                    storageobjectID,
+                    file,
+                    null //TODO
+                ) {
+            obj = this.Object();
             
             notes_field.GeneralDuration.AfterChange += GeneralDuration_AfterChange;
 
-            next_noteID_obj = storage.GetOrMake("next_noteID");
+            next_noteID_obj = obj.GetOrMake("next_noteID");
             listener_nextnodeID_contentsset =
-                next_noteID_obj.Listen(IOEvent.ObjectContentsSet, () => {
+                next_noteID_obj.CreateListen(IOEvent.ObjectContentsSet, () => {
                     if (!int.TryParse(next_noteID_obj.ReadAllString(), out next_noteID))
                         next_noteID_obj.WriteAllString("0");
                 });
 
-            notes_obj = storage.GetOrMake("notes");
+            notes_obj = obj.GetOrMake("notes");
             listener_notes_added =
-                notes_obj.Listen(IOEvent.ChildAdded, (key, new_note_objID) => {
+                notes_obj.CreateListen(IOEvent.ChildAdded, (key, new_note_objID) => {
                     var noteID = new NoteID(int.Parse(key));
                     var new_note_obj = notes_obj.Graph[new_note_objID];
                     var contents = new_note_obj.ReadAllString().Split('\n');
@@ -71,7 +80,7 @@ namespace MusicWriter {
                 });
 
             listener_notes_changed =
-                notes_obj.Listen(IOEvent.ObjectContentsSet, (key, changed_note_objID) => {
+                notes_obj.CreateListen(IOEvent.ObjectContentsSet, (key, changed_note_objID) => {
                     var noteID = new NoteID(int.Parse(key));
                     var new_note_obj = notes_obj.Graph[changed_note_objID];
                     var contents = new_note_obj.ReadAllString().Split('\n');
@@ -100,7 +109,7 @@ namespace MusicWriter {
                 });
 
             listener_notes_removed =
-                notes_obj.Listen(IOEvent.ChildRemoved, (key, old_note_objID) => {
+                notes_obj.CreateListen(IOEvent.ChildRemoved, (key, old_note_objID) => {
                     var noteID = new NoteID(int.Parse(key));
 
                     var oldnote = notes_lookup[noteID];
@@ -111,11 +120,22 @@ namespace MusicWriter {
                 });
         }
 
-        internal void Unbind() {
-            storage.Graph.Listeners.Remove(listener_nextnodeID_contentsset);
-            storage.Graph.Listeners.Remove(listener_notes_added);
-            storage.Graph.Listeners.Remove(listener_notes_changed);
-            storage.Graph.Listeners.Remove(listener_notes_removed);
+        public override void Bind() {
+            obj.Graph.Listeners.Add(listener_nextnodeID_contentsset);
+            obj.Graph.Listeners.Add(listener_notes_added);
+            obj.Graph.Listeners.Add(listener_notes_changed);
+            obj.Graph.Listeners.Add(listener_notes_removed);
+            
+            base.Bind();
+        }
+
+        public override void Unbind() {
+            obj.Graph.Listeners.Remove(listener_nextnodeID_contentsset);
+            obj.Graph.Listeners.Remove(listener_notes_added);
+            obj.Graph.Listeners.Remove(listener_notes_changed);
+            obj.Graph.Listeners.Remove(listener_notes_removed);
+
+            base.Unbind();
         }
 
         private void GeneralDuration_AfterChange(Duration old, Duration @new) {

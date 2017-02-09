@@ -8,6 +8,7 @@ using static MusicWriter.TimeSignature;
 
 namespace MusicWriter {
     public sealed class RhythmTrack :
+        BoundObject<RhythmTrack>,
         IDurationField<Cell>,
         IDurationField<Simple>,
         IDurationField<Measure> {
@@ -17,13 +18,13 @@ namespace MusicWriter {
         public DurationField<MeterSignature> MeterSignatures { get; } =
             new DurationField<MeterSignature>();
 
-        readonly IStorageObject storage;
+        readonly IStorageObject obj;
 
         readonly DurationFieldBinder<TimeSignature> binder_timesignatures;
         readonly DurationFieldBinder<MeterSignature> binder_metersignatures;
 
         public IStorageObject Storage {
-            get { return storage; }
+            get { return obj; }
         }
 
         public IDurationField<Cell> Cells {
@@ -38,13 +39,21 @@ namespace MusicWriter {
             get { return this; }
         }
         
-        public RhythmTrack(IStorageObject storage) {
-            this.storage = storage;
-            
+        public RhythmTrack(
+                StorageObjectID storageobjectID,
+                EditorFile file
+            ) :
+            base(
+                    storageobjectID,
+                    file,
+                    null //TOOD
+                ) {
+            obj = this.Object();
+
             binder_timesignatures =
-                new DurationFieldBinder<TimeSignature>(
-                        TimeSignatures,
-                        storage.GetOrMake("time-signatures")
+                TimeSignatures.Bind(
+                        obj.GetOrMake("time-signatures").ID,
+                        file
                     );
 
             binder_timesignatures.Deserializer = timesig_obj => {
@@ -79,12 +88,10 @@ namespace MusicWriter {
                 }
             };
 
-            binder_timesignatures.Start();
-
             binder_metersignatures =
-                new DurationFieldBinder<MeterSignature>(
-                        MeterSignatures,
-                        storage.GetOrMake("meter-signatures")
+                MeterSignatures.Bind(
+                        obj.GetOrMake("meter-signatures").ID,
+                        file
                     );
 
             binder_metersignatures.Deserializer = metersig_obj => {
@@ -127,13 +134,20 @@ namespace MusicWriter {
                     }
                 }
             };
-
-            binder_metersignatures.Start();
         }
 
-        internal void Unbind() {
+        public override void Bind() {
+            binder_timesignatures.Bind();
+            binder_metersignatures.Bind();
+            
+            base.Bind();
+        }
+
+        public override void Unbind() {
             binder_timesignatures.Unbind();
             binder_metersignatures.Unbind();
+
+            base.Unbind();
         }
 
         public IEnumerable<IDuratedItem<Cell>> Intersecting(Time point) =>

@@ -11,11 +11,11 @@ namespace MusicWriter
     {
         StorageObjectID StorageObjectID { get; }
 
-        ObservableProperty<string> Name { get; }
-
         EditorFile File { get; }
 
         IFactory<T> Factory { get; }
+
+        void Bind();
 
         void Unbind();
     }

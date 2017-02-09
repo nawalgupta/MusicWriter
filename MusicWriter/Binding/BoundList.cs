@@ -9,11 +9,10 @@ using System.Threading.Tasks;
 namespace MusicWriter
 {
     public sealed class BoundList<T>
-        : IObservableList<T>
+        : BoundObject<BoundList<T>>,
+        IObservableList<T>
         where T : IBoundObject<T>
     {
-        readonly StorageObjectID storageobjectID;
-        readonly EditorFile file;
         readonly FactorySet<T> factoryset;
         readonly ViewerSet<T> viewerset;
 
@@ -21,7 +20,7 @@ namespace MusicWriter
         readonly Dictionary<T, string> map_name_inverse = new Dictionary<T, string>();
         readonly Dictionary<StorageObjectID, T> map_storageobjectID = new Dictionary<StorageObjectID, T>();
         readonly Dictionary<T, StorageObjectID> map_storageobjectID_inverse = new Dictionary<T, StorageObjectID>();
-        readonly IOListener
+        IOListener
             listener_add,
             listener_remove;
         
@@ -55,15 +54,7 @@ namespace MusicWriter
 
         public ObservableList<T> Objects { get; } =
             new ObservableList<T>();
-
-        public StorageObjectID StorageObjectID {
-            get { return storageobjectID; }
-        }
-
-        public EditorFile File {
-            get { return file; }
-        }
-
+        
         public bool AutomaticallyAvoidNameCollisionsWithUnderlines { get; set; } = true;
 
         public int Count {
@@ -101,41 +92,48 @@ namespace MusicWriter
                 EditorFile file,
                 FactorySet<T> factoryset,
                 ViewerSet<T> viewerset
-            ) {
-            this.storageobjectID = storageobjectID;
-            this.file = file;
+            ) :
+            base(
+                    storageobjectID,
+                    file,
+                    null //TODO
+                ) {
             this.factoryset = factoryset;
             this.viewerset = viewerset;
-            
-            var hub_obj = file.Storage[storageobjectID];
+        }
+
+        public override void Bind() {
+            var hub_obj = File.Storage[StorageObjectID];
 
             var propertybinders =
                 new Dictionary<string, PropertyBinder<string>>();
 
-            var namelisteners =
-                new Dictionary<string, IOListener>();
-
             listener_add =
-                hub_obj.Listen(
+                hub_obj.CreateListen(
                         IOEvent.ChildAdded,
                         (key, objID) => {
                             if (key != "")
                                 throw new InvalidOperationException();
 
                             var obj =
-                                FactorySet.Load(objID, file);
+                                FactorySet.Load(objID, File);
 
-                            var name_obj =
-                                file
-                                    .Storage
-                                    [objID]
-                                    .GetOrMake("name");
+                            var namedobj =
+                                obj as INamedObject;
 
-                            var binder =
-                                obj.Name.Bind(name_obj);
+                            if (namedobj != null) {
+                                var name_obj =
+                                    File
+                                        .Storage
+                                        [objID]
+                                        .GetOrMake("name");
 
-                            obj.Name.AfterChange += propertybinders.Rename;
-                            propertybinders.Add(binder.Property.Value, binder);
+                                var binder =
+                                    namedobj.Name.Bind(name_obj);
+
+                                namedobj.Name.AfterChange += propertybinders.Rename;
+                                propertybinders.Add(binder.Property.Value, binder);
+                            }
 
                             if (!Objects.Contains(obj))
                                 Objects.Add(obj);
@@ -143,7 +141,7 @@ namespace MusicWriter
                     );
 
             listener_remove =
-                hub_obj.Listen(
+                hub_obj.CreateListen(
                         IOEvent.ChildRemoved,
                         (key, objID) => {
                             if (key != "")
@@ -153,13 +151,18 @@ namespace MusicWriter
                                 Objects.FirstOrDefault(_ => _.StorageObjectID == objID);
 
                             if (obj != null) {
-                                obj.Name.BeforeChange -= Object_Renaming;
-                                obj.Name.AfterChange -= Object_Renamed;
+                                var namedobj =
+                                    obj as INamedObject;
 
-                                obj.Name.AfterChange -= propertybinders.Rename;
+                                if (namedobj != null) {
+                                    namedobj.Name.BeforeChange -= Object_Renaming;
+                                    namedobj.Name.AfterChange -= Object_Renamed;
 
-                                propertybinders[obj.Name.Value].Dispose();
-                                propertybinders.Remove(obj.Name.Value);
+                                    namedobj.Name.AfterChange -= propertybinders.Rename;
+
+                                    propertybinders[namedobj.Name.Value].Dispose();
+                                    propertybinders.Remove(namedobj.Name.Value);
+                                }
 
                                 obj.Unbind();
                                 Objects.Remove(obj);
@@ -177,11 +180,19 @@ namespace MusicWriter
                     hub_obj.Add("", obj.StorageObjectID);
                 }
 
-                obj.Name.BeforeChange += Object_Renaming;
-                obj.Name.AfterChange += Object_Renamed;
+                obj.Bind();
 
-                map_name.Add(obj.Name.Value, obj);
-                map_name_inverse.Add(obj, obj.Name.Value);
+                var namedobj =
+                    obj as INamedObject;
+
+                if (namedobj != null) {
+                    namedobj.Name.BeforeChange += Object_Renaming;
+                    namedobj.Name.AfterChange += Object_Renamed;
+
+                    map_name.Add(namedobj.Name.Value, obj);
+                    map_name_inverse.Add(obj, namedobj.Name.Value);
+                }
+
                 map_storageobjectID.Add(obj.StorageObjectID, obj);
                 map_storageobjectID_inverse.Add(obj, obj.StorageObjectID);
             };
@@ -191,16 +202,22 @@ namespace MusicWriter
                     obj.Unbind();
                     hub_obj.Remove(obj.StorageObjectID);
 
-                    obj.Name.BeforeChange -= Object_Renaming;
-                    obj.Name.AfterChange -= Object_Renamed;
+                    var namedobj =
+                        obj as INamedObject;
 
-                    obj.Name.AfterChange -= propertybinders.Rename;
+                    if (namedobj != null) {
+                        namedobj.Name.BeforeChange -= Object_Renaming;
+                        namedobj.Name.AfterChange -= Object_Renamed;
 
-                    propertybinders[obj.Name.Value].Dispose();
-                    propertybinders.Remove(obj.Name.Value);
+                        namedobj.Name.AfterChange -= propertybinders.Rename;
 
-                    map_name.Remove(obj.Name.Value);
-                    map_name_inverse.Remove(obj);
+                        propertybinders[namedobj.Name.Value].Dispose();
+                        propertybinders.Remove(namedobj.Name.Value);
+
+                        map_name.Remove(namedobj.Name.Value);
+                        map_name_inverse.Remove(obj);
+                    }
+
                     map_storageobjectID.Remove(obj.StorageObjectID);
                     map_storageobjectID_inverse.Remove(obj);
                 }
@@ -227,7 +244,7 @@ namespace MusicWriter
 
         public T Create(string type) {
             var storageobjectID =
-                FactorySet.Init(type, StorageObjectID, file);
+                FactorySet.Init(type, StorageObjectID, File);
 
             while (!map_storageobjectID.ContainsKey(storageobjectID))
                 Thread.Sleep(20);

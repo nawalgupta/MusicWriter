@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class DurationFieldBinder<T>
+    public sealed class DurationFieldBinder<T> : 
+        BoundObject<DurationFieldBinder<T>>
     {
         readonly DurationField<T> field;
-        readonly IStorageObject storage;
+        readonly IStorageObject obj;
 
         IOListener
             listener_added,
@@ -28,48 +29,47 @@ namespace MusicWriter
             get { return field; }
         }
 
-        public IStorageObject Storage {
-            get { return storage; }
-        }
-
         public DurationFieldBinder(
-                DurationField<T> field,
-                IStorageObject storage
-            ) {
+                StorageObjectID storageobjectID,
+                EditorFile file,
+                DurationField<T> field
+            ) :
+            base(
+                    storageobjectID,
+                    file,
+                    null //TODO
+                ) {
             this.field = field;
-            this.storage = storage;
-        }
 
-        bool started = false;
-        public void Start() {
-            if (!started)
-                started = true;
-            else throw new InvalidOperationException();
+            obj = this.Object();
 
-            Setup();
-        }
-
-        public void Unbind() {
-            if (started) {
-                storage.Graph.Listeners.Remove(listener_added);
-                storage.Graph.Listeners.Remove(listener_rekeyed);
-                storage.Graph.Listeners.Remove(listener_contentsset);
-                storage.Graph.Listeners.Remove(listener_removed);
-            }
-        }
-
-        void Setup() {
             field.ItemAdded += Field_ItemAdded;
             field.ItemMoved += Field_ItemMoved;
             field.ItemChanged += Field_ItemChanged;
             field.ItemRemoved += Field_ItemRemoved;
 
-            listener_added = storage.Listen(IOEvent.ChildAdded, Storage_ChildAdded);
-            listener_rekeyed = storage.Graph.Listen(Storage_ChildRekeyed, storage.ID, IOEvent.ChildRekeyed);
-            listener_contentsset = storage.Listen(IOEvent.ChildContentsSet, Storage_ChildContentsSet);
-            listener_removed = storage.Listen(IOEvent.ChildRemoved, Storage_ChildRemoved);
+            listener_added = obj.CreateListen(IOEvent.ChildAdded, Storage_ChildAdded);
+            listener_rekeyed = obj.Graph.CreateListen(Storage_ChildRekeyed, storageobjectID, IOEvent.ChildRekeyed);
+            listener_contentsset = obj.CreateListen(IOEvent.ChildContentsSet, Storage_ChildContentsSet);
+            listener_removed = obj.CreateListen(IOEvent.ChildRemoved, Storage_ChildRemoved);
+        }
+        
+        public override void Bind() {
+            File.Storage.Listeners.Add(listener_added);
+            File.Storage.Listeners.Add(listener_rekeyed);
+            File.Storage.Listeners.Add(listener_contentsset);
+            File.Storage.Listeners.Add(listener_removed);
+
+            base.Bind();
         }
 
+        public override void Unbind() {
+            File.Storage.Listeners.Remove(listener_added);
+            File.Storage.Listeners.Remove(listener_rekeyed);
+            File.Storage.Listeners.Remove(listener_contentsset);
+            File.Storage.Listeners.Remove(listener_removed);
+        }
+        
         private void Storage_ChildAdded(string key, StorageObjectID child) {
             var duration =
                 CodeTools.ReadDuration(key);
@@ -81,7 +81,7 @@ namespace MusicWriter
                     events.Add(duration);
                 }
 
-                var contents = Deserializer(storage.Graph[child]);
+                var contents = Deserializer(File.Storage[child]);
                 field.Add(contents, duration);
             }
         }
@@ -98,7 +98,7 @@ namespace MusicWriter
                 CodeTools.ReadDuration(key);
 
             var contents =
-                Deserializer(storage.Graph[child]);
+                Deserializer(File.Storage[child]);
 
             if (field.HasItem(duration))
                 field.UpdateUnique(duration, contents);
@@ -121,13 +121,13 @@ namespace MusicWriter
 
             events.Add(duration);
 
-            if (!storage.HasChild(relation)) {
+            if (!obj.HasChild(relation)) {
                 var item_objID =
-                    storage.Graph.Create();
+                    File.Storage.Create();
 
-                Serializer(storage.Graph[item_objID], value);
+                Serializer(File.Storage[item_objID], value);
 
-                storage.Add(relation, item_objID);
+                obj.Add(relation, item_objID);
             }
         }
 
@@ -142,8 +142,8 @@ namespace MusicWriter
             events.Remove(oldduration);
             events.Add(newduration);
 
-            if (storage.HasChild(oldrelation))
-                storage.Rename(oldrelation, CodeTools.WriteDuration(newduration));
+            if (obj.HasChild(oldrelation))
+                obj.Rename(oldrelation, CodeTools.WriteDuration(newduration));
         }
 
         private void Field_ItemChanged(
@@ -154,7 +154,7 @@ namespace MusicWriter
             var relation =
                 CodeTools.WriteDuration(duration);
 
-            Serializer(storage.Get(relation), newvalue);
+            Serializer(obj.Get(relation), newvalue);
         }
 
         private void Field_ItemRemoved(
@@ -166,8 +166,8 @@ namespace MusicWriter
 
             events.Remove(duration);
 
-            if (storage.HasChild(relation))
-                storage.Get(relation).Delete();
+            if (obj.HasChild(relation))
+                obj.Get(relation).Delete();
         }
     }
 }

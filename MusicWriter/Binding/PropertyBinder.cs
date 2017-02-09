@@ -41,7 +41,7 @@ namespace MusicWriter
             this.deserializer = deserializer;
             this.serializer = serializer;
 
-            listener = storageobject.Listen(IOEvent.ObjectContentsSet, StorageObject_ContentsSet);
+            listener = storageobject.CreateListen(IOEvent.ObjectContentsSet, StorageObject_ContentsSet);
             property.AfterChange += Property_AfterChange;
         }
 

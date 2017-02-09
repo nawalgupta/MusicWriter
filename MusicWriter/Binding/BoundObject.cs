@@ -20,9 +20,6 @@ namespace MusicWriter
             get { return file; }
         }
 
-        public ObservableProperty<string> Name { get; } =
-            new ObservableProperty<string>("");
-
         public StorageObjectID StorageObjectID {
             get { return storageobjectID; }
         }
@@ -35,6 +32,9 @@ namespace MusicWriter
             this.storageobjectID = storageobjectID;
             this.file = file;
             this.factory = factory;
+        }
+
+        public virtual void Bind() {
         }
 
         public virtual void Unbind() {

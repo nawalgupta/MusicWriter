@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed partial class PolylineData : IBoundObject<PolylineData>
+    public sealed partial class PolylineData : NamedBoundObject<PolylineData>
     {
         public const string ItemName = "musicwriter.data.polyline";
 
@@ -23,25 +23,6 @@ namespace MusicWriter
             listener_remove;
 
         readonly IStorageObject storage;
-        
-        public IStorageObject Storage {
-            get { return storage; }
-        }
-
-        public StorageObjectID StorageObjectID {
-            get { return storage.ID; }
-        }
-
-        public ObservableProperty<string> Name { get; } =
-            new ObservableProperty<string>("");
-
-        public EditorFile File {
-            get { return file; }
-        }
-
-        public IFactory<PolylineData> Factory {
-            get { return FactoryInstance; }
-        }
 
         public PolylineData(
                 StorageObjectID storageobjectID,
@@ -52,27 +33,24 @@ namespace MusicWriter
                     file
                  ) {
         }
-
-        public void Unbind() {
-            file.Storage.Listeners.Remove(listener_add);
-            file.Storage.Listeners.Remove(listener_rekey);
-            file.Storage.Listeners.Remove(listener_contentsset);
-            file.Storage.Listeners.Remove(listener_remove);
-        }
         
         public PolylineData(
                 IStorageObject storage,
                 EditorFile file,
                 float constant = 0
-            ) {
+            ) :
+            base(
+                    storage.ID,
+                    file,
+                    FactoryInstance
+                ) {
             this.storage = storage;
-            this.file = file;
             
             if (storage.IsEmpty)
                 Add(0f, constant);
 
             listener_add =
-                storage.Listen(IOEvent.ChildAdded, (key, pt_objID) => {
+                storage.CreateListen(IOEvent.ChildAdded, (key, pt_objID) => {
                     var t = float.Parse(key);
                     var v = float.Parse(storage.Graph[pt_objID].ReadAllString());
 
@@ -80,7 +58,7 @@ namespace MusicWriter
                 });
 
             listener_rekey =
-                storage.Graph.Listen(
+                storage.Graph.CreateListen(
                     msg => {
                         var t0 = float.Parse(msg.Relation);
                         var t1 = float.Parse(msg.NewRelation);
@@ -92,7 +70,7 @@ namespace MusicWriter
                 );
 
             listener_contentsset =
-                storage.Listen(IOEvent.ChildContentsSet, (key, pt_objID) => {
+                storage.CreateListen(IOEvent.ChildContentsSet, (key, pt_objID) => {
                     var t = float.Parse(key);
                     var v1 = float.Parse(storage.Graph[pt_objID].ReadAllString());
 
@@ -100,12 +78,30 @@ namespace MusicWriter
                 });
 
             listener_remove =
-                storage.Listen(IOEvent.ChildRemoved, (key, pt_objID) => {
+                storage.CreateListen(IOEvent.ChildRemoved, (key, pt_objID) => {
                     var t = float.Parse(key);
                     var v = float.Parse(storage.Graph[pt_objID].ReadAllString());
 
                     RemoveExact_ram(t, v);
                 });
+        }
+
+        public override void Bind() {
+            file.Storage.Listeners.Add(listener_add);
+            file.Storage.Listeners.Add(listener_rekey);
+            file.Storage.Listeners.Add(listener_contentsset);
+            file.Storage.Listeners.Add(listener_remove);
+            
+            base.Bind();
+        }
+
+        public override void Unbind() {
+            file.Storage.Listeners.Remove(listener_add);
+            file.Storage.Listeners.Remove(listener_rekey);
+            file.Storage.Listeners.Remove(listener_contentsset);
+            file.Storage.Listeners.Remove(listener_remove);
+
+            base.Unbind();
         }
         
         public void AddConstant(float t, float value) {

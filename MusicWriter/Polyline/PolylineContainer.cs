@@ -44,6 +44,18 @@ namespace MusicWriter
                     );
         }
 
+        public override void Bind() {
+            polylines.Bind();
+
+            base.Bind();
+        }
+
+        public override void Unbind() {
+            polylines.Unbind();
+
+            base.Unbind();
+        }
+
         public static IFactory<IContainer> CreateFactory(
                 FactorySet<PolylineData> polylines_factoryset,
                 ViewerSet<PolylineData> polylines_viewerset

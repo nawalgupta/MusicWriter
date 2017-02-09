@@ -6,36 +6,45 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class TempoTrack
+    public sealed class TempoTrack :
+        BoundObject<TempoTrack>
     {
-        readonly IStorageObject storage;
-        readonly EditorFile file;
         readonly PolylineData notelengthdata;
-
-        public IStorageObject Storage {
-            get { return storage; }
-        }
-
-        public EditorFile File {
-            get { return file; }
-        }
+        readonly IStorageObject obj;
 
         public PolylineData NoteLengthData {
             get { return notelengthdata; }
         }
         
         public TempoTrack(
-                IStorageObject storage,
+                StorageObjectID storageobjectID,
                 EditorFile file
-            ) {
-            this.storage = storage;
-            this.file = file;
+            ) :
+            base(
+                    storageobjectID,
+                    file,
+                    null //TODO
+                ) {
+            obj = this.Object();
 
-            notelengthdata = new PolylineData(storage.GetOrMake("note-length"), file, 2);
+            notelengthdata = 
+                new PolylineData(
+                        obj.GetOrMake("note-length"),
+                        file, 
+                        2
+                    );
         }
 
-        internal void Unbind() {
+        public override void Bind() {
+            notelengthdata.Bind();
+
+            base.Bind();
+        }
+
+        public override void Unbind() {
             notelengthdata.Unbind();
+
+            base.Unbind();
         }
 
         public Time GetTime(float seconds, Time tracklength) {

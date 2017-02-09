@@ -45,7 +45,7 @@ namespace MusicWriter
                 obj.GetOrMake("active-function-source-vec");
 
             listener_activefunctionsourcefile_add =
-                activefunctionsource_vec_obj.Listen(IOEvent.ChildAdded, (key, activefunctionsource_objID) => {
+                activefunctionsource_vec_obj.CreateListen(IOEvent.ChildAdded, (key, activefunctionsource_objID) => {
                     if (ActiveFunctionSourceFile.Value != null)
                         throw new InvalidOperationException();
 
@@ -54,7 +54,7 @@ namespace MusicWriter
                 });
 
             listener_activefunctionsourcefile_remove =
-                activefunctionsource_vec_obj.Listen(IOEvent.ChildRemoved, (key, activefunctionsource_objID) => {
+                activefunctionsource_vec_obj.CreateListen(IOEvent.ChildRemoved, (key, activefunctionsource_objID) => {
                     if (ActiveFunctionSourceFile.Value == null)
                         throw new InvalidOperationException();
 

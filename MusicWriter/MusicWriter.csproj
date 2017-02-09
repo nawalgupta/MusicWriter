@@ -36,6 +36,8 @@
     <Compile Include="Binding\CtorFactory.cs" />
     <Compile Include="Binding\FuncFactory.cs" />
     <Compile Include="Binding\IBoundObject.cs" />
+    <Compile Include="Binding\INamedObject.cs" />
+    <Compile Include="Binding\NamedBoundObject.cs" />
     <Compile Include="Binding\PropertyBinder.cs" />
     <Compile Include="Binding\Extensions.cs" />
     <Compile Include="Cogs\EditableMemoryModule.cs" />

@@ -5,7 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public interface ITrack : IBoundObject<ITrack> {
+    public interface ITrack : 
+        IBoundObject<ITrack>,
+        INamedObject
+    {
         ObservableProperty<Time> Length { get; }
         
         TrackControllerSettings Settings { get; }

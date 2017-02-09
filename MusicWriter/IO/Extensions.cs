@@ -63,7 +63,7 @@ namespace MusicWriter
             }
         }
 
-        public static IOListener Listen(
+        public static IOListener CreateListen(
                 this IStorageGraph graph,
                 Action<IOMessage> responder,
                 StorageObjectID subject,
@@ -71,58 +71,40 @@ namespace MusicWriter
                 StorageObjectID @object = default(StorageObjectID),
                 string key = default(string),
                 string newkey = default(string)
-            ) {
-            var filter =
-                new IOMessage(
-                        subject,
-                        verb,
-                        key,
-                        newkey,
-                        @object
-                    );
+            ) =>
+            new IOListener(
+                    new IOMessage(
+                            subject,
+                            verb,
+                            key,
+                            newkey,
+                            @object
+                        ),
+                    responder
+                );
 
-            var listener =
-                new IOListener(
-                        filter,
-                        responder
-                    );
-
-            graph.Listeners.Add(listener);
-
-            return listener;
-        }
-
-        public static IOListener Listen_Node(
+        public static IOListener CreateListen_Node(
                 this IStorageGraph graph,
                 StorageObjectID subject,
                 IOEvent verb,
                 Action<string, StorageObjectID> childresponder
-            ) {
-            var filter =
-                new IOMessage(
-                        subject,
-                        verb
-                    );
+            ) =>
+            new IOListener(
+                    new IOMessage(
+                            subject,
+                            verb
+                        ),
+                    message =>
+                        childresponder(message.Relation, message.Object)
+                );
 
-            var listener =
-                new IOListener(
-                        filter,
-                        message =>
-                            childresponder(message.Relation, message.Object)
-                    );
-
-            graph.Listeners.Add(listener);
-
-            return listener;
-        }
-
-        public static IOListener Listen_Node(
+        public static IOListener CreateListen_Node(
                 this IStorageGraph graph,
                 StorageObjectID subject,
                 IOEvent verb,
                 Action<StorageObjectID> childresponder
             ) =>
-            Listen_Node(
+            CreateListen_Node(
                     graph,
                     subject,
                     verb,
@@ -130,13 +112,13 @@ namespace MusicWriter
                         childresponder(@object)
                 );
 
-        public static IOListener Listen_Node(
+        public static IOListener CreateListen_Node(
                 this IStorageGraph graph,
                 StorageObjectID subject,
                 IOEvent verb,
                 Action responder
             ) =>
-            Listen_Node(
+            CreateListen_Node(
                     graph,
                     subject,
                     verb,
@@ -144,46 +126,49 @@ namespace MusicWriter
                         responder()
                 );
 
-        public static IOListener Listen(
+        public static IOListener CreateListen(
                 this IStorageObject storage,
                 IOEvent verb,
                 Action<string, StorageObjectID> childresponder
             ) =>
             storage
                 .Graph
-                .Listen_Node(
+                .CreateListen_Node(
                         storage.ID,
                         verb,
                         childresponder
                     );
 
-        public static IOListener Listen(
+        public static IOListener CreateListen(
                 this IStorageObject storage,
                 IOEvent verb,
                 Action<StorageObjectID> childresponder
             ) =>
             storage
                 .Graph
-                .Listen_Node(
+                .CreateListen_Node(
                         storage.ID,
                         verb,
                         childresponder
                     );
 
-        public static IOListener Listen(
+        public static IOListener CreateListen(
                 this IStorageObject storage,
                 IOEvent verb,
                 Action responder
             ) =>
             storage
                 .Graph
-                .Listen_Node(
+                .CreateListen_Node(
                         storage.ID,
                         verb,
                         responder
                     );
 
+        public static IStorageObject Object<T>(this T item) where T : IBoundObject<T> =>
+            item.File.Storage[item.StorageObjectID];
+
         public static void Delete<T>(this T item) where T : IBoundObject<T> =>
-            item.File.Storage.Delete(item.StorageObjectID);
+            item.Object().Delete();
     }
 }

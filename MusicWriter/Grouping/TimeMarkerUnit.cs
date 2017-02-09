@@ -28,7 +28,7 @@ namespace MusicWriter
             this.storage = storage;
 
             listener_added =
-                storage.Listen(IOEvent.ChildAdded, (key, newmarker_objID) => {
+                storage.CreateListen(IOEvent.ChildAdded, (key, newmarker_objID) => {
                     var name = key;
                     var time = Time.FromTicks(int.Parse(storage.Graph[newmarker_objID].ReadAllString()));
 
@@ -38,7 +38,7 @@ namespace MusicWriter
             listener_rekeyed =
                 storage
                     .Graph
-                    .Listen(
+                    .CreateListen(
                         msg => {
                             var oldname = msg.Relation;
                             var newname = msg.NewRelation;
@@ -52,7 +52,7 @@ namespace MusicWriter
                     );
 
             listener_contentsset =
-                storage.Listen(IOEvent.ChildContentsSet, (key, marker_objID) => {
+                storage.CreateListen(IOEvent.ChildContentsSet, (key, marker_objID) => {
                     var name = key;
                     var newtime = Time.FromTicks(int.Parse(storage.Graph[marker_objID].ReadAllString()));
 
@@ -60,7 +60,7 @@ namespace MusicWriter
                 });
 
             listener_removed =
-                storage.Listen(IOEvent.ChildRemoved, (name, oldmarker_objID) => {
+                storage.CreateListen(IOEvent.ChildRemoved, (name, oldmarker_objID) => {
                     markers.Remove(name);
                 });
         }

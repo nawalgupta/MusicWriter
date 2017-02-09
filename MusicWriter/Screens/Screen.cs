@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public abstract class Screen : BoundObject<IScreen>, IScreen
+    public abstract class Screen : NamedBoundObject<IScreen>, IScreen
     {
         public CommandCenter CommandCenter { get; } =
             new CommandCenter();

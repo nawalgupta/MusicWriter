@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using static MusicWriter.TimeSignature;
 
 namespace MusicWriter {
-    public sealed class MusicTrack : BoundObject<ITrack>, ITrack {
+    public sealed class MusicTrack : NamedBoundObject<ITrack>, ITrack {
         readonly TrackControllerSettings settings;
         readonly MelodyTrack melody;
         readonly RhythmTrack rhythm;
@@ -68,10 +68,10 @@ namespace MusicWriter {
                     storage.ID,
                     file
                 ) {
-            melody = new MelodyTrack(storage.GetOrMake("melody"));
-            rhythm = new RhythmTrack(storage.GetOrMake("rhythm"));
-            adornment = new AdornmentTrack(storage.GetOrMake("adornment"));
-            tempo = new TempoTrack(storage.GetOrMake("tempo"), file);
+            melody = new MelodyTrack(storage.GetOrMake("melody").ID, file);
+            rhythm = new RhythmTrack(storage.GetOrMake("rhythm").ID, file);
+            adornment = new AdornmentTrack(storage.GetOrMake("adornment").ID, file);
+            tempo = new TempoTrack(storage.GetOrMake("tempo").ID, file);
             memory = new PerceptualMemory();
             propertygraphlet = new StoragePropertyGraphlet<NoteID>(storage, propertymanager);
             propertymanager = settings.PropertyManager;
@@ -112,6 +112,15 @@ namespace MusicWriter {
             Rhythm.MeterSignatures.ScootAndOverwrite(MeterSignature.Default(Rhythm.TimeSignaturesInTime(Duration.Eternity).Single().Value.Simples[0]), Duration.Eternity);
             Adornment.Staffs.ScootAndOverwrite(Staff.Treble, Duration.Eternity);
             Adornment.KeySignatures.ScootAndOverwrite(KeySignature.Create(DiatonicToneClass.C, PitchTransform.Natural, Mode.Major), Duration.Eternity);
+        }
+
+        public override void Bind() {
+            melody.Bind();
+            rhythm.Bind();
+            adornment.Bind();
+            tempo.Bind();
+
+            base.Bind();
         }
 
         public override void Unbind() {
