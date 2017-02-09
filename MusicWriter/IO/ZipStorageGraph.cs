@@ -21,24 +21,21 @@ namespace MusicWriter
 
             Reload();
         }
-        
+
         void Reload() {
             bool loadedroot = false;
 
-            foreach (var entry in zipfile.Entries) {
+            foreach (var entry in zipfile.Entries.Where(entry => entry.FullName.EndsWith("/dat"))) {
                 var id = StorageObjectID.Parse(entry.FullName.Split('/')[0]);
 
-                if (!Contains(id)) {
+                if (!Contains(id))
                     DeserializeNode(id);
-                    DeserializeArrows(id);
-                }
-                else if (
-                    id == Root &&
-                    !loadedroot) {
-                    loadedroot = true;
+            }
 
-                    DeserializeArrows(id);
-                }
+            foreach (var entry in zipfile.Entries.Where(entry => entry.FullName.EndsWith("/rel"))) {
+                var id = StorageObjectID.Parse(entry.FullName.Split('/')[0]);
+
+                DeserializeArrows(id);
             }
         }
 
