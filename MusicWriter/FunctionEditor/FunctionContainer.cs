@@ -53,9 +53,12 @@ namespace MusicWriter
                 ) {
             this.functioncodetools = functioncodetools;
 
+            var obj =
+                file.Storage[storageobjectID];
+
             functionsources =
                 new BoundList<FunctionSource>(
-                        storageobjectID,
+                        obj.GetOrMake("function-sources").ID,
                         file,
                         functionsources_factoryset,
                         functionsources_viewerset

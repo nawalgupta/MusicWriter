@@ -32,9 +32,12 @@ namespace MusicWriter
                     ItemName, 
                     ItemCodename
                 ) {
+            var obj =
+                file.Storage[storageobjectID];
+
             polylines = 
                 new BoundList<PolylineData>(
-                        storageobjectID,
+                        obj.GetOrMake("polylines").ID,
                         file,
                         polylines_factoryset,
                         polylines_viewerset
