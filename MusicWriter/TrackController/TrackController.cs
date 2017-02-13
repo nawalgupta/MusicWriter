@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public abstract class TrackController : BoundObject<ITrackController>, ITrackController
+    public abstract class TrackController : NamedBoundObject<ITrackController>, ITrackController
     {
         readonly BoundList<ITrack> tracks;
         readonly Pin pin;
@@ -42,7 +42,8 @@ namespace MusicWriter
 
             pin =
                 new Pin(
-                        obj.GetOrMake("pin"),
+                        obj.GetOrMake("pin").ID,
+                        file,
                         container.Settings.TimeMarkerUnit
                     );
 

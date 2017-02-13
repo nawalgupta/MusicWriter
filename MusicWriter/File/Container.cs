@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public abstract class Container : BoundObject<IContainer>, IContainer
+    public abstract class Container : NamedBoundObject<IContainer>, IContainer
     {
         readonly string codename;
 

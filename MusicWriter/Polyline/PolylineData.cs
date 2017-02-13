@@ -10,8 +10,7 @@ namespace MusicWriter
     public sealed partial class PolylineData : NamedBoundObject<PolylineData>
     {
         public const string ItemName = "musicwriter.data.polyline";
-
-        readonly EditorFile file;
+        
         readonly List<float> times =
             new List<float>();
         readonly List<float> values =
@@ -87,19 +86,19 @@ namespace MusicWriter
         }
 
         public override void Bind() {
-            file.Storage.Listeners.Add(listener_add);
-            file.Storage.Listeners.Add(listener_rekey);
-            file.Storage.Listeners.Add(listener_contentsset);
-            file.Storage.Listeners.Add(listener_remove);
+            File.Storage.Listeners.Add(listener_add);
+            File.Storage.Listeners.Add(listener_rekey);
+            File.Storage.Listeners.Add(listener_contentsset);
+            File.Storage.Listeners.Add(listener_remove);
             
             base.Bind();
         }
 
         public override void Unbind() {
-            file.Storage.Listeners.Remove(listener_add);
-            file.Storage.Listeners.Remove(listener_rekey);
-            file.Storage.Listeners.Remove(listener_contentsset);
-            file.Storage.Listeners.Remove(listener_remove);
+            File.Storage.Listeners.Remove(listener_add);
+            File.Storage.Listeners.Remove(listener_rekey);
+            File.Storage.Listeners.Remove(listener_contentsset);
+            File.Storage.Listeners.Remove(listener_remove);
 
             base.Unbind();
         }

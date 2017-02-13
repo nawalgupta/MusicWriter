@@ -39,6 +39,8 @@ namespace MusicWriter {
                     );
 
             containers.CreateAllObjects();
+
+            containers.Bind();
         }
 
         public void Flush() =>

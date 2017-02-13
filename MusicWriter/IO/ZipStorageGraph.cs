@@ -23,8 +23,6 @@ namespace MusicWriter
         }
 
         void Reload() {
-            bool loadedroot = false;
-
             foreach (var entry in zipfile.Entries.Where(entry => entry.FullName.EndsWith("/dat"))) {
                 var id = StorageObjectID.Parse(entry.FullName.Split('/')[0]);
 

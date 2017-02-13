@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public interface IContainer : IBoundObject<IContainer>
+    public interface IContainer : 
+        IBoundObject<IContainer>,
+        INamedObject
     {
         string Codename { get; }
     }

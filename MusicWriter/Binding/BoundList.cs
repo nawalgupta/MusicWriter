@@ -20,7 +20,7 @@ namespace MusicWriter
         readonly Dictionary<T, string> map_name_inverse = new Dictionary<T, string>();
         readonly Dictionary<StorageObjectID, T> map_storageobjectID = new Dictionary<StorageObjectID, T>();
         readonly Dictionary<T, StorageObjectID> map_storageobjectID_inverse = new Dictionary<T, StorageObjectID>();
-        IOListener
+        readonly IOListener
             listener_add,
             listener_remove;
         
@@ -100,9 +100,7 @@ namespace MusicWriter
                 ) {
             this.factoryset = factoryset;
             this.viewerset = viewerset;
-        }
 
-        public override void Bind() {
             var hub_obj = File.Storage[StorageObjectID];
 
             var propertybinders =
@@ -135,8 +133,11 @@ namespace MusicWriter
                                 propertybinders.Add(binder.Property.Value, binder);
                             }
 
-                            if (!Objects.Contains(obj))
+                            if (!Objects.Contains(obj)) {
                                 Objects.Add(obj);
+
+                                obj.Bind();
+                            }
                         }
                     );
 
@@ -178,10 +179,9 @@ namespace MusicWriter
                     // should exhibit non-exclusive ownership of the object.
 
                     hub_obj.Add("", obj.StorageObjectID);
+                    obj.Bind();
                 }
-
-                obj.Bind();
-
+                
                 var namedobj =
                     obj as INamedObject;
 
@@ -222,6 +222,20 @@ namespace MusicWriter
                     map_storageobjectID_inverse.Remove(obj);
                 }
             };
+        }
+
+        public override void Bind() {
+            File.Storage.Listeners.Add(listener_add);
+            File.Storage.Listeners.Add(listener_remove);
+
+            base.Bind();
+        }
+
+        public override void Unbind() {
+            File.Storage.Listeners.Remove(listener_add);
+            File.Storage.Listeners.Remove(listener_remove);
+
+            base.Unbind();
         }
 
         private void Object_Renaming(ObservableProperty<string>.PropertyChangingEventArgs args) {
