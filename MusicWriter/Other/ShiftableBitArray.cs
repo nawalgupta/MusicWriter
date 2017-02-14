@@ -51,76 +51,95 @@ namespace MusicWriter
             }
         }
 
-        static ulong mask(int i) {
-            switch (i) {
-                case 0 + 4 * 0:
-                    return 0x00000001uL;
-                case 1 + 4 * 0:
-                    return 0x00000002uL;
-                case 2 + 4 * 0:
-                    return 0x00000004uL;
-                case 3 + 4 * 0:
-                    return 0x00000008uL;
-                case 0 + 4 * 1:
-                    return 0x00000010uL;
-                case 1 + 4 * 1:
-                    return 0x00000020uL;
-                case 2 + 4 * 1:
-                    return 0x00000040uL;
-                case 3 + 4 * 1:
-                    return 0x00000080uL;
-                case 0 + 4 * 2:
-                    return 0x00000010uL;
-                case 1 + 4 * 2:
-                    return 0x00000020uL;
-                case 2 + 4 * 2:
-                    return 0x00000040uL;
-                case 3 + 4 * 2:
-                    return 0x00000080uL;
-                case 0 + 4 * 3:
-                    return 0x00001000uL;
-                case 1 + 4 * 3:
-                    return 0x00002000uL;
-                case 2 + 4 * 3:
-                    return 0x00004000uL;
-                case 3 + 4 * 3:
-                    return 0x00008000uL;
-                case 0 + 4 * 4:
-                    return 0x00010000uL;
-                case 1 + 4 * 4:
-                    return 0x00020000uL;
-                case 2 + 4 * 4:
-                    return 0x00040000uL;
-                case 3 + 4 * 4:
-                    return 0x00080000uL;
-                case 0 + 4 * 5:
-                    return 0x00100000uL;
-                case 1 + 4 * 5:
-                    return 0x00200000uL;
-                case 2 + 4 * 5:
-                    return 0x00400000uL;
-                case 3 + 4 * 5:
-                    return 0x00800000uL;
-                case 0 + 4 * 6:
-                    return 0x01000000uL;
-                case 1 + 4 * 6:
-                    return 0x02000000uL;
-                case 2 + 4 * 6:
-                    return 0x04000000uL;
-                case 3 + 4 * 6:
-                    return 0x08000000uL;
-                case 0 + 4 * 7:
-                    return 0x10000000uL;
-                case 1 + 4 * 7:
-                    return 0x20000000uL;
-                case 2 + 4 * 7:
-                    return 0x40000000uL;
-                case 3 + 4 * 7:
-                    return 0x80000000uL;
+        public IEnumerable<int> AllOnes() {
+            for (int i = 0; i < 64 * slots.Length; i += 64)
+                foreach (var index in relative_indicies(slots[i]))
+                    yield return index + i;
+        }
 
-                default:
-                    return 0;
+        public IEnumerable<int> AllOnes(ShiftableBitArray mask) {
+            var min = Math.Min(slots.Length, mask.slots.Length);
+
+            for (int i = 0; i < 64 * min; i += 64)
+                foreach (var index in relative_indicies(slots[i] & mask.slots[i]))
+                    yield return index + i;
+        }
+
+        static IEnumerable<int> relative_indicies(ulong x) {
+            for (int i = 0; i < 64; i+=8) {
+                byte m = (byte)(x & 0xFF);
+
+                if ((m & 0xF0) != 0) {
+                    if ((m & 0xC0) != 0) {
+                        if ((m & 0x80) != 0) {
+                            yield return i + 7;
+                        }
+                        if ((m & 0x40) != 0) {
+                            yield return i + 6;
+                        }
+                    }
+                    if ((m & 0x30) != 0) {
+                        if ((m & 0x20) != 0) {
+                            yield return i + 5;
+                        }
+                        if ((m & 0x10) != 0) {
+                            yield return i + 4;
+                        }
+                    }
+                }
+                if ((m & 0x0F) != 0) {
+                    if ((m & 0x0C) != 0) {
+                        if ((m & 0x08) != 0) {
+                            yield return i + 3;
+                        }
+                        if ((m & 0x04) != 0) {
+                            yield return i + 2;
+                        }
+                    }
+                    if ((m & 0x03) != 0) {
+                        if ((m & 0x02) != 0) {
+                            yield return i + 1;
+                        }
+                        if ((m & 0x01) != 0) {
+                            yield return i + 0;
+                        }
+                    }
+                }
+
+                x >>= 8;
             }
+        }
+
+        static ulong mask(int i) => 1uL >> i;
+
+        static ulong mask_after(int i) => 0xFFFFFFFFFFFFFFFFuL >> i;
+        
+        public void Insert(int i, bool value) {
+            if (i >= 64 * slots.Length)
+                this[i] = value;
+            else {
+                lock (locker) {
+                    var local_i = i % 64;
+
+                    for (var slot_i = i / 64; slot_i < slots.Length; slot_i++) {
+                        var slot = slots[slot_i];
+                        var mask_a = mask_after(local_i);
+                        var mask_i = mask(local_i);
+
+                        slots[slot_i] =
+                            ((slot & mask_a) >> 1) |
+                            (slot & ~(mask_a | mask_i)) |
+                            (value ? mask_i : 0);
+
+                        value = (slot & mask(63)) != 0;
+                        local_i = 0;
+                    }
+                }
+            }
+        }
+
+        public void Withdraw(int i) {
+            //TODO
         }
     }
 }
