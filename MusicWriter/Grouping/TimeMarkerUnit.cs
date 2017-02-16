@@ -127,11 +127,22 @@ namespace MusicWriter
             }
         }
 
-        public void Unbind() {
+        public override void Bind() {
+            storage.Graph.Listeners.Add(listener_added);
+            storage.Graph.Listeners.Add(listener_rekeyed);
+            storage.Graph.Listeners.Add(listener_contentsset);
+            storage.Graph.Listeners.Add(listener_removed);
+
+            base.Bind();
+        }
+
+        public override void Unbind() {
             storage.Graph.Listeners.Remove(listener_added);
             storage.Graph.Listeners.Remove(listener_rekeyed);
             storage.Graph.Listeners.Remove(listener_contentsset);
             storage.Graph.Listeners.Remove(listener_removed);
+
+            base.Unbind();
         }
     }
 }

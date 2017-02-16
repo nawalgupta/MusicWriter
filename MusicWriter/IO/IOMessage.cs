@@ -64,5 +64,8 @@ namespace MusicWriter
                 (NewRelation == filter.NewRelation) || filter.NewRelation == default(string) &&
                 (Relation == filter.Relation) || filter.Relation == default(string)) 
             : true);
+
+        public override string ToString() =>
+            $"{Subject} {Verb} {Object} ({Relation} -> {NewRelation})";
     }
 }

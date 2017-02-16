@@ -23,7 +23,8 @@ namespace MusicWriter {
 
         public EditorFile(
                 IStorageGraph storage,
-                FactorySet<IContainer> containerfactoryset
+                FactorySet<IContainer> containerfactoryset,
+                bool isnewfile = false
             ) {
             this.storage = storage;
             this.containerfactoryset = containerfactoryset;
@@ -40,7 +41,8 @@ namespace MusicWriter {
 
             containers.Bind();
 
-            containers.CreateAllObjects();
+            if (isnewfile)
+                containers.CreateAllObjects();
         }
 
         public void Flush() =>

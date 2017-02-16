@@ -61,7 +61,7 @@ namespace MusicWriter
             var min = Math.Min(slots.Length, mask.slots.Length);
 
             for (int i = 0; i < 64 * min; i += 64)
-                foreach (var index in relative_indicies(slots[i] & mask.slots[i]))
+                foreach (var index in relative_indicies(slots[i / 64] & mask.slots[i / 64]))
                     yield return index + i;
         }
 

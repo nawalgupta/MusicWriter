@@ -23,6 +23,7 @@ namespace MusicWriter.WinForms
 
                 view.File = screen.File;
                 view.Screen = screen as TrackControllerScreen;
+                view.Setup();
 
                 return view;
             }

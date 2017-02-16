@@ -53,8 +53,8 @@ namespace MusicWriter.WinForms {
                 Screen_NameChanged(old?.Name.Value, screen.Name.Value);
                 screen.Name.AfterChange += Screen_NameChanged;
 
-                screen.Controllers.ItemAdded += ScreenControllers_ItemAdded;
-                screen.Controllers.ItemRemoved += ScreenControllers_ItemRemoved;
+                //screen.Controllers.ItemAdded += ScreenControllers_ItemAdded;
+                //screen.Controllers.ItemRemoved += ScreenControllers_ItemRemoved;
 
                 trackcontrollers_views = new UniqueViewerObjectMap<ITrackController>(screen.Controllers);
             }
@@ -78,15 +78,26 @@ namespace MusicWriter.WinForms {
                 file = value;
                 container = file[TrackControllerContainer.ItemName] as TrackControllerContainer;
 
-                container.Tracks.ItemAdded += Tracks_ItemAdded;
-                container.Tracks.ItemRemoved += Tracks_ItemRemoved;
+                //container.Tracks.ItemAdded += Tracks_ItemAdded;
+                //container.Tracks.ItemRemoved += Tracks_ItemRemoved;
 
-                container.Controllers.ItemAdded += FileControllers_ItemAdded;
-                container.Controllers.ItemRemoved += FileControllers_ItemRemoved;
+                //container.Controllers.ItemAdded += FileControllers_ItemAdded;
+                //container.Controllers.ItemRemoved += FileControllers_ItemRemoved;
                 
                 factorymenustrip_tracks.BoundList = container.Tracks;
                 factorymenustrip_controllers.BoundList = container.Controllers;
             }
+        }
+
+        void Setup() {
+            container.Tracks.ItemAdded += Tracks_ItemAdded;
+            container.Tracks.ItemRemoved += Tracks_ItemRemoved;
+
+            container.Controllers.ItemAdded += FileControllers_ItemAdded;
+            container.Controllers.ItemRemoved += FileControllers_ItemRemoved;
+
+            screen.Controllers.ItemAdded += ScreenControllers_ItemAdded;
+            screen.Controllers.ItemRemoved += ScreenControllers_ItemRemoved;
         }
 
         public TrackControllerScreenView() {

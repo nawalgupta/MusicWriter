@@ -45,40 +45,46 @@ namespace MusicWriter
             int[] indicies_listeners;
 
             lock (locker) {
-                if (!lookup_subject.ContainsKey(msg.Subject) ||
-                    !lookup_verb.ContainsKey(msg.Verb))
-                    return;
-
                 var lookup_subject_this =
-                    lookup_subject[msg.Subject];
+                    lookup_subject.Lookup(
+                            msg.Subject,
+                            () =>
+                                new KeyValuePair<ShiftableBitArray, ShiftableBitArray>(
+                                        new ShiftableBitArray(),
+                                        new ShiftableBitArray()
+                                    )
+                        );
 
                 var lookup_verb_this =
-                    lookup_verb[msg.Verb];
-
-                lookup_subject_this.Value.Insert(i, true);
-                lookup_verb_this.Value.Insert(i, true);
+                    lookup_verb.Lookup(
+                            msg.Verb,
+                            () =>
+                                new KeyValuePair<ShiftableBitArray, ShiftableBitArray>(
+                                        new ShiftableBitArray(),
+                                        new ShiftableBitArray()
+                                    )
+                        );
 
                 indicies_listeners = lookup_subject_this.Key.AllOnes(lookup_verb_this.Key).ToArray();
-            }
+                
+                foreach (var subject in lookup_subject)
+                    subject.Value.Value.Insert(i, subject.Key == msg.Subject);
 
+                foreach (var verb in lookup_verb)
+                    verb.Value.Value.Insert(i, verb.Key == msg.Verb);
+            }
+            
             for (int j = 0; j < indicies_listeners.Length; j++)
                 Listeners[indicies_listeners[j]].Responder(msg);
         }
 
         private void Messages_ItemWithdrawn(IOMessage msg, int i) {
             lock (locker) {
-                if (!lookup_subject.ContainsKey(msg.Subject) ||
-                    !lookup_verb.ContainsKey(msg.Verb))
-                    return;
+                foreach (var subject in lookup_subject)
+                    subject.Value.Value.Withdraw(i);
 
-                var lookup_subject_this =
-                    lookup_subject[msg.Subject];
-
-                var lookup_verb_this =
-                    lookup_verb[msg.Verb];
-
-                lookup_subject_this.Value.Withdraw(i);
-                lookup_verb_this.Value.Withdraw(i);
+                foreach (var verb in lookup_verb)
+                    verb.Value.Value.Withdraw(i);
             }
         }
 
@@ -106,9 +112,12 @@ namespace MusicWriter
                                     )
                         );
 
-                lookup_subject_this.Key.Insert(i, true);
-                lookup_verb_this.Key.Insert(i, true);
+                foreach (var subject in lookup_subject)
+                    subject.Value.Key.Insert(i, subject.Key == listener.Filter.Subject);
 
+                foreach (var verb in lookup_verb)
+                    verb.Value.Key.Insert(i, verb.Key == listener.Filter.Verb);
+                
                 indicies_msg = lookup_subject_this.Value.AllOnes(lookup_verb_this.Value).ToArray();
             }
 
@@ -124,8 +133,11 @@ namespace MusicWriter
                 var lookup_verb_this =
                     lookup_verb[listener.Filter.Verb];
 
-                lookup_subject_this.Key.Withdraw(i);
-                lookup_verb_this.Key.Withdraw(i);
+                foreach (var subject in lookup_subject)
+                    subject.Value.Key.Withdraw(i);
+
+                foreach (var verb in lookup_verb)
+                    verb.Value.Key.Withdraw(i);
             }
         }
     }

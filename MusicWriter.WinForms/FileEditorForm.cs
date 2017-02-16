@@ -229,7 +229,12 @@ namespace MusicWriter.WinForms {
 
             inputcontroller = new InputController(commandcenter);
 
-            file = new EditorFile(new MemoryStorageGraph(), containerfactoryset);
+            file =
+                new EditorFile(
+                        new MemoryStorageGraph(), 
+                        containerfactoryset, 
+                        isnewfile: true
+                    );
         }
         
         void LoadScreen(IScreen screen) {
@@ -268,9 +273,12 @@ namespace MusicWriter.WinForms {
             filepath = filename;
 
             IStorageGraph newgraph;
+            bool isnewfile = false;
 
-            if (string.IsNullOrEmpty(filename))
+            if (string.IsNullOrEmpty(filename)) {
                 newgraph = new MemoryStorageGraph();
+                isnewfile = true;
+            }
             else {
                 switch (Path.GetExtension(filename)) {
                     case ".musicwriter":
@@ -302,7 +310,7 @@ namespace MusicWriter.WinForms {
 
             tabScreens.Controls.Clear();
 
-            file = new EditorFile(newgraph, containerfactoryset);
+            file = new EditorFile(newgraph, containerfactoryset, isnewfile);
             Setup();
 
             RecentFiles.AddRecent(filepath);
