@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class TimeMarkerUnit
+    public sealed class TimeMarkerUnit : BoundObject<TimeMarkerUnit>
     {
         readonly IStorageObject storage;
         readonly Dictionary<string, ObservableProperty<Time>> markers =
@@ -24,7 +24,15 @@ namespace MusicWriter
             get { return storage; }
         }
 
-        public TimeMarkerUnit(IStorageObject storage) {
+        public TimeMarkerUnit(
+                IStorageObject storage,
+                EditorFile file
+            ) :
+            base(
+                    storage.ID,
+                    file,
+                    null
+                ) {
             this.storage = storage;
 
             listener_added =

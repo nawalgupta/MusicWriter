@@ -75,10 +75,14 @@ namespace MusicWriter
             node_refcount.Add(StorageObjectID.Zero, 0);
 
             messagestore =
-                new BruteIOMessageReactor(
+                new TreeIOMessageReactor(
                         Messages,
-                        Listeners    
+                        Listeners
                     );
+                //new BruteIOMessageReactor(
+                //        Messages,
+                //        Listeners    
+                //    );
         }
 
         public IEnumerable<KeyValuePair<string, StorageObjectID>> Incoming(StorageObjectID sink) =>

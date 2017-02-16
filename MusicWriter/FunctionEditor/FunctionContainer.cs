@@ -61,8 +61,21 @@ namespace MusicWriter
                         obj.GetOrMake("function-sources").ID,
                         file,
                         functionsources_factoryset,
-                        functionsources_viewerset
+                        functionsources_viewerset,
+                        exclusive: false
                     );
+        }
+
+        public override void Bind() {
+            functionsources.Bind();
+
+            base.Bind();
+        }
+
+        public override void Unbind() {
+            functionsources.Unbind();
+
+            base.Unbind();
         }
     }
 }

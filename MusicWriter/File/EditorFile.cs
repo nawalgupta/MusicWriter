@@ -38,9 +38,9 @@ namespace MusicWriter {
                         new ViewerSet<IContainer>()
                     );
 
-            containers.CreateAllObjects();
-
             containers.Bind();
+
+            containers.CreateAllObjects();
         }
 
         public void Flush() =>

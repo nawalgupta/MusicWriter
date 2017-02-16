@@ -43,6 +43,7 @@
     <Compile Include="Cogs\EditableMemoryModule.cs" />
     <Compile Include="Cogs\IgnorantMemoryModule.cs" />
     <Compile Include="EditorUtils\CommandCenter.cs" />
+    <Compile Include="Other\ShiftableBitArray.cs" />
     <Compile Include="Polyline\PolylineContainer.cs" />
     <Compile Include="Porters\IPorter.cs" />
     <Compile Include="Porters\MidiPorter.cs" />
@@ -205,6 +206,7 @@
     <Content Include="MusicTrack\notes.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IO\TreeIOMessageReactor.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

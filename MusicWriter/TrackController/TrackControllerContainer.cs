@@ -49,7 +49,8 @@ namespace MusicWriter
 
             settings =
                 new TrackControllerSettings(
-                        obj.GetOrMake("settings")
+                        obj.GetOrMake("settings"),
+                        file
                     );
 
             tracks =
@@ -67,6 +68,22 @@ namespace MusicWriter
                         controllers_factoryset,
                         controllers_viewerset
                     );
+        }
+
+        public override void Bind() {
+            settings.Bind();
+            tracks.Bind();
+            controllers.Bind();
+
+            base.Bind();
+        }
+
+        public override void Unbind() {
+            settings.Unbind();
+            tracks.Unbind();
+            controllers.Unbind();
+
+            base.Unbind();
         }
 
         public static IFactory<IContainer> CreateFactory(

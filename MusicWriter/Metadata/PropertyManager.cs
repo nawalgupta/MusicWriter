@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class PropertyManager
+    public sealed class PropertyManager : BoundObject<PropertyManager>
     {
         readonly IStorageObject storage;
 
@@ -22,7 +22,14 @@ namespace MusicWriter
             set { storage.Get("next_id").WriteAllString(value.ToString()); }
         }
 
-        public PropertyManager(IStorageObject storage) {
+        public PropertyManager(
+                IStorageObject storage,
+                EditorFile file
+            ) :
+            base(
+                    storage.ID,
+                    file
+                ) {
             this.storage = storage;
 
             if (!storage.HasChild("next_id"))

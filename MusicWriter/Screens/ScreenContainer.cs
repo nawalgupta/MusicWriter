@@ -43,6 +43,18 @@ namespace MusicWriter
                     );
         }
 
+        public override void Bind() {
+            screens.Bind();
+
+            base.Bind();
+        }
+
+        public override void Unbind() {
+            screens.Unbind();
+
+            base.Unbind();
+        }
+
         public static IFactory<IContainer> CreateFactory(
                 FactorySet<IScreen> screens_factoryset,
                 ViewerSet<IScreen> screens_viewerset

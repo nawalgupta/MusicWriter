@@ -43,7 +43,8 @@ namespace MusicWriter {
                         obj.GetOrMake("controllers").ID,
                         file,
                         controllers_factoryset,
-                        controllers_viewerset
+                        controllers_viewerset,
+                        exclusive: false
                     );
 
             Controllers.ItemAdded += Controllers_ItemAdded;

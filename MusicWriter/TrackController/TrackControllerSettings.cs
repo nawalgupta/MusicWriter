@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class TrackControllerSettings
+    public sealed class TrackControllerSettings : BoundObject<TrackControllerSettings>
     {
         readonly IStorageObject storage;
         readonly PropertyManager propertymanager;
@@ -34,18 +34,40 @@ namespace MusicWriter
             get { return globalcaret; }
         }
 
-        public TrackControllerSettings(IStorageObject storage) {
+        public TrackControllerSettings(
+                IStorageObject storage,
+                EditorFile file
+            ):
+            base(
+                    storage.ID,
+                    file,
+                    null
+                ) {
             this.storage = storage;
 
-            propertymanager = new PropertyManager(storage.GetOrMake("property-manager"));
+            propertymanager = new PropertyManager(storage.GetOrMake("property-manager"), file);
 
             musicbrain = new MusicBrain();
             musicbrain.InsertCog(new NotePerceptualCog());
             musicbrain.InsertCog(new MeasureLayoutPerceptualCog());
-            
-            timemarkerunit = new TimeMarkerUnit(storage.GetOrMake("time-markers"));
+
+            timemarkerunit = new TimeMarkerUnit(storage.GetOrMake("time-markers"), file);
 
             globalcaret = new GlobalCaret(timemarkerunit);
+        }
+
+        public override void Bind() {
+            propertymanager.Bind();
+            timemarkerunit.Bind();
+
+            base.Bind();
+        }
+
+        public override void Unbind() {
+            propertymanager.Unbind();
+            timemarkerunit.Unbind();
+
+            base.Unbind();
         }
     }
 }

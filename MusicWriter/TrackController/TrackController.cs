@@ -52,7 +52,8 @@ namespace MusicWriter
                         obj.GetOrMake("tracks").ID,
                         file,
                         container.Tracks.FactorySet,
-                        container.Tracks.ViewerSet
+                        container.Tracks.ViewerSet,
+                        exclusive: false
                     );
         }
     }

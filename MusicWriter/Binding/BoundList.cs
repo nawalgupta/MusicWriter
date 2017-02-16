@@ -23,6 +23,7 @@ namespace MusicWriter
         readonly IOListener
             listener_add,
             listener_remove;
+        readonly bool exclusive;
         
         public event Action<T> ItemAdded {
             add { Objects.ItemAdded += value; }
@@ -50,6 +51,10 @@ namespace MusicWriter
 
         public ViewerSet<T> ViewerSet {
             get { return viewerset; }
+        }
+
+        public bool Exclusive {
+            get { return exclusive; }
         }
 
         public ObservableList<T> Objects { get; } =
@@ -91,7 +96,8 @@ namespace MusicWriter
                 StorageObjectID storageobjectID,
                 EditorFile file,
                 FactorySet<T> factoryset,
-                ViewerSet<T> viewerset
+                ViewerSet<T> viewerset,
+                bool exclusive = true
             ) :
             base(
                     storageobjectID,
@@ -100,6 +106,7 @@ namespace MusicWriter
                 ) {
             this.factoryset = factoryset;
             this.viewerset = viewerset;
+            this.exclusive = exclusive;
 
             var hub_obj = File.Storage[StorageObjectID];
 
@@ -126,17 +133,18 @@ namespace MusicWriter
                                         [objID]
                                         .GetOrMake("name");
 
-                                var binder =
-                                    namedobj.Name.Bind(name_obj);
-
-                                namedobj.Name.AfterChange += propertybinders.Rename;
-                                propertybinders.Add(binder.Property.Value, binder);
+                                if (Exclusive) {
+                                    var binder = namedobj.Name.Bind(name_obj);
+                                    namedobj.Name.AfterChange += propertybinders.Rename;
+                                    propertybinders.Add(binder.Property.Value, binder);
+                                }
                             }
 
                             if (!Objects.Contains(obj)) {
                                 Objects.Add(obj);
 
-                                obj.Bind();
+                                if (Exclusive)
+                                    obj.Bind();
                             }
                         }
                     );
@@ -161,11 +169,15 @@ namespace MusicWriter
 
                                     namedobj.Name.AfterChange -= propertybinders.Rename;
 
-                                    propertybinders[namedobj.Name.Value].Dispose();
-                                    propertybinders.Remove(namedobj.Name.Value);
+                                    if (Exclusive) {
+                                        propertybinders[namedobj.Name.Value].Dispose();
+                                        propertybinders.Remove(namedobj.Name.Value);
+                                    }
                                 }
 
-                                obj.Unbind();
+                                if (Exclusive)
+                                    obj.Unbind();
+
                                 Objects.Remove(obj);
                             }
                         }
@@ -179,16 +191,17 @@ namespace MusicWriter
                     // should exhibit non-exclusive ownership of the object.
 
                     hub_obj.Add("", obj.StorageObjectID);
-                    obj.Bind();
+                    if (Exclusive)
+                        obj.Bind();
                 }
                 
                 var namedobj =
                     obj as INamedObject;
-
+                
                 if (namedobj != null) {
                     namedobj.Name.BeforeChange += Object_Renaming;
                     namedobj.Name.AfterChange += Object_Renamed;
-
+                    
                     map_name.Add(namedobj.Name.Value, obj);
                     map_name_inverse.Add(obj, namedobj.Name.Value);
                 }
@@ -240,11 +253,13 @@ namespace MusicWriter
 
         private void Object_Renaming(ObservableProperty<string>.PropertyChangingEventArgs args) {
             if (map_name.ContainsKey(args.NewValue)) {
-                if (AutomaticallyAvoidNameCollisionsWithUnderlines) {
-                    args.NewValue += "_";
-                    args.Altered = true;
+                if (Exclusive) {
+                    if (AutomaticallyAvoidNameCollisionsWithUnderlines) {
+                        args.NewValue += "_";
+                        args.Altered = true;
+                    }
+                    else throw new ArgumentException($"Name \"{args.NewValue}\" already in use.");
                 }
-                else throw new ArgumentException($"Name \"{args.NewValue}\" already in use.");
             }
         }
 

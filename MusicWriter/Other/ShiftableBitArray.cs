@@ -21,7 +21,7 @@ namespace MusicWriter
 
                 lock (locker) {
                     if (slot_i >= slots.Length)
-                        Array.Resize(ref slots, slot_i + 1);
+                        return false;
 
                     slot = slots[slot_i];
                 }
@@ -110,9 +110,9 @@ namespace MusicWriter
             }
         }
 
-        static ulong mask(int i) => 1uL >> i;
+        static ulong mask(int i) => 1uL << i;
 
-        static ulong mask_after(int i) => 0xFFFFFFFFFFFFFFFFuL >> i;
+        static ulong mask_after(int i) => (0xFFFFFFFFFFFFFFFFuL >> i) << i;
         
         public void Insert(int i, bool value) {
             if (i >= 64 * slots.Length)
@@ -127,7 +127,7 @@ namespace MusicWriter
                         var mask_i = mask(local_i);
 
                         slots[slot_i] =
-                            ((slot & mask_a) >> 1) |
+                            ((slot & mask_a) << 1) |
                             (slot & ~(mask_a | mask_i)) |
                             (value ? mask_i : 0);
 
@@ -139,7 +139,27 @@ namespace MusicWriter
         }
 
         public void Withdraw(int i) {
-            //TODO
+            if (i >= 64 * slots.Length)
+                this[i] = false;
+            else {
+                lock (locker) {
+                    var local_i = i % 64;
+                    
+                    for (var slot_i = i / 64; slot_i < slots.Length; slot_i++) {
+                        var slot = slots[slot_i];
+                        var mask_a = mask_after(local_i);
+                        var mask_i = mask(local_i);
+                        var next_bit = this[slot_i * 64 + 64];
+
+                        slots[slot_i] =
+                            ((slot & (mask_a & ~mask_i)) >> 1) |
+                            (slot & ~(mask_a | mask_i)) |
+                            (next_bit ? (1uL << 63) : 0uL);
+                        
+                        local_i = 0;
+                    }
+                }
+            }
         }
     }
 }
