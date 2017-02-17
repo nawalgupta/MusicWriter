@@ -165,10 +165,22 @@ namespace MusicWriter
                         responder
                     );
 
-        public static IStorageObject Object<T>(this T item) where T : IBoundObject<T> =>
+        public static IStorageObject Object<T>(this T item)
+            where T : IBoundObject<T> =>
+            item.Object<T, T>();
+
+        public static IStorageObject Object<T, T2>(this T item)
+            where T : IBoundObject<T2> 
+            where T2 : IBoundObject<T2> =>
             item.File.Storage[item.StorageObjectID];
 
-        public static void Delete<T>(this T item) where T : IBoundObject<T> =>
-            item.Object().Delete();
+        public static void Delete<T>(this T item)
+            where T : IBoundObject<T> =>
+            item.Delete<T, T>();
+
+        public static void Delete<T, T2>(this T item) 
+            where T : IBoundObject<T2>
+            where T2 : IBoundObject<T2> =>
+            item.Object<T, T2>().Delete();
     }
 }

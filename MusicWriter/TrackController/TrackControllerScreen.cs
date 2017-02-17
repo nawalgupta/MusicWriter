@@ -46,17 +46,6 @@ namespace MusicWriter {
                         controllers_viewerset,
                         exclusive: false
                     );
-
-            Controllers.ItemAdded += Controllers_ItemAdded;
-            Controllers.ItemRemoved += Controllers_ItemRemoved;
-
-            Name.AfterChange += container.Settings.GlobalCaret.RenameCaret;
-
-            if (!file.Storage[storageobjectID].HasChild("inited")) {
-                Init();
-
-                file.Storage[storageobjectID].GetOrMake("inited");
-            }
         }
 
         private void Controllers_ItemAdded(ITrackController obj) {
@@ -66,7 +55,30 @@ namespace MusicWriter {
         private void Controllers_ItemRemoved(ITrackController obj) {
             obj.CommandCenter.DesubscribeFrom(CommandCenter);
         }
-        
+
+        public override void Bind() {
+            controllers.Bind();
+
+            controllers.ItemAdded += Controllers_ItemAdded;
+            controllers.ItemRemoved += Controllers_ItemRemoved;
+
+            Name.AfterChange += container.Settings.GlobalCaret.RenameCaret;
+
+            if (!this.Object<TrackControllerScreen, IScreen>().HasChild("inited")) {
+                Init();
+
+                this.Object<TrackControllerScreen, IScreen>().GetOrMake("inited");
+            }
+
+            base.Bind();
+        }
+
+        public override void Unbind() {
+            controllers.Unbind();
+
+            base.Unbind();
+        }
+
         void Init() {
             container
                 .Settings

@@ -10,6 +10,9 @@ namespace MusicWriter
     public static class CodeTools
     {
         public static Duration ReadDuration(string value) {
+            if (string.IsNullOrWhiteSpace(value))
+                return Duration.Empty;
+
             var split = value.Split('+');
 
             return new Duration {
@@ -22,7 +25,9 @@ namespace MusicWriter
             $"{WriteTime(duration.Start)}+{WriteTime(duration.Length)}";
 
         public static Time ReadTime(string value) =>
-            Time.FromTicks(int.Parse(value));
+            !string.IsNullOrWhiteSpace(value) ?
+                Time.FromTicks(int.Parse(value)) :
+                Time.Zero;
 
         public static string WriteTime(Time time) =>
             time.Ticks.ToString();

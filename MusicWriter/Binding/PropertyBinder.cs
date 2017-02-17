@@ -43,6 +43,8 @@ namespace MusicWriter
 
             listener = storageobject.CreateListen(IOEvent.ObjectContentsSet, StorageObject_ContentsSet);
             property.AfterChange += Property_AfterChange;
+
+            storageobject.Graph.Listeners.Add(listener);
         }
 
         private void StorageObject_ContentsSet(StorageObjectID affected) =>

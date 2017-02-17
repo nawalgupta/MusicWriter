@@ -141,9 +141,14 @@ namespace MusicWriter {
             offset.GetHashCode() ^
             length.GetHashCode();
 
-        public static readonly Duration Eternity = new Duration {
+        public static Duration Eternity { get; } = new Duration {
             Start = Time.Zero,
             Length = Time.Eternity
+        };
+
+        public static Duration Empty { get; } = new Duration {
+            Start = Time.Zero,
+            length = Time.Zero
         };
 
         public static Duration operator |(Duration a, Duration b) =>
