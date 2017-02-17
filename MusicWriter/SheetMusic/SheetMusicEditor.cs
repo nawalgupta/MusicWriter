@@ -67,14 +67,6 @@ namespace MusicWriter
                     .First()
                     .Duration
                     .Length;
-            //Editor
-            //    .ActiveTrack
-            //    .Rhythm
-            //    .TimeSignatures
-            //    .Intersecting_children(here)
-            //    .First()
-            //    .Duration
-            //    .End - here;
         }
     }
 }
