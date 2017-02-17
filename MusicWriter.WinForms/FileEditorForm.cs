@@ -66,10 +66,7 @@ namespace MusicWriter.WinForms {
             containerfactoryset.Factories.Add(
                     ScreenContainer.CreateFactory(
                             new FactorySet<IScreen>(
-                                    TrackControllerScreen.CreateFactory(
-                                            controllers_factoryset,
-                                            controllers_viewerset
-                                        )
+                                    TrackControllerScreen.FactoryInstance
                                 ),
                             new ViewerSet<IScreen>(
                                     TrackControllerScreenView.Viewer.Instance

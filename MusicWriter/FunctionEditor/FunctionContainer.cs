@@ -61,8 +61,7 @@ namespace MusicWriter
                         obj.GetOrMake("function-sources").ID,
                         file,
                         functionsources_factoryset,
-                        functionsources_viewerset,
-                        exclusive: false
+                        functionsources_viewerset
                     );
         }
 

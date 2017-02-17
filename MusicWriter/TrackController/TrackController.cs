@@ -51,9 +51,7 @@ namespace MusicWriter
                 new BoundList<ITrack>(
                         obj.GetOrMake("tracks").ID,
                         file,
-                        container.Tracks.FactorySet,
-                        container.Tracks.ViewerSet,
-                        exclusive: false
+                        container.Tracks
                     );
         }
     }

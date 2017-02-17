@@ -23,8 +23,8 @@ namespace MusicWriter
         readonly IOListener
             listener_add,
             listener_remove;
-        readonly bool exclusive;
-        
+        readonly BoundList<T> master;
+
         public event Action<T> ItemAdded {
             add { Objects.ItemAdded += value; }
             remove { Objects.ItemAdded -= value; }
@@ -52,11 +52,7 @@ namespace MusicWriter
         public ViewerSet<T> ViewerSet {
             get { return viewerset; }
         }
-
-        public bool Exclusive {
-            get { return exclusive; }
-        }
-
+        
         public ObservableList<T> Objects { get; } =
             new ObservableList<T>();
         
@@ -96,8 +92,37 @@ namespace MusicWriter
                 StorageObjectID storageobjectID,
                 EditorFile file,
                 FactorySet<T> factoryset,
+                ViewerSet<T> viewerset
+            ):
+            this(
+                    storageobjectID,
+                    file,
+                    factoryset,
+                    viewerset,
+                    null
+                ) {
+        }
+
+        public BoundList(
+                StorageObjectID storageobjectID,
+                EditorFile file,
+                BoundList<T> master
+            ) :
+            this(
+                    storageobjectID,
+                    file,
+                    master.factoryset,
+                    master.viewerset,
+                    master
+                ) {
+        }
+
+        private BoundList(
+                StorageObjectID storageobjectID,
+                EditorFile file,
+                FactorySet<T> factoryset,
                 ViewerSet<T> viewerset,
-                bool exclusive = true
+                BoundList<T> master
             ) :
             base(
                     storageobjectID,
@@ -106,7 +131,7 @@ namespace MusicWriter
                 ) {
             this.factoryset = factoryset;
             this.viewerset = viewerset;
-            this.exclusive = exclusive;
+            this.master = master;
 
             var hub_obj = File.Storage[StorageObjectID];
 
@@ -121,31 +146,32 @@ namespace MusicWriter
                                 throw new InvalidOperationException();
 
                             var obj =
-                                FactorySet.Load(objID, File);
+                                master == null ?
+                                    FactorySet.Load(objID, File) :
+                                    master[objID];
 
                             var namedobj =
                                 obj as INamedObject;
 
                             if (namedobj != null) {
-                                var name_obj =
-                                    File
-                                        .Storage
-                                        [objID]
-                                        .GetOrMake("name");
+                                if (master == null) {
+                                    var name_obj =
+                                        File
+                                            .Storage
+                                            [objID]
+                                            .GetOrMake("name");
 
-                                if (Exclusive) {
                                     var binder = namedobj.Name.Bind(name_obj);
                                     namedobj.Name.AfterChange += propertybinders.Rename;
                                     propertybinders.Add(binder.Property.Value, binder);
                                 }
                             }
 
-                            if (!Objects.Contains(obj)) {
+                            if (!Objects.Contains(obj))
                                 Objects.Add(obj);
 
-                                if (Exclusive)
-                                    obj.Bind();
-                            }
+                            if (master == null)
+                                obj.Bind();
                         }
                     );
 
@@ -164,18 +190,15 @@ namespace MusicWriter
                                     obj as INamedObject;
 
                                 if (namedobj != null) {
-                                    namedobj.Name.BeforeChange -= Object_Renaming;
-                                    namedobj.Name.AfterChange -= Object_Renamed;
+                                    if (master == null) {
+                                        namedobj.Name.AfterChange -= propertybinders.Rename;
 
-                                    namedobj.Name.AfterChange -= propertybinders.Rename;
-
-                                    if (Exclusive) {
                                         propertybinders[namedobj.Name.Value].Dispose();
                                         propertybinders.Remove(namedobj.Name.Value);
                                     }
                                 }
 
-                                if (Exclusive)
+                                if (master == null)
                                     obj.Unbind();
 
                                 Objects.Remove(obj);
@@ -185,14 +208,10 @@ namespace MusicWriter
 
             Objects.ItemAdded += obj => {
                 if (!hub_obj.HasChild(obj.StorageObjectID)) {
-                    //TODO: not sure if this will work
-                    // What's supposed to happen is that if a bound object already in one
-                    // bound list is added to another bound list, the second bound list 
-                    // should exhibit non-exclusive ownership of the object.
+                    if (master == null)
+                        throw new InvalidOperationException();
 
                     hub_obj.Add("", obj.StorageObjectID);
-                    if (Exclusive)
-                        obj.Bind();
                 }
                 
                 var namedobj =
@@ -211,29 +230,24 @@ namespace MusicWriter
             };
 
             Objects.ItemRemoved += obj => {
-                if (hub_obj.HasChild(obj.StorageObjectID)) {
-                    obj.Unbind();
+                if (hub_obj.HasChild(obj.StorageObjectID))
                     hub_obj.Remove(obj.StorageObjectID);
 
-                    var namedobj =
-                        obj as INamedObject;
+                var namedobj =
+                    obj as INamedObject;
 
-                    if (namedobj != null) {
-                        namedobj.Name.BeforeChange -= Object_Renaming;
-                        namedobj.Name.AfterChange -= Object_Renamed;
+                if (namedobj != null) {
+                    namedobj.Name.BeforeChange -= Object_Renaming;
+                    namedobj.Name.AfterChange -= Object_Renamed;
 
-                        namedobj.Name.AfterChange -= propertybinders.Rename;
+                    namedobj.Name.AfterChange -= propertybinders.Rename;
 
-                        propertybinders[namedobj.Name.Value].Dispose();
-                        propertybinders.Remove(namedobj.Name.Value);
-
-                        map_name.Remove(namedobj.Name.Value);
-                        map_name_inverse.Remove(obj);
-                    }
-
-                    map_storageobjectID.Remove(obj.StorageObjectID);
-                    map_storageobjectID_inverse.Remove(obj);
+                    map_name.Remove(namedobj.Name.Value);
+                    map_name_inverse.Remove(obj);
                 }
+
+                map_storageobjectID.Remove(obj.StorageObjectID);
+                map_storageobjectID_inverse.Remove(obj);
             };
         }
 
@@ -253,7 +267,7 @@ namespace MusicWriter
 
         private void Object_Renaming(ObservableProperty<string>.PropertyChangingEventArgs args) {
             if (map_name.ContainsKey(args.NewValue)) {
-                if (Exclusive) {
+                if (master == null) {
                     if (AutomaticallyAvoidNameCollisionsWithUnderlines) {
                         args.NewValue += "_";
                         args.Altered = true;
