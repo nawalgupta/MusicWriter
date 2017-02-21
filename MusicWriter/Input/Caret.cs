@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class Caret {
-        public Duration Duration { get; } = new Duration();
+        public ObservableDuration Duration { get; } = new ObservableDuration();
 
-        public FocusSide Side { get; set; } = FocusSide.Both;
+        public ObservableProperty<FocusSide> Side { get; } = new ObservableProperty<FocusSide>(FocusSide.Both);
 
-        public Time Unit { get; set; } = Time.Note_8th;
+        public ObservableProperty<Time> Unit { get; } = new ObservableProperty<Time>(Time.Note_4th);
 
         public Time Focus {
             get {
-                if ((Side & FocusSide.Left) == FocusSide.Left)
+                if ((Side.Value & FocusSide.Left) == FocusSide.Left)
                     return Duration.Start;
 
-                if ((Side & FocusSide.Right) == FocusSide.Right)
+                if ((Side.Value & FocusSide.Right) == FocusSide.Right)
                     return Duration.End;
 
                 return Time.Zero;
@@ -26,20 +26,20 @@ namespace MusicWriter {
                 if (value < Time.Zero)
                     value = Time.Zero;
 
-                if ((Side & FocusSide.Left) == FocusSide.Left)
+                if ((Side.Value & FocusSide.Left) == FocusSide.Left)
                     Duration.Start = value;
 
-                if ((Side & FocusSide.Right) == FocusSide.Right)
+                if ((Side.Value & FocusSide.Right) == FocusSide.Right)
                     Duration.End = value;
             }
         }
 
         public Time DeltaFocus {
             set {
-                if ((Side & FocusSide.Left) == FocusSide.Left)
+                if ((Side.Value & FocusSide.Left) == FocusSide.Left)
                     Duration.Start += value;
 
-                if ((Side & FocusSide.Right) == FocusSide.Right)
+                if ((Side.Value & FocusSide.Right) == FocusSide.Right)
                     Duration.End += value;
             }
         }

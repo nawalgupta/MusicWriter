@@ -5,29 +5,29 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter {
-    public sealed class Duration : IEquatable<Duration>
+    public class Duration : IEquatable<Duration>
     {
         Time offset, length;
 
         public Time Start {
-            get { return offset; }
+            get { return Offset; }
             set {
-                length += offset - value;
-                offset = value;
+                Length += Offset - value;
+                Offset = value;
             }
         }
 
         public Time End {
-            get { return offset + length; }
-            set { length = value - offset; }
+            get { return Offset + Length; }
+            set { Length = value - Offset; }
         }
 
-        public Time Length {
+        public virtual Time Length {
             get { return length; }
             set { length = value; }
         }
 
-        public Time Offset {
+        public virtual Time Offset {
             get { return offset; }
             set { offset = value; }
         }
@@ -41,7 +41,7 @@ namespace MusicWriter {
                 };
 
         public bool Contains(Time time) =>
-            time >= offset && time < offset + length;
+            time >= Offset && time < Offset + Length;
 
         public Duration Intersection(Duration duration) {
             if (Start > duration.End ||
@@ -83,7 +83,7 @@ namespace MusicWriter {
                 else return null;
             }
             // Start >= cut.End
-            return this - cut.length;
+            return this - cut.Length;
         }
 
         public Duration[] Subtract(Duration cut) {
@@ -127,19 +127,19 @@ namespace MusicWriter {
         }
 
         public override string ToString() =>
-            $"{Start}+{length}";
+            $"{Offset}+{Length}";
 
         public bool Equals(Duration that) =>
-            length == that.length &&
-            offset == that.offset;
+            Length == that.Length &&
+            Offset == that.Offset;
 
         public override bool Equals(object obj) =>
             obj is Duration &&
             Equals((Duration)obj);
 
         public override int GetHashCode() =>
-            offset.GetHashCode() ^
-            length.GetHashCode();
+            Offset.GetHashCode() ^
+            Length.GetHashCode();
 
         public static Duration Eternity { get; } = new Duration {
             Start = Time.Zero,
@@ -148,7 +148,7 @@ namespace MusicWriter {
 
         public static Duration Empty { get; } = new Duration {
             Start = Time.Zero,
-            length = Time.Zero
+            Length = Time.Zero
         };
 
         public static Duration operator |(Duration a, Duration b) =>
