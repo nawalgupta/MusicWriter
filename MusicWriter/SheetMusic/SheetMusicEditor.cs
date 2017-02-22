@@ -78,6 +78,8 @@ namespace MusicWriter
             CommandCenter.WhenDeleteSelection += CommandCenter_WhenDeleteSelection;
             CommandCenter.WhenEraseSelection += CommandCenter_WhenEraseSelection;
 
+            CommandCenter.WhenUnitPicking += CommandCenter_WhenUnitPicking;
+
             Pin.Time.ActualTime.AfterChange += Pin_ActualTime_AfterChange;
         }
 
@@ -467,6 +469,11 @@ namespace MusicWriter
                 InvalidateTime(effectedarea);
 
             Refresh();
+        }
+
+        private void CommandCenter_WhenUnitPicking(CaretUnitPickerEventArgs args) {
+            args.Length = Cursor.Caret.Unit.Value;
+            args.Handled = true;
         }
 
         private void Pin_ActualTime_AfterChange(Time old, Time @new) {
