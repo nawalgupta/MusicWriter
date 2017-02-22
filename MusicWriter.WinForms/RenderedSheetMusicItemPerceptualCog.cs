@@ -52,9 +52,12 @@ namespace MusicWriter.WinForms {
                 (MemoryModule)
                 memory.MemoryModule<RenderedSheetMusicItem>();
 
+            if (memorymodule == null)
+                return false; //TODO: is this appropriate?
+
             var layoutmeasures =
                 memory.Analyses<MeasureLayout>(delta);
-
+            
             foreach (var layoutmeasure in layoutmeasures) {
                 if (memorymodule.items_measure.AnyItemIn(layoutmeasure.Duration))
                     continue;

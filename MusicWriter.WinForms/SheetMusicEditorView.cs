@@ -28,6 +28,7 @@ namespace MusicWriter.WinForms
                 editor = value;
 
                 container = editor.File[TrackControllerContainer.ItemName] as TrackControllerContainer;
+                container.Settings.MusicBrain.InsertCog(new RenderedSheetMusicItemPerceptualCog());
 
                 editor.Tracks.ItemAdded += Tracks_ItemAdded;
                 editor.Tracks.ItemRemoved += Tracks_ItemRemoved;
