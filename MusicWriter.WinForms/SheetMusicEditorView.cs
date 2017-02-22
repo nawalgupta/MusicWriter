@@ -75,13 +75,13 @@ namespace MusicWriter.WinForms
         }
         
         protected override void OnGotFocus(EventArgs e) {
-            BackColor = Color.FromArgb(255, 251, 227);
+            BackColor = Color.Red; // Color.FromArgb(255, 251, 227);
 
             base.OnGotFocus(e);
         }
 
         protected override void OnLostFocus(EventArgs e) {
-            BackColor = Color.FromArgb(241, 234, 200);
+            BackColor = Color.Blue; Color.FromArgb(241, 234, 200);
 
             base.OnLostFocus(e);
         }
@@ -697,7 +697,7 @@ namespace MusicWriter.WinForms
                     .Intersecting(editor.Cursor.Caret.Focus)
                     .First()
                     .Value
-                    .Key(editor.Cursor.Tone, out transform);
+                    .Key(editor.Cursor.Tone.Value, out transform);
 
             var carety =
                 settings.YVal(caretstaff.GetHalfLine(caretkey));
@@ -747,7 +747,7 @@ namespace MusicWriter.WinForms
                                 new Note(
                                         default(NoteID),
                                         cursor_focusduration,
-                                        editor.Cursor.Tone
+                                        editor.Cursor.Tone.Value
                                     )
                             ),
                         settings

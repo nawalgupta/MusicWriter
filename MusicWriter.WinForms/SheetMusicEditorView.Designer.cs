@@ -24,6 +24,11 @@
         /// </summary>
         private void InitializeComponent() {
             this.SuspendLayout();
+            // 
+            // SheetMusicEditorView
+            // 
+            this.MinimumSize = new System.Drawing.Size(10, 10);
+            this.Size = new System.Drawing.Size(10, 10);
             this.ResumeLayout(false);
 
         }

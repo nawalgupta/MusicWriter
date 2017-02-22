@@ -38,7 +38,7 @@ namespace MusicWriter
         public event CaretUnitPickerDelegate WhenUnitPicking;
 
         public bool Enabled { get; set; } = true;
-
+        
         public void ToggleSelectAll() =>
             Do(() => WhenToggleSelectAll?.Invoke());
 

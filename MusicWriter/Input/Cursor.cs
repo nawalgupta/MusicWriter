@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace MusicWriter {
     public sealed class Cursor {
-        public SemiTone Tone { get; set; } = SemiTone.C4;
+        public ObservableProperty<SemiTone> Tone { get; } =
+            new ObservableProperty<SemiTone>(SemiTone.C4);
 
         public Caret Caret { get; } = new Caret();
     }

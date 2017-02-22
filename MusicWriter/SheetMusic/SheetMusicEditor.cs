@@ -22,6 +22,9 @@ namespace MusicWriter
         public Cursor Cursor { get; } =
             new Cursor();
 
+        public Cursor CursorBackup { get; } =
+            new Cursor();
+
         public override TrackControllerHints Hints {
             get { return hints; }
         }
@@ -49,12 +52,28 @@ namespace MusicWriter
             Tracks.ItemAdded += Tracks_ItemAdded;
             Tracks.ItemRemoved += Tracks_ItemRemoved;
 
+            CommandCenter.WhenCursor_Divide += CommandCenter_WhenCursor_Divide;
+            CommandCenter.WhenCursor_Multiply += CommandCenter_WhenCursor_Multiply;
+            CommandCenter.WhenCursor_ResetOne += CommandCenter_WhenCursor_ResetOne;
+
             CommandCenter.WhenSelectAll += CommandCenter_WhenSelectAll;
             CommandCenter.WhenDeselectAll += CommandCenter_WhenDeselectAll;
             CommandCenter.WhenToggleSelectAll += CommandCenter_WhenToggleSelectAll;
 
-            CommandCenter.WhenNotePlacementStart += CommandCenter_NotePlacementStart;
-            CommandCenter.WhenNotePlacementFinish += CommandCenter_NotePlacementFinish;
+            CommandCenter.WhenToneChanged += CommandCenter_WhenToneChanged;
+            CommandCenter.WhenTimeChanged += CommandCenter_WhenTimeChanged;
+            CommandCenter.WhenPreviewToneChanged += CommandCenter_WhenPreviewToneChanged;
+            CommandCenter.WhenPreviewTimeChanged += CommandCenter_WhenPreviewTimeChanged;
+            CommandCenter.WhenToneStart += CommandCenter_WhenToneStart;
+            CommandCenter.WhenTimeStart += CommandCenter_WhenTimeStart;
+            CommandCenter.WhenToneReset += CommandCenter_WhenToneReset;
+            CommandCenter.WhenTimeReset += CommandCenter_WhenTimeReset;
+
+            CommandCenter.WhenSelectionStart += CommandCenter_WhenSelectionStart;
+            CommandCenter.WhenSelectionFinish += CommandCenter_WhenSelectionFinish;
+
+            CommandCenter.WhenNotePlacementStart += CommandCenter_WhenNotePlacementStart;
+            CommandCenter.WhenNotePlacementFinish += CommandCenter_WhenNotePlacementFinish;
 
             CommandCenter.WhenDeleteSelection += CommandCenter_WhenDeleteSelection;
             CommandCenter.WhenEraseSelection += CommandCenter_WhenEraseSelection;
@@ -117,6 +136,27 @@ namespace MusicWriter
                     .Length;
         }
 
+        private void CommandCenter_WhenCursor_Divide(int divisor) {
+            if (!Cursor.Caret.Unit.Value.CanDivideInto(divisor))
+                return;
+
+            Cursor.Caret.Unit.Value /= divisor;
+
+            Refresh();
+        }
+
+        private void CommandCenter_WhenCursor_Multiply(int factor) {
+            Cursor.Caret.Unit.Value *= factor;
+
+            Refresh();
+        }
+
+        private void CommandCenter_WhenCursor_ResetOne() {
+            Cursor.Caret.Unit.Value = Time.Note;
+
+            Refresh();
+        }
+
         private void CommandCenter_WhenToggleSelectAll() {
             var any =
                 NoteSelections
@@ -167,13 +207,201 @@ namespace MusicWriter
 
             Refresh();
         }
-
-        private void CommandCenter_NotePlacementFinish() {
+        
+        private void CommandCenter_WhenToneChanged(int tone, CaretMode mode) {
+            // action was already handled by preview
         }
 
-        private void CommandCenter_NotePlacementStart() {
+        private void CommandCenter_WhenTimeChanged(Time time, CaretMode mode) {
+            // action was already handled by preview
+        }
+
+        private void CommandCenter_WhenPreviewToneChanged(int tone, CaretMode mode) =>
+            Effect_ToneChanged(tone, mode);
+
+        private void CommandCenter_WhenPreviewTimeChanged(Time time, CaretMode mode) =>
+            Effect_TimeChanged(time, mode);
+
+        private void CommandCenter_WhenTimeStart() {
+            foreach (var selection in NoteSelections)
+                selection.Value.Save_Time(selection.Key);
+
+            CursorBackup.Caret.Duration.Start = Cursor.Caret.Duration.Start;
+            CursorBackup.Caret.Duration.Length = Cursor.Caret.Duration.Length;
+            CursorBackup.Caret.Side.Value = Cursor.Caret.Side.Value;
+        }
+
+        private void CommandCenter_WhenToneStart() {
+            foreach (var selection in NoteSelections)
+                selection.Value.Save_Tone(selection.Key);
+
+            CursorBackup.Tone.Value = Cursor.Tone.Value;
+        }
+
+        private void CommandCenter_WhenTimeReset() {
+            foreach (var selection in NoteSelections)
+                selection.Value.Restore_Time(selection.Key);
+
+            Cursor.Caret.Duration.Offset = CursorBackup.Caret.Duration.Offset;
+            Cursor.Caret.Duration.Length = CursorBackup.Caret.Duration.Length;
+            Cursor.Caret.Side.Value = CursorBackup.Caret.Side.Value;
+
+            Refresh();
+        }
+
+        private void CommandCenter_WhenToneReset() {
+            foreach (var selection in NoteSelections)
+                selection.Value.Restore_Tone(selection.Key);
+
+            Cursor.Tone.Value = CursorBackup.Tone.Value;
+
+            Refresh();
+        }
+
+        private void CommandCenter_WhenSelectionFinish() {
+            Cursor.Caret.Side.Value = Caret.FocusSide.Both;
+
+            Refresh();
+        }
+
+        private void CommandCenter_WhenSelectionStart() {
+            Cursor.Caret.Side.Value = Caret.FocusSide.Right;
+
+            Refresh();
+        }
+
+        void Effect_TimeChanged(Time time, CaretMode mode) {
+            var effectedarea = default(Duration);
+
+            foreach (var trackkvp in NoteSelections) {
+                var track = trackkvp.Key;
+
+                foreach (var noteID in trackkvp.Value.Selected_Start.Union(trackkvp.Value.Selected_End)) {
+                    var is_start = trackkvp.Value.Selected_Start.Contains(noteID);
+                    var is_end = trackkvp.Value.Selected_End.Contains(noteID);
+
+                    var note = track.Melody[noteID];
+
+                    var oldduration =
+                        note.Duration;
+
+                    var newduration =
+                        new Duration {
+                            Start = oldduration.Start,
+                            Length = oldduration.Length
+                        };
+
+                    if (is_start) {
+                        if (mode == CaretMode.Absolute)
+                            newduration.Start = time;
+                        else if (mode == CaretMode.Delta)
+                            newduration.Start += time;
+                    }
+
+                    if (is_end && !is_start) {
+                        if (mode == CaretMode.Absolute)
+                            newduration.End = time;
+                        else if (mode == CaretMode.Delta)
+                            newduration.End += time;
+                    }
+
+                    effectedarea =
+                        oldduration
+                            .Union(newduration)
+                            .Union(effectedarea);
+
+                    track.Melody.UpdateNote(note.ID, newduration, note.Tone);
+                }
+            }
+
+            if (mode == CaretMode.Absolute)
+                Cursor.Caret.Focus = time;
+            else if (mode == CaretMode.Delta)
+                Cursor.Caret.Focus += time;
+
+            //TODO: update only the affected duration
+
+            if (effectedarea != null)
+                InvalidateTime(effectedarea);
+
+            Refresh();
+        }
+
+        void Effect_ToneChanged(int tone, CaretMode mode) {
+            var effectedarea = default(Duration);
+
+            foreach (var trackkvp in NoteSelections) {
+                var track = trackkvp.Key;
+
+                foreach (var noteID in trackkvp.Value.Selected_Tone) {
+                    var note = track.Melody[noteID];
+
+                    effectedarea = note.Duration.Union(effectedarea);
+
+                    var newtone =
+                        Effect_ToneChanged_affect(
+                                note.Tone,
+                                note.Duration.Start, 
+                                tone, 
+                                mode, 
+                                track
+                            );
+
+                    track.Melody.UpdateNote(note.ID, note.Duration, newtone);
+                }
+            }
+
+            Cursor
+                .Tone
+                .Value =
+                Effect_ToneChanged_affect(
+                        Cursor.Tone.Value,
+                        Cursor.Caret.Focus,
+                        tone,
+                        mode,
+                        ActiveTrack
+                    );
+
+            if (effectedarea != null)
+                InvalidateTime(effectedarea);
+
+            Refresh();
+        }
+
+        SemiTone Effect_ToneChanged_affect(SemiTone tone, Time time, int delta, CaretMode mode, MusicTrack track) {
+            if (mode.HasFlag(CaretMode.Absolute))
+                return new SemiTone(delta);
+            else if (!mode.HasFlag(CaretMode.Delta))
+                throw new InvalidOperationException();
+
+            if (mode.HasFlag(CaretMode.SemiTones))
+                tone += delta;
+            else if (mode.HasFlag(CaretMode.WholeTones)) {
+                var keysig =
+                    track
+                        .Adornment
+                        .KeySignatures
+                        .Intersecting(time)
+                        .First()
+                        .Value;
+
+                if (delta > 0) {
+                    while (delta-- > 0)
+                        tone = keysig.Right(tone);
+                }
+                else if (delta < 0) {
+                    while (delta++ < 0)
+                        tone = keysig.Left(tone);
+                }
+            }
+            else throw new InvalidOperationException();
+
+            return tone;
+        }
+
+        private void CommandCenter_WhenNotePlacementStart() {
             var tone =
-                Cursor.Tone;
+                Cursor.Tone.Value;
 
             var duration =
                 Cursor.Caret.Duration;
@@ -185,6 +413,9 @@ namespace MusicWriter
             NoteSelections[ActiveTrack].Selected_Tone.Add(noteID);
 
             Refresh();
+        }
+
+        private void CommandCenter_WhenNotePlacementFinish() {
         }
 
         private void CommandCenter_WhenDeleteSelection() {
