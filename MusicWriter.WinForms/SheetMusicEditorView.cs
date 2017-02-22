@@ -76,13 +76,13 @@ namespace MusicWriter.WinForms
         }
         
         protected override void OnGotFocus(EventArgs e) {
-            BackColor = Color.Red; // Color.FromArgb(255, 251, 227);
+            BackColor = Color.FromArgb(255, 251, 227);
 
             base.OnGotFocus(e);
         }
 
         protected override void OnLostFocus(EventArgs e) {
-            BackColor = Color.Blue; Color.FromArgb(241, 234, 200);
+            BackColor = Color.FromArgb(241, 234, 200);
 
             base.OnLostFocus(e);
         }
