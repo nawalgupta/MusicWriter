@@ -80,7 +80,7 @@ namespace MusicWriter {
                 });
 
             listener_notes_changed =
-                notes_obj.CreateListen(IOEvent.ObjectContentsSet, (key, changed_note_objID) => {
+                notes_obj.CreateListen(IOEvent.ChildContentsSet, (key, changed_note_objID) => {
                     var noteID = new NoteID(int.Parse(key));
                     var new_note_obj = notes_obj.Graph[changed_note_objID];
                     var contents = new_note_obj.ReadAllString().Split('\n');
