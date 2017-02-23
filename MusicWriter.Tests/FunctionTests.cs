@@ -54,6 +54,7 @@ namespace MusicWriter.Tests
         [TestMethod]
         public void TestPolyline_1() {
             var polyline = new PolylineData(obj1.ID, file);
+            polyline.Bind();
 
             polyline.Add(0, 0);
             polyline.Add(1, 2);
@@ -73,11 +74,14 @@ namespace MusicWriter.Tests
             polyline.Add(1.25f, 1);
 
             Assert.AreEqual(polyline.GetValue(1.0625f), 1.75f);
+
+            polyline.Unbind();
         }
 
         [TestMethod]
         public void TestPolyline_2() {
             var polyline = new PolylineData(obj2.ID, file);
+            polyline.Bind();
 
             //         XXXX
             //       XXXXXXXXXXX
@@ -97,6 +101,8 @@ namespace MusicWriter.Tests
             float y;
             Assert.IsTrue(polyline.GetInvertedIntegratedValue(1.75f, out y));
             Assert.AreEqual(y, 1.5f);
+
+            polyline.Unbind();
         }
 
         [TestMethod]
