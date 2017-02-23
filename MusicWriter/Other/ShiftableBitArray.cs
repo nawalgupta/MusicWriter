@@ -53,7 +53,7 @@ namespace MusicWriter
 
         public IEnumerable<int> AllOnes() {
             for (int i = 0; i < 64 * slots.Length; i += 64)
-                foreach (var index in relative_indicies(slots[i]))
+                foreach (var index in relative_indicies(slots[i / 64]))
                     yield return index + i;
         }
 
