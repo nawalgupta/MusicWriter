@@ -300,7 +300,7 @@ namespace MusicWriter
                             newduration.Start += time;
                     }
 
-                    if (is_end && !is_start) {
+                    if (is_end) {
                         if (mode == CaretMode.Absolute)
                             newduration.End = time;
                         else if (mode == CaretMode.Delta)
