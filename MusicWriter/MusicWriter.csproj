@@ -43,6 +43,7 @@
     <Compile Include="Cogs\EditableMemoryModule.cs" />
     <Compile Include="Cogs\IgnorantMemoryModule.cs" />
     <Compile Include="EditorUtils\CommandCenter.cs" />
+    <Compile Include="Lists\Delegates.cs" />
     <Compile Include="Other\ObservableDuration.cs" />
     <Compile Include="Other\ShiftableBitArray.cs" />
     <Compile Include="Polyline\PolylineContainer.cs" />

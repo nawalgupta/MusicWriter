@@ -26,24 +26,29 @@ namespace MusicWriter
         readonly BoundList<T> master;
         bool isallowedtobindobjects = false;
 
-        public event Action<T> ItemAdded {
+        public event ObservableListDelegates<T>.ItemAdded ItemAdded {
             add { Objects.ItemAdded += value; }
             remove { Objects.ItemAdded -= value; }
         }
 
-        public event Action<T, int> ItemInserted {
+        public event ObservableListDelegates<T>.ItemInserted ItemInserted {
             add { Objects.ItemInserted += value; }
             remove { Objects.ItemInserted -= value; }
         }
 
-        public event Action<T> ItemRemoved {
+        public event ObservableListDelegates<T>.ItemRemoved ItemRemoved {
             add { Objects.ItemRemoved += value; }
             remove { Objects.ItemRemoved -= value; }
         }
 
-        public event Action<T, int> ItemWithdrawn {
+        public event ObservableListDelegates<T>.ItemWithdrawn ItemWithdrawn {
             add { Objects.ItemWithdrawn += value; }
             remove { Objects.ItemWithdrawn -= value; }
+        }
+
+        public event ObservableListDelegates<T>.ItemMoved ItemMoved {
+            add { Objects.ItemMoved += value; }
+            remove { Objects.ItemMoved -= value; }
         }
 
         public FactorySet<T> FactorySet {

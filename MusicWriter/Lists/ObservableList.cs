@@ -18,8 +18,8 @@ namespace MusicWriter
             get { return intern; }
         }
 
-        readonly List<Action<T>> ItemAdded_responders = new List<Action<T>>();
-        public event Action<T> ItemAdded {
+        readonly List<ObservableListDelegates<T>.ItemAdded> ItemAdded_responders = new List<ObservableListDelegates<T>.ItemAdded>();
+        public event ObservableListDelegates<T>.ItemAdded ItemAdded {
             add {
                 int i;
                 lock (intern) {
@@ -34,8 +34,8 @@ namespace MusicWriter
             }
         }
 
-        readonly List<Action<T, int>> ItemInserted_responders = new List<Action<T, int>>();
-        public event Action<T, int> ItemInserted {
+        readonly List<ObservableListDelegates<T>.ItemInserted> ItemInserted_responders = new List<ObservableListDelegates<T>.ItemInserted>();
+        public event ObservableListDelegates<T>.ItemInserted ItemInserted {
             add {
                 int i;
                 lock (intern) {
@@ -50,9 +50,11 @@ namespace MusicWriter
             }
         }
 
-        public event Action<T> ItemRemoved;
+        public event ObservableListDelegates<T>.ItemRemoved ItemRemoved;
 
-        public event Action<T, int> ItemWithdrawn;
+        public event ObservableListDelegates<T>.ItemWithdrawn ItemWithdrawn;
+
+        public event ObservableListDelegates<T>.ItemMoved ItemMoved;
 
         public T this[int index] {
             get {return intern[index];}
@@ -108,6 +110,9 @@ namespace MusicWriter
 
         public void Insert(int index, T item) {
             lock (intern) {
+                while (index > intern.Count)
+                    intern.Add(default(T));
+
                 intern.Insert(index, item);
             }
 
@@ -116,15 +121,15 @@ namespace MusicWriter
 
             foreach (var responder in ItemInserted_responders)
                 responder(item, index);
+
+            for (int j = index + 1; j < intern.Count; j++)
+                ItemMoved(intern[j], j - 1, j);
         }
 
         public bool Remove(T item) {
             var i = intern.IndexOf(item);
             if (i != -1) {
-                intern.RemoveAt(i);
-
-                ItemRemoved?.Invoke(item);
-                ItemWithdrawn?.Invoke(item, i);
+                RemoveAt(i);
 
                 return true;
             }
@@ -138,6 +143,9 @@ namespace MusicWriter
 
             ItemRemoved?.Invoke(item);
             ItemWithdrawn?.Invoke(item, index);
+
+            for (int j = index; j < intern.Count; j++)
+                ItemMoved(intern[j], j, j - 1);
         }
 
         IEnumerator IEnumerable.GetEnumerator() =>

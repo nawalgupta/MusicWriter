@@ -8,10 +8,12 @@ namespace MusicWriter
 {
     public interface IObservableList<T> : IList<T>
     {
-        event Action<T> ItemAdded;
-        event Action<T, int> ItemInserted;
+        event ObservableListDelegates<T>.ItemAdded ItemAdded;
+        event ObservableListDelegates<T>.ItemInserted ItemInserted;
+        
+        event ObservableListDelegates<T>.ItemRemoved ItemRemoved;
+        event ObservableListDelegates<T>.ItemWithdrawn ItemWithdrawn;
 
-        event Action<T> ItemRemoved;
-        event Action<T, int> ItemWithdrawn;
+        event ObservableListDelegates<T>.ItemMoved ItemMoved;
     }
 }

@@ -15,11 +15,11 @@ namespace MusicWriter
     {
         readonly Container collection;
 
-        readonly Dictionary<Action<T>, Action<Special>> ItemAdded_responders_map =
-            new Dictionary<Action<T>, Action<Special>>();
-        public event Action<T> ItemAdded {
+        readonly Dictionary<ObservableListDelegates<T>.ItemAdded, ObservableListDelegates<Special>.ItemAdded> ItemAdded_responders_map =
+            new Dictionary<ObservableListDelegates<T>.ItemAdded, ObservableListDelegates<Special>.ItemAdded>();
+        public event ObservableListDelegates<T>.ItemAdded ItemAdded {
             add {
-                Action<Special> converter =
+                ObservableListDelegates<Special>.ItemAdded converter =
                     (Special special) =>
                         value(special);
 
@@ -37,11 +37,11 @@ namespace MusicWriter
             }
         }
 
-        readonly Dictionary<Action<T, int>, Action<Special, int>> ItemInserted_responders_map =
-            new Dictionary<Action<T, int>, Action<Special, int>>();
-        public event Action<T, int> ItemInserted {
+        readonly Dictionary<ObservableListDelegates<T>.ItemInserted, ObservableListDelegates<Special>.ItemInserted> ItemInserted_responders_map =
+            new Dictionary<ObservableListDelegates<T>.ItemInserted, ObservableListDelegates<Special>.ItemInserted>();
+        public event ObservableListDelegates<T>.ItemInserted ItemInserted {
             add {
-                Action<Special, int> converter =
+                ObservableListDelegates<Special>.ItemInserted converter =
                     (Special special, int index) =>
                         value(special, index);
 
@@ -59,11 +59,11 @@ namespace MusicWriter
             }
         }
 
-        readonly Dictionary<Action<T>, Action<Special>> ItemRemoved_responders_map =
-            new Dictionary<Action<T>, Action<Special>>();
-        public event Action<T> ItemRemoved {
+        readonly Dictionary<ObservableListDelegates<T>.ItemRemoved, ObservableListDelegates<Special>.ItemRemoved> ItemRemoved_responders_map =
+            new Dictionary<ObservableListDelegates<T>.ItemRemoved, ObservableListDelegates<Special>.ItemRemoved>();
+        public event ObservableListDelegates<T>.ItemRemoved ItemRemoved {
             add {
-                Action<Special> converter =
+                ObservableListDelegates<Special>.ItemRemoved converter =
                     (Special special) =>
                         value(special);
 
@@ -81,11 +81,11 @@ namespace MusicWriter
             }
         }
 
-        readonly Dictionary<Action<T, int>, Action<Special, int>> ItemWithdrawn_responders_map =
-            new Dictionary<Action<T, int>, Action<Special, int>>();
-        public event Action<T, int> ItemWithdrawn {
+        readonly Dictionary<ObservableListDelegates<T>.ItemWithdrawn, ObservableListDelegates<Special>.ItemWithdrawn> ItemWithdrawn_responders_map =
+            new Dictionary<ObservableListDelegates<T>.ItemWithdrawn, ObservableListDelegates<Special>.ItemWithdrawn>();
+        public event ObservableListDelegates<T>.ItemWithdrawn ItemWithdrawn {
             add {
-                Action<Special, int> converter =
+                ObservableListDelegates<Special>.ItemWithdrawn converter =
                     (Special special, int index) =>
                         value(special, index);
 
@@ -100,6 +100,28 @@ namespace MusicWriter
                 ItemWithdrawn_responders_map.Remove(value);
 
                 collection.ItemWithdrawn -= special;
+            }
+        }
+
+        readonly Dictionary<ObservableListDelegates<T>.ItemMoved, ObservableListDelegates<Special>.ItemMoved> ItemMoved_responders_map =
+            new Dictionary<ObservableListDelegates<T>.ItemMoved, ObservableListDelegates<Special>.ItemMoved>();
+        public event ObservableListDelegates<T>.ItemMoved ItemMoved {
+            add {
+                ObservableListDelegates<Special>.ItemMoved converter =
+                    (Special special, int oldindex, int newindex) =>
+                        value(special, oldindex, newindex);
+
+                ItemMoved_responders_map.Add(value, converter);
+
+                collection.ItemMoved += converter;
+            }
+            remove {
+                var special =
+                    ItemMoved_responders_map[value];
+
+                ItemMoved_responders_map.Remove(value);
+
+                collection.ItemMoved -= special;
             }
         }
 
