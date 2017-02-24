@@ -64,22 +64,21 @@ namespace MusicWriter.WinForms {
                 new ViewerSet<ITrack>();
 
             containerfactoryset.Factories.Add(
-                    ScreenContainer.CreateFactory(
-                            new FactorySet<IScreen>(
-                                    TrackControllerScreen.FactoryInstance
-                                ),
-                            new ViewerSet<IScreen>(
-                                    TrackControllerScreenView.Viewer.Instance
-                                )
-                        )
-                );
-
-            containerfactoryset.Factories.Add(
                     TrackControllerContainer.CreateFactory(
                             tracks_factoryset,
                             tracks_viewerset,
                             controllers_factoryset,
                             controllers_viewerset
+                        )
+                );
+
+            containerfactoryset.Factories.Add(
+                    PolylineContainer.CreateFactory(
+                            new FactorySet<PolylineData>(
+                                    PolylineData.FactoryInstance
+                                ),
+                            new ViewerSet<PolylineData>(
+                                )
                         )
                 );
 
@@ -103,11 +102,12 @@ namespace MusicWriter.WinForms {
                 );
 
             containerfactoryset.Factories.Add(
-                    PolylineContainer.CreateFactory(
-                            new FactorySet<PolylineData>(
-                                    PolylineData.FactoryInstance
+                    ScreenContainer.CreateFactory(
+                            new FactorySet<IScreen>(
+                                    TrackControllerScreen.FactoryInstance
                                 ),
-                            new ViewerSet<PolylineData>(
+                            new ViewerSet<IScreen>(
+                                    TrackControllerScreenView.Viewer.Instance
                                 )
                         )
                 );

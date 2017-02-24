@@ -24,6 +24,7 @@ namespace MusicWriter
             listener_add,
             listener_remove;
         readonly BoundList<T> master;
+        bool isallowedtobindobjects = false;
 
         public event Action<T> ItemAdded {
             add { Objects.ItemAdded += value; }
@@ -171,7 +172,8 @@ namespace MusicWriter
                                 Objects.Add(obj);
 
                             if (master == null)
-                                obj.Bind();
+                                if (isallowedtobindobjects)
+                                    obj.Bind();
                         }
                     );
 
@@ -252,8 +254,12 @@ namespace MusicWriter
         }
 
         public override void Bind() {
+            isallowedtobindobjects = false;
             File.Storage.Listeners.Add(listener_add);
             File.Storage.Listeners.Add(listener_remove);
+            foreach (var @object in Objects)
+                @object.Bind();
+            isallowedtobindobjects = true;
 
             base.Bind();
         }
