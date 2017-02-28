@@ -16,13 +16,15 @@ namespace MusicWriter
         readonly FactorySet<T> factoryset;
         readonly ViewerSet<T> viewerset;
 
+        readonly IStorageObject hub_obj;
         readonly Dictionary<string, T> map_name = new Dictionary<string, T>();
         readonly Dictionary<T, string> map_name_inverse = new Dictionary<T, string>();
         readonly Dictionary<StorageObjectID, T> map_storageobjectID = new Dictionary<StorageObjectID, T>();
         readonly Dictionary<T, StorageObjectID> map_storageobjectID_inverse = new Dictionary<T, StorageObjectID>();
         readonly IOListener
             listener_add,
-            listener_remove;
+            listener_remove,
+            listener_move;
         readonly BoundList<T> master;
         bool isallowedtobindobjects = false;
 
@@ -139,7 +141,7 @@ namespace MusicWriter
             this.viewerset = viewerset;
             this.master = master;
 
-            var hub_obj = File.Storage[StorageObjectID];
+            hub_obj = File.Storage[StorageObjectID];
 
             var propertybinders =
                 new Dictionary<string, PropertyBinder<string>>();
@@ -148,8 +150,11 @@ namespace MusicWriter
                 hub_obj.CreateListen(
                         IOEvent.ChildAdded,
                         (key, objID) => {
-                            if (key != "")
-                                throw new InvalidOperationException();
+                            int i = int.Parse(key);
+
+                            if (Objects.Count > i &&
+                                Objects[i].StorageObjectID == objID)
+                                return;
 
                             var obj =
                                 master == null ?
@@ -173,8 +178,10 @@ namespace MusicWriter
                                 }
                             }
 
-                            if (!Objects.Contains(obj))
-                                Objects.Add(obj);
+                            if (Objects.Contains(obj))
+                                throw new InvalidOperationException();
+
+                            Objects.Insert(i, obj);
 
                             if (master == null)
                                 if (isallowedtobindobjects)
@@ -186,8 +193,7 @@ namespace MusicWriter
                 hub_obj.CreateListen(
                         IOEvent.ChildRemoved,
                         (key, objID) => {
-                            if (key != "")
-                                throw new InvalidOperationException();
+                            var i = int.Parse(key);
 
                             var obj =
                                 Objects.FirstOrDefault(_ => _.StorageObjectID == objID);
@@ -213,12 +219,26 @@ namespace MusicWriter
                         }
                     );
 
-            Objects.ItemAdded += obj => {
+            listener_move =
+                hub_obj
+                    .Graph
+                    .CreateListen(
+                            msg => {
+                                var old_i = int.Parse(msg.Relation);
+                                var new_i = int.Parse(msg.NewRelation);
+                                
+                                Objects.Move(old_i, new_i);
+                            },
+                            hub_obj.ID,
+                            IOEvent.ChildRekeyed
+                        );
+
+            Objects.ItemInserted += (obj, i) => {
                 if (!hub_obj.HasChild(obj.StorageObjectID)) {
                     if (master == null)
                         throw new InvalidOperationException();
 
-                    hub_obj.Add("", obj.StorageObjectID);
+                    hub_obj.Add(i.ToString(), obj.StorageObjectID);
                 }
                 
                 var namedobj =
@@ -236,7 +256,7 @@ namespace MusicWriter
                 map_storageobjectID_inverse.Add(obj, obj.StorageObjectID);
             };
 
-            Objects.ItemRemoved += obj => {
+            Objects.ItemWithdrawn += (obj, i) => {
                 if (hub_obj.HasChild(obj.StorageObjectID))
                     hub_obj.Remove(obj.StorageObjectID);
 
@@ -256,12 +276,21 @@ namespace MusicWriter
                 map_storageobjectID.Remove(obj.StorageObjectID);
                 map_storageobjectID_inverse.Remove(obj);
             };
+
+            Objects.ItemMoved += (item, oldindex, newindex) => {
+                var sign = Math.Sign(newindex - oldindex);
+
+                for (int i = oldindex; i != newindex; i += sign) {
+                    throw new NotImplementedException();
+                }
+            };
         }
 
         public override void Bind() {
             isallowedtobindobjects = false;
             File.Storage.Listeners.Add(listener_add);
             File.Storage.Listeners.Add(listener_remove);
+            File.Storage.Listeners.Add(listener_move);
             foreach (var @object in Objects)
                 @object.Bind();
             isallowedtobindobjects = true;
@@ -272,6 +301,7 @@ namespace MusicWriter
         public override void Unbind() {
             File.Storage.Listeners.Remove(listener_add);
             File.Storage.Listeners.Remove(listener_remove);
+            File.Storage.Listeners.Remove(listener_move);
 
             base.Unbind();
         }
@@ -299,6 +329,8 @@ namespace MusicWriter
         public T Create(string type) {
             var storageobjectID =
                 FactorySet.Init(type, StorageObjectID, File);
+
+            hub_obj.Add(Objects.Count.ToString(), storageobjectID);
 
             while (!map_storageobjectID.ContainsKey(storageobjectID))
                 Thread.Sleep(20);
@@ -336,6 +368,10 @@ namespace MusicWriter
 
         public bool Remove(T item) {
             return Objects.Remove(item);
+        }
+
+        public void Move(int oldindex, int newindex) {
+            Objects.Move(oldindex, newindex);
         }
 
         public IEnumerator<T> GetEnumerator() {

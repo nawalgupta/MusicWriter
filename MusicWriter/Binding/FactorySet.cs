@@ -31,8 +31,6 @@ namespace MusicWriter
             storageobject.GetOrMake("type").WriteAllString(type);
             factory.Init(storageobject.ID, file);
 
-            file.Storage[hub_objID].Add("", storageobject.ID);
-
             return storageobject.ID;
         }
 

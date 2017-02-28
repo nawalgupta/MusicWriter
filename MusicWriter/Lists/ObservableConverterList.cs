@@ -199,5 +199,8 @@ namespace MusicWriter
         IEnumerator IEnumerable.GetEnumerator() {
             return collection.GetEnumerator();
         }
+
+        public void Move(int oldindex, int newindex) =>
+            collection.Move(oldindex, newindex);
     }
 }

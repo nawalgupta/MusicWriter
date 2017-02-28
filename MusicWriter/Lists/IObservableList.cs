@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public interface IObservableList<T> : IList<T>
+    public interface IObservableList<T> : IList<T>, IRearrangeableList
     {
         event ObservableListDelegates<T>.ItemAdded ItemAdded;
         event ObservableListDelegates<T>.ItemInserted ItemInserted;

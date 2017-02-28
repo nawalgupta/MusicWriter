@@ -11,13 +11,10 @@ namespace MusicWriter
 {
     public sealed class ObservableList<T> : IObservableList<T>
     {
+        readonly object locker = new object();
         readonly List<T> intern = new List<T>();
         readonly ShiftableBitArray status = new ShiftableBitArray();
-
-        public ObservableCollection<T> ObservableCollection {
-            get { return intern; }
-        }
-
+        
         readonly List<ObservableListDelegates<T>.ItemAdded> ItemAdded_responders = new List<ObservableListDelegates<T>.ItemAdded>();
         public event ObservableListDelegates<T>.ItemAdded ItemAdded {
             add {
@@ -82,7 +79,7 @@ namespace MusicWriter
         public void Add(T item) {
             int i;
 
-            lock (intern) {
+            lock (locker) {
                 i = intern.Count;
                 intern.Add(item);
                 status[i] = true;
@@ -96,9 +93,13 @@ namespace MusicWriter
         }
 
         public void Clear() {
-            var items = intern.ToArray();
-            intern.Clear();
-            status.Clear();
+            T[] items;
+
+            lock (locker) {
+                items = intern.ToArray();
+                intern.Clear();
+                status.Clear();
+            }
 
             for (int i = items.Length - 1; i >= 0; i--) {
                 var item = items[i];
@@ -121,7 +122,7 @@ namespace MusicWriter
             intern.IndexOf(item);
 
         public void Insert(int index, T item) {
-            lock (intern) {
+            lock (locker) {
                 while (index > intern.Count)
                     intern.Add(default(T));
 
@@ -151,15 +152,45 @@ namespace MusicWriter
         }
 
         public void RemoveAt(int index) {
-            var item = intern[index];
-            intern.RemoveAt(index);
-            status.Withdraw(index);
+            T item;
+
+            lock (locker) {
+                item = intern[index];
+                intern.RemoveAt(index);
+                status.Withdraw(index);
+            }
 
             ItemRemoved?.Invoke(item);
             ItemWithdrawn?.Invoke(item, index);
 
             for (int j = index; j < intern.Count; j++)
                 ItemMoved(intern[j], j, j - 1);
+        }
+
+        public void Move(int oldindex, int newindex) {
+            T item;
+
+            lock (locker) {
+                item = intern[oldindex];
+                status[oldindex] = false;
+
+                while (newindex >= intern.Count)
+                    intern.Add(default(T));
+
+                if (status[newindex] == true) {
+                    var olditem = intern[newindex];
+
+                    ItemRemoved?.Invoke(olditem);
+                    ItemWithdrawn?.Invoke(olditem, newindex);
+                }
+                else {
+                    status[newindex] = true;
+                }
+
+                intern[newindex] = item;
+            }
+
+            ItemMoved?.Invoke(item, oldindex, newindex);
         }
 
         IEnumerator IEnumerable.GetEnumerator() =>
