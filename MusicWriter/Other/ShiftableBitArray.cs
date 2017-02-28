@@ -110,6 +110,12 @@ namespace MusicWriter
             }
         }
 
+        public void Clear() {
+            lock (locker) {
+                Array.Resize(ref slots, 0);
+            }
+        }
+
         static ulong mask(int i) => 1uL << i;
 
         static ulong mask_after(int i) => (0xFFFFFFFFFFFFFFFFuL >> i) << i;

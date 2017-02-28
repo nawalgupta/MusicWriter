@@ -11,8 +11,8 @@ namespace MusicWriter
 {
     public sealed class ObservableList<T> : IObservableList<T>
     {
-        readonly ObservableCollection<T> intern =
-            new ObservableCollection<T>();
+        readonly List<T> intern = new List<T>();
+        readonly ShiftableBitArray status = new ShiftableBitArray();
 
         public ObservableCollection<T> ObservableCollection {
             get { return intern; }
@@ -57,8 +57,18 @@ namespace MusicWriter
         public event ObservableListDelegates<T>.ItemMoved ItemMoved;
 
         public T this[int index] {
-            get {return intern[index];}
-            set { intern[index] = value; }
+            get {
+                if (!status[index])
+                    throw new IndexOutOfRangeException();
+
+                return intern[index];
+            }
+            set {
+                if (!status[index])
+                    throw new IndexOutOfRangeException();
+
+                intern[index] = value;
+            }
         }
 
         public int Count {
@@ -75,6 +85,7 @@ namespace MusicWriter
             lock (intern) {
                 i = intern.Count;
                 intern.Add(item);
+                status[i] = true;
             }
 
             foreach (var responder in ItemAdded_responders)
@@ -87,9 +98,10 @@ namespace MusicWriter
         public void Clear() {
             var items = intern.ToArray();
             intern.Clear();
+            status.Clear();
 
-            for (int i = intern.Count - 1; i >= 0; i--) {
-                var item = intern[i];
+            for (int i = items.Length - 1; i >= 0; i--) {
+                var item = items[i];
 
                 ItemRemoved?.Invoke(item);
                 ItemWithdrawn?.Invoke(item, i);
@@ -114,6 +126,7 @@ namespace MusicWriter
                     intern.Add(default(T));
 
                 intern.Insert(index, item);
+                status.Insert(index, true);
             }
 
             foreach (var responder in ItemAdded_responders)
@@ -140,6 +153,7 @@ namespace MusicWriter
         public void RemoveAt(int index) {
             var item = intern[index];
             intern.RemoveAt(index);
+            status.Withdraw(index);
 
             ItemRemoved?.Invoke(item);
             ItemWithdrawn?.Invoke(item, index);
