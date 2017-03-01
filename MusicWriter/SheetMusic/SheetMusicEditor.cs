@@ -83,6 +83,13 @@ namespace MusicWriter
             Pin.Time.ActualTime.AfterChange += Pin_ActualTime_AfterChange;
         }
 
+        public void Invalidate() {
+            InvalidateTime(new Duration {
+                Start = Time.Zero,
+                Length = Tracks.Max(track => track.Length.Value)
+            });
+        }
+
         private void Tracks_ItemAdded(ITrack track) {
             var musictrack =
                 track as MusicTrack;

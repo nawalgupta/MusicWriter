@@ -38,6 +38,8 @@ namespace MusicWriter.WinForms
 
                 mouseselector.Selected += Mouseselector_Selected;
                 mouseselector.Redraw += () => Invalidate();
+
+                editor.Invalidate();
             }
         }
 
