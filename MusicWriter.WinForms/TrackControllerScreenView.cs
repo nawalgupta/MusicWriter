@@ -112,7 +112,7 @@ namespace MusicWriter.WinForms {
                 var item = lsvControllers.Items[$"lsvControllersItem_{old}"];
                 item.Name = $"lsvControllersItem_{@new}";
 
-                var controller = container.Controllers[@new];
+                var controller = container.Controllers[old];
                 var view = trackcontrollers_views[controller, WinFormsViewer.Type] as Control;
                 view.Text = controller.Name.Value;
             }));
