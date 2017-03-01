@@ -202,5 +202,9 @@ namespace MusicWriter
 
         public void Move(int oldindex, int newindex) =>
             collection.Move(oldindex, newindex);
+
+        public bool HasItemAt(int i) {
+            return RegularCollection.HasItemAt(i);
+        }
     }
 }

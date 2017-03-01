@@ -126,8 +126,14 @@ namespace MusicWriter
                 while (index > intern.Count)
                     intern.Add(default(T));
 
-                intern.Insert(index, item);
-                status.Insert(index, true);
+                if (!status[index] && index < intern.Count) {
+                    intern[index] = item;
+                    status[index] = true;
+                }
+                else {
+                    intern.Insert(index, item);
+                    status.Insert(index, true);
+                }
             }
 
             foreach (var responder in ItemAdded_responders)
@@ -136,7 +142,7 @@ namespace MusicWriter
             foreach (var responder in ItemInserted_responders)
                 responder(item, index);
 
-            for (int j = index + 1; j < intern.Count; j++)
+            for (int j = index + 1; j < intern.Count && status[j]; j++)
                 ItemMoved(intern[j], j - 1, j);
         }
 
@@ -192,6 +198,9 @@ namespace MusicWriter
 
             ItemMoved?.Invoke(item, oldindex, newindex);
         }
+
+        public bool HasItemAt(int i) =>
+            status[i];
 
         IEnumerator IEnumerable.GetEnumerator() =>
             intern.GetEnumerator();

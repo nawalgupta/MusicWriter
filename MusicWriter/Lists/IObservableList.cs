@@ -15,5 +15,7 @@ namespace MusicWriter
         event ObservableListDelegates<T>.ItemWithdrawn ItemWithdrawn;
 
         event ObservableListDelegates<T>.ItemMoved ItemMoved;
+
+        bool HasItemAt(int i);
     }
 }

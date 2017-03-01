@@ -153,6 +153,7 @@ namespace MusicWriter
                             int i = int.Parse(key);
 
                             if (Objects.Count > i &&
+                                Objects.HasItemAt(i) &&
                                 Objects[i].StorageObjectID == objID)
                                 return;
 
@@ -281,7 +282,13 @@ namespace MusicWriter
                 var sign = Math.Sign(newindex - oldindex);
 
                 for (int i = oldindex; i != newindex; i += sign) {
-                    throw new NotImplementedException();
+                    if (isallowedtobindobjects)
+                        throw new NotImplementedException();
+                    else {
+                        // The bound list is still loading items from storage.
+                        // The 'moving' is really just initialization to sync with
+                        // the back-end store, if the code ran this else clause.
+                    }
                 }
             };
         }
@@ -380,6 +387,10 @@ namespace MusicWriter
 
         IEnumerator IEnumerable.GetEnumerator() {
             return Objects.GetEnumerator();
+        }
+
+        public bool HasItemAt(int i) {
+            return Objects.HasItemAt(i);
         }
     }
 }
