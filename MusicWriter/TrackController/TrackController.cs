@@ -54,5 +54,19 @@ namespace MusicWriter
                         container.Tracks
                     );
         }
+
+        public override void Bind() {
+            pin.Bind();
+            tracks.Bind();
+
+            base.Bind();
+        }
+
+        public override void Unbind() {
+            pin.Unbind();
+            tracks.Unbind();
+
+            base.Unbind();
+        }
     }
 }
