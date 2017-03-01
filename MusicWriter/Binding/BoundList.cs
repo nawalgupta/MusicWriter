@@ -298,8 +298,10 @@ namespace MusicWriter
             File.Storage.Listeners.Add(listener_add);
             File.Storage.Listeners.Add(listener_remove);
             File.Storage.Listeners.Add(listener_move);
-            foreach (var @object in Objects)
-                @object.Bind();
+            if (master == null) {
+                foreach (var @object in Objects)
+                    @object.Bind();
+            }
             isallowedtobindobjects = true;
 
             base.Bind();
