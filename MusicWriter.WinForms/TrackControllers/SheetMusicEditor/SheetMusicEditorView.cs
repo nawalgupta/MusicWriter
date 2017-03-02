@@ -115,7 +115,8 @@ namespace MusicWriter.WinForms
                 y += h;
             }
 
-            if (activetrackindex_new != editor.ActiveTrackIndex) {
+            if (activetrackindex_new != editor.ActiveTrackIndex &&
+                activetrackindex_new != -1) {
                 editor.ActiveTrackIndex = activetrackindex_new;
                 Refresh();
             }
