@@ -181,9 +181,10 @@ namespace MusicWriter.WinForms {
 
         private void Tracks_LengthChanged(Time old, Time @new) {
             var longestlength =
-                container.Tracks.Max(track => track.Length.Value);
+                container.Tracks.MaxOrDefault(track => track.Length.Value);
 
             sclOffset.Maximum = longestlength.Ticks;
+            sclOffset.Tag = longestlength;
         }
 
         private void Tracks_NameChanged(string old, string @new) {
@@ -258,6 +259,8 @@ namespace MusicWriter.WinForms {
 
             sclOffset.LargeChange = word.Ticks;
             sclOffset.SmallChange = unit.Ticks;
+
+            sclOffset.Maximum = (((Time)sclOffset.Tag) + word).Ticks;
         }
 
         private void lsvControllers_SelectedIndexChanged(object sender, EventArgs e) {
