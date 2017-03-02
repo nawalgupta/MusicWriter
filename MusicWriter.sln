@@ -25,10 +25,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "midi", "midi", "{4EEDFE81-0
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{A3C9FFAD-D6D0-46AB-9B3F-9E0C0150D591}"
-	ProjectSection(SolutionItems) = preProject
-		test\files\file-2.musicwriter = test\files\file-2.musicwriter
-		test\files\first-file.musicwriter = test\files\first-file.musicwriter
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicWriter.Tests", "MusicWriter.Tests\MusicWriter.Tests.csproj", "{BE707C35-0227-4137-B0AD-2A7FB481EA81}"
 EndProject
