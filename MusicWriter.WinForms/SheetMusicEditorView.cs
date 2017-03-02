@@ -97,12 +97,28 @@ namespace MusicWriter.WinForms
 
             base.OnMouseDown(e);
         }
-        
+
         protected override void OnMouseMove(MouseEventArgs e) {
             if (!Focused)
                 Focus();
 
             mouseselector.MouseMove(e, ModifierKeys);
+
+            var activetrackindex_new = -1;
+            var y = 0f;
+            for (int i = 0; i < editor.Tracks.Count; i++) {
+                var h = trackheights[editor.Tracks[i] as MusicTrack];
+
+                if (y <= e.Y && y + h > e.Y)
+                    activetrackindex_new = i;
+
+                y += h;
+            }
+
+            if (activetrackindex_new != editor.ActiveTrackIndex) {
+                editor.ActiveTrackIndex = activetrackindex_new;
+                Refresh();
+            }
 
             base.OnMouseMove(e);
         }
