@@ -173,6 +173,19 @@ namespace MusicWriter
                                             [objID]
                                             .GetOrMake("name");
 
+                                    var name_val = name_obj.ReadAllString();
+
+                                    if (map_name.ContainsKey(name_val)) {
+                                        if (master == null) {
+                                            if (AutomaticallyAvoidNameCollisionsWithUnderlines) {
+                                                name_val += "_";
+                                            }
+                                            else throw new ArgumentException($"Name \"{name_val}\" already in use.");
+                                        }
+                                    }
+
+                                    name_obj.WriteAllString(name_val);
+
                                     var binder = namedobj.Name.Bind(name_obj);
                                     namedobj.Name.AfterChange += propertybinders.Rename;
                                     propertybinders.Add(binder.Property.Value, binder);
