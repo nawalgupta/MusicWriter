@@ -86,7 +86,7 @@ namespace MusicWriter
         public void Invalidate() {
             InvalidateTime(new Duration {
                 Start = Time.Zero,
-                Length = Tracks.Max(track => track.Length.Value)
+                Length = Tracks.MaxOrDefault(track => track.Length.Value)
             });
         }
 

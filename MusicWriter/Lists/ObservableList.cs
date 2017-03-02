@@ -115,8 +115,11 @@ namespace MusicWriter
         public void CopyTo(T[] array, int arrayIndex) =>
             intern.CopyTo(array, arrayIndex);
 
-        public IEnumerator<T> GetEnumerator() =>
-            intern.GetEnumerator();
+        public IEnumerator<T> GetEnumerator() {
+            for (int i = 0; i < intern.Count; i++)
+                if (status[i])
+                    yield return intern[i];
+        }
 
         public int IndexOf(T item) =>
             intern.IndexOf(item);
