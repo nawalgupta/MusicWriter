@@ -109,7 +109,11 @@ namespace MusicWriter
         }
 
         private void ActiveIndex_AfterChange(int old, int @new) {
-            Active.Value = list[@new];
+            if (@new == -1)
+                Active.Value = default(T);
+            else {
+                Active.Value = list[@new];
+            }
         }
 
         private void Active_BeforeChange(ObservableProperty<T>.PropertyChangingEventArgs args) {
