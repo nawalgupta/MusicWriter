@@ -12,11 +12,10 @@ namespace MusicWriter
 
         readonly TrackControllerHints hints;
         readonly TrackControllerContainer container;
+        readonly Selector<ITrack> trackselector;
 
-        public int ActiveTrackIndex { get; set; } = 0;
-
-        public MusicTrack ActiveTrack {
-            get { return Tracks[ActiveTrackIndex] as MusicTrack; }
+        public Selector<ITrack> TrackSelector {
+            get { return trackselector; }
         }
 
         public Cursor Cursor { get; } =
@@ -81,6 +80,14 @@ namespace MusicWriter
             CommandCenter.WhenUnitPicking += CommandCenter_WhenUnitPicking;
 
             Pin.Time.ActualTime.AfterChange += Pin_ActualTime_AfterChange;
+
+            trackselector =
+                new Selector<ITrack>(
+                        file.Storage[storageobjectID].GetOrMake("selector").ID,
+                        file,
+                        Tracks,
+                        allownull: false
+                    );
         }
 
         public void Invalidate() {
