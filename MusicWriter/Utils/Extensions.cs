@@ -261,5 +261,7 @@ namespace MusicWriter {
             foreach (var factory in boundlist.FactorySet.Factories)
                 boundlist.Create(factory.Name);
         }
+
+        public static R As<T, R>(this T x) where R : T => (R)x;
     }
 }

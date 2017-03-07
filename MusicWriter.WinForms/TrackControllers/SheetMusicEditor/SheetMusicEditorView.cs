@@ -115,9 +115,9 @@ namespace MusicWriter.WinForms
                 y += h;
             }
 
-            if (activetrackindex_new != editor.ActiveTrackIndex &&
+            if (activetrackindex_new != editor.TrackSelector.ActiveIndex.Value &&
                 activetrackindex_new != -1) {
-                editor.ActiveTrackIndex = activetrackindex_new;
+                editor.TrackSelector.ActiveIndex.Value = activetrackindex_new;
                 Refresh();
             }
 
@@ -606,7 +606,7 @@ namespace MusicWriter.WinForms
 
             foreach (var track in editor.Tracks.Cast<MusicTrack>()) {
                 var active =
-                    ReferenceEquals(track, editor.ActiveTrack);
+                    ReferenceEquals(track, editor.TrackSelector.Active.Value);
                 
                 // draw sheet items
                 var starttimes =

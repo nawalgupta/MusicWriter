@@ -185,6 +185,7 @@ namespace MusicWriter
                                     }
 
                                     name_obj.WriteAllString(name_val);
+                                    namedobj.Name.Value = name_val;
 
                                     var binder = namedobj.Name.Bind(name_obj);
                                     namedobj.Name.AfterChange += propertybinders.Rename;

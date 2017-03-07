@@ -103,8 +103,8 @@ namespace MusicWriter
 
             NoteSelections.Add(musictrack, new NoteSelection());
 
-            if (ActiveTrackIndex == -1)
-                ActiveTrackIndex = Tracks.Count - 1;
+            if (TrackSelector.ActiveIndex.Value == -1)
+                TrackSelector.ActiveIndex.Value = Tracks.Count - 1;
 
             InvalidateTime(new Duration { End = Tracks.MaxOrDefault(_ => _.Length.Value) });
         }
@@ -115,8 +115,8 @@ namespace MusicWriter
 
             NoteSelections.Remove(musictrack);
 
-            if (ActiveTrackIndex >= Tracks.Count)
-                ActiveTrackIndex = Tracks.Count - 1;
+            if (TrackSelector.ActiveIndex.Value >= Tracks.Count)
+                TrackSelector.ActiveIndex.Value = Tracks.Count - 1;
 
             InvalidateTime(new Duration { End = Tracks.MaxOrDefault(_ => _.Length.Value) });
         }
@@ -134,7 +134,10 @@ namespace MusicWriter
 
             public override Time UnitSize(Time here) =>
                 Editor
-                    .ActiveTrack
+                    .TrackSelector
+                    .Active
+                    .Value
+                    .As<ITrack, MusicTrack>()
                     .Rhythm
                     .Intersecting(here)
                     .First()
@@ -143,7 +146,10 @@ namespace MusicWriter
 
             public override Time WordSize(Time here) =>
                 Editor
-                    .ActiveTrack
+                    .TrackSelector
+                    .Active
+                    .Value
+                    .As<ITrack, MusicTrack>()
                     .Rhythm
                     .TimeSignatures
                     .Intersecting_children(here)
@@ -375,7 +381,10 @@ namespace MusicWriter
                         Cursor.Caret.Focus,
                         tone,
                         mode,
-                        ActiveTrack
+                        TrackSelector
+                            .Active
+                            .Value
+                            as MusicTrack
                     );
 
             if (effectedarea != null)
@@ -423,10 +432,10 @@ namespace MusicWriter
                 Cursor.Caret.Duration;
 
             var noteID =
-                ActiveTrack.Melody.AddNote(tone, duration);
+                TrackSelector.Active.Value.As<ITrack, MusicTrack>().Melody.AddNote(tone, duration);
 
-            NoteSelections[ActiveTrack].Selected_End.Add(noteID);
-            NoteSelections[ActiveTrack].Selected_Tone.Add(noteID);
+            NoteSelections[TrackSelector.Active.Value.As<ITrack, MusicTrack>()].Selected_End.Add(noteID);
+            NoteSelections[TrackSelector.Active.Value.As<ITrack, MusicTrack>()].Selected_Tone.Add(noteID);
 
             Refresh();
         }
