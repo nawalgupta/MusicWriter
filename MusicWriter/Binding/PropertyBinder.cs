@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class PropertyBinder<T> : IDisposable
+    public sealed class PropertyBinder<T> : BoundObject<PropertyBinder<T>>
     {
         readonly IStorageObject storageobject;
         readonly ObservableProperty<T> property;
@@ -35,16 +35,36 @@ namespace MusicWriter
                 ObservableProperty<T> property,
                 Func<IStorageObject, T> deserializer,
                 Action<IStorageObject, T> serializer
-            ) {
+            ) :
+            base(
+                    storageobject.ID,
+                    null //TODO: abstract BoundObjects so that those that only use File.Storage can just hold that
+                ) {
             this.storageobject = storageobject;
             this.property = property;
             this.deserializer = deserializer;
             this.serializer = serializer;
+            
+            listener =
+                storageobject
+                    .CreateListen(
+                            IOEvent.ObjectContentsSet,
+                            StorageObject_ContentsSet
+                        );
+        }
 
-            listener = storageobject.CreateListen(IOEvent.ObjectContentsSet, StorageObject_ContentsSet);
+        public override void Bind() {
+            storageobject.Graph.Listeners.Add(listener);
             property.AfterChange += Property_AfterChange;
 
-            storageobject.Graph.Listeners.Add(listener);
+            base.Bind();
+        }
+
+        public override void Unbind() {
+            storageobject.Graph.Listeners.Remove(listener);
+            property.AfterChange -= Property_AfterChange;
+
+            base.Unbind();
         }
 
         private void StorageObject_ContentsSet(StorageObjectID affected) =>
@@ -52,15 +72,5 @@ namespace MusicWriter
 
         private void Property_AfterChange(T old, T @new) =>
             serializer(storageobject, @new);
-
-        bool disposed = false;
-        public void Dispose() {
-            if (!disposed) {
-                disposed = true;
-
-                storageobject.Graph.Listeners.Remove(listener);
-                property.AfterChange -= Property_AfterChange;
-            }
-        }
     }
 }

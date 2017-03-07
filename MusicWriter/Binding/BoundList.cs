@@ -189,6 +189,7 @@ namespace MusicWriter
                                     var binder = namedobj.Name.Bind(name_obj);
                                     namedobj.Name.AfterChange += propertybinders.Rename;
                                     propertybinders.Add(binder.Property.Value, binder);
+                                    binder.Bind();
                                 }
                             }
 
@@ -220,7 +221,7 @@ namespace MusicWriter
                                     if (master == null) {
                                         namedobj.Name.AfterChange -= propertybinders.Rename;
 
-                                        propertybinders[namedobj.Name.Value].Dispose();
+                                        propertybinders[namedobj.Name.Value].Unbind();
                                         propertybinders.Remove(namedobj.Name.Value);
                                     }
                                 }

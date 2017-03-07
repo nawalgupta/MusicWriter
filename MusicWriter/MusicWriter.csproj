@@ -42,6 +42,8 @@
     <Compile Include="Binding\Extensions.cs" />
     <Compile Include="Cogs\EditableMemoryModule.cs" />
     <Compile Include="Cogs\IgnorantMemoryModule.cs" />
+    <Compile Include="CS\IndexCorrectionBehavoir.cs" />
+    <Compile Include="CS\Selector.cs" />
     <Compile Include="EditorUtils\CommandCenter.cs" />
     <Compile Include="Lists\Delegates.cs" />
     <Compile Include="Lists\IRearrangeableList.cs" />

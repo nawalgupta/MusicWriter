@@ -19,6 +19,17 @@ namespace MusicWriter
                     StorageExtensions.WriteAllString
                 );
 
+        public static PropertyBinder<int> Bind(
+                this ObservableProperty<int> property,
+                IStorageObject storageobject
+            ) =>
+            Bind(
+                    property,
+                    storageobject,
+                    Convert.ToInt32,
+                    Convert.ToString
+                );
+
         public static PropertyBinder<Time> Bind(
                 this ObservableProperty<Time> property,
                 IStorageObject storageobject
