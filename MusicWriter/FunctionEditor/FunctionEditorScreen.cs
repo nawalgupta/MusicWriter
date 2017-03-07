@@ -9,9 +9,7 @@ namespace MusicWriter
     public sealed partial class FunctionEditorScreen : Screen
     {
         readonly FunctionContainer container;
-        readonly IOListener
-            listener_activefunctionsourcefile_add,
-            listener_activefunctionsourcefile_remove;
+        readonly BoundList<FunctionSource> functionsources;
 
         public const string ItemName = "musicwriter.function.screen";
 
@@ -29,6 +27,10 @@ namespace MusicWriter
         public ObservableProperty<FunctionSource> ActiveFunctionSourceFile { get; } =
             new ObservableProperty<FunctionSource>();
 
+        public BoundList<FunctionSource> FunctionSources {
+            get { return functionsources; }
+        }
+
         public FunctionEditorScreen(
                 StorageObjectID storageobjectID,
                 EditorFile file
@@ -41,30 +43,22 @@ namespace MusicWriter
             var obj =
                 file.Storage[storageobjectID];
 
-            var activefunctionsource_vec_obj =
-                obj.GetOrMake("active-function-source-vec");
+            functionsources =
+                new BoundList<FunctionSource>(
+                        obj.GetOrMake("sources").ID,
+                        file,
+                        container.FunctionSources
+                    );
+        }
 
-            listener_activefunctionsourcefile_add =
-                activefunctionsource_vec_obj.CreateListen(IOEvent.ChildAdded, (key, activefunctionsource_objID) => {
-                    if (ActiveFunctionSourceFile.Value != null)
-                        throw new InvalidOperationException();
+        public override void Bind() {
+            functionsources.Bind();
 
-                    ActiveFunctionSourceFile.Value =
-                        container.FunctionSources[activefunctionsource_objID];
-                });
-
-            listener_activefunctionsourcefile_remove =
-                activefunctionsource_vec_obj.CreateListen(IOEvent.ChildRemoved, (key, activefunctionsource_objID) => {
-                    if (ActiveFunctionSourceFile.Value == null)
-                        throw new InvalidOperationException();
-
-                    ActiveFunctionSourceFile.Value = null;
-                });
+            base.Bind();
         }
 
         public override void Unbind() {
-            File.Storage.Listeners.Remove(listener_activefunctionsourcefile_add);
-            File.Storage.Listeners.Remove(listener_activefunctionsourcefile_remove);
+            functionsources.Unbind();
 
             base.Unbind();
         }
