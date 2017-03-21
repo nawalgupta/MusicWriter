@@ -183,5 +183,8 @@ namespace MusicWriter {
 
             return signature;
         }
+
+        public static KeySignature CMajor { get; } =
+            KeySignature.Create(DiatonicToneClass.C, PitchTransform.Natural, Mode.Major);
     }
 }

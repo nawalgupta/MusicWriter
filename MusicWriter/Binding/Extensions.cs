@@ -52,6 +52,39 @@ namespace MusicWriter
                     CodeTools.WriteDuration
                 );
 
+        public static PropertyBinder<SemiTone> Bind(
+                this ObservableProperty<SemiTone> property,
+                IStorageObject storageobject
+            ) =>
+            Bind(
+                    property,
+                    storageobject,
+                    SemiTone.Parse,
+                    ObviousExtensions.ToString
+                );
+
+        public static PropertyBinder<PerceptualTime> Bind(
+                this ObservableProperty<PerceptualTime> property,
+                IStorageObject storageobject
+            ) =>
+            Bind(
+                    property,
+                    storageobject,
+                    PerceptualTime.Parse,
+                    ObviousExtensions.ToString
+                );
+
+        public static PropertyBinder<Mode> Bind(
+                this ObservableProperty<Mode> property,
+                IStorageObject storageobject
+            ) =>
+            Bind(
+                    property,
+                    storageobject,
+                    ObviousExtensions.EnumParse<Mode>,
+                    ObviousExtensions.ToString
+                );
+
         public static PropertyBinder<T> Bind<T>(
                 this ObservableProperty<T> property,
                 IStorageObject storageobject,

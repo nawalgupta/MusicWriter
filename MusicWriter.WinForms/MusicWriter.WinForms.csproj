@@ -50,6 +50,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Screens\FunctionEditor\FunctionEditorScreenView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Screens\FunctionEditor\FunctionEditorScreenView.Designer.cs">
+      <DependentUpon>FunctionEditorScreenView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="tools\MusicWriter\ContextMenus.cs" />
     <Compile Include="tools\MusicWriter\FactoryMenuStrip.cs" />
     <Compile Include="app\file\FileEditorForm.cs">
       <SubType>Form</SubType>
@@ -107,6 +114,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Screens\FunctionEditor\FunctionEditorScreenView.resx">
+      <DependentUpon>FunctionEditorScreenView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="TrackControllers\SheetMusicEditor\SheetMusicEditorView.resx">
       <DependentUpon>SheetMusicEditorView.cs</DependentUpon>
     </EmbeddedResource>

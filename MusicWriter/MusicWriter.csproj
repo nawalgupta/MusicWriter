@@ -45,6 +45,8 @@
     <Compile Include="CS\IndexCorrectionBehavoir.cs" />
     <Compile Include="CS\Selector.cs" />
     <Compile Include="EditorUtils\CommandCenter.cs" />
+    <Compile Include="FunctionEditor\DebugSound.cs" />
+    <Compile Include="FunctionEditor\DebugVerb.cs" />
     <Compile Include="Lists\Delegates.cs" />
     <Compile Include="Lists\IRearrangeableList.cs" />
     <Compile Include="CS\ObservableDuration.cs" />
@@ -60,6 +62,7 @@
     <Compile Include="Binding\FactorySet.cs" />
     <Compile Include="File\IContainer.cs" />
     <Compile Include="Binding\IFactory.cs" />
+    <Compile Include="Utils\ObviousExtensions.cs" />
     <Compile Include="Viewing\IViewer.cs" />
     <Compile Include="Screens\Screen.cs" />
     <Compile Include="Viewing\UniqueViewerObjectMap.cs" />

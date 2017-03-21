@@ -19,6 +19,14 @@ namespace MusicWriter {
         public SemiTone Transform(SemiTone natural) =>
             natural + steps;
 
+        public override string ToString() {
+            if (steps > 0)
+                return new string('#', steps);
+            else if (steps < 0)
+                return new string('♭', -steps);
+            else return "";
+        }
+
         public static PitchTransform operator -(PitchTransform that) =>
             new PitchTransform(-that.steps);
 

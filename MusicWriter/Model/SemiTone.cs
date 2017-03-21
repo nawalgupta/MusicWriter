@@ -23,6 +23,9 @@ namespace MusicWriter {
             Octave = octave;
         }
 
+        public static SemiTone Parse(string str) =>
+            new SemiTone(int.Parse(str));
+
         public static readonly SemiTone C4 = new SemiTone(ChromaticPitchClass.C, 4);
         public static readonly SemiTone C5 = new SemiTone(ChromaticPitchClass.C, 5);
         public static readonly SemiTone Zero = new SemiTone(ChromaticPitchClass.C, 0);

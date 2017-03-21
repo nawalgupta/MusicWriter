@@ -180,5 +180,18 @@ namespace MusicWriter {
                 offset += ptime.TimeLength();
             }
         }
+
+        public static PerceptualTime Parse(string source) {
+            var p1 = source.Split(';');
+            var tuplet = (TupletClass)int.Parse(p1[1]);
+            var p2 = p1[0].Split('.');
+            var length = (LengthClass)int.Parse(p2[0]);
+            var dots = int.Parse(p2[1]);
+
+            return new PerceptualTime(tuplet, length, dots);
+        }
+
+        public override string ToString() =>
+            $"{(int)Length}.{Dots};{(int)Tuplet}";
     }
 }

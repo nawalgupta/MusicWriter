@@ -123,6 +123,92 @@ namespace MusicWriter {
                     tone.Octave
                 );
 
+        public static string Stringify_flats(this ChromaticPitchClass pitchclass) {
+            switch (pitchclass) {
+                case ChromaticPitchClass.A:
+                    return "A";
+
+                case ChromaticPitchClass.Bflat:
+                    return "B♭";
+
+                case ChromaticPitchClass.B:
+                    return "B";
+
+                case ChromaticPitchClass.C:
+                    return "C";
+
+                case ChromaticPitchClass.Dflat:
+                    return "D♭";
+
+                case ChromaticPitchClass.D:
+                    return "D";
+
+                case ChromaticPitchClass.Eflat:
+                    return "E♭";
+
+                case ChromaticPitchClass.E:
+                    return "E";
+
+                case ChromaticPitchClass.F:
+                    return "F";
+
+                case ChromaticPitchClass.Gflat:
+                    return "G♭";
+
+                case ChromaticPitchClass.G:
+                    return "G";
+
+                case ChromaticPitchClass.Aflat:
+                    return "A♭";
+
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
+        public static string Stringify_sharps(this ChromaticPitchClass pitchclass) {
+            switch (pitchclass) {
+                case ChromaticPitchClass.A:
+                    return "A";
+
+                case ChromaticPitchClass.Bflat:
+                    return "A#";
+
+                case ChromaticPitchClass.B:
+                    return "B";
+
+                case ChromaticPitchClass.C:
+                    return "C";
+
+                case ChromaticPitchClass.Dflat:
+                    return "C#";
+
+                case ChromaticPitchClass.D:
+                    return "D";
+
+                case ChromaticPitchClass.Eflat:
+                    return "D#";
+
+                case ChromaticPitchClass.E:
+                    return "E";
+
+                case ChromaticPitchClass.F:
+                    return "F";
+
+                case ChromaticPitchClass.Gflat:
+                    return "F#";
+
+                case ChromaticPitchClass.G:
+                    return "G";
+
+                case ChromaticPitchClass.Aflat:
+                    return "G#";
+
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
         public static DiatonicToneClass ToRight(this DiatonicToneClass key) =>
             (DiatonicToneClass)(((int)key + 1) % 7);
 

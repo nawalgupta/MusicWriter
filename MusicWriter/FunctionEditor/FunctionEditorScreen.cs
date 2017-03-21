@@ -10,6 +10,7 @@ namespace MusicWriter
     {
         readonly FunctionContainer container;
         readonly BoundList<FunctionSource> functionsources;
+        readonly DebugSound debugsound;
 
         public const string ItemName = "musicwriter.function.screen";
 
@@ -31,6 +32,10 @@ namespace MusicWriter
             get { return functionsources; }
         }
 
+        public DebugSound DebugSound {
+            get { return debugsound; }
+        }
+
         public FunctionEditorScreen(
                 StorageObjectID storageobjectID,
                 EditorFile file
@@ -49,16 +54,24 @@ namespace MusicWriter
                         file,
                         container.FunctionSources
                     );
+
+            debugsound = 
+                new DebugSound(
+                        obj.GetOrMake("debug-sound").ID,
+                        file
+                    );
         }
 
         public override void Bind() {
             functionsources.Bind();
+            debugsound.Bind();
 
             base.Bind();
         }
 
         public override void Unbind() {
             functionsources.Unbind();
+            debugsound.Unbind();
 
             base.Unbind();
         }
