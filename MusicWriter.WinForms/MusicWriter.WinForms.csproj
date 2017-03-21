@@ -56,6 +56,9 @@
     <Compile Include="Screens\FunctionEditor\FunctionEditorScreenView.Designer.cs">
       <DependentUpon>FunctionEditorScreenView.cs</DependentUpon>
     </Compile>
+    <Compile Include="Screens\FunctionEditor\FunctionEditorScreenView.Viewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="tools\MusicWriter\ContextMenus.cs" />
     <Compile Include="tools\MusicWriter\FactoryMenuStrip.cs" />
     <Compile Include="app\file\FileEditorForm.cs">

@@ -1,4 +1,4 @@
-﻿namespace MusicWriter.WinForms.Screens.FunctionEditor
+﻿namespace MusicWriter
 {
     partial class FunctionEditorScreenView
     {
