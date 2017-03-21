@@ -25,7 +25,9 @@ namespace MusicWriter.WinForms {
             new ObservableList<IPorter>();
         readonly FactorySet<IContainer> containerfactoryset =
             new FactorySet<IContainer>();
-        
+        readonly FactoryMenuStrip<IScreen> screenfactories_menustrip = 
+            new FactoryMenuStrip<IScreen>();
+
         string filepath = null;
 
         public IScreen ActiveScreen {
@@ -62,6 +64,18 @@ namespace MusicWriter.WinForms {
 
             var tracks_viewerset =
                 new ViewerSet<ITrack>();
+
+            var screens_factoryset =
+                new FactorySet<IScreen>(
+                        TrackControllerScreen.FactoryInstance,
+                        FunctionEditorScreen.FactoryInstance
+                    );
+
+            var screens_viewerset =
+                new ViewerSet<IScreen>(
+                        TrackControllerScreenView.Viewer.Instance,
+                        FunctionEditorScreenView.Viewer.Instance
+                    );
 
             containerfactoryset.Factories.Add(
                     TrackControllerContainer.CreateFactory(
@@ -103,14 +117,8 @@ namespace MusicWriter.WinForms {
 
             containerfactoryset.Factories.Add(
                     ScreenContainer.CreateFactory(
-                            new FactorySet<IScreen>(
-                                    TrackControllerScreen.FactoryInstance,
-                                    FunctionEditorScreen.FactoryInstance
-                                ),
-                            new ViewerSet<IScreen>(
-                                    TrackControllerScreenView.Viewer.Instance,
-                                    FunctionEditorScreenView.Viewer.Instance
-                                )
+                            screens_factoryset,
+                            screens_viewerset
                         )
                 );
         }
@@ -210,6 +218,7 @@ namespace MusicWriter.WinForms {
 
         private void MainForm_Load(object sender, EventArgs e) {
             SetupStatic();
+            SetupUI();
             Setup();
         }
 
@@ -219,6 +228,8 @@ namespace MusicWriter.WinForms {
 
             screencontainer.Screens.ItemAdded += LoadScreen;
             screencontainer.Screens.ItemRemoved += CloseScreen;
+
+            screenfactories_menustrip.BoundList = screencontainer.Screens;
         }
 
         void SetupStatic() {
@@ -234,6 +245,10 @@ namespace MusicWriter.WinForms {
                         containerfactoryset, 
                         isnewfile: true
                     );
+        }
+
+        void SetupUI() {
+            screenfactories_menustrip.ToolStripItemCollection = mnuScreenNew.DropDownItems;
         }
         
         void LoadScreen(IScreen screen) {

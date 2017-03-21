@@ -18,7 +18,7 @@ namespace MusicWriter.WinForms
                     boundlist.FactorySet.Factories.ItemInserted -= Factories_ItemInserted;
                     boundlist.FactorySet.Factories.ItemWithdrawn -= Factories_ItemWithdrawn;
 
-                    ToolStripDropDown.Items.Clear();
+                    ToolStripItemCollection.Clear();
                 }
 
                 boundlist = value;
@@ -28,7 +28,7 @@ namespace MusicWriter.WinForms
             }
         }
 
-        public ToolStripDropDown ToolStripDropDown { get; set; }
+        public ToolStripItemCollection ToolStripItemCollection { get; set; }
         
         private void Factories_ItemInserted(IFactory<T> factory, int i) {
             var item =
@@ -38,11 +38,11 @@ namespace MusicWriter.WinForms
             item.Tag = factory;
             item.Click += Item_Click;
 
-            ToolStripDropDown.Items.Insert(i, item);
+            ToolStripItemCollection.Insert(i, item);
         }
 
         private void Factories_ItemWithdrawn(IFactory<T> factory, int i) {
-            ToolStripDropDown.Items.RemoveAt(i);
+            ToolStripItemCollection.RemoveAt(i);
         }
 
         private void Item_Click(object sender, EventArgs e) {

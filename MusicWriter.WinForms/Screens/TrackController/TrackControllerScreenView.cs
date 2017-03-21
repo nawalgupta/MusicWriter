@@ -103,8 +103,8 @@ namespace MusicWriter.WinForms {
         public TrackControllerScreenView() {
             InitializeComponent();
 
-            factorymenustrip_controllers.ToolStripDropDown = mnuAddController;
-            factorymenustrip_tracks.ToolStripDropDown = mnuAddTrack;
+            factorymenustrip_controllers.ToolStripItemCollection = mnuAddController.Items;
+            factorymenustrip_tracks.ToolStripItemCollection = mnuAddTrack.Items;
         }
 
         private void ControllerName_AfterChange(string old, string @new) {
