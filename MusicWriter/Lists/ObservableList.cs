@@ -39,8 +39,8 @@ namespace MusicWriter
                     i = intern.Count - 1;
                     ItemInserted_responders.Add(value);
                 }
-                for (; i >= 0; i--)
-                    value(intern[i], i);
+                for (int j = 0; j <= i; j++)
+                    value(intern[i], j);
             }
             remove {
                 ItemInserted_responders.Remove(value);
