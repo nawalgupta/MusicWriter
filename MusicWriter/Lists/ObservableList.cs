@@ -40,7 +40,7 @@ namespace MusicWriter
                     ItemInserted_responders.Add(value);
                 }
                 for (int j = 0; j <= i; j++)
-                    value(intern[i], j);
+                    value(intern[j], j);
             }
             remove {
                 ItemInserted_responders.Remove(value);
