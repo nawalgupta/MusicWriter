@@ -15,6 +15,9 @@ namespace MusicWriter.WinForms {
             public bool SupportsView(string type) =>
                 type == WinFormsViewer.Type;
 
+            public bool SupportsModel(ITrackController obj) =>
+                obj is SheetMusicEditor;
+
             public object CreateView(ITrackController obj, string type) {
                 if (type != WinFormsViewer.Type)
                     throw new NotSupportedException();

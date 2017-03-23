@@ -10,6 +10,8 @@ namespace MusicWriter
     {
         bool SupportsView(string type);
 
+        bool SupportsModel(T obj);
+
         object CreateView(T obj, string type);
     }
 }

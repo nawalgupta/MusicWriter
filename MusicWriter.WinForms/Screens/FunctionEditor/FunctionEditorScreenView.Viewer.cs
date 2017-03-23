@@ -16,6 +16,9 @@ namespace MusicWriter
             public bool SupportsView(string type) =>
                 type == WinFormsViewer.Type;
 
+            public bool SupportsModel(IScreen obj) =>
+                obj is FunctionEditorScreen;
+
             public object CreateView(IScreen screen, string type) {
                 var view =
                     new FunctionEditorScreenView();

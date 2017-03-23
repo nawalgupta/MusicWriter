@@ -38,10 +38,12 @@ namespace MusicWriter
 
         public FunctionEditorScreen(
                 StorageObjectID storageobjectID,
-                EditorFile file
+                EditorFile file,
+                IFactory<IScreen> factory
             ) : base(
                     storageobjectID,
-                    file
+                    file,
+                    factory
                 ) {
             container = file[FunctionContainer.ItemName] as FunctionContainer;
 
