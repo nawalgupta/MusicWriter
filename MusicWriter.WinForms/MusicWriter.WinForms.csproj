@@ -50,14 +50,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Screens\FunctionEditor\FunctionEditorScreenView.cs">
+    <Compile Include="containers\FunctionEditor\FunctionCodeTextBoxTool.cs" />
+    <Compile Include="containers\FunctionEditor\FunctionEditorScreenView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Screens\FunctionEditor\FunctionEditorScreenView.Designer.cs">
+    <Compile Include="containers\FunctionEditor\FunctionEditorScreenView.Designer.cs">
       <DependentUpon>FunctionEditorScreenView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Screens\FunctionEditor\FunctionEditorScreenView.Viewer.cs">
+    <Compile Include="containers\FunctionEditor\FunctionEditorScreenView.Viewer.cs">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="containers\FunctionEditor\FunctionSourceEditorControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="containers\FunctionEditor\FunctionSourceEditorControl.Designer.cs">
+      <DependentUpon>FunctionSourceEditorControl.cs</DependentUpon>
     </Compile>
     <Compile Include="tools\MusicWriter\ContextMenus.cs" />
     <Compile Include="tools\MusicWriter\FactoryMenuStrip.cs" />
@@ -71,42 +78,45 @@
     <Compile Include="tools\MusicWriter\InternalExtensions.cs" />
     <Compile Include="tools\WinForms\KeyboardMenuShortcuts.cs" />
     <Compile Include="app\input\KeyboardInputSource.cs" />
-    <Compile Include="TrackControllers\SheetMusicEditor\NoteRenderer.cs" />
+    <Compile Include="containers\TrackController\SheetMusicEditor\NoteRenderer.cs" />
     <Compile Include="app\file\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="app\file\RecentFiles.cs" />
     <Compile Include="tools\WinForms\RectangleMouseSelector.cs" />
-    <Compile Include="TrackControllers\SheetMusicEditor\RenderedClefSymbol.cs" />
-    <Compile Include="TrackControllers\SheetMusicEditor\RenderedMeasure.cs" />
-    <Compile Include="TrackControllers\SheetMusicEditor\RenderedSheetMusicItemPerceptualCog.cs" />
-    <Compile Include="TrackControllers\SheetMusicEditor\RenderedSheetMusicItem.cs" />
-    <Compile Include="TrackControllers\SheetMusicEditor\SheetMusicEditorView.cs">
+    <Compile Include="containers\TrackController\SheetMusicEditor\RenderedClefSymbol.cs" />
+    <Compile Include="containers\TrackController\SheetMusicEditor\RenderedMeasure.cs" />
+    <Compile Include="containers\TrackController\SheetMusicEditor\RenderedSheetMusicItemPerceptualCog.cs" />
+    <Compile Include="containers\TrackController\SheetMusicEditor\RenderedSheetMusicItem.cs" />
+    <Compile Include="containers\TrackController\SheetMusicEditor\SheetMusicEditorView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="TrackControllers\SheetMusicEditor\SheetMusicEditorView.Designer.cs">
+    <Compile Include="containers\TrackController\SheetMusicEditor\SheetMusicEditorView.Designer.cs">
       <DependentUpon>SheetMusicEditorView.cs</DependentUpon>
     </Compile>
-    <Compile Include="TrackControllers\SheetMusicEditor\SheetMusicEditorView.Viewer.cs">
+    <Compile Include="containers\TrackController\SheetMusicEditor\SheetMusicEditorView.Viewer.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="tools\WinForms\TabPageInterop.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Screens\TrackController\TrackControllerScreenView.cs">
+    <Compile Include="containers\TrackController\TrackControllerScreenView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Screens\TrackController\TrackControllerScreenView.Designer.cs">
+    <Compile Include="containers\TrackController\TrackControllerScreenView.Designer.cs">
       <DependentUpon>TrackControllerScreenView.cs</DependentUpon>
     </Compile>
-    <Compile Include="TrackControllers\SheetMusicEditor\SheetMusicRenderSettings.cs" />
-    <Compile Include="TrackControllers\SheetMusicEditor\RenderedTimeSignatureSimple.cs" />
+    <Compile Include="containers\TrackController\SheetMusicEditor\SheetMusicRenderSettings.cs" />
+    <Compile Include="containers\TrackController\SheetMusicEditor\RenderedTimeSignatureSimple.cs" />
     <Compile Include="app\file\Theme.cs" />
-    <Compile Include="Screens\TrackController\TrackControllerScreenView.Viewer.cs">
+    <Compile Include="containers\TrackController\TrackControllerScreenView.Viewer.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="tools\MusicWriter\WinFormsViewer.cs" />
     <EmbeddedResource Include="app\file\FileEditorForm.resx">
       <DependentUpon>FileEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="containers\FunctionEditor\FunctionSourceEditorControl.resx">
+      <DependentUpon>FunctionSourceEditorControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -117,13 +127,13 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Screens\FunctionEditor\FunctionEditorScreenView.resx">
+    <EmbeddedResource Include="containers\FunctionEditor\FunctionEditorScreenView.resx">
       <DependentUpon>FunctionEditorScreenView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="TrackControllers\SheetMusicEditor\SheetMusicEditorView.resx">
+    <EmbeddedResource Include="containers\TrackController\SheetMusicEditor\SheetMusicEditorView.resx">
       <DependentUpon>SheetMusicEditorView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Screens\TrackController\TrackControllerScreenView.resx">
+    <EmbeddedResource Include="containers\TrackController\TrackControllerScreenView.resx">
       <DependentUpon>TrackControllerScreenView.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="glyphs\glyphs.blend" />
