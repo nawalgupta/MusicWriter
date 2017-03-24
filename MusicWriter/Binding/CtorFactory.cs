@@ -14,10 +14,15 @@ namespace MusicWriter
     {
         readonly string name;
         readonly ConstructorInfo ctorinfo;
+        readonly bool includefactoryargument;
         readonly object[] extraarguments;
 
         public string Name {
             get { return name; }
+        }
+
+        public bool IncludeFactoryArgument {
+            get { return includefactoryargument; }
         }
 
         public object[] ExtraArguments {
@@ -26,19 +31,27 @@ namespace MusicWriter
 
         public CtorFactory(
                 string name,
+                bool includefactoryargument,
                 params object[] extraarguments
             ) {
             this.name = name;
+            this.includefactoryargument = includefactoryargument;
             this.extraarguments = extraarguments;
 
             ctorinfo =
                 typeof(T2)
                     .GetConstructor(
-                            new Type[] {
-                                    typeof(StorageObjectID),
-                                    typeof(EditorFile),
-                                    typeof(IFactory<T>),
-                                }.Concat(extraarguments.Select(arg => arg.GetType())).ToArray()
+                            (includefactoryargument ?
+                                new Type[] {
+                                        typeof(StorageObjectID),
+                                        typeof(EditorFile),
+                                        typeof(IFactory<T>)
+                                    } :
+                                new Type[] {
+                                        typeof(StorageObjectID),
+                                        typeof(EditorFile)
+                                    })
+                                .Concat(extraarguments.Select(arg => arg.GetType())).ToArray()
                         );
         }
 
@@ -52,6 +65,21 @@ namespace MusicWriter
                 StorageObjectID storageobjectID,
                 EditorFile file
             ) =>
-            (T)ctorinfo.Invoke(new object[] { storageobjectID, file, this }.Concat(extraarguments).ToArray());
+            (T)
+            ctorinfo
+                .Invoke(
+                        (includefactoryargument ?
+                            new object[] {
+                                    storageobjectID,
+                                    file,
+                                    this
+                                } :
+                            new object[] {
+                                    storageobjectID,
+                                    file
+                                })
+                            .Concat(extraarguments)
+                            .ToArray()
+                    );
     }
 }
