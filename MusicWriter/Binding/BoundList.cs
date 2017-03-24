@@ -351,6 +351,9 @@ namespace MusicWriter
         }
 
         public T Create(string type) {
+            if (master != null)
+                return master.Create(type);
+
             var storageobjectID =
                 FactorySet.Init(type, StorageObjectID, File);
 
