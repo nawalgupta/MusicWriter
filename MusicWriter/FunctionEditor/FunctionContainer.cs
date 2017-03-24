@@ -21,6 +21,7 @@ namespace MusicWriter
             ) =>
             new CtorFactory<IContainer, FunctionContainer>(
                     ItemName,
+                    true,
                     functioncodetools,
                     functionsources_factoryset,
                     functionsources_viewerset

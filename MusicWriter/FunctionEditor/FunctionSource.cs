@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed partial class FunctionSource : BoundObject<FunctionSource>
+    public sealed partial class FunctionSource : NamedBoundObject<FunctionSource>
     {
         readonly StorageObjectID storageobjectID;
         readonly FunctionContainer container;
@@ -80,6 +80,6 @@ namespace MusicWriter
         }
 
         public static IFactory<FunctionSource> FactoryInstance { get; } =
-            new CtorFactory<FunctionSource, FunctionSource>(ItemName);
+            new CtorFactory<FunctionSource, FunctionSource>(ItemName, false);
     }
 }

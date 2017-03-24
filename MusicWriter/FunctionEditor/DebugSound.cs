@@ -24,8 +24,7 @@ namespace MusicWriter
             ) : 
             base(
                     storageobjectID, 
-                    file, 
-                    null
+                    file
                 ) {
             var obj = file.Storage[storageobjectID];
 
@@ -69,7 +68,8 @@ namespace MusicWriter
 
         public static IFactory<DebugSound> FactoryInstance { get; } =
             new CtorFactory<DebugSound, DebugSound>(
-                    ItemName
+                    ItemName,
+                    false
                 );
     }
 }

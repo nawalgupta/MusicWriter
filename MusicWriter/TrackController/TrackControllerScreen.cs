@@ -20,15 +20,17 @@ namespace MusicWriter {
             get { return controllers; }
         }
 
+        public override IFactory<IScreen> Factory {
+            get { return FactoryInstance; }
+        }
+
         public TrackControllerScreen(
                 StorageObjectID storageobjectID,
-                EditorFile file,
-                IFactory<IScreen> factory
+                EditorFile file
             ) :
             base(
                     storageobjectID,
-                    file,
-                    factory
+                    file
                 ) {
             container = file[TrackControllerContainer.ItemName] as TrackControllerContainer;
 
@@ -82,6 +84,9 @@ namespace MusicWriter {
         }
 
         public static IFactory<IScreen> FactoryInstance { get; } =
-            new CtorFactory<IScreen, TrackControllerScreen>(ItemName);
+            new CtorFactory<IScreen, TrackControllerScreen>(
+                    ItemName,
+                    false
+                );
     }
 }

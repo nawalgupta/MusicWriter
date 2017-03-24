@@ -122,7 +122,10 @@ namespace MusicWriter
         }
 
         public static IFactory<ITrackController> CreateFactory() =>
-            new CtorFactory<ITrackController, SheetMusicEditor>(ItemName);
+            new CtorFactory<ITrackController, SheetMusicEditor>(
+                    ItemName,
+                    true
+                );
 
         private class OverrideTrackControllerHints : TrackControllerHints
         {

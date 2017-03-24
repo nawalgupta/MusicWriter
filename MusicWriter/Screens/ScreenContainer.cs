@@ -61,6 +61,7 @@ namespace MusicWriter
             ) =>
             new CtorFactory<IContainer, ScreenContainer>(
                     ItemName,
+                    true,
                     screens_factoryset,
                     screens_viewerset
                 );

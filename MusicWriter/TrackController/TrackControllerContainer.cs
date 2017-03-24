@@ -95,6 +95,7 @@ namespace MusicWriter
             ) =>
             new CtorFactory<IContainer, TrackControllerContainer>(
                     ItemName,
+                    true,
                     tracks_factoryset,
                     tracks_viewerset,
                     controllers_factoryset,

@@ -62,6 +62,7 @@ namespace MusicWriter
             ) =>
             new CtorFactory<IContainer, PolylineContainer>(
                     ItemName,
+                    true,
                     polylines_factoryset,
                     polylines_viewerset
                 );

@@ -21,6 +21,10 @@ namespace MusicWriter
             listener_contentsset,
             listener_remove;
 
+        public override IFactory<PolylineData> Factory {
+            get { return FactoryInstance; }
+        }
+
         readonly IStorageObject storage;
 
         public PolylineData(
@@ -397,6 +401,9 @@ namespace MusicWriter
         }
 
         public static IFactory<PolylineData> FactoryInstance { get; }=
-            new CtorFactory<PolylineData, PolylineData>(ItemName);
+            new CtorFactory<PolylineData, PolylineData>(
+                    ItemName,
+                    false
+                );
     }
 }

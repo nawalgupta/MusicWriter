@@ -15,7 +15,7 @@ namespace MusicWriter
         public const string ItemName = "musicwriter.function.screen";
 
         public static IFactory<IScreen> FactoryInstance { get; } =
-            new CtorFactory<IScreen, FunctionEditorScreen>(ItemName);
+            new CtorFactory<IScreen, FunctionEditorScreen>(ItemName, false);
 
         public override IFactory<IScreen> Factory {
             get { return FactoryInstance; }
@@ -38,12 +38,10 @@ namespace MusicWriter
 
         public FunctionEditorScreen(
                 StorageObjectID storageobjectID,
-                EditorFile file,
-                IFactory<IScreen> factory
+                EditorFile file
             ) : base(
                     storageobjectID,
-                    file,
-                    factory
+                    file
                 ) {
             container = file[FunctionContainer.ItemName] as FunctionContainer;
 
