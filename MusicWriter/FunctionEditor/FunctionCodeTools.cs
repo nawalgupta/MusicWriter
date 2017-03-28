@@ -25,6 +25,9 @@ namespace MusicWriter
 
             while (!source.StartsWith(";")) {
                 var name_length = source.IndexOfAny(" \r\f\n\v\t({;".ToCharArray());
+                if (name_length <= 0)
+                    break;
+
                 var name = source.Substring(0, name_length);
                 source = source.Substring(name.Length);
                 source = source.TrimStart();
@@ -78,7 +81,10 @@ namespace MusicWriter
 
                 if (binary_key != null && binary_key.Count(c => c == '.') > 1)
                     errors.Add(new KeyValuePair<Tuple<int, int>, string>(null, $"Key \"{binary_key}\" has multiple dots."));
-                
+
+                if (factory == null)
+                    break;
+
                 context =
                     factory.Create(
                             context,
