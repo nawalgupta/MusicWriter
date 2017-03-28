@@ -35,6 +35,10 @@ namespace MusicWriter.WinForms
             }
         }
 
+        FunctionSource ActiveFunctionSource {
+            get { return (FunctionSource)tabFunctionSources.SelectedTab.Tag; }
+        }
+
         public FunctionEditorScreenView() {
             InitializeComponent();
         }
@@ -42,67 +46,205 @@ namespace MusicWriter.WinForms
         void Setup() {
             ContextMenus.Attatch_Tone(mnuPlayTone, screen.DebugSound.Tone);
 
-            screen.FunctionSources.ItemInserted += FunctionSources_ItemInserted;
-            screen.FunctionSources.ItemWithdrawn -= FunctionSources_ItemWithdrawn;
-            screen.FunctionSources.ItemMoved -= FunctionSources_ItemMoved;
+            screen.Container.FunctionSources.ItemInserted += FunctionSources_ItemInserted;
+            screen.Container.FunctionSources.ItemWithdrawn += FunctionSources_ItemWithdrawn;
+            screen.Container.FunctionSources.ItemMoved += FunctionSources_ItemMoved;
+
+            screen.FunctionSources.ItemInserted += Screen_FunctionSources_ItemInserted;
+            screen.FunctionSources.ItemWithdrawn += Screen_FunctionSources_ItemWithdrawn;
+            screen.FunctionSources.ItemMoved += Screen_FunctionSources_ItemMoved;
         }
 
         private void FunctionSources_ItemInserted(
-                FunctionSource item, 
+                FunctionSource item,
                 int index
             ) {
-            var control =
-                new FunctionSourceEditorControl();
+            Invoke(new Action(() => {
+                var lsvItem = new ListViewItem(item.Name.Value);
+                
+                item.Name.AfterChange += FunctionSource_Name_AfterChange;
 
-            control.Setup(item);
+                lsvItem.Name = $"lsvFunctionSources_{item.Name}";
+                lsvItem.Text = item.Name.Value;
+                lsvItem.Tag = item;
 
-            var tab = 
-                new TabPage();
-
-            tab.Controls.Add(control);
-            control.Dock = DockStyle.Fill;
-
-            ObservableProperty<string>.PropertyChangeHandler namechanged =
-                (old, @new) => tab.Text = @new;
-
-            item.Name.AfterChange += namechanged;
-            
-            tab.Disposed += delegate {
-                control.UnSetup();
-                item.Name.AfterChange -= namechanged;
-            };
-
-            tabFunctionSources.Controls.Add(tab);
+                lsvFunctionSources.Items.Insert(index, lsvItem);
+            }));
         }
-        
+
+        private void FunctionSource_Name_AfterChange(string old, string @new) {
+            Invoke(new Action(() => {
+                var lsvItem =
+                    lsvFunctionSources.Items[$"lsvFunctionSources_{old}"];
+
+                lsvItem.Name = $"lsvFunctionSources_{@new}";
+                lsvItem.Text = @new;
+            }));
+        }
+
         private void FunctionSources_ItemWithdrawn(
                 FunctionSource item,
                 int index
-            ) =>
-            tabFunctionSources
-                .Controls
-                .RemoveAt(index);
+            ) {
+            Invoke(new Action(() => {
+                lsvFunctionSources.Items.RemoveByKey($"lsvFunctionSources_{item.Name}");
+            }));
+        }
 
         private void FunctionSources_ItemMoved(
-                FunctionSource item, 
+                FunctionSource item,
                 int oldindex,
                 int newindex
-            ) =>
-            tabFunctionSources
-                .Controls
-                .SetChildIndex(
-                        tabFunctionSources.Controls[oldindex],
-                        newindex
-                    );
+            ) {
+            Invoke(new Action(() => {
+                var lsvItem = lsvFunctionSources.Items[$"lsvFunctionSources_{item.Name}"];
+                lsvFunctionSources.Items.Remove(lsvItem);
+                lsvFunctionSources.Items.Insert(newindex, lsvItem);
+            }));
+        }
+
+        private void Screen_FunctionSources_ItemInserted(
+                FunctionSource item,
+                int index
+            ) {
+            Invoke(new Action(() => {
+                var control =
+                    new FunctionSourceEditorControl();
+
+                control.Setup(item);
+
+                var tab =
+                    new TabPage();
+
+                tab.Name = $"tabFunctionSources_{item.Name}";
+                tab.Controls.Add(control);
+                control.Dock = DockStyle.Fill;
+
+                ObservableProperty<string>.PropertyChangeHandler namechanged =
+                    (old, @new) => {
+                        tab.Text = @new;
+                        tab.Name = $"tabFunctionSources_{item.Name}";
+                    };
+
+                item.Name.AfterChange += namechanged;
+
+                tab.Disposed += delegate {
+                    control.UnSetup();
+                    item.Name.AfterChange -= namechanged;
+                };
+
+                tabFunctionSources.Controls.Add(tab);
+                tabFunctionSources.Controls.SetChildIndex(tab, index);
+            }));
+        }
+
+        private void Screen_FunctionSources_ItemWithdrawn(
+                FunctionSource item,
+                int index
+            ) {
+            Invoke(new Action(() => {
+                tabFunctionSources
+                    .Controls
+                    .RemoveAt(index);
+            }));
+        }
+
+        private void Screen_FunctionSources_ItemMoved(
+                FunctionSource item,
+                int oldindex,
+                int newindex
+            ) {
+            Invoke(new Action(() => {
+                tabFunctionSources
+                    .Controls
+                    .SetChildIndex(
+                            tabFunctionSources.Controls[$"lsvFunctionSources_{item.Name}"],
+                            newindex
+                        );
+            }));
+        }
         
         private void FunctionEditorScreenView_Load(object sender, EventArgs e) {
         }
 
         private void tabFunctionSources_SelectedIndexChanged(object sender, EventArgs e) {
-
+            var index = lsvFunctionSources.Items.IndexOfKey($"lsvFunctionSources_{ActiveFunctionSource.Name}");
+            lsvFunctionSources.SelectedIndices.Clear();
+            lsvFunctionSources.SelectedIndices.Add(index);
         }
 
         private void tabFunctionSources_ControlAdded(object sender, ControlEventArgs e) =>
             tabFunctionSources.SelectedIndex = tabFunctionSources.Controls.Count - 1;
+
+        private void lsvFunctionSources_SelectedIndexChanged(object sender, EventArgs e) {
+            if (lsvFunctionSources.SelectedIndices.Count == 0)
+                return;
+
+            tabFunctionSources.SelectedIndex = lsvFunctionSources.SelectedIndices[0];
+        }
+
+        private void lsvPolylines_SelectedIndexChanged(object sender, EventArgs e) {
+            
+        }
+
+        private void btnAddFunctionSource_Click(object sender, EventArgs e) {
+            screen
+                .FunctionSources
+                .Create(FunctionSource.ItemName);
+        }
+
+        private void btnDeleteFunctionSource_Click(object sender, EventArgs e) {
+            if (lsvFunctionSources.SelectedItems.Count == 0)
+                MessageBox.Show(this, "Select a function source to delete it.", "Cannot Delete", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            else {
+                var activeItem =
+                    lsvFunctionSources.SelectedItems[0];
+
+                var functionsource =
+                    (FunctionSource)activeItem.Tag;
+
+                functionsource.Delete();
+            }
+        }
+
+        private void btnAddPolyline_Click(object sender, EventArgs e) {
+
+        }
+
+        private void btnDeletePolyline_Click(object sender, EventArgs e) {
+
+        }
+
+        private void mnuFunctionSourcesEnabled_CheckedChanged(object sender, EventArgs e) {
+            foreach (ListViewItem item in lsvFunctionSources.SelectedItems)
+                item.Checked = mnuFunctionSourcesEnabled.Checked;
+        }
+
+        private void mnuFunctionSourcesCreate_Click(object sender, EventArgs e) =>
+            btnAddFunctionSource.PerformClick();
+
+        private void mnuFunctionSourcesDelete_Click(object sender, EventArgs e) =>
+            btnDeleteFunctionSource.PerformClick();
+
+        private void mnuFunctionSources_Opening(object sender, CancelEventArgs e) {
+            var activeItem =
+                lsvFunctionSources.SelectedItems[0];
+
+            var functionsource =
+                (FunctionSource)activeItem.Tag;
+
+            mnuFunctionSourcesDelete.Enabled = lsvFunctionSources.SelectedIndices.Count != 0;
+            mnuFunctionSourcesEnabled.Checked = screen.FunctionSources.Contains(functionsource);
+        }
+
+        private void lsvFunctionSources_ItemChecked(object sender, ItemCheckedEventArgs e) {
+            var functionsource =
+                (FunctionSource)e.Item.Tag;
+
+            if (e.Item.Checked)
+                screen.FunctionSources.Add(functionsource);
+            else
+                screen.FunctionSources.Remove(functionsource);
+        }
     }
 }
