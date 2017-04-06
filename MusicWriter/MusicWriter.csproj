@@ -42,11 +42,19 @@
     <Compile Include="Binding\Extensions.cs" />
     <Compile Include="Cogs\EditableMemoryModule.cs" />
     <Compile Include="Cogs\IgnorantMemoryModule.cs" />
+    <Compile Include="Computing\ComputeConstants.cs" />
+    <Compile Include="Computing\ProxyComputeCoordinator.cs" />
+    <Compile Include="Computing\IComputePartitioner.cs" />
+    <Compile Include="Computing\MasterComputeCoordinater.cs" />
+    <Compile Include="Computing\ComputeJob.cs" />
+    <Compile Include="CS\BackgroundWorker.cs" />
     <Compile Include="CS\IndexCorrectionBehavoir.cs" />
     <Compile Include="CS\Selector.cs" />
     <Compile Include="EditorUtils\CommandCenter.cs" />
     <Compile Include="FunctionEditor\DebugSound.cs" />
     <Compile Include="FunctionEditor\DebugVerb.cs" />
+    <Compile Include="Computing\IComputeSlave.cs" />
+    <Compile Include="Computing\IComputeCoordinator.cs" />
     <Compile Include="Lists\Delegates.cs" />
     <Compile Include="Lists\IRearrangeableList.cs" />
     <Compile Include="CS\ObservableDuration.cs" />
@@ -62,6 +70,7 @@
     <Compile Include="Binding\FactorySet.cs" />
     <Compile Include="File\IContainer.cs" />
     <Compile Include="Binding\IFactory.cs" />
+    <Compile Include="Computing\ComputeJobID.cs" />
     <Compile Include="Utils\ObviousExtensions.cs" />
     <Compile Include="Viewing\IViewer.cs" />
     <Compile Include="Screens\Screen.cs" />

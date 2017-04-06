@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public static class StorageExtensions
-    {
+    public static class StorageExtensions {
         public static void Transfer(
                 this IStorageGraph source,
                 IStorageGraph destination
@@ -170,7 +169,7 @@ namespace MusicWriter
             item.Object<T, T>();
 
         public static IStorageObject Object<T, T2>(this T item)
-            where T : IBoundObject<T2> 
+            where T : IBoundObject<T2>
             where T2 : IBoundObject<T2> =>
             item.File.Storage[item.StorageObjectID];
 
@@ -178,9 +177,20 @@ namespace MusicWriter
             where T : IBoundObject<T> =>
             item.Delete<T, T>();
 
-        public static void Delete<T, T2>(this T item) 
+        public static void Delete<T, T2>(this T item)
             where T : IBoundObject<T2>
             where T2 : IBoundObject<T2> =>
             item.Object<T, T2>().Delete();
+
+        public static bool AcquireExclusiveOwnership(this IStorageObject storageobj) {
+            var str = Guid.NewGuid().ToString();
+            var node = storageobj.GetOrMake("rand");
+
+            node.WriteAllString(str);
+            //TODO: flush database for this node
+            Task.Delay(20).Wait();
+
+            return node.ReadAllString() == str;
+        }
     }
 }
