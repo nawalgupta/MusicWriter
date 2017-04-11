@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class FunctionWavesContainer : Container
+    public sealed class FunctionWaveContainer : Container
     {
         readonly BoundList<FunctionWave> functionwaves;
         readonly IStorageObject obj;
@@ -18,7 +18,7 @@ namespace MusicWriter
             get { return functionwaves; }
         }
 
-        public FunctionWavesContainer(
+        public FunctionWaveContainer(
                 StorageObjectID storageobjectID, 
                 EditorFile file
             ) :
@@ -53,7 +53,7 @@ namespace MusicWriter
         }
 
         public static IFactory<IContainer> FactoryInstance { get; } =
-            new CtorFactory<IContainer, FunctionWavesContainer>(
+            new CtorFactory<IContainer, FunctionWaveContainer>(
                     ItemName,
                     false
                 );

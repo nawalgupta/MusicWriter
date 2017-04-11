@@ -14,12 +14,15 @@ namespace MusicWriter
         public ObservableProperty<float> SamplesPerUnit { get; } =
             new ObservableProperty<float>(44100);
 
+        public ObservableProperty<FunctionSource> FunctionSource { get; } =
+            new ObservableProperty<FunctionSource>();
+
         readonly Dictionary<int, StorageObjectID> fragments =
             new Dictionary<int, StorageObjectID>();
 
         readonly Dictionary<int, long> fragments_sizes =
             new Dictionary<int, long>();
-
+        
         readonly IStorageObject obj;
         readonly IOListener listener_contentsset;
         readonly IOListener listener_childadded;
@@ -36,6 +39,12 @@ namespace MusicWriter
                 ) {
             obj = file.Storage[storageobjectID];
 
+            var functionsources =
+                File
+                    [FunctionContainer.ItemName]
+                    .As<IContainer, FunctionContainer>()
+                    .FunctionSources;
+            
             listener_contentsset =
                 obj
                     .CreateListen(
@@ -64,6 +73,9 @@ namespace MusicWriter
 
                                     fragments_sizes.Add(i, size);
                                 }
+                                else if (key == "function") {
+                                    FunctionSource.Value = functionsources[frag_objID];
+                                }
                             }
                         );
 
@@ -78,18 +90,27 @@ namespace MusicWriter
                                     fragments.Remove(i);
                                     fragments_sizes.Remove(i);
                                 }
+                                else if (key == "function") {
+                                    if (FunctionSource.Value.StorageObjectID == frag_objID)
+                                        FunctionSource.Value = null;
+                                }
                             }
                         );
         }
 
         public override void Bind() {
             SamplesPerUnit.AfterChange += SamplesPerUnit_AfterChange;
+            FunctionSource.AfterChange += FunctionSource_AfterChange;
 
             File.Storage.Listeners.Add(listener_contentsset);
             File.Storage.Listeners.Add(listener_childadded);
             File.Storage.Listeners.Add(listener_childremoved);
 
             base.Bind();
+        }
+
+        private void FunctionSource_AfterChange(FunctionSource old, FunctionSource @new) {
+            obj.Set("function", @new);
         }
 
         private void SamplesPerUnit_AfterChange(float old, float @new) {
@@ -100,6 +121,7 @@ namespace MusicWriter
 
         public override void Unbind() {
             SamplesPerUnit.AfterChange -= SamplesPerUnit_AfterChange;
+            FunctionSource.AfterChange -= FunctionSource_AfterChange;
 
             File.Storage.Listeners.Remove(listener_contentsset);
             File.Storage.Listeners.Remove(listener_childadded);

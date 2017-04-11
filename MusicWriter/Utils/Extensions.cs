@@ -5,8 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MusicWriter {
-    public static class Extensions {
+namespace MusicWriter
+{
+    public static class Extensions
+    {
         public static ChromaticPitchClass GetPitchClass(this DiatonicToneClass key) {
             switch (key) {
                 case DiatonicToneClass.C:
@@ -306,7 +308,7 @@ namespace MusicWriter {
             foreach (var item in field.Intersecting(throughandbeyond).ToArray()) {
                 var subtractedtime =
                     item.Duration.Subtract_Time(eraser);
-                
+
                 if (subtractedtime != null)
                     field.Move(item, subtractedtime);
                 else field.Remove(item);
@@ -337,6 +339,31 @@ namespace MusicWriter {
                 return null;
 
             return parent.Graph[sink];
+        }
+
+        public static void Set(
+                this IStorageObject parent,
+                string child,
+                StorageObjectID value
+            ) {
+            parent.Remove(child);
+            parent.Add(child, value);
+        }
+
+        public static void Set<T>(
+                this IStorageObject parent,
+                string child,
+                IBoundObject<T> value
+            ) where T : IBoundObject<T> {
+            if (value == null)
+                parent.Remove(child);
+            else {
+                Set(
+                        parent,
+                        child,
+                        value.StorageObjectID
+                    );
+            }
         }
 
         public static IStorageObject CreateObject(this IStorageGraph graph) =>

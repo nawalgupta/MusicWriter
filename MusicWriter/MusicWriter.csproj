@@ -55,10 +55,10 @@
     <Compile Include="FunctionEditor\DebugVerb.cs" />
     <Compile Include="Computing\IComputeSlave.cs" />
     <Compile Include="Computing\IComputeCoordinator.cs" />
-    <Compile Include="Functions\FunctionComputePartitioner.cs" />
-    <Compile Include="Functions\FunctionComputeSlave.cs" />
+    <Compile Include="FunctionWaves\FunctionWaveComputePartitioner.cs" />
+    <Compile Include="FunctionWaves\FunctionWaveComputeSlave.cs" />
     <Compile Include="FunctionWaves\FunctionWave.cs" />
-    <Compile Include="FunctionWaves\FunctionWavesContainer.cs" />
+    <Compile Include="FunctionWaves\FunctionWaveContainer.cs" />
     <Compile Include="Lists\Delegates.cs" />
     <Compile Include="Lists\IRearrangeableList.cs" />
     <Compile Include="CS\ObservableDuration.cs" />

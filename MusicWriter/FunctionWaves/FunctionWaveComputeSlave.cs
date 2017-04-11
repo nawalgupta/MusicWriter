@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class FunctionComputeSlave : IComputeSlave
+    public sealed class FunctionWaveComputeSlave : IComputeSlave
     {
         public string Container {
-            get { return FunctionContainer.ItemName; }
+            get { return FunctionWaveContainer.ItemName; }
         }
 
         public void Complete(
@@ -33,7 +33,7 @@ namespace MusicWriter
             using (var reader = new BinaryReader(wave_obj.OpenRead())) {
                 samples_per_unit = reader.ReadSingle();
             }
-
+            
             var func_objID =
                 wave_obj["function"];
 

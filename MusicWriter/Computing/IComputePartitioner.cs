@@ -10,18 +10,23 @@ namespace MusicWriter
     {
         string Container { get; }
 
+        void SetupPartitioner(
+                EditorFile file,
+                StorageObjectID jobinfo_objID
+            );
+
         void PartitionChunk(
                 EditorFile file,
-                StorageObjectID item_nodeID,
-                StorageObjectID jobinfo_nodeID,
-                StorageObjectID partition_nodeID
+                StorageObjectID item_objID,
+                StorageObjectID jobinfo_objID,
+                StorageObjectID partition_objID
             );
 
         void FailChunk(
                 EditorFile file,
-                StorageObjectID item_nodeID,
-                StorageObjectID jobinfo_nodeID,
-                StorageObjectID partition_nodeID
+                StorageObjectID item_objID,
+                StorageObjectID jobinfo_objID,
+                StorageObjectID partition_objID
             );
     }
 }
