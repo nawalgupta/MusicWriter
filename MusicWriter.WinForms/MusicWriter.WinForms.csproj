@@ -67,6 +67,7 @@
       <DependentUpon>FunctionSourceEditorControl.cs</DependentUpon>
     </Compile>
     <Compile Include="tools\MusicWriter\ContextMenus.cs" />
+    <Compile Include="tools\MusicWriter\DebugSoundPlayer.cs" />
     <Compile Include="tools\MusicWriter\FactoryMenuStrip.cs" />
     <Compile Include="app\file\FileEditorForm.cs">
       <SubType>Form</SubType>

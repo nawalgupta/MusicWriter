@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MusicWriter {
+namespace MusicWriter
+{
     public sealed class ObservableProperty<T>
     {
         T value = default(T);

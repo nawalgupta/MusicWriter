@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class PropertyBinder<T> : BoundObject<PropertyBinder<T>>
+    public sealed class PropertyBinder<T> 
+        : BoundObject<PropertyBinder<T>>
     {
         readonly IStorageObject storageobject;
         readonly ObservableProperty<T> property;

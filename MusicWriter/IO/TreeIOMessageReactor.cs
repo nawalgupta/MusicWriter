@@ -73,9 +73,22 @@ namespace MusicWriter
                 foreach (var verb in lookup_verb)
                     verb.Value.Value.Insert(i, verb.Key == msg.Verb);
             }
-            
-            for (int j = 0; j < indicies_listeners.Length; j++)
-                Listeners[indicies_listeners[j]].Responder(msg);
+
+            for (int j = 0; j < indicies_listeners.Length; j++) {
+                var listener =
+                    Listeners[indicies_listeners[j]];
+
+                if (listener.Filter.Relation != msg.Relation && listener.Filter.Relation != null)
+                    continue;
+
+                if (listener.Filter.NewRelation != msg.NewRelation && listener.Filter.NewRelation != null)
+                    continue;
+
+                if (listener.Filter.Object != msg.Object && listener.Filter.Object != default(StorageObjectID))
+                    continue;
+
+                listener.Responder(msg);
+            }
         }
 
         private void Messages_ItemWithdrawn(IOMessage msg, int i) {
@@ -117,12 +130,24 @@ namespace MusicWriter
 
                 foreach (var verb in lookup_verb)
                     verb.Value.Key.Insert(i, verb.Key == listener.Filter.Verb);
-                
+
                 indicies_msg = lookup_subject_this.Value.AllOnes(lookup_verb_this.Value).ToArray();
             }
+            
+            for (int j = 0; j < indicies_msg.Length; j++) {
+                var msg = Messages[indicies_msg[j]];
+                
+                if (listener.Filter.Relation != msg.Relation && listener.Filter.Relation != null)
+                    continue;
 
-            for (int j = 0; j < indicies_msg.Length; j++)
-                listener.Responder(Messages[indicies_msg[j]]);
+                if (listener.Filter.NewRelation != msg.NewRelation && listener.Filter.NewRelation != null)
+                    continue;
+
+                if (listener.Filter.Object != msg.Object && listener.Filter.Object != default(StorageObjectID))
+                    continue;
+
+                listener.Responder(msg);
+            }
         }
 
         private void Listeners_ItemWithdrawn(IOListener listener, int i) {

@@ -38,8 +38,10 @@
     <Compile Include="Binding\IBoundObject.cs" />
     <Compile Include="Binding\INamedObject.cs" />
     <Compile Include="Binding\NamedBoundObject.cs" />
+    <Compile Include="Binding\ObjectPropertyBinder.cs" />
     <Compile Include="Binding\PropertyBinder.cs" />
     <Compile Include="Binding\Extensions.cs" />
+    <Compile Include="Codecs\WavEncodingStream.cs" />
     <Compile Include="Cogs\EditableMemoryModule.cs" />
     <Compile Include="Cogs\IgnorantMemoryModule.cs" />
     <Compile Include="Computing\ComputeConstants.cs" />
@@ -52,6 +54,7 @@
     <Compile Include="CS\Selector.cs" />
     <Compile Include="EditorUtils\CommandCenter.cs" />
     <Compile Include="FunctionEditor\DebugSound.cs" />
+    <Compile Include="FunctionEditor\DebugStrategy.cs" />
     <Compile Include="FunctionEditor\DebugVerb.cs" />
     <Compile Include="Computing\IComputeSlave.cs" />
     <Compile Include="Computing\IComputeCoordinator.cs" />

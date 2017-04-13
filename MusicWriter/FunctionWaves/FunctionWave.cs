@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MusicWriter
@@ -22,15 +23,22 @@ namespace MusicWriter
 
         readonly Dictionary<int, long> fragments_sizes =
             new Dictionary<int, long>();
+
+        readonly int totalsamples;
         
         readonly IStorageObject obj;
         readonly IOListener listener_contentsset;
         readonly IOListener listener_childadded;
         readonly IOListener listener_childremoved;
 
+        public int TotalSamples {
+            get { return totalsamples; }
+        }
+
         public FunctionWave(
                 StorageObjectID storageobjectID, 
-                EditorFile file
+                EditorFile file,
+                int totalsamples
             ) :
             base(
                     storageobjectID, 
@@ -38,6 +46,7 @@ namespace MusicWriter
                     FactoryInstance
                 ) {
             obj = file.Storage[storageobjectID];
+            this.totalsamples = totalsamples;
 
             var functionsources =
                 File
@@ -177,32 +186,43 @@ namespace MusicWriter
             public override void Flush() {
                 throw new InvalidOperationException();
             }
-
+            
             public override int Read(byte[] buffer, int offset, int count) {
                 if (count <= current_length - current_offset) {
                     current_stream.Read(buffer, offset, count);
                     current_offset += count;
                 }
                 else {
-                    var part_count = (int)(current_length - current_offset);
+                    var readsize = 0;
 
-                    current_stream.Read(buffer, offset, part_count);
-                    current_stream.Close();
-                    current_stream.Dispose();
-                    if (current_i + 1 == wave.fragments.Count)
-                        return part_count;
+                    while (count > 0) {
+                        var local_count = Math.Min(count, (int)(current_length - current_offset));
 
-                    count -= part_count;
+                        current_stream.Read(buffer, offset, local_count);
 
-                    current_offset_global += current_length;
-                    current_i++;
-                    current_stream = wave.File.Storage[wave.fragments[current_i]].OpenRead();
-                    current_length = wave.fragments_sizes[current_i];
-                    current_offset = count;
+                        readsize += local_count;
+                        offset += local_count;
+                        current_offset += local_count;
 
-                    current_stream.Read(buffer, 0, count);
+                        if (current_offset == current_length) {
+                            current_stream.Close();
+                            current_stream.Dispose();
+                            current_i++;
+                            current_offset_global += current_length;
 
-                    return count + part_count;
+                            if (current_offset_global == wave.totalsamples)
+                                break;
+
+                            while (!wave.fragments.ContainsKey(current_i))
+                                Thread.Sleep(20);
+
+                            current_stream = wave.File.Storage[wave.fragments[current_i]].OpenRead();
+                            current_length = wave.fragments_sizes[current_i];
+                            current_offset = 0;
+                        }
+                    }
+
+                    return readsize;
                 }
 
                 return 0;
@@ -225,6 +245,9 @@ namespace MusicWriter
                         position = 0;
                         break;
                 }
+
+                if (position >= wave.totalsamples)
+                    position = wave.totalsamples - 1;
 
                 if (position < current_offset_global) {
                     current_stream.Close();

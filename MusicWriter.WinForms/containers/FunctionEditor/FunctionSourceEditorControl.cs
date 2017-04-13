@@ -14,16 +14,8 @@ namespace MusicWriter.WinForms
     {
         FunctionSource source;
         FunctionCodeTextBoxTool textboxtool;
-
-        bool haserrors;
-        bool HasErrors {
-            get { return haserrors; }
-            set {
-                haserrors = value;
-
-                btnPlay.Enabled = !haserrors;
-            }
-        }
+        
+        public ObservableProperty<bool> HasErrors { get; set; }
 
         public FunctionSourceEditorControl() {
             InitializeComponent();
@@ -51,17 +43,13 @@ namespace MusicWriter.WinForms
         }
 
         private void Textboxtool_ErrorsFound(KeyValuePair<Tuple<int, int>, string>[] errors) {
-            HasErrors = true;
+            HasErrors.Value = true;
         }
 
         private void Textboxtool_FunctionParsed(IFunction obj) {
             source.Function.Value = obj;
 
-            HasErrors = false;
-        }
-
-        private void btnPlay_Click(object sender, EventArgs e) {
-
+            HasErrors.Value = false;
         }
     }
 }

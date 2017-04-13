@@ -111,6 +111,17 @@ namespace MusicWriter
                     (obj, @string) => obj.WriteAllString(serializer(@string))
                 );
 
+        public static PropertyBinder<T> BindEnum<T>(
+                this ObservableProperty<T> property,
+                IStorageObject storageobject
+            ) =>
+            property
+                .Bind(
+                        storageobject,
+                        ObviousExtensions.EnumParse<T>,
+                        ObviousExtensions.ToString
+                    );
+
         public static DurationFieldBinder<T> Bind<T>(
                 this DurationField<T> field,
                 StorageObjectID storageobjectID,
@@ -120,6 +131,20 @@ namespace MusicWriter
                     storageobjectID,
                     file,
                     field
+                );
+
+        public static ObjectPropertyBinder<T> BindObject<T>(
+                this ObservableProperty<T> property,
+                StorageObjectID hub,
+                string relation,
+                BoundList<T> boundlist
+            ) where T : IBoundObject<T> =>
+            new ObjectPropertyBinder<T>(
+                    hub,
+                    boundlist.File,
+                    relation,
+                    boundlist,
+                    property
                 );
     }
 }

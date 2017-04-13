@@ -14,6 +14,7 @@ namespace MusicWriter.WinForms
     {
         EditorFile file;
         FunctionEditorScreen screen;
+        DebugSoundPlayer soundplayer;
 
         public EditorFile File {
             get { return file; }
@@ -45,7 +46,7 @@ namespace MusicWriter.WinForms
 
         void Setup() {
             ContextMenus.Attatch_Tone(mnuPlayTone, screen.DebugSound.Tone);
-
+            
             screen.Container.FunctionSources.ItemInserted += FunctionSources_ItemInserted;
             screen.Container.FunctionSources.ItemWithdrawn += FunctionSources_ItemWithdrawn;
             screen.Container.FunctionSources.ItemMoved += FunctionSources_ItemMoved;
@@ -53,6 +54,18 @@ namespace MusicWriter.WinForms
             screen.FunctionSources.ItemInserted += Screen_FunctionSources_ItemInserted;
             screen.FunctionSources.ItemWithdrawn += Screen_FunctionSources_ItemWithdrawn;
             screen.FunctionSources.ItemMoved += Screen_FunctionSources_ItemMoved;
+
+            soundplayer = new DebugSoundPlayer(screen.DebugSound);
+            soundplayer.PlayingStarted += Soundplayer_PlayingStarted;
+            soundplayer.PlayingFinished += Soundplayer_PlayingFinished;
+        }
+
+        private void Soundplayer_PlayingStarted() {
+            btnPlay.Text = "Stop";
+        }
+
+        private void Soundplayer_PlayingFinished() {
+            btnPlay.Text = "Play";
         }
 
         private void FunctionSources_ItemInserted(
@@ -245,6 +258,15 @@ namespace MusicWriter.WinForms
                 screen.FunctionSources.Add(functionsource);
             else
                 screen.FunctionSources.Remove(functionsource);
+        }
+
+        private void btnPlay_Click(object sender, EventArgs e) {
+            if (soundplayer.IsPlaying) {
+                soundplayer.Stop();
+            }
+            else {
+                soundplayer.Play();
+            }
         }
     }
 }

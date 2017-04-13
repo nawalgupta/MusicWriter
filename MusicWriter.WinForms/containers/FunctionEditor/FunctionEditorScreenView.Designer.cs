@@ -55,6 +55,7 @@
             this.lsvPolylines = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tabFunctionSources = new System.Windows.Forms.TabControl();
+            this.btnPlay = new System.Windows.Forms.Button();
             mnuPlaySeparator1 = new System.Windows.Forms.ToolStripSeparator();
             panel1 = new System.Windows.Forms.Panel();
             panel2 = new System.Windows.Forms.Panel();
@@ -235,6 +236,7 @@
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.btnPlay);
             this.splitContainer1.Panel2.Controls.Add(this.tabFunctionSources);
             this.splitContainer1.Size = new System.Drawing.Size(600, 396);
             this.splitContainer1.SplitterDistance = 200;
@@ -344,6 +346,18 @@
             this.tabFunctionSources.Size = new System.Drawing.Size(396, 396);
             this.tabFunctionSources.TabIndex = 2;
             // 
+            // btnPlay
+            // 
+            this.btnPlay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnPlay.ContextMenuStrip = this.mnuPlay;
+            this.btnPlay.Location = new System.Drawing.Point(294, 12);
+            this.btnPlay.Name = "btnPlay";
+            this.btnPlay.Size = new System.Drawing.Size(87, 30);
+            this.btnPlay.TabIndex = 3;
+            this.btnPlay.Text = "Play";
+            this.btnPlay.UseVisualStyleBackColor = true;
+            this.btnPlay.Click += new System.EventHandler(this.btnPlay_Click);
+            // 
             // FunctionEditorScreenView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -396,5 +410,6 @@
         private System.Windows.Forms.ToolStripMenuItem mnuFunctionSourcesEnabled;
         private System.Windows.Forms.ToolStripMenuItem mnuFunctionSourcesCreate;
         private System.Windows.Forms.ToolStripMenuItem mnuFunctionSourcesDelete;
+        private System.Windows.Forms.Button btnPlay;
     }
 }
