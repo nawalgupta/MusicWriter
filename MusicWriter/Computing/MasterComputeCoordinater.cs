@@ -160,6 +160,13 @@ namespace MusicWriter
             var partitioner =
                 partitioners_map[container];
 
+            partitioner
+                .SetupPartitioner(
+                        File,
+                        item,
+                        info_obj.ID
+                    );
+
             var listener_slaves_add =
                 slaves_obj
                     .CreateListen(
@@ -200,13 +207,19 @@ namespace MusicWriter
 
                                 switch (msg.NewRelation) {
                                     case ComputeConstants.SlaveKey_JobRequested:
-                                        partitioner
-                                            .PartitionChunk(
-                                                    File,
-                                                    item,
-                                                    info_obj.ID,
-                                                    slave_objID
-                                                );
+                                        var result =
+                                            partitioner
+                                                .PartitionChunk(
+                                                        File,
+                                                        item,
+                                                        info_obj.ID,
+                                                        slave_objID
+                                                    );
+
+                                        if (!result) {
+                                            // there are no more partitions to do
+                                            slaves_obj.Rename(slave_objID, ComputeConstants.SlaveKey_WorkIsDone);
+                                        }
 
                                         break;
 
@@ -225,6 +238,19 @@ namespace MusicWriter
                                         break;
 
                                     case ComputeConstants.SlaveKey_Working:
+                                        break;
+
+                                    case ComputeConstants.SlaveKey_WorkIsDone:
+                                        slaves_obj.Remove(slave_objID);
+
+                                        if (!slaves_obj.Children.Any())
+                                            StopJob(jobID);
+
+                                        //TODO: this leaves open the vulnerability that an 
+                                        // authenticated compute slave could be the first one
+                                        // to join and then report WorkIsDone, which would
+                                        // delete the job.
+
                                         break;
 
                                     default:
@@ -254,6 +280,8 @@ namespace MusicWriter
             jobs_listener_slaves_add.Remove(jobID);
             jobs_listener_slaves_remove.Remove(jobID);
             jobs_listener_slaves_keyed.Remove(jobID);
+
+            allocatedjobs_obj.Get(jobID.ToString()).Delete();
         }
 
         public static IFactory<IComputeCoordinator> FactoryInstance { get; } =

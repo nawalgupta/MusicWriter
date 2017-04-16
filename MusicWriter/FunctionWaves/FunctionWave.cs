@@ -12,33 +12,39 @@ namespace MusicWriter
     {
         public const string ItemName = "musicwriter.function-waves.object";
 
-        public ObservableProperty<float> SamplesPerUnit { get; } =
+        public ObservableProperty<float> SampleRate { get; } =
             new ObservableProperty<float>(44100);
+        public ObservableProperty<float> Start { get; } =
+            new ObservableProperty<float>();
+        public ObservableProperty<float> Length { get; } =
+            new ObservableProperty<float>();
 
         public ObservableProperty<FunctionSource> FunctionSource { get; } =
             new ObservableProperty<FunctionSource>();
 
         readonly Dictionary<int, StorageObjectID> fragments =
             new Dictionary<int, StorageObjectID>();
-
         readonly Dictionary<int, long> fragments_sizes =
             new Dictionary<int, long>();
 
-        readonly int totalsamples;
-        
+        uint totalsamples = 0;
+
         readonly IStorageObject obj;
         readonly IOListener listener_contentsset;
         readonly IOListener listener_childadded;
         readonly IOListener listener_childremoved;
 
-        public int TotalSamples {
-            get { return totalsamples; }
+        public uint TotalSamples {
+            get { return (uint)(Length.Value * SampleRate.Value); }
+        }
+
+        public uint EndSample {
+            get { return (uint)((double)(Start.Value + Length.Value) * SampleRate.Value); }
         }
 
         public FunctionWave(
                 StorageObjectID storageobjectID, 
-                EditorFile file,
-                int totalsamples
+                EditorFile file
             ) :
             base(
                     storageobjectID, 
@@ -46,7 +52,6 @@ namespace MusicWriter
                     FactoryInstance
                 ) {
             obj = file.Storage[storageobjectID];
-            this.totalsamples = totalsamples;
 
             var functionsources =
                 File
@@ -60,7 +65,9 @@ namespace MusicWriter
                             IOEvent.ObjectContentsSet,
                             () => {
                                 using (var reader = new BinaryReader(obj.OpenRead())) {
-                                    SamplesPerUnit.Value = reader.ReadSingle();
+                                    SampleRate.Value = reader.ReadSingle();
+                                    Start.Value = reader.ReadSingle();
+                                    Length.Value = reader.ReadSingle();
                                 }
                             }
                         );
@@ -108,7 +115,9 @@ namespace MusicWriter
         }
 
         public override void Bind() {
-            SamplesPerUnit.AfterChange += SamplesPerUnit_AfterChange;
+            SampleRate.AfterChange += SampleRate_AfterChange;
+            Start.AfterChange += Start_AfterChange;
+            Length.AfterChange += Length_AfterChange;
             FunctionSource.AfterChange += FunctionSource_AfterChange;
 
             File.Storage.Listeners.Add(listener_contentsset);
@@ -118,18 +127,36 @@ namespace MusicWriter
             base.Bind();
         }
 
+        private void Length_AfterChange(float old, float @new) {
+            Serialize();
+        }
+
+        private void Start_AfterChange(float old, float @new) {
+            Serialize();
+        }
+
+        private void SampleRate_AfterChange(float old, float @new) {
+            Serialize();
+        }
+
         private void FunctionSource_AfterChange(FunctionSource old, FunctionSource @new) {
             obj.Set("function", @new);
         }
 
-        private void SamplesPerUnit_AfterChange(float old, float @new) {
-            using (var writer = new BinaryWriter(obj.OpenWrite())) {
-                writer.Write(SamplesPerUnit.Value);
+        void Serialize() {
+            using (var writer = new BinaryWriter(obj.OpenRead())) {
+                writer.Write(SampleRate.Value);
+                writer.Write(Start.Value);
+                writer.Write(Length.Value);
             }
+
+            totalsamples = TotalSamples;
         }
 
         public override void Unbind() {
-            SamplesPerUnit.AfterChange -= SamplesPerUnit_AfterChange;
+            SampleRate.AfterChange -= SampleRate_AfterChange;
+            Start.AfterChange -= Start_AfterChange;
+            Length.AfterChange -= Length_AfterChange;
             FunctionSource.AfterChange -= FunctionSource_AfterChange;
 
             File.Storage.Listeners.Remove(listener_contentsset);

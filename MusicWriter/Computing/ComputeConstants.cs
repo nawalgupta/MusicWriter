@@ -12,5 +12,6 @@ namespace MusicWriter
         public const string SlaveKey_Working = "working";
         public const string SlaveKey_Stopped = "stop";
         public const string SlaveKey_JobRequested = "job?";
+        public const string SlaveKey_WorkIsDone = "done";
     }
 }

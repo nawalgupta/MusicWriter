@@ -18,34 +18,53 @@ namespace MusicWriter
 
         public void SetupPartitioner(
                 EditorFile file,
+                StorageObjectID item_objID,
                 StorageObjectID jobinfo_objID
             ) {
+            var jobinfo_obj =
+                file.Storage[jobinfo_objID];
 
+            var item =
+                file[FunctionWaveContainer.ItemName]
+                    .As<IContainer, FunctionWaveContainer>()
+                    .FunctionWaves[item_objID];
+
+            using (var writer = new BinaryWriter(jobinfo_obj.OpenWrite())) {
+                writer.Write(0u);
+                writer.Write(0u);
+                writer.Write(item.EndSample);
+            }
         }
 
-        public void PartitionChunk(
+        public bool PartitionChunk(
                 EditorFile file,
                 StorageObjectID item_objID,
                 StorageObjectID jobinfo_objID,
                 StorageObjectID partition_objID
             ) {
+            var item_obj =
+                file.Storage[item_objID];
+
             var jobinfo_obj =
                 file.Storage[jobinfo_objID];
 
             var partition_obj =
                 file.Storage[partition_objID];
-            
+
             uint start;
             uint index;
+            uint end_samples;
             using (var reader = new BinaryReader(jobinfo_obj.OpenRead())) {
                 start = reader.ReadUInt32();
                 index = reader.ReadUInt32();
+                end_samples = reader.ReadUInt32();
             }
-
-            var end = start + SamplesPerPartition;
+            
+            var end = Math.Min(start + SamplesPerPartition, end_samples);
             using (var writer = new BinaryWriter(jobinfo_obj.OpenWrite())) {
                 writer.Write(end);
                 writer.Write(index + 1);
+                writer.Write(end_samples);
             }
 
             using (var writer = new BinaryWriter(partition_obj.OpenWrite())) {
@@ -53,6 +72,8 @@ namespace MusicWriter
                 writer.Write(end);
                 writer.Write(index);
             }
+
+            return end == end_samples;
         }
 
         public void FailChunk(

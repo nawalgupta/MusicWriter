@@ -12,10 +12,11 @@ namespace MusicWriter
 
         void SetupPartitioner(
                 EditorFile file,
+                StorageObjectID item_jobID,
                 StorageObjectID jobinfo_objID
             );
 
-        void PartitionChunk(
+        bool PartitionChunk(
                 EditorFile file,
                 StorageObjectID item_objID,
                 StorageObjectID jobinfo_objID,
