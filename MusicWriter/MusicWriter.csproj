@@ -45,11 +45,16 @@
     <Compile Include="Cogs\EditableMemoryModule.cs" />
     <Compile Include="Cogs\IgnorantMemoryModule.cs" />
     <Compile Include="Computing\ComputeConstants.cs" />
+    <Compile Include="Computing\ComputeContainer.cs" />
+    <Compile Include="Computing\EasyJobManager.cs" />
+    <Compile Include="Computing\IJobManager.cs" />
+    <Compile Include="Computing\JobState.cs" />
     <Compile Include="Computing\ProxyComputeCoordinator.cs" />
     <Compile Include="Computing\IComputePartitioner.cs" />
     <Compile Include="Computing\MasterComputeCoordinater.cs" />
     <Compile Include="Computing\ComputeJob.cs" />
     <Compile Include="CS\BackgroundWorker.cs" />
+    <Compile Include="CS\DistributedMutex.cs" />
     <Compile Include="CS\IndexCorrectionBehavoir.cs" />
     <Compile Include="CS\Selector.cs" />
     <Compile Include="EditorUtils\CommandCenter.cs" />

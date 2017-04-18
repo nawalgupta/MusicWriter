@@ -10,17 +10,26 @@ namespace MusicWriter
     public sealed class BackgroundWorker
     {
         readonly Action act;
-        readonly Task task;
-        readonly CancellationTokenSource tokensource = new CancellationTokenSource();
+        readonly bool allowrestarting;
+        Task task;
+        CancellationTokenSource tokensource;
 
         public Action Act {
             get { return act; }
         }
 
-        public BackgroundWorker(Action act) {
-            this.act = act;
+        public bool AllowRestarting {
+            get { return allowrestarting; }
+        }
 
-            task = new Task(act, tokensource.Token);
+        public BackgroundWorker(
+                Action act,
+                bool allowrestarting = false
+            ) {
+            this.act = act;
+            this.allowrestarting = allowrestarting;
+
+            Reset();
         }
 
         public void Start() {
@@ -37,6 +46,14 @@ namespace MusicWriter
 
         public void Stop() {
             tokensource.Cancel();
+
+            if (allowrestarting)
+                Reset();
+        }
+
+        void Reset() {
+            tokensource = new CancellationTokenSource();
+            task = new Task(act, tokensource.Token);
         }
 
         public static BackgroundWorker MakeWaitHandle() =>
