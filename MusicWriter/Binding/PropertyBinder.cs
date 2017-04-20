@@ -57,6 +57,8 @@ namespace MusicWriter
         public override void Bind() {
             storageobject.Graph.Listeners.Add(listener);
             property.AfterChange += Property_AfterChange;
+            if (StorageObject.IsEmpty)
+                serializer(StorageObject, Property.Value);
 
             base.Bind();
         }
