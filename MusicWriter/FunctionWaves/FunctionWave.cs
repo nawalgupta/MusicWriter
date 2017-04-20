@@ -14,6 +14,8 @@ namespace MusicWriter
 
         public ObservableProperty<float> SampleRate { get; } =
             new ObservableProperty<float>(44100);
+        public ObservableProperty<int> BitsPerSample { get; } =
+            new ObservableProperty<int>(32);
         public ObservableProperty<float> Start { get; } =
             new ObservableProperty<float>();
         public ObservableProperty<float> Length { get; } =
@@ -63,13 +65,7 @@ namespace MusicWriter
                 obj
                     .CreateListen(
                             IOEvent.ObjectContentsSet,
-                            () => {
-                                using (var reader = new BinaryReader(obj.OpenRead())) {
-                                    SampleRate.Value = reader.ReadSingle();
-                                    Start.Value = reader.ReadSingle();
-                                    Length.Value = reader.ReadSingle();
-                                }
-                            }
+                            Deserialize
                         );
 
             listener_childadded =
@@ -116,6 +112,7 @@ namespace MusicWriter
 
         public override void Bind() {
             SampleRate.AfterChange += SampleRate_AfterChange;
+            BitsPerSample.AfterChange += BitsPerSample_AfterChange;
             Start.AfterChange += Start_AfterChange;
             Length.AfterChange += Length_AfterChange;
             FunctionSource.AfterChange += FunctionSource_AfterChange;
@@ -127,7 +124,11 @@ namespace MusicWriter
             base.Bind();
         }
 
-        private void Length_AfterChange(float old, float @new) {
+        private void SampleRate_AfterChange(float old, float @new) {
+            Serialize();
+        }
+
+        private void BitsPerSample_AfterChange(int old, int @new) {
             Serialize();
         }
 
@@ -135,7 +136,7 @@ namespace MusicWriter
             Serialize();
         }
 
-        private void SampleRate_AfterChange(float old, float @new) {
+        private void Length_AfterChange(float old, float @new) {
             Serialize();
         }
 
@@ -146,6 +147,7 @@ namespace MusicWriter
         void Serialize() {
             using (var writer = new BinaryWriter(obj.OpenRead())) {
                 writer.Write(SampleRate.Value);
+                writer.Write(BitsPerSample.Value);
                 writer.Write(Start.Value);
                 writer.Write(Length.Value);
             }
@@ -153,8 +155,20 @@ namespace MusicWriter
             totalsamples = TotalSamples;
         }
 
+        void Deserialize() {
+            using (var reader = new BinaryReader(obj.OpenRead())) {
+                SampleRate.Value = reader.ReadSingle();
+                BitsPerSample.Value = reader.ReadInt32();
+                Start.Value = reader.ReadSingle();
+                Length.Value = reader.ReadSingle();
+            }
+
+            totalsamples = TotalSamples;
+        }
+
         public override void Unbind() {
             SampleRate.AfterChange -= SampleRate_AfterChange;
+            BitsPerSample.AfterChange -= BitsPerSample_AfterChange;
             Start.AfterChange -= Start_AfterChange;
             Length.AfterChange -= Length_AfterChange;
             FunctionSource.AfterChange -= FunctionSource_AfterChange;

@@ -20,6 +20,7 @@ namespace MusicWriter
             uint start, end;
             uint index;
             float samples_per_unit;
+            int bits_per_sample;
 
             using (var reader = new BinaryReader(job.File.Storage[partition_objID].OpenRead())) {
                 start = reader.ReadUInt32();
@@ -32,8 +33,9 @@ namespace MusicWriter
 
             using (var reader = new BinaryReader(wave_obj.OpenRead())) {
                 samples_per_unit = reader.ReadSingle();
+                bits_per_sample = reader.ReadInt32();
             }
-            
+
             var func_objID =
                 wave_obj["function"];
 
@@ -46,7 +48,7 @@ namespace MusicWriter
                     [func_objID]
                     .Function
                     .Value;
-            
+
             var frag_obj =
                 wave_obj.Get(index.ToString());
 
@@ -56,7 +58,36 @@ namespace MusicWriter
                     var call = new FunctionCall(t);
                     var value = func.GetValue(call);
 
-                    writer.Write(value);
+                    if (value < -1)
+                        value = -1;
+
+                    if (value > +1)
+                        value = +1;
+
+                    //TODO: is this a common improper floating-point handling technique?
+                    var clamped =
+                        value / 2 + 1;
+
+                    switch (bits_per_sample) {
+                        case 8:
+                            writer.Write((byte)(value * byte.MaxValue));
+                            break;
+
+                        case 16:
+                            writer.Write((ushort)(value * ushort.MaxValue));
+                            break;
+
+                        case 32:
+                            writer.Write((uint)(value * uint.MaxValue));
+                            break;
+
+                        case 64:
+                            writer.Write((ulong)(value * ulong.MaxValue));
+                            break;
+
+                        default:
+                            throw new InvalidOperationException();
+                    }
                 }
             }
         }

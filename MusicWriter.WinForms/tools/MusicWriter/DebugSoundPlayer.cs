@@ -30,7 +30,7 @@ namespace MusicWriter.WinForms
         public async void Play() {
             sound.StartRender();
 
-            player.Stream = sound.RenderedWave.Value.OpenRead();
+            player.Stream = new WavEncodingStream(sound.RenderedWave.Value);
             player.Load();
             IsPlaying = true;
             PlayingStarted?.Invoke();
