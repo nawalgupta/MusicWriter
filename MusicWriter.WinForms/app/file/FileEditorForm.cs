@@ -77,6 +77,22 @@ namespace MusicWriter.WinForms {
                         FunctionEditorScreenView.Viewer.Instance
                     );
 
+            var compute_slaves =
+                new IComputeSlave[] {
+                    new FunctionWaveComputeSlave()
+                };
+
+            containerfactoryset.Factories.Add(
+                    ComputeContainer.CreateFactory(
+                            true,
+                            compute_slaves
+                        )
+                );
+
+            containerfactoryset.Factories.Add(
+                    FunctionWaveContainer.FactoryInstance
+                );
+
             containerfactoryset.Factories.Add(
                     TrackControllerContainer.CreateFactory(
                             tracks_factoryset,

@@ -23,15 +23,20 @@ namespace MusicWriter
             get { return volunteeroverseer; }
         }
 
+        public IObservableList<IComputeSlave> Slaves { get; } =
+            new ObservableList<IComputeSlave>();
+
         public ComputeContainer(
                 StorageObjectID storageobjectID, 
                 EditorFile file,
-                bool volunteeroverseer
-            ) : 
+                IFactory<IContainer> factory,
+                bool volunteeroverseer,
+                IComputeSlave[] slaves
+            ) :
             base(
                     storageobjectID, 
-                    file, 
-                    FactoryInstance,
+                    file,
+                    factory,
                     ItemName,
                     ItemCodeName
                 ) {
@@ -42,6 +47,7 @@ namespace MusicWriter
                 obj.GetOrMake("coordinator");
 
             this.volunteeroverseer = volunteeroverseer;
+            foreach (var slave in slaves) Slaves.Add(slave);
 
             var master =
                 new MasterComputeCoordinator(
@@ -80,10 +86,15 @@ namespace MusicWriter
             base.Unbind();
         }
 
-        public static IFactory<IContainer> FactoryInstance =
+        public static IFactory<IContainer> CreateFactory(
+                bool volunteeroverseer,
+                params IComputeSlave[] slaves
+            ) =>
             new CtorFactory<IContainer, ComputeContainer>(
                     ItemName,
-                    false
+                    true,
+                    volunteeroverseer,
+                    slaves
                 );
     }
 }
