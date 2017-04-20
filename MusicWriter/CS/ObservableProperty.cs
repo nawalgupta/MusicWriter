@@ -78,7 +78,7 @@ namespace MusicWriter
                     if (changedstate == 1)
                         AfterChange?.Invoke(old, value);
                     else {
-                        throw new InvalidOperationException();
+                        //throw new InvalidOperationException();
                         // the value was changed while it was changing
                     }
                     

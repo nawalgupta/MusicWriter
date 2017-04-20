@@ -44,6 +44,12 @@ namespace MusicWriter.WinForms
             InitializeComponent();
         }
 
+        protected override void OnLoad(EventArgs e) {
+            Setup();
+
+            base.OnLoad(e);
+        }
+
         void Setup() {
             ContextMenus.Attatch_Tone(mnuPlayTone, screen.DebugSound.Tone);
             

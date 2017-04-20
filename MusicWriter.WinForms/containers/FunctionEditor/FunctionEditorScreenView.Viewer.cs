@@ -25,7 +25,7 @@ namespace MusicWriter.WinForms
 
                 view.File = screen.File;
                 view.Screen = screen as FunctionEditorScreen;
-                view.Setup();
+                //view.Setup();
 
                 return view;
             }
