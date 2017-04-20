@@ -291,6 +291,7 @@ namespace MusicWriter.WinForms {
         private void Screen_Renamed(string old, string @new) {
             var tab = tabScreens.Controls[$"tabScreen_{old}"];
             tab.Name = $"tabScreen_{@new}";
+            tab.Text = @new;
         }
 
         void CloseScreen(IScreen screen) {

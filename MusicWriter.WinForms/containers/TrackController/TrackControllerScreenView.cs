@@ -42,7 +42,6 @@ namespace MusicWriter.WinForms {
             get { return screen; }
             set {
                 if (screen != null) {
-                    screen.Name.AfterChange -= Screen_NameChanged;
                     screen.Controllers.ItemAdded -= ScreenControllers_ItemAdded;
                     screen.Controllers.ItemRemoved -= ScreenControllers_ItemRemoved;
                 }
@@ -50,8 +49,6 @@ namespace MusicWriter.WinForms {
                 var old = screen;
 
                 screen = value;
-                Screen_NameChanged(old?.Name.Value, screen.Name.Value);
-                screen.Name.AfterChange += Screen_NameChanged;
 
                 //screen.Controllers.ItemAdded += ScreenControllers_ItemAdded;
                 //screen.Controllers.ItemRemoved += ScreenControllers_ItemRemoved;
@@ -150,11 +147,6 @@ namespace MusicWriter.WinForms {
 
         private void FileControllers_ItemRemoved(ITrackController controller) {
             lsvControllers.Items.RemoveByKey($"lsvControllersItem_{controller.Name}");
-        }
-        
-        private void Screen_NameChanged(string old, string @new) {
-            Text = @new;
-            Name = $"tabScreen_{@new}";
         }
         
         private void Tracks_ItemAdded(ITrack track) {
