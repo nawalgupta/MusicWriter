@@ -116,7 +116,7 @@ namespace MusicWriter
 
         private void DistributedMutex_Acquired() {
             obj.WriteAllString(guidstring);
-            foreach (var child in obj.Children)
+            foreach (var child in obj.Children.ToArray())
                 obj.Remove(child);
         }
 
