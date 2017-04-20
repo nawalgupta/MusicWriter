@@ -120,6 +120,8 @@ namespace MusicWriter.WinForms {
                                     PolynomialFunction.FactoryClass.Instance,
                                     PulseWidthModulatedFunction.FactoryClass.Instance,
 
+                                    TimeScalingFunction.FactoryClass.Instance,
+                                    
                                     LocalPerspectiveFunction.FactoryClass.Instance,
                                     GlobalPerspectiveFunction.FactoryClass.Instance
                                 ),

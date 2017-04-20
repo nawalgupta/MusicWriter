@@ -1,18 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class LocalPerspectiveFunction : IFunction, IContextualFunction
+    public sealed class TimeScalingFunction : 
+        IFunction, 
+        IContextualFunction,
+        IParamaterizedFunction
     {
         readonly IFunction context;
+        readonly float[] arguments;
 
         public IFunction Context {
             get { return context; }
+        }
+
+        public float[] Arguments {
+            get { return arguments; }
         }
 
         public IFunctionFactory Factory {
@@ -22,11 +29,11 @@ namespace MusicWriter
         public sealed class FactoryClass : IFunctionFactory
         {
             public string FriendlyName {
-                get { return "Local Perspective Function"; }
+                get { return "Time Scaling Function"; }
             }
 
             public string CodeName {
-                get { return "time.local"; }
+                get { return "time.scale"; }
             }
 
             public bool StoresBinaryData {
@@ -34,7 +41,7 @@ namespace MusicWriter
             }
 
             public bool AcceptsParameters {
-                get { return false; }
+                get { return true; }
             }
 
             private FactoryClass() { }
@@ -46,16 +53,20 @@ namespace MusicWriter
                     string key = null,
                     params float[] numbers
                 ) =>
-                new LocalPerspectiveFunction(context);
+                new TimeScalingFunction(context, numbers);
 
             public static readonly IFunctionFactory Instance = new FactoryClass();
         }
 
-        public LocalPerspectiveFunction(IFunction context) {
+        public TimeScalingFunction(
+                IFunction context,
+                float[] arguments
+            ) {
             this.context = context;
+            this.arguments = arguments;
         }
 
         public float GetValue(FunctionCall arg) =>
-            context.GetValue(new FunctionCall(arg.LocalTime, arg.LocalTime, arg.RealTime));
+            context.GetValue(new FunctionCall(arg.WaveTime * arguments[0], arg.LocalTime, arg.RealTime));
     }
 }

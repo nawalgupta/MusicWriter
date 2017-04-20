@@ -45,9 +45,8 @@ namespace MusicWriter
                     EditorFile file = null,
                     string key = null,
                     params float[] numbers
-                ) {
-                throw new InvalidOperationException();
-            }
+                ) =>
+                new GlobalPerspectiveFunction(context);
 
             public static readonly IFunctionFactory Instance = new FactoryClass();
         }
