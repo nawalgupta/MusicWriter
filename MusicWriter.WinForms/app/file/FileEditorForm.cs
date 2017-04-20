@@ -278,6 +278,7 @@ namespace MusicWriter.WinForms {
             
             var tab = new TabPageInterop(view);
             tab.Name = $"tabScreen_{screen.Name}";
+            tab.Text = screen.Name.Value;
             tab.Tag = screen;
 
             screen.Name.AfterChange += Screen_Renamed;
