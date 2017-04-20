@@ -14,8 +14,9 @@ namespace MusicWriter.WinForms
     {
         FunctionSource source;
         FunctionCodeTextBoxTool textboxtool;
-        
-        public ObservableProperty<bool> HasErrors { get; set; }
+
+        public ObservableProperty<bool> HasErrors { get; } =
+            new ObservableProperty<bool>(false);
 
         public FunctionSourceEditorControl() {
             InitializeComponent();

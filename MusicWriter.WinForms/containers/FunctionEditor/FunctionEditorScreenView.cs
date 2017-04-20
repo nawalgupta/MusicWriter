@@ -240,6 +240,9 @@ namespace MusicWriter.WinForms
             btnDeleteFunctionSource.PerformClick();
 
         private void mnuFunctionSources_Opening(object sender, CancelEventArgs e) {
+            if (lsvFunctionSources.SelectedItems.Count == 0)
+                return;
+
             var activeItem =
                 lsvFunctionSources.SelectedItems[0];
 
