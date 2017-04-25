@@ -77,7 +77,7 @@
             // mnuPlaySeparator1
             // 
             mnuPlaySeparator1.Name = "mnuPlaySeparator1";
-            mnuPlaySeparator1.Size = new System.Drawing.Size(108, 6);
+            mnuPlaySeparator1.Size = new System.Drawing.Size(149, 6);
             // 
             // panel1
             // 
@@ -180,48 +180,48 @@
             this.mnuPlayPlay,
             this.mnuPlayStop});
             this.mnuPlay.Name = "mnuPlay";
-            this.mnuPlay.Size = new System.Drawing.Size(112, 164);
+            this.mnuPlay.Size = new System.Drawing.Size(153, 186);
             // 
             // mnuPlayTone
             // 
             this.mnuPlayTone.Name = "mnuPlayTone";
-            this.mnuPlayTone.Size = new System.Drawing.Size(111, 22);
+            this.mnuPlayTone.Size = new System.Drawing.Size(152, 22);
             this.mnuPlayTone.Text = "&Tone";
             // 
             // mnuPlayLength
             // 
             this.mnuPlayLength.Name = "mnuPlayLength";
-            this.mnuPlayLength.Size = new System.Drawing.Size(111, 22);
+            this.mnuPlayLength.Size = new System.Drawing.Size(152, 22);
             this.mnuPlayLength.Text = "&Length";
             // 
             // mnuPlayTempo
             // 
             this.mnuPlayTempo.Name = "mnuPlayTempo";
-            this.mnuPlayTempo.Size = new System.Drawing.Size(111, 22);
+            this.mnuPlayTempo.Size = new System.Drawing.Size(152, 22);
             this.mnuPlayTempo.Text = "Te&mpo";
             // 
             // mnuPlayVerb
             // 
             this.mnuPlayVerb.Name = "mnuPlayVerb";
-            this.mnuPlayVerb.Size = new System.Drawing.Size(111, 22);
+            this.mnuPlayVerb.Size = new System.Drawing.Size(152, 22);
             this.mnuPlayVerb.Text = "&Verb";
             // 
             // mnuPlayRepeat
             // 
             this.mnuPlayRepeat.Name = "mnuPlayRepeat";
-            this.mnuPlayRepeat.Size = new System.Drawing.Size(111, 22);
+            this.mnuPlayRepeat.Size = new System.Drawing.Size(152, 22);
             this.mnuPlayRepeat.Text = "&Repeat";
             // 
             // mnuPlayPlay
             // 
             this.mnuPlayPlay.Name = "mnuPlayPlay";
-            this.mnuPlayPlay.Size = new System.Drawing.Size(111, 22);
+            this.mnuPlayPlay.Size = new System.Drawing.Size(152, 22);
             this.mnuPlayPlay.Text = "&Play";
             // 
             // mnuPlayStop
             // 
             this.mnuPlayStop.Name = "mnuPlayStop";
-            this.mnuPlayStop.Size = new System.Drawing.Size(111, 22);
+            this.mnuPlayStop.Size = new System.Drawing.Size(152, 22);
             this.mnuPlayStop.Text = "S&top";
             // 
             // splitContainer1

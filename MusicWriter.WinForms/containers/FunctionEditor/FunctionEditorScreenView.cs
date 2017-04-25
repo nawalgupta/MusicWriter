@@ -51,8 +51,9 @@ namespace MusicWriter.WinForms
         }
 
         void Setup() {
-            ContextMenus.Attatch_Tone(mnuPlayTone, screen.DebugSound.Tone);
-            
+            ContextMenus.Attach_Tone(mnuPlayTone, screen.DebugSound.Tone);
+            ContextMenus.Attach_PerceptualTime(mnuPlayLength, screen.DebugSound.Length);
+
             screen.Container.FunctionSources.ItemInserted += FunctionSources_ItemInserted;
             screen.Container.FunctionSources.ItemWithdrawn += FunctionSources_ItemWithdrawn;
             screen.Container.FunctionSources.ItemMoved += FunctionSources_ItemMoved;

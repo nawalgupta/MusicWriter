@@ -9,7 +9,7 @@ namespace MusicWriter
 {
     public static class ContextMenus
     {
-        public static void Attatch_Tone(
+        public static void Attach_Tone(
                 ToolStripMenuItem mnuTone,
                 ObservableProperty<SemiTone> tone,
                 int octave_min = -1,
@@ -97,6 +97,92 @@ namespace MusicWriter
 
                 mnuTone_class.DropDownOpening += mnuTone_class_dropdownopening;
             }
+        }
+
+        public static void Attach_PerceptualTime(
+                ToolStripMenuItem mnuPerceptualTime,
+                ObservableProperty<PerceptualTime> perceptualtime
+            ) {
+            var mnuPerceptualTime_lengthclasses = new Dictionary<LengthClass, ToolStripMenuItem>();
+            var mnuPerceptualTime_tupletclasses = new Dictionary<TupletClass, ToolStripMenuItem>();
+            var mnuPerceptualTime_dotsclasses = new Dictionary<int, ToolStripMenuItem>();
+
+            var mnuPerceptualTime_length = (ToolStripMenuItem)mnuPerceptualTime.DropDownItems.Add("Length");
+            var mnuPerceptualTime_tuplet = (ToolStripMenuItem)mnuPerceptualTime.DropDownItems.Add("Tuplet");
+            var mnuPerceptualTime_dots = (ToolStripMenuItem)mnuPerceptualTime.DropDownItems.Add("Dots");
+
+            mnuPerceptualTime_length.DropDownOpening += (sender, e) => {
+                foreach (ToolStripMenuItem item in mnuPerceptualTime_length.DropDownItems)
+                    item.Checked = (LengthClass)item.Tag == perceptualtime.Value.Length;
+            };
+
+            mnuPerceptualTime_tuplet.DropDownOpening += (sender, e) => {
+                foreach (ToolStripMenuItem item in mnuPerceptualTime_length.DropDownItems)
+                    item.Checked = (TupletClass)item.Tag == perceptualtime.Value.Tuplet;
+            };
+
+            mnuPerceptualTime_dots.DropDownOpening += (sender, e) => {
+                foreach (ToolStripMenuItem item in mnuPerceptualTime_length.DropDownItems)
+                    item.Checked = (int)item.Tag == perceptualtime.Value.Dots;
+            };
+
+            foreach (LengthClass _ in Enum.GetValues(typeof(LengthClass)))
+                (new Action<LengthClass>(lengthclass => {
+                    var mnuPerceptualTime_lengthclass =
+                        mnuPerceptualTime_length.DropDownItems.Add(lengthclass.ToString()) as ToolStripMenuItem;
+
+                    mnuPerceptualTime_lengthclass.Tag = lengthclass;
+
+                    mnuPerceptualTime_lengthclass.Click += (sender, e) => {
+                        perceptualtime.Value =
+                            new PerceptualTime(
+                                    perceptualtime.Value.Tuplet,
+                                    lengthclass,
+                                    perceptualtime.Value.Dots
+                                );
+                    };
+
+                    mnuPerceptualTime_lengthclasses.Add(lengthclass, mnuPerceptualTime_lengthclass);
+                }))(_);
+
+            foreach (TupletClass _ in Enum.GetValues(typeof(TupletClass)))
+                (new Action<TupletClass>(tupletclass => {
+                    var mnuPerceptualTime_tupletclass =
+                        mnuPerceptualTime_tuplet.DropDownItems.Add(tupletclass.ToString()) as ToolStripMenuItem;
+
+                    mnuPerceptualTime_tupletclass.Tag = tupletclass;
+
+                    mnuPerceptualTime_tupletclass.Click += (sender, e) => {
+                        perceptualtime.Value =
+                            new PerceptualTime(
+                                    tupletclass,
+                                    perceptualtime.Value.Length,
+                                    perceptualtime.Value.Dots
+                                );
+                    };
+
+                    mnuPerceptualTime_tupletclasses.Add(tupletclass, mnuPerceptualTime_tupletclass);
+                }))(_);
+
+            foreach (int _ in Enumerable.Range(0, 3))
+                (new Action<int>(dotsclass => {
+                    var pretty = dotsclass.ToString() + (dotsclass == 1 ? "dot" : "dots");
+                    var mnuPerceptualTime_dotsclass =
+                        mnuPerceptualTime_dots.DropDownItems.Add(pretty) as ToolStripMenuItem;
+
+                    mnuPerceptualTime_dotsclass.Tag = dotsclass;
+
+                    mnuPerceptualTime_dotsclass.Click += (sender, e) => {
+                        perceptualtime.Value =
+                            new PerceptualTime(
+                                    perceptualtime.Value.Tuplet,
+                                    perceptualtime.Value.Length,
+                                    dotsclass
+                                );
+                    };
+
+                    mnuPerceptualTime_dotsclasses.Add(dotsclass, mnuPerceptualTime_dotsclass);
+                }))(_);
         }
     }
 }
