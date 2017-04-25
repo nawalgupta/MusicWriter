@@ -12,7 +12,7 @@ namespace MusicWriter
         readonly FunctionWave[] waves;
         readonly Stream[] wavestreams;
         readonly byte[] header;
-        const int HEADER_SIZE = 36;
+        const int HEADER_SIZE = 44;
 
         readonly float totallength;
         readonly int bitspersample;
