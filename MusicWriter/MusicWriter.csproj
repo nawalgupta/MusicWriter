@@ -69,6 +69,7 @@
     <Compile Include="FunctionWaves\FunctionWave.cs" />
     <Compile Include="FunctionWaves\FunctionWaveContainer.cs" />
     <Compile Include="Lists\Delegates.cs" />
+    <Compile Include="Lists\Extensions.cs" />
     <Compile Include="Lists\IRearrangeableList.cs" />
     <Compile Include="CS\ObservableDuration.cs" />
     <Compile Include="CS\ShiftableBitArray.cs" />
