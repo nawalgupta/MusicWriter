@@ -54,8 +54,8 @@
             this.mnuFunctionSourcesDelete = new System.Windows.Forms.ToolStripMenuItem();
             this.lsvPolylines = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.tabFunctionSources = new System.Windows.Forms.TabControl();
             this.btnPlay = new System.Windows.Forms.Button();
+            this.tabFunctionSources = new System.Windows.Forms.TabControl();
             mnuPlaySeparator1 = new System.Windows.Forms.ToolStripSeparator();
             panel1 = new System.Windows.Forms.Panel();
             panel2 = new System.Windows.Forms.Panel();
@@ -270,12 +270,14 @@
             this.lsvFunctionSources.ContextMenuStrip = this.mnuFunctionSources;
             this.lsvFunctionSources.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lsvFunctionSources.HideSelection = false;
+            this.lsvFunctionSources.LabelEdit = true;
             this.lsvFunctionSources.Location = new System.Drawing.Point(0, 22);
             this.lsvFunctionSources.Name = "lsvFunctionSources";
             this.lsvFunctionSources.Size = new System.Drawing.Size(200, 164);
             this.lsvFunctionSources.TabIndex = 3;
             this.lsvFunctionSources.UseCompatibleStateImageBehavior = false;
             this.lsvFunctionSources.View = System.Windows.Forms.View.Details;
+            this.lsvFunctionSources.AfterLabelEdit += new System.Windows.Forms.LabelEditEventHandler(this.lsvFunctionSources_AfterLabelEdit);
             this.lsvFunctionSources.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.lsvFunctionSources_ItemChecked);
             this.lsvFunctionSources.SelectedIndexChanged += new System.EventHandler(this.lsvFunctionSources_SelectedIndexChanged);
             // 
@@ -337,15 +339,6 @@
             this.columnHeader1.Text = "Name";
             this.columnHeader1.Width = 192;
             // 
-            // tabFunctionSources
-            // 
-            this.tabFunctionSources.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabFunctionSources.Location = new System.Drawing.Point(0, 0);
-            this.tabFunctionSources.Name = "tabFunctionSources";
-            this.tabFunctionSources.SelectedIndex = 0;
-            this.tabFunctionSources.Size = new System.Drawing.Size(396, 396);
-            this.tabFunctionSources.TabIndex = 2;
-            // 
             // btnPlay
             // 
             this.btnPlay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -357,6 +350,15 @@
             this.btnPlay.Text = "Play";
             this.btnPlay.UseVisualStyleBackColor = true;
             this.btnPlay.Click += new System.EventHandler(this.btnPlay_Click);
+            // 
+            // tabFunctionSources
+            // 
+            this.tabFunctionSources.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabFunctionSources.Location = new System.Drawing.Point(0, 0);
+            this.tabFunctionSources.Name = "tabFunctionSources";
+            this.tabFunctionSources.SelectedIndex = 0;
+            this.tabFunctionSources.Size = new System.Drawing.Size(396, 396);
+            this.tabFunctionSources.TabIndex = 2;
             // 
             // FunctionEditorScreenView
             // 

@@ -85,9 +85,10 @@ namespace MusicWriter.WinForms
 
                 lsvItem.Name = $"lsvFunctionSources_{item.Name}";
                 lsvItem.Text = item.Name.Value;
-                lsvItem.Tag = item;
 
                 lsvFunctionSources.Items.Insert(index, lsvItem);
+
+                lsvItem.Tag = item;
             }));
         }
 
@@ -135,6 +136,7 @@ namespace MusicWriter.WinForms
                 var tab =
                     new TabPage();
 
+                tab.Text = item.Name.Value;
                 tab.Name = $"tabFunctionSources_{item.Name}";
                 tab.Controls.Add(control);
                 control.Dock = DockStyle.Fill;
@@ -154,6 +156,12 @@ namespace MusicWriter.WinForms
 
                 tabFunctionSources.Controls.Add(tab);
                 tabFunctionSources.Controls.SetChildIndex(tab, index);
+
+                var lsvFunctionSources_item =
+                    lsvFunctionSources.Items[$"lsvFunctionSources_{item.Name}"];
+
+                if (!lsvFunctionSources_item.Checked)
+                    lsvFunctionSources_item.Checked = true;
             }));
         }
 
@@ -165,6 +173,12 @@ namespace MusicWriter.WinForms
                 tabFunctionSources
                     .Controls
                     .RemoveAt(index);
+
+                var lsvFunctionSources_item =
+                    lsvFunctionSources.Items[$"lsvFunctionSources_{item.Name}"];
+
+                if (lsvFunctionSources_item.Checked)
+                    lsvFunctionSources_item.Checked = false;
             }));
         }
 
@@ -180,6 +194,12 @@ namespace MusicWriter.WinForms
                             tabFunctionSources.Controls[$"lsvFunctionSources_{item.Name}"],
                             newindex
                         );
+
+                var lsvFunctionSources_item =
+                    lsvFunctionSources.Items[$"lsvFunctionSources_{item.Name}"];
+
+                if (lsvFunctionSources_item.Index != newindex)
+                    throw new NotImplementedException();
             }));
         }
         
@@ -263,10 +283,14 @@ namespace MusicWriter.WinForms
             var functionsource =
                 (FunctionSource)e.Item.Tag;
 
-            if (e.Item.Checked)
-                screen.FunctionSources.Add(functionsource);
-            else
-                screen.FunctionSources.Remove(functionsource);
+            if (e.Item.Checked) {
+                if (!screen.FunctionSources.Contains(functionsource))
+                    screen.FunctionSources.Add(functionsource);
+            }
+            else {
+                if (screen.FunctionSources.Contains(functionsource))
+                    screen.FunctionSources.Remove(functionsource);
+            }
         }
 
         private void btnPlay_Click(object sender, EventArgs e) {
@@ -276,6 +300,13 @@ namespace MusicWriter.WinForms
             else {
                 soundplayer.Play();
             }
+        }
+
+        private void lsvFunctionSources_AfterLabelEdit(object sender, LabelEditEventArgs e) {
+            var functionsource =
+                (FunctionSource)lsvFunctionSources.Items[e.Item].Tag;
+            
+            functionsource.Name.Value = e.Label;
         }
     }
 }
