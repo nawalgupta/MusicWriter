@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class FunctionWaveComputePartitioner : IComputePartition
+    public sealed class FunctionWaveComputePartitioner : IComputePartitioner
     {
         // Because uint32s are used, at 192K samples/sec, there can only be ~ 6.2 hours max
         public uint SamplesPerPartition { get; set; } = 1024 * 64;

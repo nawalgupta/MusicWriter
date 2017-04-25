@@ -82,10 +82,16 @@ namespace MusicWriter.WinForms {
                     new FunctionWaveComputeSlave()
                 };
 
+            var compute_paritioners =
+                new IComputePartitioner[] {
+                    new FunctionWaveComputePartitioner()
+                };
+
             containerfactoryset.Factories.Add(
                     ComputeContainer.CreateFactory(
                             true,
-                            compute_slaves
+                            compute_slaves,
+                            compute_paritioners
                         )
                 );
 

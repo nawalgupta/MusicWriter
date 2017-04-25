@@ -26,12 +26,16 @@ namespace MusicWriter
         public IObservableList<IComputeSlave> Slaves { get; } =
             new ObservableList<IComputeSlave>();
 
+        public IObservableList<IComputePartitioner> Partitioners { get; } =
+            new ObservableList<IComputePartitioner>();
+
         public ComputeContainer(
                 StorageObjectID storageobjectID, 
                 EditorFile file,
                 IFactory<IContainer> factory,
                 bool volunteeroverseer,
-                IComputeSlave[] slaves
+                IComputeSlave[] slaves,
+                IComputePartitioner[] partitioners
             ) :
             base(
                     storageobjectID, 
@@ -47,13 +51,17 @@ namespace MusicWriter
                 obj.GetOrMake("coordinator");
 
             this.volunteeroverseer = volunteeroverseer;
-            foreach (var slave in slaves) Slaves.Add(slave);
+
+            Slaves.AddRange(slaves);
+            Partitioners.AddRange(partitioners);
 
             var master =
                 new MasterComputeCoordinator(
                         coordinator_obj.ID,
                         file
                     );
+
+            Partitioners.Bind(master.Partitioners);
 
             masterallocator =
                 new DistributedMutex(
@@ -70,6 +78,8 @@ namespace MusicWriter
                         coordinator_obj.ID,
                         file
                     );
+
+            Slaves.Bind((coordinator as ProxyComputeCoordinator).Slaves);
         }
 
         public override void Bind() {
@@ -88,13 +98,15 @@ namespace MusicWriter
 
         public static IFactory<IContainer> CreateFactory(
                 bool volunteeroverseer,
-                params IComputeSlave[] slaves
+                IComputeSlave[] slaves,
+                IComputePartitioner[] partitioners
             ) =>
             new CtorFactory<IContainer, ComputeContainer>(
                     ItemName,
                     true,
                     volunteeroverseer,
-                    slaves
+                    slaves,
+                    partitioners
                 );
     }
 }

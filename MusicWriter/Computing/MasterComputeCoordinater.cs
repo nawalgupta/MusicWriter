@@ -24,14 +24,14 @@ namespace MusicWriter
             jobs_listener_slaves_remove = new Dictionary<ComputeJobID, IOListener>(),
             jobs_listener_slaves_keyed = new Dictionary<ComputeJobID, IOListener>();
 
-        readonly Dictionary<string, IComputePartition> partitioners_map =
-            new Dictionary<string, IComputePartition>();
+        readonly Dictionary<string, IComputePartitioner> partitioners_map =
+            new Dictionary<string, IComputePartitioner>();
 
         readonly Dictionary<string, IComputeSlave> slaves_map =
             new Dictionary<string, IComputeSlave>();
 
-        public IObservableList<IComputePartition> Partitioners { get; } =
-            new ObservableList<IComputePartition>();
+        public IObservableList<IComputePartitioner> Partitioners { get; } =
+            new ObservableList<IComputePartitioner>();
 
         public IObservableList<IComputeSlave> Slaves { get; } =
             new ObservableList<IComputeSlave>();
@@ -107,11 +107,11 @@ namespace MusicWriter
             base.Unbind();
         }
         
-        private void Partitioners_ItemAdded(IComputePartition partitioner) {
+        private void Partitioners_ItemAdded(IComputePartitioner partitioner) {
             partitioners_map.Add(partitioner.Container, partitioner);
         }
 
-        private void Partitioners_ItemRemoved(IComputePartition partitioner) {
+        private void Partitioners_ItemRemoved(IComputePartitioner partitioner) {
             partitioners_map.Remove(partitioner.Container);
         }
 
@@ -141,7 +141,7 @@ namespace MusicWriter
             while (allocatedjobs_obj.HasChild(jobID.ToString()));
 
             var job_obj =
-                allocatedjobs_obj.GetOrMake(jobID.ToString());
+                File.Storage.CreateObject();
 
             using (var writer = new BinaryWriter(job_obj.GetOrMake("id").OpenWrite())) {
                 writer.Write(jobID.ID);
@@ -268,6 +268,8 @@ namespace MusicWriter
             jobs_listener_slaves_add.Add(jobID, listener_slaves_add);
             jobs_listener_slaves_remove.Add(jobID, listener_slaves_remove);
             jobs_listener_slaves_keyed.Add(jobID, listener_slaves_keyed);
+
+            allocatedjobs_obj.Add(jobID.ToString(), job_obj.ID);
 
             return jobID;
         }

@@ -15,5 +15,13 @@ namespace MusicWriter
             source.ItemAdded += sink.Add;
             source.ItemRemoved += _ => sink.Remove(_);
         }
+
+        public static void AddRange<T>(
+                this IObservableList<T> list,
+                IEnumerable<T> range
+            ) {
+            foreach (var item in range)
+                list.Add(item);
+        }
     }
 }

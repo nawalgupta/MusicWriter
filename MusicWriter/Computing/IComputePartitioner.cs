@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public interface IComputePartition
+    public interface IComputePartitioner
     {
         string Container { get; }
 

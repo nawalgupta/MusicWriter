@@ -62,7 +62,7 @@ namespace MusicWriter
                                 Jobs.Add(job);
 
                                 jobID_item_lookup.Add(job.WorkItemStorageObjectID, job.JobID);
-                                jobID_allocated_waithandle[job.StorageObjectID].Stop();
+                                jobID_allocated_waithandle[job.WorkItemStorageObjectID].Stop();
                             }
                         );
 
@@ -100,17 +100,22 @@ namespace MusicWriter
         }
 
         private void Slaves_ItemRemoved(IComputeSlave slave) {
-            slaves_map.Add(slave.Container, slave);
+            slaves_map.Remove(slave.Container);
         }
 
         private void Slaves_ItemAdded(IComputeSlave slave) {
-            slaves_map.Remove(slave.Container);
+            slaves_map.Add(slave.Container, slave);
         }
 
         public ComputeJobID StartJob(
                 string container,
                 StorageObjectID item
             ) {
+            var waithandle =
+                BackgroundWorker.MakeWaitHandle();
+            
+            jobID_allocated_waithandle.Add(item, waithandle);
+
             var jobrequest_obj =
                 File.Storage.CreateObject();
 
@@ -118,11 +123,6 @@ namespace MusicWriter
             jobrequest_obj.GetOrMake("container").WriteAllString(container);
 
             unallocated_obj.Add("", jobrequest_obj.ID);
-
-            var waithandle =
-                BackgroundWorker.MakeWaitHandle();
-            
-            jobID_allocated_waithandle.Add(item, waithandle);
 
             waithandle.WaitForFinish();
 
