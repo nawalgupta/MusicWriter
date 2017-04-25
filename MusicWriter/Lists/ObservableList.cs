@@ -172,7 +172,7 @@ namespace MusicWriter
             ItemRemoved?.Invoke(item);
             ItemWithdrawn?.Invoke(item, index);
 
-            for (int j = index; j < intern.Count; j++)
+            for (int j = index + 1; j < intern.Count; j++)
                 ItemMoved(intern[j], j, j - 1);
         }
 
