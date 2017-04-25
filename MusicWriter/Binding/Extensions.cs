@@ -30,6 +30,17 @@ namespace MusicWriter
                     Convert.ToString
                 );
 
+        public static PropertyBinder<float> Bind(
+                this ObservableProperty<float> property,
+                IStorageObject storageobject
+            ) =>
+            Bind(
+                    property,
+                    storageobject,
+                    Convert.ToSingle,
+                    Convert.ToString
+                );
+
         public static PropertyBinder<Time> Bind(
                 this ObservableProperty<Time> property,
                 IStorageObject storageobject
