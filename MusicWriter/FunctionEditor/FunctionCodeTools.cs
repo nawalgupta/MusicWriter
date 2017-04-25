@@ -25,8 +25,8 @@ namespace MusicWriter
 
             while (!source.StartsWith(";")) {
                 var name_length = source.IndexOfAny(" \r\f\n\v\t({;".ToCharArray());
-                if (name_length <= 0)
-                    break;
+                if (name_length == -1)
+                    name_length = source.Length;
 
                 var name = source.Substring(0, name_length);
                 source = source.Substring(name.Length);
@@ -49,8 +49,11 @@ namespace MusicWriter
                     else {
                         var args = inner_args.Split(',');
 
-                        foreach (var arg in args)
-                            num_arguments.Add(float.Parse(arg.Trim()));
+                        foreach (var arg in args) {
+                            float val;
+                            if (float.TryParse(arg.Trim(), out val))
+                                num_arguments.Add(val);
+                        }
                     }
                 }
 

@@ -26,6 +26,7 @@ namespace MusicWriter.WinForms
             this.source = source;
 
             source.Code.AfterChange += Code_AfterChange;
+            Code_AfterChange(null, source.Code.Value);
 
             textboxtool = new FunctionCodeTextBoxTool(txtCode);
             textboxtool.CodeTools = source.Container.FunctionCodeTools;
