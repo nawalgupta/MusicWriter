@@ -51,9 +51,11 @@ namespace MusicWriter
             set {
                 var old = this.value;
 
-                if (ReferenceEquals(old, null) ||
-                    ReferenceEquals(value, null) ||
-                    !old.Equals(value)) {
+                if (old == null && value == null) {
+                }
+                else if (old == null ||
+                    value == null ||
+                    !value.Equals(old)) {
                     ++changedstate;
                     if (BeforeChange != null) {
                         var args =

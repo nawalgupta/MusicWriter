@@ -10,6 +10,7 @@ namespace MusicWriter
     {
         readonly StorageObjectID storageobjectID;
         readonly FunctionContainer container;
+        readonly PropertyBinder<string> code_binder;
 
         public const string ItemName = "musicwriter.function.source";
         
@@ -38,17 +39,25 @@ namespace MusicWriter
             {
             this.storageobjectID = storageobjectID;
             container = file[FunctionContainer.ItemName] as FunctionContainer;
-
-            Setup();
-        }
-
-        void Setup() {
+            
             var obj = File.Storage[storageobjectID];
 
             Code.AfterChange += Code_AfterChange;
             Function.AfterChange += Function_AfterChange;
 
-            Code.Bind(obj.GetOrMake("code"));
+            code_binder = Code.Bind(obj.GetOrMake("code"));
+        }
+
+        public override void Bind() {
+            code_binder.Bind();
+
+            base.Bind();
+        }
+
+        public override void Unbind() {
+            code_binder.Unbind();
+
+            base.Unbind();
         }
 
         private void Function_AfterChange(IFunction old, IFunction @new) {
