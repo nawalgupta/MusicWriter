@@ -60,6 +60,16 @@ namespace MusicWriter
                         obj.GetOrMake("debug-sound").ID,
                         file
                     );
+
+            if (debugsound.RenderedWave.Value == null)
+                debugsound
+                    .RenderedWave
+                    .Value =
+                    file
+                        [FunctionWaveContainer.ItemName]
+                        .As<IContainer, FunctionWaveContainer>()
+                        .FunctionWaves
+                        .Create(FunctionWave.ItemName);
         }
 
         public override void Bind() {

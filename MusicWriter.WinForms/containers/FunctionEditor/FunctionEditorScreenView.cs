@@ -210,10 +210,19 @@ namespace MusicWriter.WinForms
             var index = lsvFunctionSources.Items.IndexOfKey($"lsvFunctionSources_{ActiveFunctionSource.Name}");
             lsvFunctionSources.SelectedIndices.Clear();
             lsvFunctionSources.SelectedIndices.Add(index);
+
+            var functionsource = tabFunctionSources.SelectedTab.Tag as FunctionSource;
+            screen.DebugSound.FunctionSource.Value = functionsource;
         }
 
-        private void tabFunctionSources_ControlAdded(object sender, ControlEventArgs e) =>
-            tabFunctionSources.SelectedIndex = tabFunctionSources.Controls.Count - 1;
+        private void tabFunctionSources_ControlAdded(object sender, ControlEventArgs e) {
+            tabFunctionSources.SelectTab(tabFunctionSources.Controls.Count - 1);
+
+            if (tabFunctionSources.Controls.Count == 1) {
+                var functionsource = tabFunctionSources.SelectedTab.Tag as FunctionSource;
+                screen.DebugSound.FunctionSource.Value = functionsource;
+            }
+        }
 
         private void lsvFunctionSources_SelectedIndexChanged(object sender, EventArgs e) {
             if (lsvFunctionSources.SelectedIndices.Count == 0)

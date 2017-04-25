@@ -94,11 +94,11 @@ namespace MusicWriter
         }
 
         public void StopRender() {
-            throw new NotImplementedException();
+            jobmanager.Stop();
         }
 
         public void StartRender() {
-
+            jobmanager.Start();
         }
 
         public const string ItemName = "musicwriter.function.debug-sound";

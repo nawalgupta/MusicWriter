@@ -359,6 +359,8 @@
             this.tabFunctionSources.SelectedIndex = 0;
             this.tabFunctionSources.Size = new System.Drawing.Size(396, 396);
             this.tabFunctionSources.TabIndex = 2;
+            this.tabFunctionSources.SelectedIndexChanged += new System.EventHandler(this.tabFunctionSources_SelectedIndexChanged);
+            this.tabFunctionSources.ControlAdded += new System.Windows.Forms.ControlEventHandler(this.tabFunctionSources_ControlAdded);
             // 
             // FunctionEditorScreenView
             // 
