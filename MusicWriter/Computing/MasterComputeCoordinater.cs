@@ -174,7 +174,7 @@ namespace MusicWriter
                             slave_objID =>
                                 File
                                     .Storage
-                                    [slave_objID]
+                                    [slaves_obj.ID]
                                     .Rename(
                                             slave_objID, 
                                             ComputeConstants.SlaveKey_JobRequested

@@ -63,6 +63,8 @@ namespace MusicWriter
 
                                 jobID_item_lookup.Add(job.WorkItemStorageObjectID, job.JobID);
                                 jobID_allocated_waithandle[job.WorkItemStorageObjectID].Stop();
+
+                                job.Start();
                             }
                         );
 
