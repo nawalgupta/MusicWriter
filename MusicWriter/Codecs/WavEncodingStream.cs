@@ -56,7 +56,7 @@ namespace MusicWriter
             header = new byte[HEADER_SIZE];
 
             totallength = waves[0].Length.Value;
-            if (!waves.All(wave => (int)wave.Length.Value == totallength))
+            if (!waves.All(wave => wave.Length.Value == totallength))
                 throw new InvalidOperationException();
 
             samplerate = (int)waves[0].SampleRate.Value;

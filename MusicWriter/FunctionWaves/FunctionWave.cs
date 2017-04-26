@@ -145,7 +145,7 @@ namespace MusicWriter
         }
 
         void Serialize() {
-            using (var writer = new BinaryWriter(obj.OpenRead())) {
+            using (var writer = new BinaryWriter(obj.OpenWrite())) {
                 writer.Write(SampleRate.Value);
                 writer.Write(BitsPerSample.Value);
                 writer.Write(Start.Value);
@@ -189,8 +189,7 @@ namespace MusicWriter
                     false
                 );
 
-        private class PrivateStream : Stream
-        {
+        private class PrivateStream : Stream {
             long current_offset_global;
             long current_offset;
             long current_length;
@@ -227,8 +226,10 @@ namespace MusicWriter
             public override void Flush() {
                 throw new InvalidOperationException();
             }
-            
+
             public override int Read(byte[] buffer, int offset, int count) {
+                EnsureOneFragmentIsLoaded();
+
                 if (count <= current_length - current_offset) {
                     current_stream.Read(buffer, offset, count);
                     current_offset += count;
@@ -254,8 +255,7 @@ namespace MusicWriter
                             if (current_offset_global == wave.totalsamples)
                                 break;
 
-                            while (!wave.fragments.ContainsKey(current_i))
-                                Thread.Sleep(20);
+                            WaitForFragmentToLoad(current_i);
 
                             current_stream = wave.File.Storage[wave.fragments[current_i]].OpenRead();
                             current_length = wave.fragments_sizes[current_i];
@@ -271,6 +271,8 @@ namespace MusicWriter
 
             public override long Seek(long offset, SeekOrigin origin) {
                 long position;
+
+                EnsureOneFragmentIsLoaded();
 
                 switch (origin) {
                     case SeekOrigin.Begin:
@@ -294,8 +296,10 @@ namespace MusicWriter
                     current_stream.Close();
                     current_stream.Dispose();
 
-                    while (position < current_offset_global)
+                    while (position < current_offset_global) {
+                        WaitForFragmentToLoad(current_i - 1);
                         current_offset_global -= current_length = wave.fragments_sizes[--current_i];
+                    }
                     current_stream = wave.File.Storage[wave.fragments[current_i]].OpenRead();
                 }
                 else if (position >= current_offset_global + current_length) {
@@ -304,7 +308,9 @@ namespace MusicWriter
 
                     while (position >= current_offset_global + current_length) {
                         current_offset_global += current_length;
-                        current_length = wave.fragments_sizes[++current_i];
+                        current_i++;
+                        WaitForFragmentToLoad(current_i);
+                        current_length = wave.fragments_sizes[current_i];
                     }
                     current_stream = wave.File.Storage[wave.fragments[current_i]].OpenRead();
                 }
@@ -313,6 +319,23 @@ namespace MusicWriter
                 current_stream.Seek(current_offset, SeekOrigin.Begin);
 
                 return position;
+            }
+
+            void WaitForFragmentToLoad(int i) {
+                while (!wave.fragments.ContainsKey(i))
+                    Thread.Sleep(20);
+            }
+
+            void EnsureOneFragmentIsLoaded() {
+                if (current_stream == null) {
+                    WaitForFragmentToLoad(0);
+
+                    current_stream = wave.File.Storage[wave.fragments[0]].OpenRead();
+                    current_length = wave.fragments_sizes[0];
+                    current_offset = 0;
+                    current_offset_global = 0;
+                    current_i = 0;
+                }
             }
 
             public override void SetLength(long value) {
