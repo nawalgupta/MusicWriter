@@ -59,6 +59,7 @@ namespace MusicWriter
                                             this
                                         );
 
+                                job.Bind();
                                 Jobs.Add(job);
 
                                 jobID_item_lookup.Add(job.WorkItemStorageObjectID, job.JobID);
@@ -79,6 +80,7 @@ namespace MusicWriter
                                 if (job.Working)
                                     job.ForceStop();
 
+                                job.Unbind();
                                 Jobs.Remove(job);
                             }
                         );
