@@ -78,27 +78,27 @@ namespace MusicWriter
                 slave_obj
                     .CreateListen(
                             IOEvent.ObjectContentsSet,
-                            async (key, slave_objID) => {
+                            async key => {
                                 if (State == WorkingState.Working) {
                                     worker =
                                         new BackgroundWorker(
                                                 () =>
                                                     slave.Complete(
                                                             this,
-                                                            slave_objID
+                                                            slave_obj.ID
                                                         )
                                             );
 
                                     worker.Start();
 
-                                    slaves_obj.Rename(slave_objID, ComputeConstants.SlaveKey_Working);
+                                    slaves_obj.Rename(slave_obj.ID, ComputeConstants.SlaveKey_Working);
 
                                     await worker.WaitForFinishAsync();
 
                                     if (State == WorkingState.Working)
-                                        slaves_obj.Rename(slave_objID, ComputeConstants.SlaveKey_JobRequested);
+                                        slaves_obj.Rename(slave_obj.ID, ComputeConstants.SlaveKey_JobRequested);
                                     else {
-                                        slaves_obj.Rename(slave_objID, ComputeConstants.SlaveKey_NotWillingToWork);
+                                        slaves_obj.Rename(slave_obj.ID, ComputeConstants.SlaveKey_NotWillingToWork);
                                         State = WorkingState.NotWorking;
                                     }
                                 }
@@ -107,9 +107,9 @@ namespace MusicWriter
         }
 
         public void Start() {
-            slaves_obj.Add(ComputeConstants.SlaveKey_JobRequested, slave_obj.ID);
-
             State = WorkingState.Working;
+
+            slaves_obj.Add(ComputeConstants.SlaveKey_JobRequested, slave_obj.ID);
         }
 
         public async void RequestStop() {

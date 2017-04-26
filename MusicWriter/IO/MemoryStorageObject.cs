@@ -57,7 +57,11 @@ namespace MusicWriter
                         }
                     }
 
+                    bool hasflushed = false;
                     public override void Flush() {
+                        if (hasflushed)
+                            return;
+
                         if (!writable)
                             throw new InvalidOperationException();
 
@@ -66,6 +70,16 @@ namespace MusicWriter
                         }
 
                         file.NotifyWritten();
+
+                        hasflushed = true;
+                    }
+
+                    protected override void Dispose(bool disposing) {
+                        if (disposing)
+                            if (writable)
+                                Flush();
+
+                        base.Dispose(disposing);
                     }
 
                     public override int Read(byte[] buffer, int offset, int count) {

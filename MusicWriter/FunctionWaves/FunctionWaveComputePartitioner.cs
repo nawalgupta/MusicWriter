@@ -67,10 +67,12 @@ namespace MusicWriter
                 writer.Write(end_samples);
             }
 
-            using (var writer = new BinaryWriter(partition_obj.OpenWrite())) {
-                writer.Write(start);
-                writer.Write(end);
-                writer.Write(index);
+            using (var stream = partition_obj.OpenWrite()) {
+                using (var writer = new BinaryWriter(stream)) {
+                    writer.Write(start);
+                    writer.Write(end);
+                    writer.Write(index);
+                }
             }
 
             return end == end_samples;
