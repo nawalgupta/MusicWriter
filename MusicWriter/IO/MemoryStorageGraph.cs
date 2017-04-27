@@ -217,9 +217,7 @@ namespace MusicWriter
             var sink_arrows_to_source_inverse =
                 arrows_to_source_inverse[sink].Lookup(source);
 
-            foreach (var oldkey in source_arrows_to_sink_inverse) {
-                Messages.Add(new IOMessage(source, IOEvent.ChildRekeyed, oldkey, newkey, sink));
-
+            foreach (var oldkey in source_arrows_to_sink_inverse.ToArray()) {
                 EnumerableExtensions.RenameMerge<string, List<StorageObjectID>, StorageObjectID>(
                         arrows_to_sink[source],
                         oldkey,
@@ -231,6 +229,8 @@ namespace MusicWriter
                         oldkey,
                         newkey
                     );
+
+                Messages.Add(new IOMessage(source, IOEvent.ChildRekeyed, oldkey, newkey, sink));
             }
 
             source_arrows_to_sink_inverse.Clear();
