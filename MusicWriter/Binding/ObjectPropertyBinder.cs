@@ -8,8 +8,7 @@ namespace MusicWriter
 {
     public sealed class ObjectPropertyBinder<T>
         : BoundObject<ObjectPropertyBinder<T>>
-        where T : IBoundObject<T>
-    {
+        where T : IBoundObject<T> {
         readonly string relation;
         readonly BoundList<T> boundlist;
         readonly IStorageObject obj;
@@ -91,10 +90,7 @@ namespace MusicWriter
         }
 
         private void Value_AfterChange(T old, T @new) {
-            obj.Remove(relation);
-
-            if (@new != null)
-                obj.Add(relation, @new.StorageObjectID);
+            obj.Set(relation, @new);
         }
     }
 }

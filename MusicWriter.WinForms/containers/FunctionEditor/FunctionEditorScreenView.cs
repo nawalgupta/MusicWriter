@@ -137,6 +137,7 @@ namespace MusicWriter.WinForms
                 var tab =
                     new TabPage();
 
+                tab.Tag = item;
                 tab.Text = item.Name.Value;
                 tab.Name = $"tabFunctionSources_{item.Name}";
                 tab.Controls.Add(control);

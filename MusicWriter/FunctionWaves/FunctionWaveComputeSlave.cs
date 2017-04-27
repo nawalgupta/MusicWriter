@@ -50,7 +50,7 @@ namespace MusicWriter
                     .Value;
 
             var frag_obj =
-                wave_obj.Get(index.ToString());
+                wave_obj.GetOrMake(index.ToString());
 
             using (var writer = new BinaryWriter(frag_obj.OpenWrite())) {
                 for (uint sample_i = start; sample_i < end; sample_i++) {

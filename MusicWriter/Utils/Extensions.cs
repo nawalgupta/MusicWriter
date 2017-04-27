@@ -341,12 +341,14 @@ namespace MusicWriter
             return parent.Graph[sink];
         }
 
-        public static void Set(
+        public static void SetOrMake(
                 this IStorageObject parent,
                 string child,
                 StorageObjectID value
             ) {
-            parent.Remove(child);
+            if (parent.HasChild(child))
+                parent.Remove(child);
+
             parent.Add(child, value);
         }
 
@@ -358,7 +360,7 @@ namespace MusicWriter
             if (value == null)
                 parent.Remove(child);
             else {
-                Set(
+                SetOrMake(
                         parent,
                         child,
                         value.StorageObjectID
