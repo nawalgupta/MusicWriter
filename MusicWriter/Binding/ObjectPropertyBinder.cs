@@ -62,7 +62,7 @@ namespace MusicWriter
                     .Storage
                     .CreateListen(
                             msg => {
-                                if (Value.Value.StorageObjectID == msg.Object)
+                                if (Value.Value?.StorageObjectID == msg.Object)
                                     Value.Value = default(T);
                             },
                             subject: storageobjectID,
