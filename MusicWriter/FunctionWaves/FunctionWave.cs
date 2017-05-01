@@ -29,12 +29,17 @@ namespace MusicWriter
         readonly Dictionary<int, long> fragments_sizes =
             new Dictionary<int, long>();
 
+        public long TotalBytes {
+            get { return BitsPerSample.Value / 8 * totalsamples; }
+        }
+
         uint totalsamples = 0;
 
         readonly IStorageObject obj;
         readonly IOListener listener_contentsset;
         readonly IOListener listener_childadded;
         readonly IOListener listener_childremoved;
+        readonly IOListener listener_childcontentsset;
 
         public uint TotalSamples {
             get { return (uint)(Length.Value * SampleRate.Value); }
@@ -68,10 +73,10 @@ namespace MusicWriter
                             Deserialize
                         );
 
-            listener_childadded =
+            listener_childcontentsset =
                 obj
                     .CreateListen(
-                            IOEvent.ChildAdded,
+                            IOEvent.ChildContentsSet,
                             (key, frag_objID) => {
                                 int i;
 
@@ -85,7 +90,15 @@ namespace MusicWriter
 
                                     fragments_sizes.Add(i, size);
                                 }
-                                else if (key == "function") {
+                            }
+                        );
+
+            listener_childadded =
+                obj
+                    .CreateListen(
+                            IOEvent.ChildAdded,
+                            (key, frag_objID) => {
+                                if (key == "function") {
                                     FunctionSource.Value = functionsources[frag_objID];
                                 }
                             }
@@ -103,7 +116,7 @@ namespace MusicWriter
                                     fragments_sizes.Remove(i);
                                 }
                                 else if (key == "function") {
-                                    if (FunctionSource.Value.StorageObjectID == frag_objID)
+                                    if (FunctionSource.Value?.StorageObjectID == frag_objID)
                                         FunctionSource.Value = null;
                                 }
                             }
@@ -120,10 +133,11 @@ namespace MusicWriter
             File.Storage.Listeners.Add(listener_contentsset);
             File.Storage.Listeners.Add(listener_childadded);
             File.Storage.Listeners.Add(listener_childremoved);
+            File.Storage.Listeners.Add(listener_childcontentsset);
 
             base.Bind();
         }
-
+        
         private void SampleRate_AfterChange(float old, float @new) {
             Serialize();
         }
@@ -176,6 +190,7 @@ namespace MusicWriter
             File.Storage.Listeners.Remove(listener_contentsset);
             File.Storage.Listeners.Remove(listener_childadded);
             File.Storage.Listeners.Remove(listener_childremoved);
+            File.Storage.Listeners.Remove(listener_childcontentsset);
 
             base.Unbind();
         }
@@ -215,7 +230,7 @@ namespace MusicWriter
             }
 
             public override long Length {
-                get { return wave.fragments_sizes.Values.Sum(); }
+                get { return wave.TotalBytes; }
             }
 
             public override long Position {
@@ -230,6 +245,9 @@ namespace MusicWriter
             public override int Read(byte[] buffer, int offset, int count) {
                 EnsureOneFragmentIsLoaded();
 
+                if (current_offset + current_length == wave.TotalBytes)
+                    return 0;
+
                 if (count <= current_length - current_offset) {
                     current_stream.Read(buffer, offset, count);
                     current_offset += count;
@@ -240,20 +258,22 @@ namespace MusicWriter
                     while (count > 0) {
                         var local_count = Math.Min(count, (int)(current_length - current_offset));
 
-                        current_stream.Read(buffer, offset, local_count);
+                        var read = current_stream.Read(buffer, offset, local_count);
+                        if (read != local_count)
+                            throw new InvalidOperationException();
 
                         readsize += local_count;
                         offset += local_count;
                         current_offset += local_count;
 
                         if (current_offset == current_length) {
+                            if (current_offset_global + current_length == wave.TotalBytes)
+                                break;
+
                             current_stream.Close();
                             current_stream.Dispose();
                             current_i++;
                             current_offset_global += current_length;
-
-                            if (current_offset_global == wave.totalsamples)
-                                break;
 
                             WaitForFragmentToLoad(current_i);
 
@@ -261,8 +281,10 @@ namespace MusicWriter
                             current_length = wave.fragments_sizes[current_i];
                             current_offset = 0;
                         }
-                    }
 
+                        count -= local_count;
+                    }
+                    
                     return readsize;
                 }
 
@@ -307,6 +329,9 @@ namespace MusicWriter
                     current_stream.Dispose();
 
                     while (position >= current_offset_global + current_length) {
+                        if (current_offset_global + current_length == wave.TotalBytes)
+                            break;
+
                         current_offset_global += current_length;
                         current_i++;
                         WaitForFragmentToLoad(current_i);
