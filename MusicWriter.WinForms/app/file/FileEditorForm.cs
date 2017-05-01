@@ -96,10 +96,6 @@ namespace MusicWriter.WinForms {
                 );
 
             containerfactoryset.Factories.Add(
-                    FunctionWaveContainer.FactoryInstance
-                );
-
-            containerfactoryset.Factories.Add(
                     TrackControllerContainer.CreateFactory(
                             tracks_factoryset,
                             tracks_viewerset,
@@ -137,6 +133,10 @@ namespace MusicWriter.WinForms {
                             new ViewerSet<FunctionSource>(
                                 )
                         )
+                );
+
+            containerfactoryset.Factories.Add(
+                    FunctionWaveContainer.FactoryInstance
                 );
 
             containerfactoryset.Factories.Add(
