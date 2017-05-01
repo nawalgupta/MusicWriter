@@ -69,8 +69,8 @@ namespace MusicWriter
 
             bytespersample = bitspersample / 8;
 
-            bytesperunit = numchannels * bytespersample;
             numchannels = waves.Length;
+            bytesperunit = numchannels * bytespersample;
             numsamples = (int)(totallength * samplerate);
             byterate = samplerate * bytesperunit;
             numdatabytes = (int)(totallength * byterate);
