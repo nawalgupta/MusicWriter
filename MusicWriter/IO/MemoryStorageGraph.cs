@@ -217,7 +217,15 @@ namespace MusicWriter
             var sink_arrows_to_source_inverse =
                 arrows_to_source_inverse[sink].Lookup(source);
 
-            foreach (var oldkey in source_arrows_to_sink_inverse.ToArray()) {
+            var source_arrows_to_sink_inverse_cache =
+                source_arrows_to_sink_inverse.ToArray();
+
+            source_arrows_to_sink_inverse.Clear();
+            source_arrows_to_sink_inverse.Add(newkey);
+            sink_arrows_to_source_inverse.Clear();
+            sink_arrows_to_source_inverse.Add(newkey);
+
+            foreach (var oldkey in source_arrows_to_sink_inverse_cache) {
                 EnumerableExtensions.RenameMerge<string, List<StorageObjectID>, StorageObjectID>(
                         arrows_to_sink[source],
                         oldkey,
@@ -232,11 +240,6 @@ namespace MusicWriter
 
                 Messages.Add(new IOMessage(source, IOEvent.ChildRekeyed, oldkey, newkey, sink));
             }
-
-            source_arrows_to_sink_inverse.Clear();
-            source_arrows_to_sink_inverse.Add(newkey);
-            sink_arrows_to_source_inverse.Clear();
-            sink_arrows_to_source_inverse.Add(newkey);
         }
 
         protected virtual void SetContents(StorageObjectID id) {
@@ -276,10 +279,12 @@ namespace MusicWriter
                 .Lookup(sink);
 
         public virtual bool HasChild(StorageObjectID source, string relation) =>
-            arrows_to_sink[source].ContainsKey(relation);
+            arrows_to_sink[source].ContainsKey(relation) &&
+            arrows_to_sink[source][relation].Any();
 
         public virtual bool HasChild(StorageObjectID source, StorageObjectID sink) =>
-            arrows_to_sink_inverse[source].ContainsKey(sink);
+            arrows_to_sink_inverse[source].ContainsKey(sink) &&
+            arrows_to_sink_inverse[source][sink].Any();
 
         public virtual bool HasChild(StorageObjectID source, StorageObjectID sink, string relation) =>
             arrows_to_sink_inverse[source].Lookup(sink).Contains(relation);
