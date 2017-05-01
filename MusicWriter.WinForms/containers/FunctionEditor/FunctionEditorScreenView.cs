@@ -37,7 +37,7 @@ namespace MusicWriter.WinForms
         }
 
         FunctionSource ActiveFunctionSource {
-            get { return (FunctionSource)tabFunctionSources.SelectedTab.Tag; }
+            get { return tabFunctionSources.SelectedTab?.Tag as FunctionSource; }
         }
 
         public FunctionEditorScreenView() {
@@ -209,12 +209,11 @@ namespace MusicWriter.WinForms
         }
 
         private void tabFunctionSources_SelectedIndexChanged(object sender, EventArgs e) {
-            var index = lsvFunctionSources.Items.IndexOfKey($"lsvFunctionSources_{ActiveFunctionSource.Name}");
+            var index = lsvFunctionSources.Items.IndexOfKey($"lsvFunctionSources_{ActiveFunctionSource?.Name}");
             lsvFunctionSources.SelectedIndices.Clear();
             lsvFunctionSources.SelectedIndices.Add(index);
 
-            var functionsource = tabFunctionSources.SelectedTab.Tag as FunctionSource;
-            screen.DebugSound.FunctionSource.Value = functionsource;
+            screen.DebugSound.FunctionSource.Value = ActiveFunctionSource;
         }
 
         private void tabFunctionSources_ControlAdded(object sender, ControlEventArgs e) {
@@ -316,8 +315,8 @@ namespace MusicWriter.WinForms
         private void lsvFunctionSources_AfterLabelEdit(object sender, LabelEditEventArgs e) {
             var functionsource =
                 (FunctionSource)lsvFunctionSources.Items[e.Item].Tag;
-            
-            functionsource.Name.Value = e.Label;
+
+            functionsource.Name.Value = e.Label ?? "";
         }
     }
 }
