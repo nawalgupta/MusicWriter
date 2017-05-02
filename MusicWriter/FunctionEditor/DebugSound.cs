@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -134,11 +135,13 @@ namespace MusicWriter
         }
 
         public void StopRender() {
-            jobmanager.Stop();
+            if (jobmanager.State != JobState.NotRunning)
+                jobmanager.Stop();
         }
 
         public void StartRender() {
-            jobmanager.Start();
+            if (jobmanager.State == JobState.NotRunning)
+                jobmanager.Start();
         }
 
         public const string ItemName = "musicwriter.function.debug-sound";
@@ -148,5 +151,11 @@ namespace MusicWriter
                     ItemName,
                     false
                 );
+
+        public Stream GetWavStream() {
+            StartRender();
+
+            return new WavEncodingStream(RenderedWave.Value);
+        }
     }
 }

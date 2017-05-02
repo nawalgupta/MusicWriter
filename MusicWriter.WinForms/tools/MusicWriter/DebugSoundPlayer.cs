@@ -28,9 +28,7 @@ namespace MusicWriter.WinForms
         }
         
         public async void Play() {
-            sound.StartRender();
-
-            player.Stream = new WavEncodingStream(sound.RenderedWave.Value);
+            player.Stream = sound.GetWavStream();
             player.Load();
             IsPlaying = true;
             PlayingStarted?.Invoke();

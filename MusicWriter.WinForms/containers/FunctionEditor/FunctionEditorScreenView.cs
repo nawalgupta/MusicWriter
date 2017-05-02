@@ -318,5 +318,22 @@ namespace MusicWriter.WinForms
 
             functionsource.Name.Value = e.Label ?? "";
         }
+
+        private void diagSaveWave_FileOk(object sender, CancelEventArgs e) {
+            using (var readstream = soundplayer.Sound.GetWavStream()) {
+                using (var writestream = diagSaveWave.OpenFile()) {
+                    const int BUFFER_SIZE = 2048;
+
+                    byte[] buffer = new byte[BUFFER_SIZE];
+                    int read = BUFFER_SIZE;
+                    while (read == BUFFER_SIZE)
+                        writestream.Write(buffer, 0, read = readstream.Read(buffer, 0, BUFFER_SIZE));
+                }
+            }
+        }
+
+        private void mnuPlaySave_Click(object sender, EventArgs e) {
+            diagSaveWave.ShowDialog(this);
+        }
     }
 }

@@ -124,6 +124,7 @@ namespace MusicWriter
 
         public override int Read(byte[] buffer, int offset, int count) {
             var startcount = count;
+            var oldposition = position;
 
             if (position < HEADER_SIZE) {
                 // write header
@@ -137,7 +138,7 @@ namespace MusicWriter
 
                 if (position >= HEADER_SIZE)
                     for(int i = numchannels - 1; i >= 0;i--)
-                        wavestreams[i].Seek(position - HEADER_SIZE, SeekOrigin.Begin);
+                        wavestreams[i].Seek(0, SeekOrigin.Begin);
             }
 
             if (position >= HEADER_SIZE) {
@@ -156,7 +157,7 @@ namespace MusicWriter
                                 new Func<int, Action>(j => () => {
                                     var wavestream = wavestreams[j];
                                     int read;
-                                    int attemptedtoread;
+                                    int attemptedtoread = 0;
                                     int channelbytesoffset;
                                     var channel = Math.DivRem(unitbytes, bytespersample, out channelbytesoffset);
                                     var localoffset = offset;
@@ -185,6 +186,12 @@ namespace MusicWriter
 
                                     var unitbytes_endpart =
                                         count_unit_cieling % bytesperunit;
+
+                                    if (attemptedtoread == bytespersample)
+                                        units_whole--;
+
+                                    //TODO: bad code a line below; I don't know why it works
+                                    units_whole--;
 
                                     var lefttoread = units_whole * bytespersample;
 
@@ -217,7 +224,7 @@ namespace MusicWriter
                         throw new InvalidOperationException("One of the streams was empty before the later one.");
             }
 
-            return startcount - count;
+            return (int)(position - oldposition);
         }
 
         public int RecommendedBufferSize(int units) =>

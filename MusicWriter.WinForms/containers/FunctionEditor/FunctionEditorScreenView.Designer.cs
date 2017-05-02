@@ -56,6 +56,9 @@
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.btnPlay = new System.Windows.Forms.Button();
             this.tabFunctionSources = new System.Windows.Forms.TabControl();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.mnuPlaySave = new System.Windows.Forms.ToolStripMenuItem();
+            this.diagSaveWave = new System.Windows.Forms.SaveFileDialog();
             mnuPlaySeparator1 = new System.Windows.Forms.ToolStripSeparator();
             panel1 = new System.Windows.Forms.Panel();
             panel2 = new System.Windows.Forms.Panel();
@@ -178,9 +181,11 @@
             this.mnuPlayRepeat,
             mnuPlaySeparator1,
             this.mnuPlayPlay,
-            this.mnuPlayStop});
+            this.mnuPlayStop,
+            this.toolStripMenuItem1,
+            this.mnuPlaySave});
             this.mnuPlay.Name = "mnuPlay";
-            this.mnuPlay.Size = new System.Drawing.Size(153, 186);
+            this.mnuPlay.Size = new System.Drawing.Size(153, 214);
             // 
             // mnuPlayTone
             // 
@@ -343,7 +348,7 @@
             // 
             this.btnPlay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnPlay.ContextMenuStrip = this.mnuPlay;
-            this.btnPlay.Location = new System.Drawing.Point(294, 12);
+            this.btnPlay.Location = new System.Drawing.Point(308, 1);
             this.btnPlay.Name = "btnPlay";
             this.btnPlay.Size = new System.Drawing.Size(87, 30);
             this.btnPlay.TabIndex = 3;
@@ -361,6 +366,23 @@
             this.tabFunctionSources.TabIndex = 2;
             this.tabFunctionSources.SelectedIndexChanged += new System.EventHandler(this.tabFunctionSources_SelectedIndexChanged);
             this.tabFunctionSources.ControlAdded += new System.Windows.Forms.ControlEventHandler(this.tabFunctionSources_ControlAdded);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(149, 6);
+            // 
+            // mnuPlaySave
+            // 
+            this.mnuPlaySave.Name = "mnuPlaySave";
+            this.mnuPlaySave.Size = new System.Drawing.Size(152, 22);
+            this.mnuPlaySave.Text = "&Save...";
+            this.mnuPlaySave.Click += new System.EventHandler(this.mnuPlaySave_Click);
+            // 
+            // diagSaveWave
+            // 
+            this.diagSaveWave.Filter = "WAV Files (*.wav)|*.wav";
+            this.diagSaveWave.FileOk += new System.ComponentModel.CancelEventHandler(this.diagSaveWave_FileOk);
             // 
             // FunctionEditorScreenView
             // 
@@ -415,5 +437,8 @@
         private System.Windows.Forms.ToolStripMenuItem mnuFunctionSourcesCreate;
         private System.Windows.Forms.ToolStripMenuItem mnuFunctionSourcesDelete;
         private System.Windows.Forms.Button btnPlay;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem mnuPlaySave;
+        private System.Windows.Forms.SaveFileDialog diagSaveWave;
     }
 }

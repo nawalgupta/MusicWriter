@@ -81,14 +81,13 @@ namespace MusicWriter
                                 int i;
 
                                 if (int.TryParse(key, out i)) {
-                                    fragments.Add(i, frag_objID);
-
                                     long size;
                                     using (var stream = file.Storage[frag_objID].OpenRead()) {
                                         size = stream.Length;
                                     }
 
                                     fragments_sizes.Add(i, size);
+                                    fragments.Add(i, frag_objID);
                                 }
                             }
                         );
@@ -245,7 +244,7 @@ namespace MusicWriter
             public override int Read(byte[] buffer, int offset, int count) {
                 EnsureOneFragmentIsLoaded();
 
-                if (current_offset + current_length == wave.TotalBytes)
+                if (current_offset == wave.TotalBytes)
                     return 0;
 
                 if (count <= current_length - current_offset) {
@@ -288,7 +287,7 @@ namespace MusicWriter
                     return readsize;
                 }
 
-                return 0;
+                return count;
             }
 
             public override long Seek(long offset, SeekOrigin origin) {
