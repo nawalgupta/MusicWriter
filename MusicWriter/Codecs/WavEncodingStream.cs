@@ -135,6 +135,7 @@ namespace MusicWriter
 
                 position += readcount;
                 count -= readcount;
+                offset += readcount;
 
                 if (position >= HEADER_SIZE)
                     for(int i = numchannels - 1; i >= 0;i--)
@@ -178,7 +179,7 @@ namespace MusicWriter
 
                                         localcount += read;
                                         localoffset += read;
-                                        localoffset += bytesperunit;
+                                        localoffset += (bytesperunit - (channel + 1) * bytespersample);
                                     }
 
                                     var units_whole =
@@ -191,14 +192,14 @@ namespace MusicWriter
                                         units_whole--;
 
                                     //TODO: bad code a line below; I don't know why it works
-                                    units_whole--;
+                                    //units_whole--;
 
                                     var lefttoread = units_whole * bytespersample;
 
                                     if (unitbytes_endpart > j * bytespersample)
                                         lefttoread += Math.Min(unitbytes_endpart - j * bytespersample, bytespersample);
 
-                                    while (lefttoread > 0) {
+                                    while (lefttoread > 0) { // && localoffset < buffer.Length) {
                                         attemptedtoread = Math.Min(bytespersample, lefttoread);
 
                                         read = wavestream.Read(buffer, localoffset, attemptedtoread);
