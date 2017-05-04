@@ -107,6 +107,9 @@ namespace MusicWriter
                 IFunction function,
                 EditorFile file
             ) {
+            if (function == null)
+                return;
+            
             var function_contextual =
                 function as IContextualFunction;
 

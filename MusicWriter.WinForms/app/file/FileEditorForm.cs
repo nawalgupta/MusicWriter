@@ -118,6 +118,7 @@ namespace MusicWriter.WinForms {
                     FunctionContainer.CreateFactory(
                             new FunctionCodeTools(
                                     SquareFunction.FactoryClass.Instance,
+                                    SawFunction.FactoryClass.Instance,
                                     PolylineFunction.FactoryClass.Instance,
                                     PolynomialFunction.FactoryClass.Instance,
                                     PulseWidthModulatedFunction.FactoryClass.Instance,
