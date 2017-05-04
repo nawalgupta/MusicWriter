@@ -46,6 +46,6 @@ namespace MusicWriter
         }
 
         public float GetValue(FunctionCall arg) =>
-            (arg.LocalTime < 0 || arg.LocalTime > 1) ? 0 : 1;
+            arg.WaveTime % 1f >= 0.5f ? +1 : -1;
     }
 }
