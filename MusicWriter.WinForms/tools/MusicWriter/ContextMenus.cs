@@ -16,8 +16,7 @@ namespace MusicWriter
                 int octave_max = 8
             ) {
             SemiTone val = tone.Value;
-            //TODO: adjust to make it possible for the tone observable property
-            // to change and the menu to update accordingly.
+            tone.AfterChange += (old, @new) => val = @new;
 
             var mnuTone_class_checkedchanged = new EventHandler((sender, e) => {
                 var mnuTone_class = (ToolStripMenuItem)sender;
@@ -41,7 +40,7 @@ namespace MusicWriter
                 if (mnuTone_class_octave.Checked) {
                     var mnuTone_class = (ToolStripMenuItem)mnuTone.DropDownItems[(int)semitone.PitchClass];
                     for (var other_octave = octave_min; other_octave <= octave_max; other_octave++) {
-                        var other_mnuTone_class_octave = (ToolStripMenuItem)mnuTone_class.DropDownItems[other_octave];
+                        var other_mnuTone_class_octave = (ToolStripMenuItem)mnuTone_class.DropDownItems[other_octave - octave_min];
                         
                         other_mnuTone_class_octave.Checked = other_mnuTone_class_octave == mnuTone_class_octave;
                     }
@@ -64,6 +63,7 @@ namespace MusicWriter
                         var mnuTone_class_octave = new ToolStripMenuItem($"Octave {octave}");
                         mnuTone_class_octave.CheckedChanged += mnuTone_class_octave_checked;
                         mnuTone_class_octave.Tag = new SemiTone(pitchclass, octave);
+                        mnuTone_class_octave.CheckOnClick = true;
 
                         mnuTone_class.DropDownItems.Add(mnuTone_class_octave);
                     }
@@ -77,24 +77,34 @@ namespace MusicWriter
                 }
             });
 
+            var mnuTone_dropdownopening = new EventHandler((sender, e) => {
+                foreach (ChromaticPitchClass pitchclass in Enum.GetValues(typeof(ChromaticPitchClass))) {
+                    var mnuTone_class = (ToolStripMenuItem)mnuTone.DropDownItems[(int)pitchclass];
+                    mnuTone_class.Checked = pitchclass == val.PitchClass;
+                }
+            });
+
+            mnuTone.DropDownOpening += mnuTone_dropdownopening;
+
             foreach (ChromaticPitchClass pitchclass in Enum.GetValues(typeof(ChromaticPitchClass))) {
-                var mnuTone_class =
-                    new ToolStripMenuItem();
-
-                mnuTone_class.Tag = pitchclass;
-
                 var pitch_str = pitchclass.Stringify_sharps();
                 if (!pitch_str.Contains("#") &&
                     !pitch_str.Contains("♭"))
                     pitch_str = "&" + pitch_str;
 
+                var mnuTone_class =
+                    mnuTone
+                        .DropDownItems
+                        .Add(pitch_str)
+                        as ToolStripMenuItem;
+
+                mnuTone_class.Tag = pitchclass;
+
                 mnuTone_class.CheckOnClick = true;
                 mnuTone_class.Checked = val.PitchClass == pitchclass;
                 mnuTone_class.CheckedChanged += mnuTone_class_checkedchanged;
 
-                mnuTone_class.Text = pitch_str;
                 mnuTone_class.DropDownItems.Add("_");
-
                 mnuTone_class.DropDownOpening += mnuTone_class_dropdownopening;
             }
         }
