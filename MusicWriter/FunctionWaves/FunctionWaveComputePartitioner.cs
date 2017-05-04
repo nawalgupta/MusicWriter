@@ -59,6 +59,9 @@ namespace MusicWriter
                 index = reader.ReadUInt32();
                 end_samples = reader.ReadUInt32();
             }
+
+            if (start == end_samples)
+                return true;
             
             var end = Math.Min(start + SamplesPerPartition, end_samples);
             using (var writer = new BinaryWriter(jobinfo_obj.OpenWrite())) {
