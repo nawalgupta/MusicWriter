@@ -36,7 +36,7 @@ namespace MusicWriter
                     IFunction[] args = null,
                     EditorFile file = null,
                     string key = null,
-                    params float[] numbers
+                    params double[] numbers
                 ) =>
                 new SquareFunction();
 
@@ -45,7 +45,7 @@ namespace MusicWriter
             public static readonly IFunctionFactory Instance = new FactoryClass();
         }
 
-        public float GetValue(FunctionCall arg) =>
-            arg.WaveTime % 1f >= 0.5f ? +1 : -1;
+        public double GetValue(FunctionCall arg) =>
+            arg.WaveTime % 1f >= 0.5 ? +1 : -1;
     }
 }

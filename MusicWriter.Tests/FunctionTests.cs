@@ -98,9 +98,9 @@ namespace MusicWriter.Tests
             Assert.AreEqual(polyline.GetIntegratedValue(2) - polyline.GetIntegratedValue(1), 2);
             Assert.AreEqual(polyline.GetIntegratedValue(4), 8);
 
-            float y;
+            double y;
             Assert.IsTrue(polyline.GetInvertedIntegratedValue(1.75f, out y));
-            Assert.AreEqual(y, 1.5f);
+            Assert.AreEqual(y, 1.5);
 
             polyline.Unbind();
         }

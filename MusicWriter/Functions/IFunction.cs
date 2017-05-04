@@ -10,6 +10,6 @@ namespace MusicWriter
     {
         IFunctionFactory Factory { get; }
 
-        float GetValue(FunctionCall arg);
+        double GetValue(FunctionCall arg);
     }
 }

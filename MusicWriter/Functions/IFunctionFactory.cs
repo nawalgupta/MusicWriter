@@ -22,7 +22,7 @@ namespace MusicWriter
                 IFunction[] args = null,
                 EditorFile file = null,
                 string key = null,
-                params float[] numbers
+                params double[] numbers
             );
     }
 }

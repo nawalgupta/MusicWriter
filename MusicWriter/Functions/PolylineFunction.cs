@@ -52,7 +52,7 @@ namespace MusicWriter
                     IFunction[] args = null,
                     EditorFile file = null,
                     string key = null,
-                    params float[] numbers
+                    params double[] numbers
                 ) =>
                 new PolylineFunction(
                         (file[PolylineContainer.ItemName] as PolylineContainer)
@@ -65,7 +65,7 @@ namespace MusicWriter
             public static readonly IFunctionFactory Instance = new FactoryClass();
         }
 
-        public float GetValue(FunctionCall arg) =>
+        public double GetValue(FunctionCall arg) =>
             data.GetValue(arg.Time);
 
         public string BinaryKey(EditorFile file) =>
@@ -87,7 +87,7 @@ namespace MusicWriter
                 this.function = function;
             }
 
-            public float GetValue(FunctionCall arg) =>
+            public double GetValue(FunctionCall arg) =>
                 function.data.GetIntegratedValue(arg.Time);
         }
 

@@ -139,7 +139,7 @@ namespace MusicWriter {
 		public static Time Fraction(long numerator, int denominator) =>
 			new Time((int)(TicksPerNote * numerator / denominator));
 
-        public static Time FromNotes(float notes) =>
+        public static Time FromNotes(double notes) =>
             new Time((int)(TicksPerNote * notes));
 
         public bool CanDivideInto(int divisor) =>

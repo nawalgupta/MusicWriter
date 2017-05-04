@@ -32,7 +32,7 @@ namespace MusicWriter
                 source = source.Substring(name.Length);
                 source = source.TrimStart();
 
-                var num_arguments = new List<float>();
+                var num_arguments = new List<double>();
                 var func_arguments = new List<IFunction>();
                 string binary_key = null;
 
@@ -50,8 +50,8 @@ namespace MusicWriter
                         var args = inner_args.Split(',');
 
                         foreach (var arg in args) {
-                            float val;
-                            if (float.TryParse(arg.Trim(), out val))
+                            double val;
+                            if (double.TryParse(arg.Trim(), out val))
                                 num_arguments.Add(val);
                         }
                     }

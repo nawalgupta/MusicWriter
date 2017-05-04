@@ -8,37 +8,37 @@ namespace MusicWriter
 {
     public sealed class FunctionCall
     {
-        readonly float wavetime;
-        readonly float localtime;
-        readonly float realtime;
+        readonly double wavetime;
+        readonly double localtime;
+        readonly double realtime;
 
-        public float Time {
+        public double Time {
             get { return wavetime; }
         }
 
-        public float WaveTime {
+        public double WaveTime {
             get { return wavetime; }
         }
 
-        public float LocalTime {
+        public double LocalTime {
             get { return localtime; }
         }
 
-        public float RealTime {
+        public double RealTime {
             get { return realtime; }
         }
         
         public FunctionCall(
-                float wavetime,
-                float localtime,
-                float realtime
+                double wavetime,
+                double localtime,
+                double realtime
             ) {
             this.wavetime = wavetime;
             this.localtime = localtime;
             this.realtime = realtime;
         }
 
-        public FunctionCall(float time)
+        public FunctionCall(double time)
             : this(time, time, time) {
         }
     }

@@ -44,7 +44,7 @@ namespace MusicWriter
                     IFunction[] args = null,
                     EditorFile file = null,
                     string key = null,
-                    params float[] numbers
+                    params double[] numbers
                 ) =>
                 new LocalPerspectiveFunction(context);
 
@@ -55,7 +55,7 @@ namespace MusicWriter
             this.context = context;
         }
 
-        public float GetValue(FunctionCall arg) =>
+        public double GetValue(FunctionCall arg) =>
             context.GetValue(new FunctionCall(arg.LocalTime, arg.LocalTime, arg.RealTime));
     }
 }

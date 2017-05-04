@@ -33,6 +33,7 @@ namespace MusicWriter.WinForms
             IsPlaying = true;
             PlayingStarted?.Invoke();
             await Task.Run(() => player.PlaySync());
+            IsPlaying = false;
             PlayingFinished?.Invoke();
         }
 

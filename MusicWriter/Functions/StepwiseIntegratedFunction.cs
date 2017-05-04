@@ -9,10 +9,10 @@ namespace MusicWriter
 {
     public sealed class StepwiseIntegratedFunction : IFunction
     {
-        readonly float precision;
+        readonly double precision;
         readonly IFunction derivative;
 
-        public float Precision {
+        public double Precision {
             get { return precision; }
         }
 
@@ -47,12 +47,12 @@ namespace MusicWriter
                     IFunction[] args = null,
                     EditorFile file = null,
                     string key = null,
-                    params float[] numbers
+                    params double[] numbers
                 ) =>
                 new StepwiseIntegratedFunction(
                         numbers?.Length == 1 ?
                             numbers[0] : 
-                            1 / 256f,
+                            1 / 256.0,
                         context
                     );
 
@@ -62,16 +62,16 @@ namespace MusicWriter
         }
 
         public StepwiseIntegratedFunction(
-                float precision,
+                double precision,
                 IFunction derivative
             ) {
             this.precision = precision;
             this.derivative = derivative;
         }
 
-        public float GetValue(FunctionCall arg) {
-            float accumulator = 0;
-            float now = 0;
+        public double GetValue(FunctionCall arg) {
+            var accumulator = 0.0;
+            var now = 0.0;
             
             while (now < arg.LocalTime) {
                 accumulator += precision * derivative.GetValue(new FunctionCall(now));

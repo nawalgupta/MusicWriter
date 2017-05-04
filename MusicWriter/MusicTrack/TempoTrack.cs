@@ -47,18 +47,18 @@ namespace MusicWriter
             base.Unbind();
         }
 
-        public Time GetTime(float seconds, Time tracklength) {
+        public Time GetTime(double seconds, Time tracklength) {
             // binary search
             //TODO: as well as Integrate(this IFunction), make Invert(this IFunction)
             // with a native interface for invertible functions. Use this to make the
             // PolyLine function integratable and its integration invertible.
             // Reciprocate the tempo, integrate that, then invert that so you can plug
             // and chug time (sec) for x and get time (notes) as y.
-            float precision = 1f / (128 * 3 * 5 * 7);
-            float pointer = tracklength.Notes / 2;
-            float pointer_size = tracklength.Notes / 4;
+            var precision = 1.0 / (128 * 3 * 5 * 7);
+            double pointer = tracklength.Notes / 2;
+            double pointer_size = tracklength.Notes / 4;
 
-            float integral, integral_discrepency;
+            double integral, integral_discrepency;
 
             do {
                 integral = notelengthdata.GetIntegratedValue(pointer);
@@ -76,8 +76,8 @@ namespace MusicWriter
             return Time.FromNotes(pointer);
         }
 
-        public void SetTempo(Time time, float notes_per_minute) {
-            notelengthdata.AddConstant(time.Notes, 60f / notes_per_minute);
+        public void SetTempo(Time time, double notes_per_minute) {
+            notelengthdata.AddConstant(time.Notes, 60.0 / notes_per_minute);
         }
     }
 }

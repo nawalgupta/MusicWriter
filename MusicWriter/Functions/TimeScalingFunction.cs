@@ -12,13 +12,13 @@ namespace MusicWriter
         IParamaterizedFunction
     {
         readonly IFunction context;
-        readonly float[] arguments;
+        readonly double[] arguments;
 
         public IFunction Context {
             get { return context; }
         }
 
-        public float[] Arguments {
+        public double[] Arguments {
             get { return arguments; }
         }
 
@@ -51,7 +51,7 @@ namespace MusicWriter
                     IFunction[] args = null,
                     EditorFile file = null,
                     string key = null,
-                    params float[] numbers
+                    params double[] numbers
                 ) =>
                 new TimeScalingFunction(context, numbers);
 
@@ -60,13 +60,13 @@ namespace MusicWriter
 
         public TimeScalingFunction(
                 IFunction context,
-                float[] arguments
+                double[] arguments
             ) {
             this.context = context;
             this.arguments = arguments;
         }
 
-        public float GetValue(FunctionCall arg) =>
+        public double GetValue(FunctionCall arg) =>
             context.GetValue(new FunctionCall(arg.WaveTime * arguments[0], arg.LocalTime, arg.RealTime));
     }
 }

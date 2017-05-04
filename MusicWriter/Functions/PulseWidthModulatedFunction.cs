@@ -11,10 +11,10 @@ namespace MusicWriter
         IContextualFunction,
         IParamaterizedFunction
     {
-        readonly float activetime;
+        readonly double activetime;
         readonly IFunction context;
 
-        public float ActiveTime {
+        public double ActiveTime {
             get { return activetime; }
         }
 
@@ -22,8 +22,8 @@ namespace MusicWriter
             get { return context; }
         }
 
-        public float[] Arguments {
-            get { return new float[] { activetime }; }
+        public double[] Arguments {
+            get { return new double[] { activetime }; }
         }
 
         public IFunctionFactory Factory {
@@ -56,7 +56,7 @@ namespace MusicWriter
                     IFunction[] args = null,
                     EditorFile file = null,
                     string key = null,
-                    params float[] numbers
+                    params double[] numbers
                 ) {
                 if (numbers.Length != 1)
                     throw new ArgumentException();
@@ -68,14 +68,14 @@ namespace MusicWriter
         }
 
         public PulseWidthModulatedFunction(
-                float activetime,
+                double activetime,
                 IFunction context = null
             ) {
             this.activetime = activetime;
             this.context = context;
         }
 
-        public float GetValue(FunctionCall arg) {
+        public double GetValue(FunctionCall arg) {
             var t = arg.Time % 1f;
             var factor = 1f;
 

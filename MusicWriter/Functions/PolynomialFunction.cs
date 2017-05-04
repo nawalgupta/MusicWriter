@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 namespace MusicWriter
 {
     public sealed class PolynomialFunction : IFunction, IDirectlyIntegratableFunction, IParamaterizedFunction {
-        readonly float[] coefficients;
+        readonly double[] coefficients;
 
-        public float[] Coefficients {
+        public double[] Coefficients {
             get { return coefficients; }
         }
 
-        public float[] Arguments {
+        public double[] Arguments {
             get { return coefficients; }
         }
 
@@ -49,10 +49,10 @@ namespace MusicWriter
                     IFunction[] args = null,
                     EditorFile file = null,
                     string key = null,
-                    params float[] numbers
+                    params double[] numbers
                 ) =>
                 new PolynomialFunction(
-                        numbers ?? new float[0]
+                        numbers ?? new double[0]
                     );
 
             private FactoryClass() { }
@@ -60,14 +60,13 @@ namespace MusicWriter
             public static readonly IFunctionFactory Instance = new FactoryClass();
         }
 
-        public PolynomialFunction(params float[] coefficients) {
+        public PolynomialFunction(params double[] coefficients) {
             this.coefficients = coefficients;
         }
 
-        public float GetValue(FunctionCall arg) {
-            var local_var = 1f;
-
-            var accumulator = 0f;
+        public double GetValue(FunctionCall arg) {
+            var local_var = 1.0;
+            var accumulator = 0.0;
 
             for (int i = 0; i < Degree; i++) {
                 accumulator += local_var * Coefficients[i];
@@ -79,7 +78,7 @@ namespace MusicWriter
         }
 
         public IFunction Integrate() {
-            var integrated_coefficients = new float[Degree + 1];
+            var integrated_coefficients = new double[Degree + 1];
 
             for (int i = 1; i <= Degree; i++)
                 integrated_coefficients[i] = coefficients[i - 1] / i;

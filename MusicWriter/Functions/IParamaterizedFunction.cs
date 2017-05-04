@@ -8,6 +8,6 @@ namespace MusicWriter
 {
     public interface IParamaterizedFunction : IFunction
     {
-        float[] Arguments { get; }
+        double[] Arguments { get; }
     }
 }

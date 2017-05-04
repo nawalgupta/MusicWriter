@@ -11,10 +11,10 @@ namespace MusicWriter
     {
         public const string ItemName = "musicwriter.data.polyline";
         
-        readonly List<float> times =
-            new List<float>();
-        readonly List<float> values =
-            new List<float>();
+        readonly List<double> times =
+            new List<double>();
+        readonly List<double> values =
+            new List<double>();
         readonly IOListener
             listener_add,
             listener_rekey,
@@ -54,8 +54,8 @@ namespace MusicWriter
 
             listener_add =
                 storage.CreateListen(IOEvent.ChildAdded, (key, pt_objID) => {
-                    var t = float.Parse(key);
-                    var v = float.Parse(storage.Graph[pt_objID].ReadAllString());
+                    var t = double.Parse(key);
+                    var v = double.Parse(storage.Graph[pt_objID].ReadAllString());
 
                     Add_ram(t, v);
                 });
@@ -63,8 +63,8 @@ namespace MusicWriter
             listener_rekey =
                 storage.Graph.CreateListen(
                     msg => {
-                        var t0 = float.Parse(msg.Relation);
-                        var t1 = float.Parse(msg.NewRelation);
+                        var t0 = double.Parse(msg.Relation);
+                        var t1 = double.Parse(msg.NewRelation);
 
                         MoveX_ram(t0, t1);
                     },
@@ -74,16 +74,16 @@ namespace MusicWriter
 
             listener_contentsset =
                 storage.CreateListen(IOEvent.ChildContentsSet, (key, pt_objID) => {
-                    var t = float.Parse(key);
-                    var v1 = float.Parse(storage.Graph[pt_objID].ReadAllString());
+                    var t = double.Parse(key);
+                    var v1 = double.Parse(storage.Graph[pt_objID].ReadAllString());
 
                     MoveY_ram(t, v1);
                 });
 
             listener_remove =
                 storage.CreateListen(IOEvent.ChildRemoved, (key, pt_objID) => {
-                    var t = float.Parse(key);
-                    var v = float.Parse(storage.Graph[pt_objID].ReadAllString());
+                    var t = double.Parse(key);
+                    var v = double.Parse(storage.Graph[pt_objID].ReadAllString());
 
                     RemoveExact_ram(t, v);
                 });
@@ -107,12 +107,12 @@ namespace MusicWriter
             base.Unbind();
         }
         
-        public void AddConstant(float t, float value) {
+        public void AddConstant(double t, double value) {
             var i = bsearch_time_left(t);
-            float? t1 =
+            double? t1 =
                 i + 1 != times.Count ?
                     times[i] - (1 / 256f) :
-                    default(float?);
+                    default(double?);
 
             if (!storage.HasChild(t.ToString())) {
                 var pt0_obj = storage.Graph.CreateObject();
@@ -132,7 +132,7 @@ namespace MusicWriter
             }
         }
 
-        public void Add(float t, float value) {
+        public void Add(double t, double value) {
             if (storage.HasChild(t.ToString()))
                 storage.Get(t.ToString()).WriteAllString(value.ToString());
             else {
@@ -142,24 +142,24 @@ namespace MusicWriter
             }
         }
 
-        void Add_ram(float t, float value) {
+        void Add_ram(double t, double value) {
             var i_left = bsearch_time_left(t);
 
             times.Insert(i_left + 1, t);
             values.Insert(i_left + 1, value);
         }
 
-        public void Remove(float t) =>
+        public void Remove(double t) =>
             storage.Get(times[bsearch_time_left(t)].ToString()).Delete();
 
-        void Remove_ram(float t) {
+        void Remove_ram(double t) {
             var i_left = bsearch_time_left(t);
 
             times.RemoveAt(i_left);
             values.RemoveAt(i_left);
         }
 
-        public void RemoveExact(float t, float v) {
+        public void RemoveExact(double t, double v) {
             var i_left =
                 bsearch_time_left(t);
 
@@ -175,7 +175,7 @@ namespace MusicWriter
             pt_obj.Delete();
         }
 
-        void RemoveExact_ram(float t, float v) {
+        void RemoveExact_ram(double t, double v) {
             var i_left = bsearch_time_left(t);
 
             if (times[i_left] != t)
@@ -188,14 +188,14 @@ namespace MusicWriter
             values.RemoveAt(i_left);
         }
 
-        public void MoveX(float t0, float t1) {
+        public void MoveX(double t0, double t1) {
             var v = values[times.IndexOf(t0)];
 
             Remove(t0);
             Add(t1, v);
         }
 
-        void MoveX_ram(float t0, float t1) {
+        void MoveX_ram(double t0, double t1) {
             var i0_left = bsearch_time_left(t0);
 
             if (times[i0_left] != t0)
@@ -215,12 +215,12 @@ namespace MusicWriter
             values.Insert(i1_left, v);
         }
 
-        public void MoveXY(float t0, float t1, float v1) {
+        public void MoveXY(double t0, double t1, double v1) {
             Remove(t0);
             Add(t1, v1);
         }
 
-        void MoveXY_ram(float t0, float t1, float v1) {
+        void MoveXY_ram(double t0, double t1, double v1) {
             var i0_left = bsearch_time_left(t0);
 
             if (times[i0_left] != t0)
@@ -238,12 +238,12 @@ namespace MusicWriter
             values.Insert(i1_left, v1);
         }
 
-        public void MoveY(float t, float v1) {
+        public void MoveY(double t, double v1) {
             var pt_obj = storage.Get(t.ToString());
             pt_obj.WriteAllString(v1.ToString());
         }
 
-        void MoveY_ram(float t, float v1) {
+        void MoveY_ram(double t, double v1) {
             var i_left = bsearch_time_left(t);
 
             if (times[i_left] != t)
@@ -252,7 +252,7 @@ namespace MusicWriter
             values[i_left] = v1;
         }
         
-        public float GetValue(float t) {
+        public double GetValue(double t) {
             if (values.Count == 0)
                 return float.NaN;
 
@@ -280,16 +280,16 @@ namespace MusicWriter
             }
         }
         
-        public float GetIntegratedValue(float t) {
+        public double GetIntegratedValue(double t) {
             if (values.Count == 0)
-                return float.NaN;
+                return double.NaN;
 
             if (t == 0)
                 return 0;
 
             var i_left = bsearch_time_left(t);
 
-            var area = 0f;
+            var area = 0.0;
             var t_left = times[0];
             var v_left = values[0];
             for (int i = 0; i <= i_left; i++) {
@@ -331,16 +331,16 @@ namespace MusicWriter
             return area;
         }
 
-        public bool GetInvertedIntegratedValue(float area, out float t) {
+        public bool GetInvertedIntegratedValue(double area, out double t) {
             if (values.Count == 0) {
                 t = float.NaN;
 
                 return false;
             }
 
-            float t_left, t_right, t_diff;
-            float v_left, v_right, v_diff;
-            float localarea;
+            double t_left, t_right, t_diff;
+            double v_left, v_right, v_diff;
+            double localarea;
 
             t_left = times[0];
             v_left = values[0];
@@ -390,7 +390,7 @@ namespace MusicWriter
             return true;
         }
 
-        int bsearch_time_left(float time) {
+        int bsearch_time_left(double time) {
             var i = times.BinarySearch(time);
 
             if (i == -1)
