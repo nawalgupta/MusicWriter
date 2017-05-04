@@ -66,23 +66,23 @@ namespace MusicWriter
 
                     //TODO: is this a common improper floating-point handling technique?
                     var clamped =
-                        value / 2 + 1;
+                        (value + 1) / 2;
 
                     switch (bits_per_sample) {
                         case 8:
-                            writer.Write((byte)(value * byte.MaxValue));
+                            writer.Write((byte)(clamped * byte.MaxValue));
                             break;
 
                         case 16:
-                            writer.Write((ushort)(value * ushort.MaxValue));
+                            writer.Write((ushort)(clamped * ushort.MaxValue));
                             break;
 
                         case 32:
-                            writer.Write((uint)(value * uint.MaxValue));
+                            writer.Write((uint)(clamped * uint.MaxValue));
                             break;
 
                         case 64:
-                            writer.Write((ulong)(value * ulong.MaxValue));
+                            writer.Write((ulong)(clamped * ulong.MaxValue));
                             break;
 
                         default:
