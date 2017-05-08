@@ -18,5 +18,7 @@ namespace MusicWriter
             );
 
         void StopJob(ComputeJobID jobID);
+
+        Task WaitForJobFinishAsync(ComputeJobID jobID);
     }
 }

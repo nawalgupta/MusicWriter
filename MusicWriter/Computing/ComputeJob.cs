@@ -13,7 +13,9 @@ namespace MusicWriter
         readonly StorageObjectID item_objID;
         readonly IStorageObject slaves_obj;
         readonly IStorageObject slave_obj;
-        readonly IOListener listener_contentsset;
+        readonly IOListener 
+            listener_contentsset,
+            listener_done_added;
 
         readonly string container;
         readonly ComputeJobID jobID;
@@ -30,6 +32,8 @@ namespace MusicWriter
         }
 
         public WorkingState State { get; private set; }
+
+        public event Action Finished;
 
         public bool Working {
             get { return State != WorkingState.NotWorking; }
@@ -78,7 +82,7 @@ namespace MusicWriter
                 slave_obj
                     .CreateListen(
                             IOEvent.ObjectContentsSet,
-                            async key => {
+                            async () => {
                                 if (State == WorkingState.Working) {
                                     worker =
                                         new BackgroundWorker(
@@ -104,8 +108,21 @@ namespace MusicWriter
                                 }
                             }
                         );
-        }
 
+            listener_done_added =
+                job_obj
+                    .Graph
+                    .CreateListen(
+                        msg => {
+                            Finished?.Invoke();
+                            State = WorkingState.NotWorking;
+                        },
+                        subject: job_obj.ID,
+                        verb: IOEvent.ChildAdded,
+                        key: ComputeConstants.SlaveKey_WorkIsDone
+                    );
+        }
+        
         public void Start() {
             State = WorkingState.Working;
 

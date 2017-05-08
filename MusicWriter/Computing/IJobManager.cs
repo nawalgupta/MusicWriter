@@ -19,5 +19,7 @@ namespace MusicWriter
 
         void Resume();
         void Pause();
+
+        void Reset();
     }
 }

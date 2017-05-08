@@ -152,10 +152,10 @@ namespace MusicWriter
                 foreach (var sink in sink_map.Value) {
                     //TODO: this will fail if the arrow is pointing to its source
 
-                    Messages.Add(new IOMessage(id, IOEvent.ChildRemoved, sink_map.Key, sink));
-
                     arrows_to_source[sink][sink_map.Key].Remove(id);
                     arrows_to_source_inverse[sink][id].Remove(sink_map.Key);
+
+                    Messages.Add(new IOMessage(id, IOEvent.ChildRemoved, sink_map.Key, sink));
                 }
             }
 
@@ -163,10 +163,10 @@ namespace MusicWriter
                 foreach (var source in source_map.Value) {
                     //TODO: this will fail if the arrow is pointing to its source
 
-                    Messages.Add(new IOMessage(source, IOEvent.ChildRemoved, source_map.Key, id));
-
                     arrows_to_sink[source][source_map.Key].Remove(id);
                     arrows_to_sink_inverse[source][id].Remove(source_map.Key);
+
+                    Messages.Add(new IOMessage(source, IOEvent.ChildRemoved, source_map.Key, id));
                 }
             }
 
@@ -191,7 +191,7 @@ namespace MusicWriter
             arrows_to_sink[source].Lookup(key).Add(sink);
             arrows_to_source[sink].Lookup(key).Add(source);
             arrows_to_sink_inverse[source].Lookup(sink).Add(key);
-            arrows_to_source_inverse[source].Lookup(source).Add(key);
+            arrows_to_source_inverse[sink].Lookup(source).Add(key);
 
             Messages.Add(new IOMessage(source, IOEvent.ChildAdded, key, sink));
         }

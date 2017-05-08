@@ -24,6 +24,8 @@ namespace MusicWriter
             new Dictionary<StorageObjectID, ComputeJobID>();
         readonly Dictionary<StorageObjectID, BackgroundWorker> jobID_allocated_waithandle =
             new Dictionary<StorageObjectID, BackgroundWorker>();
+        readonly Dictionary<ComputeJobID, BackgroundWorker> jobs_waithandles =
+            new Dictionary<ComputeJobID, BackgroundWorker>();
 
         readonly Dictionary<string, IComputeSlave> slaves_map =
             new Dictionary<string, IComputeSlave>();
@@ -62,6 +64,10 @@ namespace MusicWriter
                                 job.Bind();
                                 Jobs.Add(job);
 
+                                var waithandle = BackgroundWorker.MakeWaitHandle();
+                                job.Finished += waithandle.Stop;
+
+                                jobs_waithandles.Add(job.JobID, waithandle);
                                 jobID_item_lookup.Add(job.WorkItemStorageObjectID, job.JobID);
                                 jobID_allocated_waithandle[job.WorkItemStorageObjectID].Stop();
 
@@ -79,6 +85,9 @@ namespace MusicWriter
 
                                 if (job.Working)
                                     job.ForceStop();
+
+                                //jobs_waithandles[job.JobID].Stop();
+                                //jobs_waithandles.Remove(job.JobID);
 
                                 job.Unbind();
                                 Jobs.Remove(job);
@@ -141,10 +150,15 @@ namespace MusicWriter
         }
 
         public void StopJob(ComputeJobID jobID) {
-            throw new NotImplementedException();
+            allocated_obj
+                .Get(jobID.ToString())
+                .Delete();
         }
 
         public IComputeSlave GetSlaveFor(string container) =>
             slaves_map[container];
+
+        public Task WaitForJobFinishAsync(ComputeJobID jobID) =>
+            jobs_waithandles[jobID].WaitForFinishAsync();
     }
 }

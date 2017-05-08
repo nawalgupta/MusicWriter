@@ -24,6 +24,9 @@ namespace MusicWriter
             jobs_listener_slaves_remove = new Dictionary<ComputeJobID, IOListener>(),
             jobs_listener_slaves_keyed = new Dictionary<ComputeJobID, IOListener>();
 
+        readonly Dictionary<ComputeJobID, BackgroundWorker> jobs_waithandles = 
+            new Dictionary<ComputeJobID, BackgroundWorker>();
+
         readonly Dictionary<string, IComputePartitioner> partitioners_map =
             new Dictionary<string, IComputePartitioner>();
 
@@ -140,6 +143,8 @@ namespace MusicWriter
             do jobID = ComputeJobID.NewComputeJobID();
             while (allocatedjobs_obj.HasChild(jobID.ToString()));
 
+            jobs_waithandles.Add(jobID, BackgroundWorker.MakeWaitHandle());
+
             var job_obj =
                 File.Storage.CreateObject();
 
@@ -219,6 +224,7 @@ namespace MusicWriter
                                         if (!result) {
                                             // there are no more partitions to do
                                             slaves_obj.Rename(slave_objID, ComputeConstants.SlaveKey_WorkIsDone);
+                                            job_obj.GetOrMake(ComputeConstants.SlaveKey_WorkIsDone);
                                         }
 
                                         break;
@@ -284,7 +290,13 @@ namespace MusicWriter
             jobs_listener_slaves_keyed.Remove(jobID);
 
             allocatedjobs_obj.Get(jobID.ToString()).Delete();
+
+            jobs_waithandles[jobID].Stop();
+            jobs_waithandles.Remove(jobID);
         }
+
+        public Task WaitForJobFinishAsync(ComputeJobID jobID) =>
+            jobs_waithandles[jobID].WaitForFinishAsync();
 
         public static IFactory<IComputeCoordinator> FactoryInstance { get; } =
             new CtorFactory<IComputeCoordinator, MasterComputeCoordinator>(

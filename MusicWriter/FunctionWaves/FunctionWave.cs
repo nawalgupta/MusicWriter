@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class FunctionWave : BoundObject<FunctionWave>
-    {
+    public sealed class FunctionWave : BoundObject<FunctionWave> {
         public const string ItemName = "musicwriter.function-waves.object";
 
         public ObservableProperty<float> SampleRate { get; } =
@@ -35,11 +34,14 @@ namespace MusicWriter
 
         uint totalsamples = 0;
 
+        readonly ObservableProperty<int> oldhash = new ObservableProperty<int>();
+
         readonly IStorageObject obj;
         readonly IOListener listener_contentsset;
         readonly IOListener listener_childadded;
         readonly IOListener listener_childremoved;
         readonly IOListener listener_childcontentsset;
+        readonly PropertyBinder<int> binder_oldhash;
 
         public uint TotalSamples {
             get { return (uint)(Length.Value * SampleRate.Value); }
@@ -49,13 +51,15 @@ namespace MusicWriter
             get { return (uint)((double)(Start.Value + Length.Value) * SampleRate.Value); }
         }
 
+        public event Action Dirtied;
+
         public FunctionWave(
-                StorageObjectID storageobjectID, 
+                StorageObjectID storageobjectID,
                 EditorFile file
             ) :
             base(
-                    storageobjectID, 
-                    file, 
+                    storageobjectID,
+                    file,
                     FactoryInstance
                 ) {
             obj = file.Storage[storageobjectID];
@@ -65,7 +69,7 @@ namespace MusicWriter
                     [FunctionContainer.ItemName]
                     .As<IContainer, FunctionContainer>()
                     .FunctionSources;
-            
+
             listener_contentsset =
                 obj
                     .CreateListen(
@@ -120,6 +124,15 @@ namespace MusicWriter
                                 }
                             }
                         );
+
+            binder_oldhash = oldhash.Bind(obj.GetOrMake("old-hash"));
+
+            Dirtied += FunctionWave_Dirtied;
+        }
+
+        private void FunctionWave_Dirtied() {
+            foreach (var i in fragments.Keys.ToArray())
+                obj.Get(i.ToString()).Delete();
         }
 
         public override void Bind() {
@@ -128,15 +141,29 @@ namespace MusicWriter
             Start.AfterChange += Start_AfterChange;
             Length.AfterChange += Length_AfterChange;
             FunctionSource.AfterChange += FunctionSource_AfterChange;
+            if (FunctionSource.Value != null)
+                FunctionSource.Value.Function.AfterChange += Function_AfterChange;
+            oldhash.AfterChange += Oldhash_AfterChange;
 
             File.Storage.Listeners.Add(listener_contentsset);
             File.Storage.Listeners.Add(listener_childadded);
             File.Storage.Listeners.Add(listener_childremoved);
             File.Storage.Listeners.Add(listener_childcontentsset);
 
+            binder_oldhash.Bind();
+
             base.Bind();
         }
-        
+
+        private void Oldhash_AfterChange(int old, int @new) {
+            if (old != @new)
+                Dirtied?.Invoke();
+        }
+
+        private void Function_AfterChange(IFunction old, IFunction @new) {
+            oldhash.Value = @new.GetHashCode();
+        }
+
         private void SampleRate_AfterChange(float old, float @new) {
             Serialize();
         }
@@ -155,6 +182,12 @@ namespace MusicWriter
 
         private void FunctionSource_AfterChange(FunctionSource old, FunctionSource @new) {
             obj.Set("function", @new);
+            if (old != null)
+                old.Function.AfterChange -= Function_AfterChange;
+            if (@new != null) {
+                @new.Function.AfterChange += Function_AfterChange;
+                oldhash.Value = FunctionSource.Value.Function.Value.GetHashCode();
+            }
         }
 
         void Serialize() {
@@ -185,11 +218,16 @@ namespace MusicWriter
             Start.AfterChange -= Start_AfterChange;
             Length.AfterChange -= Length_AfterChange;
             FunctionSource.AfterChange -= FunctionSource_AfterChange;
+            if (FunctionSource.Value != null)
+                FunctionSource.Value.Function.AfterChange -= Function_AfterChange;
+            oldhash.AfterChange -= Oldhash_AfterChange;
 
             File.Storage.Listeners.Remove(listener_contentsset);
             File.Storage.Listeners.Remove(listener_childadded);
             File.Storage.Listeners.Remove(listener_childremoved);
             File.Storage.Listeners.Remove(listener_childcontentsset);
+
+            binder_oldhash.Unbind();
 
             base.Unbind();
         }

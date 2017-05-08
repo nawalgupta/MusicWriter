@@ -45,7 +45,7 @@ namespace MusicWriter
             this.container = container;
         }
 
-        public void Start() {
+        public async void Start() {
             if (State != JobState.NotRunning)
                 throw new InvalidOperationException();
 
@@ -59,6 +59,11 @@ namespace MusicWriter
                         );
 
             State = JobState.Running;
+
+            await coordinator.WaitForJobFinishAsync(jobID);
+
+            State = JobState.NotRunning;
+            jobID = default(ComputeJobID);
         }
 
         public void Stop() {
@@ -66,8 +71,6 @@ namespace MusicWriter
                 throw new InvalidOperationException();
 
             coordinator.StopJob(jobID);
-            State = JobState.NotRunning;
-            jobID = default(ComputeJobID);
         }
 
         public void Pause() {
@@ -84,6 +87,11 @@ namespace MusicWriter
 
             State = JobState.Running;
             throw new NotImplementedException();
+        }
+
+        public void Reset() {
+            if (State != JobState.NotRunning)
+                Stop();
         }
     }
 }
