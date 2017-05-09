@@ -57,12 +57,13 @@ namespace MusicWriter
                     EditorFile file = null,
                     string key = null,
                     params double[] numbers
-                ) {
-                if (numbers.Length != 1)
-                    throw new ArgumentException();
-
-                return new PulseWidthModulatedFunction(numbers[0], context);
-            }
+                ) =>
+                new PulseWidthModulatedFunction(
+                        numbers.Length == 1 ?
+                            numbers[0] :
+                            1,
+                        context
+                    );
 
             public static readonly IFunctionFactory Instance = new FactoryClass();
         }
@@ -76,8 +77,8 @@ namespace MusicWriter
         }
 
         public double GetValue(FunctionCall arg) {
-            var t = arg.Time % 1f;
-            var factor = 1f;
+            var t = arg.Time % 1.0;
+            var factor = 1.0;
 
             if (t > activetime)
                 factor = 0;
