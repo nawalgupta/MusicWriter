@@ -194,6 +194,7 @@ namespace MusicWriter
             arrows_to_source_inverse[sink].Lookup(source).Add(key);
 
             Messages.Add(new IOMessage(source, IOEvent.ChildAdded, key, sink));
+            Messages.Add(new IOMessage(source, IOEvent.ChildRekeyed, key, key, sink));
         }
 
         protected virtual void RemoveArrow(StorageObjectID source, StorageObjectID sink) {

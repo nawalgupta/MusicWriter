@@ -173,7 +173,7 @@ namespace MusicWriter
             ItemWithdrawn?.Invoke(item, index);
 
             for (int j = index + 1; j < intern.Count; j++)
-                ItemMoved(intern[j], j, j - 1);
+                ItemMoved?.Invoke(intern[j], j, j - 1);
         }
 
         public void Move(int oldindex, int newindex) {
