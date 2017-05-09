@@ -39,20 +39,19 @@ namespace MusicWriter
             task.Start();
         }
 
-        public Task WaitForFinishAsync() => task;
-
-        public void WaitForFinish() {
+        public async Task WaitForFinishAsync() {
             try {
-                task.Wait();
+                await task;
             }
-            catch (AggregateException x) {
-                if (!(x.InnerException is TaskCanceledException))
-                    throw x.InnerException;
+            catch (TaskCanceledException) {
             }
             catch {
                 throw;
             }
         }
+
+        public void WaitForFinish() =>
+            WaitForFinishAsync().Wait();
 
         public void Stop() {
             tokensource.Cancel();

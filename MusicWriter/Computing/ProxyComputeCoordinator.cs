@@ -53,7 +53,7 @@ namespace MusicWriter
                 allocated_obj
                     .CreateListen(
                             IOEvent.ChildAdded,
-                            job_objID => {
+                            async job_objID => {
                                 var job =
                                     new ComputeJob(
                                             job_objID,
@@ -72,6 +72,10 @@ namespace MusicWriter
                                 jobID_allocated_waithandle[job.WorkItemStorageObjectID].Stop();
 
                                 job.Start();
+
+                                await waithandle.WaitForFinishAsync();
+
+                                jobs_waithandles.Remove(job.JobID);
                             }
                         );
 
@@ -84,7 +88,7 @@ namespace MusicWriter
                                     Jobs.FirstOrDefault(_ => _.StorageObjectID == job_objID);
 
                                 if (job.Working)
-                                    job.ForceStop();
+                                    job.Shutdown();
 
                                 //jobs_waithandles[job.JobID].Stop();
                                 //jobs_waithandles.Remove(job.JobID);

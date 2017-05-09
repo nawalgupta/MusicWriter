@@ -137,10 +137,14 @@ namespace MusicWriter
             slaves_obj.Remove(slave_obj.ID);
         }
 
-        public void ForceStop() {
+        public void Shutdown() {
             State = WorkingState.NotWorking;
 
             worker.Stop();
+        }
+
+        public void ForceStop() {
+            Shutdown();
 
             //TODO: does this mark this to the coordinator as cancelled?
             slaves_obj.Rename(slave_obj.ID, ComputeConstants.SlaveKey_Stopped);
@@ -149,13 +153,15 @@ namespace MusicWriter
 
         public override void Bind() {
             File.Storage.Listeners.Add(listener_contentsset);
-            
+            File.Storage.Listeners.Add(listener_done_added);
+
             base.Bind();
         }
 
         public override void Unbind() {
             File.Storage.Listeners.Remove(listener_contentsset);
-            
+            File.Storage.Listeners.Remove(listener_done_added);
+
             base.Unbind();
         }
     }

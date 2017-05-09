@@ -78,6 +78,7 @@ namespace MusicWriter
                 throw new InvalidOperationException();
 
             State = JobState.Paused;
+
             throw new NotImplementedException();
         }
 
@@ -86,6 +87,7 @@ namespace MusicWriter
                 throw new InvalidOperationException();
 
             State = JobState.Running;
+
             throw new NotImplementedException();
         }
 

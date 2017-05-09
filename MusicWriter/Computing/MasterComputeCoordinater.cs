@@ -176,14 +176,16 @@ namespace MusicWriter
                 slaves_obj
                     .CreateListen(
                             IOEvent.ChildAdded,
-                            slave_objID =>
-                                File
-                                    .Storage
-                                    [slaves_obj.ID]
-                                    .Rename(
-                                            slave_objID, 
-                                            ComputeConstants.SlaveKey_JobRequested
-                                        )
+                            slave_objID => {
+                            }
+                                //TODO: have the client do the job requesting; master responds
+                                //File
+                                //    .Storage
+                                //    [slaves_obj.ID]
+                                //    .Rename(
+                                //            slave_objID, 
+                                //            ComputeConstants.SlaveKey_JobRequested
+                                //        )
                         );
 
             var listener_slaves_remove =
@@ -223,20 +225,22 @@ namespace MusicWriter
 
                                         if (!result) {
                                             // there are no more partitions to do
-                                            slaves_obj.Rename(slave_objID, ComputeConstants.SlaveKey_WorkIsDone);
                                             job_obj.GetOrMake(ComputeConstants.SlaveKey_WorkIsDone);
+                                            slaves_obj.Rename(slave_objID, ComputeConstants.SlaveKey_WorkIsDone);
                                         }
 
                                         break;
 
                                     case ComputeConstants.SlaveKey_Stopped:
-                                        partitioner
-                                            .FailChunk(
-                                                    File,
-                                                    item,
-                                                    info_obj.ID,
-                                                    slave_objID
-                                                );
+                                        if (msg.Relation == ComputeConstants.SlaveKey_Working) {
+                                            partitioner
+                                               .FailChunk(
+                                                       File,
+                                                       item,
+                                                       info_obj.ID,
+                                                       slave_objID
+                                                   );
+                                        }
 
                                         break;
 

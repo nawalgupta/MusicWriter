@@ -61,7 +61,7 @@ namespace MusicWriter
             }
 
             if (start == end_samples)
-                return true;
+                return false;
             
             var end = Math.Min(start + SamplesPerPartition, end_samples);
             using (var writer = new BinaryWriter(jobinfo_obj.OpenWrite())) {
@@ -78,7 +78,7 @@ namespace MusicWriter
                 }
             }
 
-            return end == end_samples;
+            return true;
         }
 
         public void FailChunk(
@@ -88,7 +88,6 @@ namespace MusicWriter
                 StorageObjectID partition_objID
             ) {
             //TODO
-            throw new NotImplementedException();
         }
     }
 }
