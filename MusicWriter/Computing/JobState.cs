@@ -8,8 +8,9 @@ namespace MusicWriter
 {
     public enum JobState
     {
-        NotRunning,
+        NotStarted,
         Running,
         Paused,
+        Done,
     }
 }

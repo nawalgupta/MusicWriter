@@ -31,7 +31,7 @@ namespace MusicWriter
             get { return jobID; }
         }
 
-        public JobState State { get; private set; } = JobState.NotRunning;
+        public JobState State { get; private set; } = JobState.NotStarted;
 
         public float? Progress { get; set; } = null;
 
@@ -46,7 +46,7 @@ namespace MusicWriter
         }
 
         public async void Start() {
-            if (State != JobState.NotRunning)
+            if (State != JobState.NotStarted)
                 throw new InvalidOperationException();
 
             jobID =
@@ -62,12 +62,13 @@ namespace MusicWriter
 
             await coordinator.WaitForJobFinishAsync(jobID);
 
-            State = JobState.NotRunning;
+            State = JobState.Done;
             jobID = default(ComputeJobID);
         }
 
         public void Stop() {
-            if (State == JobState.NotRunning)
+            if (State == JobState.NotStarted ||
+                State == JobState.Done)
                 throw new InvalidOperationException();
 
             coordinator.StopJob(jobID);
@@ -92,7 +93,7 @@ namespace MusicWriter
         }
 
         public void Reset() {
-            if (State != JobState.NotRunning)
+            if (State != JobState.NotStarted)
                 Stop();
         }
     }

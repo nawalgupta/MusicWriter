@@ -141,12 +141,13 @@ namespace MusicWriter
         }
 
         public void StopRender() {
-            if (jobmanager.State != JobState.NotRunning)
+            if (jobmanager.State != JobState.Done &&
+                jobmanager.State != JobState.NotStarted)
                 jobmanager.Stop();
         }
 
         public void StartRender() {
-            if (jobmanager.State == JobState.NotRunning)
+            if (jobmanager.State != JobState.Done)
                 jobmanager.Start();
         }
 
