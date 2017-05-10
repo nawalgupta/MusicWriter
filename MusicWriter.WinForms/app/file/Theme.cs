@@ -221,5 +221,16 @@ namespace MusicWriter.WinForms
                             )
                 );
         }
+
+        public static void SerializeFloat(string file, float value) {
+            File.WriteAllText(file, value.ToString());
+        }
+
+        public static float? DeserializeFloat(string file) {
+            if (!File.Exists(file))
+                return null;
+
+            return float.Parse(file);
+        }
     }
 }

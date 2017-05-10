@@ -62,6 +62,7 @@ namespace MusicWriter.WinForms
         private void FunctionSourceEditorControl_Load(object sender, EventArgs e) {
             FunctionEditorThemelet.CodeFont.Set += CodeFont_Set;
             FunctionEditorThemelet.CodePaint.Set += CodePaint_Set;
+            FunctionEditorThemelet.SplitterFraction.Set += SplitterFraction_Set;
         }
 
         private void CodeFont_Set(Font value) {
@@ -71,6 +72,10 @@ namespace MusicWriter.WinForms
         private void CodePaint_Set(Theme.Paint value) {
             txtCode.BackColor = value.BackColor;
             txtCode.ForeColor = value.ForeColor;
+        }
+
+        private void SplitterFraction_Set(float value) {
+            spltContainer.SplitterDistance = (int)(spltContainer.Height * value);
         }
 
         private void mnuCodeFont_Click(object sender, EventArgs e) {
@@ -112,6 +117,10 @@ namespace MusicWriter.WinForms
         private void diagCodeFont_Apply(object sender, EventArgs e) {
             txtCode.Font = diagCodeFont.Font;
             txtCode.ForeColor = diagCodeFont.Color;
+        }
+
+        private void spltContainer_SplitterMoved(object sender, SplitterEventArgs e) {
+            FunctionEditorThemelet.SplitterFraction.Value = spltContainer.SplitterDistance / spltContainer.Height;
         }
     }
 }

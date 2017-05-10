@@ -26,7 +26,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.spltContainer = new System.Windows.Forms.SplitContainer();
             this.txtCode = new System.Windows.Forms.TextBox();
             this.mnuCode = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.mnuCodeCut = new System.Windows.Forms.ToolStripMenuItem();
@@ -42,25 +42,26 @@
             this.mnuCodeForeColor = new System.Windows.Forms.ToolStripMenuItem();
             this.diagCodeForeColor = new System.Windows.Forms.ColorDialog();
             this.diagCodeBackColor = new System.Windows.Forms.ColorDialog();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
-            this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.spltContainer)).BeginInit();
+            this.spltContainer.Panel1.SuspendLayout();
+            this.spltContainer.SuspendLayout();
             this.mnuCode.SuspendLayout();
             this.SuspendLayout();
             // 
-            // splitContainer1
+            // spltContainer
             // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Name = "splitContainer1";
-            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            this.spltContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.spltContainer.Location = new System.Drawing.Point(0, 0);
+            this.spltContainer.Name = "spltContainer";
+            this.spltContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
-            // splitContainer1.Panel1
+            // spltContainer.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.txtCode);
-            this.splitContainer1.Size = new System.Drawing.Size(552, 313);
-            this.splitContainer1.SplitterDistance = 156;
-            this.splitContainer1.TabIndex = 2;
+            this.spltContainer.Panel1.Controls.Add(this.txtCode);
+            this.spltContainer.Size = new System.Drawing.Size(552, 313);
+            this.spltContainer.SplitterDistance = 156;
+            this.spltContainer.TabIndex = 2;
+            this.spltContainer.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.spltContainer_SplitterMoved);
             // 
             // txtCode
             // 
@@ -168,21 +169,21 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.splitContainer1);
+            this.Controls.Add(this.spltContainer);
             this.Name = "FunctionSourceEditorControl";
             this.Size = new System.Drawing.Size(552, 313);
             this.Load += new System.EventHandler(this.FunctionSourceEditorControl_Load);
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-            this.splitContainer1.ResumeLayout(false);
+            this.spltContainer.Panel1.ResumeLayout(false);
+            this.spltContainer.Panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.spltContainer)).EndInit();
+            this.spltContainer.ResumeLayout(false);
             this.mnuCode.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.SplitContainer spltContainer;
         private System.Windows.Forms.TextBox txtCode;
         private System.Windows.Forms.ContextMenuStrip mnuCode;
         private System.Windows.Forms.ToolStripMenuItem mnuCodeCut;
