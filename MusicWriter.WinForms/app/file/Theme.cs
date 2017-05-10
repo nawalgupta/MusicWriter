@@ -230,7 +230,11 @@ namespace MusicWriter.WinForms
             if (!File.Exists(file))
                 return null;
 
-            return float.Parse(file);
+            float value;
+            if (!float.TryParse(file, out value))
+                return null;
+
+            return value;
         }
     }
 }
