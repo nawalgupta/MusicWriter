@@ -93,7 +93,8 @@ namespace MusicWriter
         }
 
         public void Reset() {
-            if (State != JobState.NotStarted)
+            if (State != JobState.NotStarted &&
+                State != JobState.Done)
                 Stop();
         }
     }
