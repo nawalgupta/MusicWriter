@@ -31,12 +31,27 @@ namespace MusicWriter
                 NewValue = newvalue;
             }
         }
-
+        
         public delegate void PropertyChangeHandler(T old, T @new);
         public delegate void PropertyChangingHandler(PropertyChangingEventArgs args);
+        public delegate void PropertySetHandler(T value);
 
         public event PropertyChangingHandler BeforeChange;
         public event PropertyChangeHandler AfterChange;
+        public event PropertySetHandler Set {
+            add {
+                if (set_handlers == null)
+                    set_handlers = new List<PropertySetHandler>();
+
+                set_handlers.Add(value);
+                if (this.value != null)
+                    value(this.value);
+            }
+            remove {
+                set_handlers.Remove(value);
+            }
+        }
+        List<PropertySetHandler> set_handlers = null;
 
         public ObservableProperty() {
         }
@@ -77,8 +92,15 @@ namespace MusicWriter
 
                     this.value = value;
 
-                    if (changedstate == 1)
+                    if (changedstate == 1) {
                         AfterChange?.Invoke(old, value);
+
+                        if (set_handlers != null &&
+                            value != null) {
+                            foreach (var handler in set_handlers)
+                                handler(value);
+                        }
+                    }
                     else {
                         //throw new InvalidOperationException();
                         // the value was changed while it was changing
