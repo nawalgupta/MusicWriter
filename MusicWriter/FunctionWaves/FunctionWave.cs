@@ -11,14 +11,14 @@ namespace MusicWriter
     public sealed class FunctionWave : BoundObject<FunctionWave> {
         public const string ItemName = "musicwriter.function-waves.object";
 
-        public ObservableProperty<float> SampleRate { get; } =
-            new ObservableProperty<float>(44100);
+        public ObservableProperty<double> SampleRate { get; } =
+            new ObservableProperty<double>(44100);
         public ObservableProperty<int> BitsPerSample { get; } =
             new ObservableProperty<int>(32);
-        public ObservableProperty<float> Start { get; } =
-            new ObservableProperty<float>();
-        public ObservableProperty<float> Length { get; } =
-            new ObservableProperty<float>();
+        public ObservableProperty<double> Start { get; } =
+            new ObservableProperty<double>();
+        public ObservableProperty<double> Length { get; } =
+            new ObservableProperty<double>();
 
         public ObservableProperty<FunctionSource> FunctionSource { get; } =
             new ObservableProperty<FunctionSource>();
@@ -164,7 +164,7 @@ namespace MusicWriter
             oldhash.Value = @new.GetHashCode();
         }
 
-        private void SampleRate_AfterChange(float old, float @new) {
+        private void SampleRate_AfterChange(double old, double @new) {
             Serialize();
         }
 
@@ -172,11 +172,11 @@ namespace MusicWriter
             Serialize();
         }
 
-        private void Start_AfterChange(float old, float @new) {
+        private void Start_AfterChange(double old, double @new) {
             Serialize();
         }
 
-        private void Length_AfterChange(float old, float @new) {
+        private void Length_AfterChange(double old, double @new) {
             Serialize();
         }
 

@@ -63,6 +63,7 @@
     <Compile Include="FunctionEditor\DebugVerb.cs" />
     <Compile Include="Computing\IComputeSlave.cs" />
     <Compile Include="Computing\IComputeCoordinator.cs" />
+    <Compile Include="Functions\MusicTrackFunction.cs" />
     <Compile Include="Functions\SawFunction.cs" />
     <Compile Include="Functions\TimeScalingFunction.cs" />
     <Compile Include="FunctionWaves\FunctionWaveComputePartitioner.cs" />

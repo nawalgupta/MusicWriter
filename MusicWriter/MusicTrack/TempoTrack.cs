@@ -27,6 +27,10 @@ namespace MusicWriter
                 ) {
             obj = this.Object();
 
+            //NOTE: The note-length polyline means a polyline that represents the
+            // number of notes per second on the Y-axis and song time on the X-axis.
+            // This means that the integral of this graph up to some song time repre-
+            // sents the total real time (seconds) in the song.
             notelengthdata = 
                 new PolylineData(
                         obj.GetOrMake("note-length"),
@@ -47,34 +51,46 @@ namespace MusicWriter
             base.Unbind();
         }
 
-        public Time GetTime(double seconds, Time tracklength) {
-            // binary search
-            //TODO: as well as Integrate(this IFunction), make Invert(this IFunction)
-            // with a native interface for invertible functions. Use this to make the
-            // PolyLine function integratable and its integration invertible.
-            // Reciprocate the tempo, integrate that, then invert that so you can plug
-            // and chug time (sec) for x and get time (notes) as y.
-            var precision = 1.0 / (128 * 3 * 5 * 7);
-            double pointer = tracklength.Notes / 2;
-            double pointer_size = tracklength.Notes / 4;
+        public double GetRealTime(Time time) =>
+            notelengthdata.GetIntegratedValue(time.Notes);
 
-            double integral, integral_discrepency;
+        public Time GetSongTime(double seconds) {
+            double notes;
 
-            do {
-                integral = notelengthdata.GetIntegratedValue(pointer);
-                integral_discrepency = seconds - integral;
+            if (!notelengthdata.GetInvertedIntegratedValue(seconds, out notes))
+                throw new ArgumentOutOfRangeException();
 
-                if (integral_discrepency > precision)
-                    pointer += pointer_size;
-                else if (integral_discrepency < -precision)
-                    pointer -= pointer_size;
-                else break;
-
-                pointer_size /= 2;
-            } while (true);
-
-            return Time.FromNotes(pointer);
+            return Time.FromNotes(notes);
         }
+
+        //public Time GetSongTime(double seconds, Time tracklength) {
+        //    // binary search
+        //    //TODO: as well as Integrate(this IFunction), make Invert(this IFunction)
+        //    // with a native interface for invertible functions. Use this to make the
+        //    // PolyLine function integratable and its integration invertible.
+        //    // Reciprocate the tempo, integrate that, then invert that so you can plug
+        //    // and chug time (sec) for x and get time (notes) as y.
+        //    var precision = 1.0 / (128 * 3 * 5 * 7);
+        //    double pointer = tracklength.Notes / 2;
+        //    double pointer_size = tracklength.Notes / 4;
+
+        //    double integral, integral_discrepency;
+
+        //    do {
+        //        integral = notelengthdata.GetIntegratedValue(pointer);
+        //        integral_discrepency = seconds - integral;
+
+        //        if (integral_discrepency > precision)
+        //            pointer += pointer_size;
+        //        else if (integral_discrepency < -precision)
+        //            pointer -= pointer_size;
+        //        else break;
+
+        //        pointer_size /= 2;
+        //    } while (true);
+
+        //    return Time.FromNotes(pointer);
+        //}
 
         public void SetTempo(Time time, double notes_per_minute) {
             notelengthdata.AddConstant(time.Notes, 60.0 / notes_per_minute);

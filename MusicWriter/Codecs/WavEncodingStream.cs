@@ -14,7 +14,7 @@ namespace MusicWriter
         readonly byte[] header;
         const int HEADER_SIZE = 44;
 
-        readonly float totallength;
+        readonly double totallength;
         readonly int bitspersample;
         readonly int bytespersample;
         readonly int numchannels;

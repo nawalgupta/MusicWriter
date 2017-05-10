@@ -15,8 +15,8 @@ namespace MusicWriter {
             get { return ticks; }
         }
         
-        public float Notes {
-            get { return (float)ticks / TicksPerNote; }
+        public double Notes {
+            get { return (double)ticks / TicksPerNote; }
             set { ticks = (int)(value * TicksPerNote); }
         }
 

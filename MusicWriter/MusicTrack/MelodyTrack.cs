@@ -150,6 +150,14 @@ namespace MusicWriter {
                             notes_lookup[noteID_item.Value]
                     );
 
+        public IEnumerable<Note> NotesInTime(Time time) =>
+            notes_field
+                .Intersecting(time)
+                .Select(
+                        noteID_item =>
+                            notes_lookup[noteID_item.Value]
+                    );
+
         public IEnumerable<Note> AllNotes() =>
             notes_lookup.Values;
         
