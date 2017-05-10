@@ -60,6 +60,7 @@
     <Compile Include="containers\FunctionEditor\FunctionEditorScreenView.Viewer.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="containers\FunctionEditor\FunctionEditorThemelet.cs" />
     <Compile Include="containers\FunctionEditor\FunctionSourceEditorControl.cs">
       <SubType>UserControl</SubType>
     </Compile>

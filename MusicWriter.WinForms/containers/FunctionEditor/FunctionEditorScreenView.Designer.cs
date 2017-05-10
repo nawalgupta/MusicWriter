@@ -44,6 +44,8 @@
             this.mnuPlayRepeat = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuPlayPlay = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuPlayStop = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.mnuPlaySave = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.lsvFunctionSources = new System.Windows.Forms.ListView();
@@ -56,8 +58,6 @@
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.btnPlay = new System.Windows.Forms.Button();
             this.tabFunctionSources = new System.Windows.Forms.TabControl();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuPlaySave = new System.Windows.Forms.ToolStripMenuItem();
             this.diagSaveWave = new System.Windows.Forms.SaveFileDialog();
             mnuPlaySeparator1 = new System.Windows.Forms.ToolStripSeparator();
             panel1 = new System.Windows.Forms.Panel();
@@ -80,7 +80,7 @@
             // mnuPlaySeparator1
             // 
             mnuPlaySeparator1.Name = "mnuPlaySeparator1";
-            mnuPlaySeparator1.Size = new System.Drawing.Size(149, 6);
+            mnuPlaySeparator1.Size = new System.Drawing.Size(108, 6);
             // 
             // panel1
             // 
@@ -185,49 +185,61 @@
             this.toolStripMenuItem1,
             this.mnuPlaySave});
             this.mnuPlay.Name = "mnuPlay";
-            this.mnuPlay.Size = new System.Drawing.Size(153, 214);
+            this.mnuPlay.Size = new System.Drawing.Size(112, 192);
             // 
             // mnuPlayTone
             // 
             this.mnuPlayTone.Name = "mnuPlayTone";
-            this.mnuPlayTone.Size = new System.Drawing.Size(152, 22);
+            this.mnuPlayTone.Size = new System.Drawing.Size(111, 22);
             this.mnuPlayTone.Text = "&Tone";
             // 
             // mnuPlayLength
             // 
             this.mnuPlayLength.Name = "mnuPlayLength";
-            this.mnuPlayLength.Size = new System.Drawing.Size(152, 22);
+            this.mnuPlayLength.Size = new System.Drawing.Size(111, 22);
             this.mnuPlayLength.Text = "&Length";
             // 
             // mnuPlayTempo
             // 
             this.mnuPlayTempo.Name = "mnuPlayTempo";
-            this.mnuPlayTempo.Size = new System.Drawing.Size(152, 22);
+            this.mnuPlayTempo.Size = new System.Drawing.Size(111, 22);
             this.mnuPlayTempo.Text = "Te&mpo";
             // 
             // mnuPlayVerb
             // 
             this.mnuPlayVerb.Name = "mnuPlayVerb";
-            this.mnuPlayVerb.Size = new System.Drawing.Size(152, 22);
+            this.mnuPlayVerb.Size = new System.Drawing.Size(111, 22);
             this.mnuPlayVerb.Text = "&Verb";
             // 
             // mnuPlayRepeat
             // 
             this.mnuPlayRepeat.Name = "mnuPlayRepeat";
-            this.mnuPlayRepeat.Size = new System.Drawing.Size(152, 22);
+            this.mnuPlayRepeat.Size = new System.Drawing.Size(111, 22);
             this.mnuPlayRepeat.Text = "&Repeat";
             // 
             // mnuPlayPlay
             // 
             this.mnuPlayPlay.Name = "mnuPlayPlay";
-            this.mnuPlayPlay.Size = new System.Drawing.Size(152, 22);
+            this.mnuPlayPlay.Size = new System.Drawing.Size(111, 22);
             this.mnuPlayPlay.Text = "&Play";
             // 
             // mnuPlayStop
             // 
             this.mnuPlayStop.Name = "mnuPlayStop";
-            this.mnuPlayStop.Size = new System.Drawing.Size(152, 22);
+            this.mnuPlayStop.Size = new System.Drawing.Size(111, 22);
             this.mnuPlayStop.Text = "S&top";
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(108, 6);
+            // 
+            // mnuPlaySave
+            // 
+            this.mnuPlaySave.Name = "mnuPlaySave";
+            this.mnuPlaySave.Size = new System.Drawing.Size(111, 22);
+            this.mnuPlaySave.Text = "&Save...";
+            this.mnuPlaySave.Click += new System.EventHandler(this.mnuPlaySave_Click);
             // 
             // splitContainer1
             // 
@@ -366,18 +378,6 @@
             this.tabFunctionSources.TabIndex = 2;
             this.tabFunctionSources.SelectedIndexChanged += new System.EventHandler(this.tabFunctionSources_SelectedIndexChanged);
             this.tabFunctionSources.ControlAdded += new System.Windows.Forms.ControlEventHandler(this.tabFunctionSources_ControlAdded);
-            // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(149, 6);
-            // 
-            // mnuPlaySave
-            // 
-            this.mnuPlaySave.Name = "mnuPlaySave";
-            this.mnuPlaySave.Size = new System.Drawing.Size(152, 22);
-            this.mnuPlaySave.Text = "&Save...";
-            this.mnuPlaySave.Click += new System.EventHandler(this.mnuPlaySave_Click);
             // 
             // diagSaveWave
             // 

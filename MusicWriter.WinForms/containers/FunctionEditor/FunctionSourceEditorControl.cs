@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MusicWriter.WinForms.Properties;
 
 namespace MusicWriter.WinForms
 {
@@ -52,6 +53,65 @@ namespace MusicWriter.WinForms
             source.Function.Value = obj;
 
             HasErrors.Value = false;
+        }
+
+        private void txtCode_TextChanged(object sender, EventArgs e) {
+
+        }
+
+        private void FunctionSourceEditorControl_Load(object sender, EventArgs e) {
+            FunctionEditorThemelet.CodeFont.Set += CodeFont_Set;
+            FunctionEditorThemelet.CodePaint.Set += CodePaint_Set;
+        }
+
+        private void CodeFont_Set(Font value) {
+            txtCode.Font = value;
+        }
+
+        private void CodePaint_Set(Theme.Paint value) {
+            txtCode.BackColor = value.BackColor;
+            txtCode.ForeColor = value.ForeColor;
+        }
+
+        private void mnuCodeFont_Click(object sender, EventArgs e) {
+            diagCodeFont.Font = FunctionEditorThemelet.CodeFont.Value;
+            diagCodeFont.Color = FunctionEditorThemelet.CodePaint.Value.ForeColor;
+
+            if (diagCodeFont.ShowDialog(this) == DialogResult.OK) {
+                FunctionEditorThemelet.CodeFont.Value = diagCodeFont.Font;
+
+                if (diagCodeFont.Color != FunctionEditorThemelet.CodePaint.Value.ForeColor)
+                    FunctionEditorThemelet.CodePaint.Value =
+                        new Theme.Paint(
+                                diagCodeFont.Color,
+                                FunctionEditorThemelet.CodePaint.Value.BackColor
+                            );
+            }
+        }
+
+        private void mnuCodeForeColor_Click(object sender, EventArgs e) {
+            diagCodeForeColor.Color = FunctionEditorThemelet.CodePaint.Value.ForeColor;
+            if (diagCodeForeColor.ShowDialog(this) == DialogResult.OK)
+                FunctionEditorThemelet.CodePaint.Value =
+                    new Theme.Paint(
+                            diagCodeForeColor.Color,
+                            FunctionEditorThemelet.CodePaint.Value.BackColor
+                        );
+        }
+
+        private void mnuCodeBackColor_Click(object sender, EventArgs e) {
+            diagCodeBackColor.Color = FunctionEditorThemelet.CodePaint.Value.BackColor;
+            if (diagCodeBackColor.ShowDialog(this) == DialogResult.OK)
+                FunctionEditorThemelet.CodePaint.Value =
+                    new Theme.Paint(
+                            FunctionEditorThemelet.CodePaint.Value.ForeColor,
+                            diagCodeBackColor.Color
+                        );
+        }
+
+        private void diagCodeFont_Apply(object sender, EventArgs e) {
+            txtCode.Font = diagCodeFont.Font;
+            txtCode.ForeColor = diagCodeFont.Color;
         }
     }
 }
