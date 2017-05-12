@@ -76,7 +76,7 @@ namespace MusicWriter
                                 //job.Run();
 
                                 await waithandle.WaitForFinishAsync();
-
+                                await Task.Delay(100); // messy but I think it works
                                 jobs_waithandles.Remove(job.JobID);
                             }
                         );

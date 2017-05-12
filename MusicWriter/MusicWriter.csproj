@@ -54,6 +54,7 @@
     <Compile Include="Computing\MasterComputeCoordinater.cs" />
     <Compile Include="Computing\ComputeJob.cs" />
     <Compile Include="CS\BackgroundWorker.cs" />
+    <Compile Include="CS\CustomLock.cs" />
     <Compile Include="CS\DistributedMutex.cs" />
     <Compile Include="CS\IndexCorrectionBehavoir.cs" />
     <Compile Include="CS\Selector.cs" />

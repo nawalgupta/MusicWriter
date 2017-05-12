@@ -65,29 +65,35 @@ namespace MusicWriter
                                     )
                         );
 
+                //TODO: when it crashes, I wonder how the indicies_listeners werer computed.
                 indicies_listeners = lookup_subject_this.Key.AllOnes(lookup_verb_this.Key).ToArray();
-                
+                var listeners = indicies_listeners.Select(index => Listeners[index]).ToArray();
+
+                if (indicies_listeners.Contains(77)) {
+                    Console.WriteLine();
+                }
+
                 foreach (var subject in lookup_subject)
                     subject.Value.Value.Insert(i, subject.Key == msg.Subject);
 
                 foreach (var verb in lookup_verb)
                     verb.Value.Value.Insert(i, verb.Key == msg.Verb);
-            }
 
-            for (int j = 0; j < indicies_listeners.Length; j++) {
-                var listener =
-                    Listeners[indicies_listeners[j]];
+                for (int j = 0; j < listeners.Length; j++) {
+                    var listener =
+                        listeners[j];
 
-                if (listener.Filter.Relation != msg.Relation && listener.Filter.Relation != null)
-                    continue;
+                    if (listener.Filter.Relation != msg.Relation && listener.Filter.Relation != null)
+                        continue;
 
-                if (listener.Filter.NewRelation != msg.NewRelation && listener.Filter.NewRelation != null)
-                    continue;
+                    if (listener.Filter.NewRelation != msg.NewRelation && listener.Filter.NewRelation != null)
+                        continue;
 
-                if (listener.Filter.Object != msg.Object && listener.Filter.Object != default(StorageObjectID))
-                    continue;
+                    if (listener.Filter.Object != msg.Object && listener.Filter.Object != default(StorageObjectID))
+                        continue;
 
-                listener.Responder(msg);
+                    listener.Responder(msg);
+                }
             }
         }
 
@@ -132,21 +138,21 @@ namespace MusicWriter
                     verb.Value.Key.Insert(i, verb.Key == listener.Filter.Verb);
 
                 indicies_msg = lookup_subject_this.Value.AllOnes(lookup_verb_this.Value).ToArray();
-            }
-            
-            for (int j = 0; j < indicies_msg.Length; j++) {
-                var msg = Messages[indicies_msg[j]];
-                
-                if (listener.Filter.Relation != msg.Relation && listener.Filter.Relation != null)
-                    continue;
 
-                if (listener.Filter.NewRelation != msg.NewRelation && listener.Filter.NewRelation != null)
-                    continue;
+                for (int j = 0; j < indicies_msg.Length; j++) {
+                    var msg = Messages[indicies_msg[j]];
 
-                if (listener.Filter.Object != msg.Object && listener.Filter.Object != default(StorageObjectID))
-                    continue;
+                    if (listener.Filter.Relation != msg.Relation && listener.Filter.Relation != null)
+                        continue;
 
-                listener.Responder(msg);
+                    if (listener.Filter.NewRelation != msg.NewRelation && listener.Filter.NewRelation != null)
+                        continue;
+
+                    if (listener.Filter.Object != msg.Object && listener.Filter.Object != default(StorageObjectID))
+                        continue;
+
+                    listener.Responder(msg);
+                }
             }
         }
 
