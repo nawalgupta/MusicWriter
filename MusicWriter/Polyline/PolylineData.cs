@@ -49,8 +49,8 @@ namespace MusicWriter
                 ) {
             this.storage = storage;
             
-            if (storage.IsEmpty)
-                Add(0f, constant);
+            //if (storage.IsEmpty)
+            //    Add(0f, constant);
 
             listener_add =
                 storage.CreateListen(IOEvent.ChildAdded, (key, pt_objID) => {
@@ -66,7 +66,8 @@ namespace MusicWriter
                         var t0 = double.Parse(msg.Relation);
                         var t1 = double.Parse(msg.NewRelation);
 
-                        MoveX_ram(t0, t1);
+                        if (t0 != t1)
+                            MoveX_ram(t0, t1);
                     },
                     storage.ID,
                     IOEvent.ChildRekeyed
