@@ -72,5 +72,13 @@ namespace MusicWriter
                             Thread.Sleep(20);
                     }
                 );
+
+        public void Pause() {
+            throw new NotImplementedException();
+        }
+
+        public void Resume() {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -18,6 +18,7 @@ namespace MusicWriter
         readonly IStorageObject obj;
         readonly IStorageObject unallocatedjobs_obj;
         readonly IStorageObject allocatedjobs_obj;
+        readonly IStorageObject random_obj;
 
         readonly Dictionary<ComputeJobID, IOListener>
             jobs_listener_slaves_add = new Dictionary<ComputeJobID, IOListener>(),
@@ -54,6 +55,7 @@ namespace MusicWriter
             obj = file.Storage[storageobjectID];
             unallocatedjobs_obj = obj.GetOrMake("unallocated");
             allocatedjobs_obj = obj.GetOrMake("allocated");
+            random_obj = obj.GetOrMake("random");
 
             listener_jobqueued =
                 unallocatedjobs_obj
@@ -76,7 +78,7 @@ namespace MusicWriter
                                     job_container_obj.ReadAllString();
 
                                 var jobID =
-                                    StartJob(
+                                    SetupJob(
                                             container,
                                             job_item_obj.ID
                                         );
@@ -134,7 +136,7 @@ namespace MusicWriter
             return allocatedjobs_obj[jobID.ToString()];
         }
 
-        public ComputeJobID StartJob(
+        public ComputeJobID SetupJob(
                 string container,
                 StorageObjectID item
             ) {
@@ -270,7 +272,7 @@ namespace MusicWriter
                             slaves_obj.ID,
                             IOEvent.ChildRekeyed
                         );
-
+            
             File.Storage.Listeners.Add(listener_slaves_add);
             File.Storage.Listeners.Add(listener_slaves_remove);
             File.Storage.Listeners.Add(listener_slaves_keyed);
@@ -279,6 +281,9 @@ namespace MusicWriter
             jobs_listener_slaves_remove.Add(jobID, listener_slaves_remove);
             jobs_listener_slaves_keyed.Add(jobID, listener_slaves_keyed);
 
+            //TODO: have this statement execute after the job ID is marked for
+            // the unallocated job listings to see; otherwise, the job may be 
+            // done and deleted before it's handled.
             allocatedjobs_obj.Add(jobID.ToString(), job_obj.ID);
 
             return jobID;
@@ -301,6 +306,15 @@ namespace MusicWriter
 
         public Task WaitForJobFinishAsync(ComputeJobID jobID) =>
             jobs_waithandles[jobID].WaitForFinishAsync();
+
+        public bool IsJobRunning(ComputeJobID jobID) =>
+            File.Storage[GetJobObjID(jobID)].HasChild(ComputeConstants.SlaveKey_Working);
+
+        public void StartJob(ComputeJobID jobID) =>
+            File.Storage[GetJobObjID(jobID)].Add(ComputeConstants.SlaveKey_Working, random_obj.ID);
+
+        public void PauseJob(ComputeJobID jobID) =>
+            File.Storage[GetJobObjID(jobID)].Remove(ComputeConstants.SlaveKey_Working);
 
         public static IFactory<IComputeCoordinator> FactoryInstance { get; } =
             new CtorFactory<IComputeCoordinator, MasterComputeCoordinator>(

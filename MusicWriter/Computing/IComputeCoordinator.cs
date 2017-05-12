@@ -12,10 +12,16 @@ namespace MusicWriter
 
         IComputeSlave GetSlaveFor(string container);
 
-        ComputeJobID StartJob(
+        ComputeJobID SetupJob(
                 string container,
                 StorageObjectID item
             );
+
+        bool IsJobRunning(ComputeJobID jobID);
+
+        void StartJob(ComputeJobID jobID);
+
+        void PauseJob(ComputeJobID jobID);
 
         void StopJob(ComputeJobID jobID);
 

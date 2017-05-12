@@ -14,7 +14,8 @@ namespace MusicWriter
         IStorageObject
             obj,
             unallocated_obj,
-            allocated_obj;
+            allocated_obj,
+            random_obj;
 
         IOListener
             listener_allocatedjobs_added,
@@ -48,6 +49,7 @@ namespace MusicWriter
 
             unallocated_obj = obj.GetOrMake("unallocated");
             allocated_obj = obj.GetOrMake("allocated");
+            random_obj = obj.GetOrMake("random");
 
             listener_allocatedjobs_added =
                 allocated_obj
@@ -71,7 +73,7 @@ namespace MusicWriter
                                 jobID_item_lookup.Add(job.WorkItemStorageObjectID, job.JobID);
                                 jobID_allocated_waithandle[job.WorkItemStorageObjectID].Stop();
 
-                                job.Start();
+                                //job.Run();
 
                                 await waithandle.WaitForFinishAsync();
 
@@ -124,7 +126,7 @@ namespace MusicWriter
             slaves_map.Add(slave.Container, slave);
         }
 
-        public ComputeJobID StartJob(
+        public ComputeJobID SetupJob(
                 string container,
                 StorageObjectID item
             ) {
@@ -162,7 +164,20 @@ namespace MusicWriter
         public IComputeSlave GetSlaveFor(string container) =>
             slaves_map[container];
 
+        StorageObjectID GetJobObjID(ComputeJobID jobID) {
+            return allocated_obj[jobID.ToString()];
+        }
+
         public Task WaitForJobFinishAsync(ComputeJobID jobID) =>
             jobs_waithandles[jobID].WaitForFinishAsync();
+
+        public bool IsJobRunning(ComputeJobID jobID) =>
+            File.Storage[GetJobObjID(jobID)].HasChild(ComputeConstants.SlaveKey_Working);
+
+        public void StartJob(ComputeJobID jobID) =>
+            File.Storage[GetJobObjID(jobID)].Add(ComputeConstants.SlaveKey_Working, random_obj.ID);
+
+        public void PauseJob(ComputeJobID jobID) =>
+            File.Storage[GetJobObjID(jobID)].Remove(ComputeConstants.SlaveKey_Working);
     }
 }

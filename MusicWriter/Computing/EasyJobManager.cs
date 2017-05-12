@@ -51,12 +51,14 @@ namespace MusicWriter
 
             jobID =
                 coordinator
-                    .StartJob(
+                    .SetupJob(
                             container,
                             property
                                 .Value
                                 .StorageObjectID
                         );
+
+            coordinator.StartJob(jobID);
 
             State = JobState.Running;
 
