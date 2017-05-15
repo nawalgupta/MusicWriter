@@ -19,7 +19,7 @@ namespace MusicWriter
             ) {
             uint start, end;
             uint index;
-            float samples_per_unit;
+            double samples_per_unit;
             int bits_per_sample;
 
             using (var reader = new BinaryReader(job.File.Storage[partition_objID].OpenRead())) {
@@ -32,7 +32,7 @@ namespace MusicWriter
                 job.File.Storage[job.WorkItemStorageObjectID];
 
             using (var reader = new BinaryReader(wave_obj.OpenRead())) {
-                samples_per_unit = reader.ReadSingle();
+                samples_per_unit = reader.ReadDouble();
                 bits_per_sample = reader.ReadInt32();
             }
 

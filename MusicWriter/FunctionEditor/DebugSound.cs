@@ -93,9 +93,6 @@ namespace MusicWriter
         }
 
         public override void Bind() {
-            FunctionSource.AfterChange += FunctionSource_AfterChange;
-            RenderedWave.AfterChange += RenderedWave_AfterChange;
-            RenderedWave.Value.Dirtied += RenderedWave_Dirtied;
             binder_semitone.Bind();
             binder_length.Bind();
             binder_mode.Bind();
@@ -105,8 +102,8 @@ namespace MusicWriter
             binder_renderingstrategy.Bind();
             binder_renderedwave.Bind();
             binder_functionsource.Bind();
-
-            Recalc_Length();
+            FunctionSource.AfterChange += FunctionSource_AfterChange;
+            RenderedWave.Set += RenderedWave_Set;
 
             base.Bind();
         }
@@ -117,7 +114,7 @@ namespace MusicWriter
 
         public override void Unbind() {
             FunctionSource.AfterChange -= FunctionSource_AfterChange;
-            RenderedWave.AfterChange -= RenderedWave_AfterChange;
+            RenderedWave.Set -= RenderedWave_Set;
             binder_semitone.Unbind();
             binder_length.Unbind();
             binder_mode.Unbind();
@@ -131,9 +128,11 @@ namespace MusicWriter
             base.Unbind();
         }
 
-        private void RenderedWave_AfterChange(FunctionWave old, FunctionWave @new) {
+        private void RenderedWave_Set(FunctionWave value) {
             RenderedWave.Value.FunctionSource.Value = FunctionSource.Value;
             RenderedWave.Value.Dirtied += RenderedWave_Dirtied;
+
+            Recalc_Length();
         }
 
         private void FunctionSource_AfterChange(FunctionSource old, FunctionSource @new) {

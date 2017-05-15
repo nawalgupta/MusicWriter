@@ -203,10 +203,10 @@ namespace MusicWriter
 
         void Deserialize() {
             using (var reader = new BinaryReader(obj.OpenRead())) {
-                SampleRate.Value = reader.ReadSingle();
+                SampleRate.Value = reader.ReadDouble();
                 BitsPerSample.Value = reader.ReadInt32();
-                Start.Value = reader.ReadSingle();
-                Length.Value = reader.ReadSingle();
+                Start.Value = reader.ReadDouble();
+                Length.Value = reader.ReadDouble();
             }
 
             totalsamples = TotalSamples;
