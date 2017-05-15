@@ -63,10 +63,9 @@ namespace MusicWriter
 
                     if (value > +1)
                         value = +1;
-
-                    //TODO: is this a common improper floating-point handling technique?
+                    
                     var clamped =
-                        (value + 1) / 2;
+                        value + 1;
 
                     switch (bits_per_sample) {
                         case 8:
