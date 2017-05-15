@@ -98,6 +98,7 @@ namespace MusicWriter
             if (State != JobState.NotStarted &&
                 State != JobState.Done)
                 Stop();
+            else State = JobState.NotStarted;
         }
     }
 }
