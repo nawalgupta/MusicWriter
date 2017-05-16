@@ -8,9 +8,6 @@ namespace MusicWriter
 {
     public interface IJobManager
     {
-        IComputeCoordinator Coordinator { get; }
-
-        ComputeJobID JobID { get; }
         JobState State { get; }
         float? Progress { get; }
 

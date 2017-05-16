@@ -44,6 +44,7 @@
     <Compile Include="Codecs\WavEncodingStream.cs" />
     <Compile Include="Cogs\EditableMemoryModule.cs" />
     <Compile Include="Cogs\IgnorantMemoryModule.cs" />
+    <Compile Include="Computing\CompositeJobManager.cs" />
     <Compile Include="Computing\ComputeConstants.cs" />
     <Compile Include="Computing\ComputeContainer.cs" />
     <Compile Include="Computing\EasyJobManager.cs" />
@@ -89,6 +90,10 @@
     <Compile Include="File\IContainer.cs" />
     <Compile Include="Binding\IFactory.cs" />
     <Compile Include="Computing\ComputeJobID.cs" />
+    <Compile Include="Songs\Song.cs" />
+    <Compile Include="Songs\SongChannel.cs" />
+    <Compile Include="Songs\SongContainer.cs" />
+    <Compile Include="Songs\SongScreen.cs" />
     <Compile Include="Utils\ObviousExtensions.cs" />
     <Compile Include="Viewing\IViewer.cs" />
     <Compile Include="Screens\Screen.cs" />
