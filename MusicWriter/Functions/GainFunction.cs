@@ -6,20 +6,21 @@ using System.Threading.Tasks;
 
 namespace MusicWriter
 {
-    public sealed class FactorFunction : 
+    public sealed class GainFunction : 
         IFunction,
         IContextualFunction,
         IParamaterizedFunction
     {
         readonly IFunction context;
         readonly double factor;
+        readonly double gain;
 
         public IFunctionFactory Factory {
             get { return FactoryClass.Instance; }
         }
 
         public double[] Arguments {
-            get { return new double[] { factor }; }
+            get { return new double[] { gain     }; }
         }
 
         public IFunction Context {
@@ -30,6 +31,10 @@ namespace MusicWriter
             get { return factor; }
         }
 
+        public double Gain {
+            get { return gain; }
+        }
+
         public sealed class FactoryClass : IFunctionFactory
         {
             public bool AcceptsParameters {
@@ -37,11 +42,11 @@ namespace MusicWriter
             }
 
             public string CodeName {
-                get { return "factor"; }
+                get { return "gain"; }
             }
 
             public string FriendlyName {
-                get { return "Factor multiplying function"; }
+                get { return "Decibel gain"; }
             }
 
             public bool StoresBinaryData {
@@ -55,7 +60,7 @@ namespace MusicWriter
                     string key = null,
                     params double[] numbers
                 ) =>
-                new FactorFunction(
+                new GainFunction(
                         context,
                         numbers.Length == 1 ?
                             numbers[0] :
@@ -66,12 +71,14 @@ namespace MusicWriter
                 new FactoryClass();
         }
 
-        public FactorFunction(
+        public GainFunction(
                 IFunction context,
-                double factor
+                double gain
             ) {
             this.context = context;
-            this.factor = factor;
+            this.gain = gain;
+
+            factor = Math.Pow(10, gain / 10.0);
         }
 
         public double GetValue(FunctionCall arg) =>

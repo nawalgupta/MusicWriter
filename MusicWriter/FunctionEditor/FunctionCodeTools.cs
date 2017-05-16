@@ -40,7 +40,7 @@ namespace MusicWriter
                     var inner_args_length = source.IndexOfAny(")".ToCharArray());
                     if (inner_args_length == -1) break;
                     var inner_args = source.Substring(1, inner_args_length - 1);
-                    source = source.Substring(inner_args.Length + 1).TrimStart(); // removes the trailing parenthesi too
+                    source = source.Substring(inner_args.Length + 1).TrimStart().Substring(1).TrimStart(); // removes the trailing parenthesi too
 
                     inner_args.Trim();
 
